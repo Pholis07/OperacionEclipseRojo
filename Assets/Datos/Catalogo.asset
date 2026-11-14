@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ca5ace2a547184618f04f48b15ee65e, type: 3}
+  m_Name: Catalogo
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.CatalogoDatos
+  mision: {fileID: 11400000, guid: 8742a07b1d167074d8bdd2392e72b25f, type: 2}
+  orbitas:
+  - {fileID: 11400000, guid: 3b908aa35dbfed93e8b84fecb407e5d5, type: 2}
+  - {fileID: 11400000, guid: 748efd333f7162bda8765650fcd52aba, type: 2}
+  - {fileID: 11400000, guid: 294b37e40c74e02279525c5ee08038db, type: 2}
+  lanzadores:
+  - {fileID: 11400000, guid: 7044842f80d7cc1f5b31307183399ca9, type: 2}
+  - {fileID: 11400000, guid: cfd1e8889d0ff06e7b7b1d43024bccb4, type: 2}
+  instrumentos:
+  - {fileID: 11400000, guid: 818bf3e1725999ccdb34397d69fdff72, type: 2}
+  - {fileID: 11400000, guid: 47f6228425cf858fd81b77bf29d12612, type: 2}
+  - {fileID: 11400000, guid: aa2e34d4f928944bbbc47b08b14ae66d, type: 2}
+  - {fileID: 11400000, guid: a73b7aecd7a1e8ede8d988788bc22d11, type: 2}
+  - {fileID: 11400000, guid: a77dd43d317bf3b3881dff7361268ccf, type: 2}
+  transmisiones: []
