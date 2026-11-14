@@ -37,3 +37,11 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Redactó los mensajes del semáforo (Gris, Rojo, Amarillo con «fracaso seguro», Verde), con las palabras de las evidencias. Pendientes de revisión del equipo.
 - Movió la línea de registro `[Misión]` al Evaluador, que ya conoce el semáforo final y el resultado.
 - Las 72 pruebas pasaron en el primer intento.
+
+## Fase 5: menú y Briefing
+
+- Escribió `MenuUI`, `MisionUI` y `TextosBriefing`. Los requisitos del Briefing se copiaron del diseño (decisión 13) y los límites se leen del catálogo.
+- Escribió `Assets/Editor/ConstructorEscenas.cs`, que arma la interfaz de las escenas por código (menú Herramientas > Construir escenas). Eligió la paleta (fondo oscuro, acento rojo marciano) a partir de las recomendaciones de la skill ui-ux-pro-max.
+- Redactó los textos de «Cómo jugar», la explicación de los colores del semáforo y las etiquetas de la pantalla. Pendientes de revisión del equipo.
+- Importó los recursos esenciales de TextMeshPro, que traen la fuente Liberation Sans (licencia SIL Open Font License).
+- Escribió 6 pruebas de interfaz (la parte automática de PM1 e integridad de las escenas). Una prueba de la fase 2 detectó un campo con «semáforo» en el nombre; se renombró el campo, no se cambió la prueba. Pasan las 78 pruebas.
