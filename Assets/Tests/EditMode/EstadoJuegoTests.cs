@@ -7,15 +7,13 @@ namespace SpaceMission.Tests
         [Test]
         public void Reiniciar_DejaElEstadoVacio()
         {
-            EstadoJuego.OrbitaId = "polar";
-            EstadoJuego.LanzadorId = "titan";
-            EstadoJuego.InstrumentoIds.Add("termica");
+            EstadoJuego.Configuracion = new Configuracion("polar", "titan", new[] { "termica" });
 
             EstadoJuego.Reiniciar();
 
-            Assert.IsNull(EstadoJuego.OrbitaId);
-            Assert.IsNull(EstadoJuego.LanzadorId);
-            Assert.IsEmpty(EstadoJuego.InstrumentoIds);
+            Assert.IsNull(EstadoJuego.Configuracion.OrbitaId);
+            Assert.IsNull(EstadoJuego.Configuracion.LanzadorId);
+            Assert.IsEmpty(EstadoJuego.Configuracion.InstrumentoIds);
         }
     }
 }
