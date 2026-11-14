@@ -1,0 +1,90 @@
+newmtl Default
+Kd 0.7843 0.7843 0.7843
+
+newmtl LaserCom_DkGrey_sm
+Kd 0.4118 0.4118 0.4118
+
+newmtl LaserCom_Gold_sm
+Kd 0.7854 0.5492 0.1575
+
+newmtl LaserCom_MainBody
+Kd 0.1191 0.1191 0.1191
+
+newmtl LaserCom_MainBody22
+Kd 0.7843 0.7843 0.7843
+
+newmtl LaserCom_Silver_sm
+Kd 0.7783 0.7783 0.7783
+
+newmtl LCRD_SolarPanel_sil1
+Kd 0.7843 0.7843 0.7843
+
+newmtl LCRD_SolarPanel_sil2
+Kd 0.7644 0.7643 0.7645
+
+newmtl Main_Dish
+Kd 0.8653 0.8750 0.8556
+
+newmtl Main_Dish_black
+Kd 0.0000 0.0000 0.0000
+
+newmtl NGTDRSS_SolarPanel_Bracket
+Kd 1.0000 1.0000 1.0000
+
+newmtl NGTDRSS_SolarPanel_black
+Kd 0.1131 0.1131 0.1131
+
+newmtl NGTDRSS_SolarPanel_bronze
+Kd 0.7255 0.5569 0.3569
+
+newmtl NGTDRSS_SolarPanel_gold
+Kd 0.1865 0.1818 0.1868
+
+newmtl NGTDRSS_SolarPanel11
+Kd 0.1396 0.1644 0.5157
+
+newmtl NGTDRSS_SolarPanel22
+Kd 0.1364 0.1861 0.4574
+
+newmtl NGTDRSS_SolarPanel33
+Kd 0.1915 0.1864 0.5114
+
+newmtl NGTDRSS_SolarPanel44
+Kd 0.1901 0.2040 0.4955
+
+newmtl NGTDRSS_SolarPanel55
+Kd 0.2107 0.1966 0.4871
+
+newmtl NGTDRSS_SolarPanel66
+Kd 0.2006 0.2079 0.4341
+
+newmtl NGTDRSS_SolarPanelEdges
+Kd 0.3608 0.3608 0.3608
+
+newmtl RBSP_Black_foil_sm
+Kd 0.0834 0.0834 0.0834
+
+newmtl RBSP_Black_NOfoil_sm
+Kd 0.0834 0.0834 0.0834
+
+newmtl Stereo_Detail1_bronze
+Kd 0.4161 0.3807 0.3447
+
+newmtl Stereo_Detail2_dkgrey
+Kd 0.3348 0.3334 0.3290
+
+newmtl Stereo_Detail3_white
+Kd 0.8653 0.8750 0.8556
+
+newmtl Stereo_Detail3_white_fl
+Kd 0.8653 0.8750 0.8556
+
+newmtl Stereo_Detail4_silver
+Kd 0.4258 0.4310 0.4206
+
+newmtl Stereo_Detail4_silver_fl
+Kd 0.4225 0.4276 0.4173
+
+newmtl Stereo_Detail6_gold
+Kd 0.0039 0.1144 0.0116
+

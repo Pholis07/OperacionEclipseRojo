@@ -41,6 +41,12 @@ namespace SpaceMission
         readonly List<GameObject> filas = new List<GameObject>();
         bool inicializada;
 
+        /// <summary>
+        /// Después de cada escaneo válido: instrumento, punto del mapa (0 a 1), lectura y si llegó una transmisión
+        /// nueva. Solo lo usa la vista 3D (SecuenciaEscaneo); la lógica ya terminó cuando se avisa.
+        /// </summary>
+        public event System.Action<string, Vector2, Lectura, bool> AlEscanear;
+
         public Operacion Op { get; private set; }
         public string Escaner { get; private set; }
         public string UltimoMensaje => textoLectura.text;
@@ -125,6 +131,7 @@ namespace SpaceMission
             if (Op.Apagones > apagones) textoLectura.text += "\n" + MensajeApagon();
             if (Op.Terminada) textoLectura.text += "\nSe acabaron las órbitas: lo que falte llegará con baja calidad.";
             Refrescar();
+            AlEscanear?.Invoke(Escaner, punto, lectura.Value, Op.Recibidas.Count > recibidas);
         }
 
         public void UsarHerramienta(string id)

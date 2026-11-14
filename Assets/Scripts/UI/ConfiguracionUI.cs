@@ -5,12 +5,14 @@ using UnityEngine;
 namespace SpaceMission
 {
     /// <summary>
-    /// Vista Configuración: pestañas Órbita, Lanzador e Instrumentos, ayuda, barras, semáforo y nave.
+    /// Vista Configuración: pestañas Órbita, Lanzador, Satélite e Instrumentos, ayuda, barras, semáforo y nave.
+    /// La pestaña Satélite solo cambia el aspecto de la nave (todavía no cuenta en las reglas).
     /// La selección vive en EstadoJuego.Configuracion; cambiar de pestaña o de lanzador no borra nada.
     /// </summary>
     public class ConfiguracionUI : MonoBehaviour
     {
-        public enum Pestana { Orbita, Lanzador, Instrumentos }
+        // Satélite va al final del enum para no cambiar los valores de las demás; en pantalla va antes de Instrumentos.
+        public enum Pestana { Orbita, Lanzador, Instrumentos, Satelite }
 
         [SerializeField] CatalogoDatos catalogo;
         [SerializeField] MisionUI mision;
@@ -20,6 +22,7 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Button pestanaOrbita;
         [SerializeField] UnityEngine.UI.Button pestanaLanzador;
         [SerializeField] UnityEngine.UI.Button pestanaInstrumentos;
+        [SerializeField] UnityEngine.UI.Button pestanaSatelite;
         [SerializeField] Transform listaOpciones;
         [SerializeField] UnityEngine.UI.Button plantillaOpcion;
         [SerializeField] TMP_Text textoAyuda;
@@ -63,6 +66,7 @@ namespace SpaceMission
             pestanaOrbita.onClick.AddListener(() => MostrarPestana(Pestana.Orbita));
             pestanaLanzador.onClick.AddListener(() => MostrarPestana(Pestana.Lanzador));
             pestanaInstrumentos.onClick.AddListener(() => MostrarPestana(Pestana.Instrumentos));
+            if (pestanaSatelite != null) pestanaSatelite.onClick.AddListener(() => MostrarPestana(Pestana.Satelite));
             botonRevisar.onClick.AddListener(() => mision.MostrarRevision(Ultima));
             botonBriefing.onClick.AddListener(() => mision.MostrarBriefing());
             MostrarPestana(Pestana.Orbita);
@@ -79,6 +83,7 @@ namespace SpaceMission
             PintarPestana(pestanaOrbita, pestana == Pestana.Orbita);
             PintarPestana(pestanaLanzador, pestana == Pestana.Lanzador);
             PintarPestana(pestanaInstrumentos, pestana == Pestana.Instrumentos);
+            if (pestanaSatelite != null) PintarPestana(pestanaSatelite, pestana == Pestana.Satelite);
             textoAyuda.text = "Elige una opción para ver su descripción.";
             DibujarOpciones(); // cambiar de pestaña no cambia la configuración: no hace falta recalcular
         }
@@ -97,6 +102,15 @@ namespace SpaceMission
             Config.LanzadorId = id; // no borra instrumentos (diseño)
             textoAyuda.text = PresentacionMision.Ayuda(catalogo.Lanzador(id));
             Cambio();
+        }
+
+        /// <summary>Solo el aspecto de la nave: no recalcula recursos ni semáforo.</summary>
+        public void ElegirSatelite(string id)
+        {
+            Config.SateliteId = id;
+            var s = catalogo.Satelite(id);
+            if (s != null) textoAyuda.text = PresentacionMision.Ayuda(s);
+            DibujarOpciones();
         }
 
         public void AlternarInstrumento(string id)
@@ -130,12 +144,20 @@ namespace SpaceMission
                     foreach (var l in catalogo.lanzadores)
                         CrearOpcion(PresentacionMision.TextoOpcion(l), Config.LanzadorId == l.id, () => ElegirLanzador(l.id));
                     break;
+                case Pestana.Satelite:
+                    foreach (var s in catalogo.satelites)
+                        CrearOpcion(PresentacionMision.TextoOpcion(s), Config.SateliteId == s.id, () => ElegirSatelite(s.id));
+                    break;
                 default:
                     foreach (var i in catalogo.instrumentos)
                         CrearOpcion(PresentacionMision.TextoOpcion(i), Config.InstrumentoIds.Contains(i.id), () => AlternarInstrumento(i.id));
                     break;
             }
         }
+
+        /// <summary>El satélite que se ve: el elegido o, si no hay, el primero del catálogo.</summary>
+        public string SateliteVisible =>
+            !string.IsNullOrEmpty(Config.SateliteId) ? Config.SateliteId : catalogo.satelites.Count > 0 ? catalogo.satelites[0].id : null;
 
         void CrearOpcion(string texto, bool elegida, UnityEngine.Events.UnityAction alPulsar)
         {

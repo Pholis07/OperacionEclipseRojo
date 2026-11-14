@@ -12,10 +12,22 @@ namespace SpaceMission
         const string ClaveEfectos = "vol_efectos";
         const string ClaveVoz = "vol_voz";
         const string ClaveMovimiento = "reducir_movimiento";
+        const string ClaveAmbiente = "vol_ambiente";
+        const string ClaveSilencio = "silencio";
 
         public static float VolumenMusica { get => Leer(ClaveMusica, 0.6f); set => Escribir(ClaveMusica, value); }
         public static float VolumenEfectos { get => Leer(ClaveEfectos, 0.8f); set => Escribir(ClaveEfectos, value); }
         public static float VolumenVoz { get => Leer(ClaveVoz, 1f); set => Escribir(ClaveVoz, value); }
+        public static float VolumenAmbiente { get => Leer(ClaveAmbiente, 0.7f); set => Escribir(ClaveAmbiente, value); }
+
+        /// <summary>Silencio total (AudioListener): funciona igual en el editor y en el navegador.</summary>
+        public static bool Silencio
+        {
+            get => Leer(ClaveSilencio, 0f) > 0.5f;
+            set { Escribir(ClaveSilencio, value ? 1f : 0f); AplicarSilencio(); }
+        }
+
+        public static void AplicarSilencio() => AudioListener.volume = Silencio ? 0f : 1f;
 
         public static bool ReducirMovimiento
         {

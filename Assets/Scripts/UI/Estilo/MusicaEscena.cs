@@ -12,6 +12,7 @@ namespace SpaceMission
         [SerializeField] ArteDatos arte;
         [SerializeField] ArteDatos.Musica musica = ArteDatos.Musica.Menu;
         [SerializeField] bool conAmbiente = true;
+        [SerializeField] ArteDatos.Ambiente ambiente = ArteDatos.Ambiente.Tormenta;
         [Tooltip("En Resultado: tema de victoria, parcial o fracaso según la misión lanzada.")]
         [SerializeField] bool segunResultado;
         [SerializeField] float entrada = 2f;
@@ -31,7 +32,8 @@ namespace SpaceMission
                 conAmbiente = false;
             }
             fuenteMusica = Crear(arte.Clip(musica));
-            if (conAmbiente) fuenteAmbiente = Crear(arte.ambienteTormenta);
+            if (conAmbiente) fuenteAmbiente = Crear(arte.Clip(ambiente));
+            Preferencias.AplicarSilencio();
             Preferencias.Cambiaron += Aplicar;
             StartCoroutine(Entrar());
         }
@@ -45,6 +47,17 @@ namespace SpaceMission
             musica = nueva;
             StopAllCoroutines();
             StartCoroutine(Cruzar(arte.Clip(nueva)));
+        }
+
+        /// <summary>Cambia la capa de ambiente (por ejemplo, al llegar a la órbita de Marte) sin cortar la música.</summary>
+        public void CambiarAmbiente(ArteDatos.Ambiente nuevo)
+        {
+            if (arte == null || nuevo == ambiente) return;
+            ambiente = nuevo;
+            var clip = arte.Clip(nuevo);
+            if (fuenteAmbiente == null) { if (conAmbiente) { fuenteAmbiente = Crear(clip); Aplicar(); } return; }
+            fuenteAmbiente.clip = clip;
+            if (clip != null) fuenteAmbiente.Play();
         }
 
         AudioSource Crear(AudioClip clip)
@@ -82,7 +95,7 @@ namespace SpaceMission
         void Aplicar()
         {
             if (fuenteMusica != null) fuenteMusica.volume = factor * Preferencias.VolumenMusica;
-            if (fuenteAmbiente != null) fuenteAmbiente.volume = factor * Preferencias.VolumenMusica * 0.5f;
+            if (fuenteAmbiente != null) fuenteAmbiente.volume = factor * Preferencias.VolumenAmbiente * 0.8f;
         }
     }
 }

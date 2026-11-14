@@ -1,0 +1,18 @@
+newmtl aluminum
+Kd 0.8000 0.8000 0.8000
+
+newmtl aluminum_001
+Kd 0.8000 0.8000 0.8000
+
+newmtl dish_AO_01
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Magellan_dish_AO_01.png
+
+newmtl tex_01_001
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Magellan_tex_01_001.png
+
+newmtl shiny_panel_001
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Magellan_shiny_panel_001.png
+

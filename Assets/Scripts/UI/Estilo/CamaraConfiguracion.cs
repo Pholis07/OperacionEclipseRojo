@@ -29,6 +29,8 @@ namespace SpaceMission
         [SerializeField] Encuadre planeta;
         [SerializeField] Encuadre plataforma;
         [SerializeField] float suavizado = 0.45f;
+        [Tooltip("Campo de visión en la pestaña Satélite (más cerca que en Instrumentos).")]
+        [SerializeField] float campoSatelite = 44f;
 
         [Header("Objetos")]
         [SerializeField] Transform raizNave;
@@ -73,11 +75,13 @@ namespace SpaceMission
             Encuadre objetivo = nave;
             if (pestana == ConfiguracionUI.Pestana.Orbita) objetivo = planeta;
             else if (pestana == ConfiguracionUI.Pestana.Lanzador) objetivo = plataforma;
+            else if (pestana == ConfiguracionUI.Pestana.Satelite) { objetivo = nave; objetivo.campo = campoSatelite; }
             else if (moduloEnFoco != null && Time.unscaledTime < finFoco) objetivo = EncuadreModulo(moduloEnFoco);
             else moduloEnFoco = null;
 
             // La nave no se ve mientras se mira el planeta (estaría delante, flotando sin sentido).
             MostrarNave(pestana != ConfiguracionUI.Pestana.Orbita);
+            GirarSatelite(enConfiguracion && pestana == ConfiguracionUI.Pestana.Satelite);
             ResaltarCohete(config.LanzadorId);
 
             float t = Preferencias.ReducirMovimiento ? 0f : suavizado;
@@ -146,6 +150,21 @@ namespace SpaceMission
             foreach (var r in renderers) b.Encapsulate(r.bounds);
             return b.center;
         }
+
+        /// <summary>En la pestaña Satélite la nave gira despacio para verla entera; al salir vuelve a su pose.</summary>
+        void GirarSatelite(bool girar)
+        {
+            if (raizNave == null) return;
+            if (!poseGuardada) { poseNave = raizNave.localRotation; poseGuardada = true; }
+            if (girar && !Preferencias.ReducirMovimiento) giroSatelite += Time.unscaledDeltaTime * 14f;
+            else giroSatelite = Mathf.MoveTowardsAngle(giroSatelite, 0f, Time.unscaledDeltaTime * 120f);
+            giroSatelite = Mathf.Repeat(giroSatelite + 180f, 360f) - 180f;
+            raizNave.localRotation = poseNave * Quaternion.Euler(0f, giroSatelite, 0f);
+        }
+
+        float giroSatelite;
+        Quaternion poseNave;
+        bool poseGuardada;
 
         void MostrarNave(bool visible)
         {

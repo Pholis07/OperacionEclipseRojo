@@ -53,9 +53,46 @@ Una por transmisión, con el texto exacto de `Assets/Datos/Transmision_<id>.asse
 - Efecto de radio dentro del archivo: filtro de paso de banda y una estática ligera.
 - Los subtítulos siempre se ven: la transmisión escrita es la fuente y la voz es un extra.
 
+## Segunda tanda: cinemática y escaneo orbital (2026-11-14)
+
+Del paquete de especificaciones del equipo (`02_AUDIO_ELEVENLABS/01_PROMPTS_LISTOS_ELEVENLABS.csv`). Se generaron con las mismas indicaciones en inglés del CSV (ninguna nombra obras, juegos ni autores). Hubo una toma de cada uno: 16 audios por **624 créditos**. Quedaron unos 13,200 créditos del plan.
+
+No se generaron los que ya tenían equivalente en el juego. Se reutilizan estos:
+
+| Del CSV | Se usa |
+|---|---|
+| `MUS_Menu_Alerta` | `musica_menu` |
+| `MUS_Orbital_Ambience` | `musica_investigacion` |
+| `SFX_UI_Confirm` y `SFX_UI_Error` | `ui_click`, `ui_luz_verde` y `ui_error` |
+| `SFX_UI_Hover` | `ui_hover` |
+| `SFX_Transmission_Received` | `senal_entrante` |
+| `SFX_Result_*` | `musica_victoria`, `musica_parcial` y `musica_fracaso` |
+
+Quedan sin generar `SFX_Rocket_Ignition`, `SFX_UI_Transition`, `MUS_Revelacion_Breve` y `AMB_Configuracion_Sistemas`. Son P1 y no hacen falta en el flujo actual.
+
+| Archivo | Dónde suena | Ajuste |
+|---|---|---|
+| `Musica/MUS_Lanzamiento_Cinematica` | Toda la cinemática (25 s) | −18 LUFS |
+| `Efectos/SFX_Countdown_System` | Toma 1, cuenta atrás | −20 LUFS |
+| `Efectos/SFX_Rocket_Liftoff` | Toma 2, despegue (en la atmósfera) | −20 LUFS |
+| `Efectos/SFX_Stage_Separation` | Toma 4, separación (sonido estructural, dentro del vehículo) | −20 LUFS |
+| `Efectos/SFX_Solar_Array_Deploy` | Toma 5, se libera el satélite | −20 LUFS |
+| `Efectos/SFX_Transfer_Swoosh` | Toma 6, mapa de la transferencia (no diegético) | −20 LUFS |
+| `Efectos/SFX_Orbital_Thruster` | Toma 7 y aproximación del escaneo (vibración interna) | −20 LUFS |
+| `Efectos/SFX_Satellite_Servo` | El satélite se orienta hacia la región | −20 LUFS |
+| `Efectos/SFX_Target_Lock` | «Objetivo fijado» | −20 LUFS |
+| `Efectos/SFX_Scan_Thermal`, `_Radar`, `_HighRes`, `_Atmospheric`, `_Spectrometer` | Escaneo con cada instrumento | −20 LUFS (el radar, −17 dB fijos: es un tren de pulsos) |
+| `Efectos/AMB_Menu_Control` | Bajo la música del Menú (bucle) | −30 LUFS |
+| `Efectos/AMB_Investigacion_Orbital` | Bajo la música de la Operación, tras la cinemática (bucle) | −30 LUFS |
+
+Los sonidos se revisaron con `ffmpeg`: duración, picos, volumen medio y silencios. Venían a niveles muy distintos (algunos efectos a −5 dB de media), así que se normalizaron con `loudnorm` y se les puso un fundido de 5 ms al entrar y de 80 ms al salir, para que no hagan clic. **No se escucharon a oído:** conviene que alguien del equipo los escuche en el juego antes de entregar.
+
+Los motores solo suenan a pleno en la plataforma. En el espacio, los efectos son vibración de la estructura o sonidos de interfaz, nunca sonido que viaje por el vacío.
+
 ## Dónde está el código
 
 - **`Assets/Scripts/UI/Estilo/MusicaEscena.cs`:** música y ambiente de cada escena, con entrada suave. En Resultado elige el tema según el resultado.
 - **`Assets/Scripts/UI/Estilo/ReproductorUI.cs`:** efectos de la interfaz y voces.
-- **`Assets/Scripts/UI/Estilo/Preferencias.cs`:** volúmenes de música, efectos y voz, y «Reducir movimiento». Se cambian en Menú > Opciones.
+- **`Assets/Scripts/UI/Estilo/Preferencias.cs`:** volúmenes de música, ambiente, efectos y voz, «Silenciar todo» (AudioListener) y «Reducir movimiento». Se cambian en Menú > Opciones.
+- **`DirectorCinematica.cs` y `SecuenciaEscaneo.cs`:** cada uno tiene su propio AudioSource para sus efectos, así que «Omitir» o salir de la escena los corta sin dejar sonidos sueltos. No usan AudioMixer: el proyecto ya tenía volúmenes por categoría en Preferencias, y crear un mixer desde código no es posible con la API pública.
 - En WebGL el navegador no deja sonar nada hasta el primer clic o tecla. La pantalla de título («Pulsa cualquier tecla») resuelve eso.

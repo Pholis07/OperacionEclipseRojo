@@ -154,3 +154,29 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Añadió ajustes de importación de audio para WebGL (Vorbis; efectos en mono y descomprimidos al cargar) y enlazó todo en `Arte.asset` reconstruyendo las escenas.
 - Encontró que en Linux la importación de audio para WebGL necesita `ffmpeg` instalado; sin él los clips fallan y el juego queda en silencio. Lo anotó en `AUDIO-ELEVENLABS.md`.
 - Pasan las 136 pruebas EditMode y las 19 PlayMode.
+
+## Cinemáticas, investigación orbital, satélites de NASA y segunda tanda de audio (con Diego)
+
+- Diego pasó el paquete de especificaciones del equipo:
+  - Prompt maestro, storyboards de lanzamiento e investigación, menú, órbitas, arquitectura, biblia sonora, CSV de audio, QA y el kit de instrumentos.
+  - Siete enlaces de NASA 3D Resources, para que el jugador elija su tipo de satélite (solo eso; Adrian pondrá las mecánicas).
+- La IA:
+  - Auditó el proyecto real antes de editar y trabajó en la rama `feat/eclipse-cinematics-audio`.
+  - Reutilizó lo que ya existía (NaveUI, AnilloOrbita, audio) en lugar de los scripts del kit.
+  - Anotó las discrepancias de datos con el documento maestro sin corregirlas (Titán 750/1,100 kg, espectrómetro 260/200 W).
+- Convirtió los modelos de NASA (GLB con Draco y STL) a OBJ con una herramienta propia en Node (`Herramientas/modelos_nasa`), sin añadir paquetes a Unity. Pintó el SLS por zonas y lo partió en dos etapas.
+- Implementó:
+  - Pestaña «Satélite» con 5 modelos e instrumentos montados en el casco por rayos contra la malla.
+  - El Titán con el SLS de NASA.
+  - Menú «Centro de control en alerta» con Créditos.
+  - Cinemática de 8 tomas (~26 s) con «Omitir».
+  - Investigación orbital en 3D tras cada escaneo, con regreso exacto al encuadre.
+  - Ambiente, volumen de ambiente y «Silenciar todo».
+- Generó en ElevenLabs 16 audios del CSV, con una toma cada uno y 624 créditos. Los midió y normalizó con ffmpeg; nadie los ha escuchado a oído todavía.
+- Probó la cinemática y los escaneos con una prueba PlayMode temporal que guarda fotogramas. Con ellos corrigió:
+  - un domo de estrellas que se veía en el despegue,
+  - el haz opaco,
+  - la sombra gigante del satélite,
+  - la atmósfera facetada,
+  - el encuadre lejano.
+- Pasan las 136 pruebas EditMode y las 19 PlayMode. El detalle está en `ECLIPSE-IMPLEMENTACION.md`.

@@ -47,6 +47,22 @@ MonoBehaviour:
   luzRoja: {fileID: 8300000, guid: 65518e775662fa0c9b89ced8b52dc624, type: 3}
   lanzamiento: {fileID: 8300000, guid: 22b17408c4026f443bd7f9e153d5a69d, type: 3}
   senal: {fileID: 8300000, guid: 133dc41641b6d449b8aeed170b296daf, type: 3}
+  musicaLanzamiento: {fileID: 8300000, guid: 182cb1a0e7f906d86a68adc032443863, type: 3}
+  cuentaAtras: {fileID: 8300000, guid: 11b0e52eb0b803bcb818f2ce4599d286, type: 3}
+  despegue: {fileID: 8300000, guid: 65f3d43162c49b3db81361c210ce619c, type: 3}
+  separacion: {fileID: 8300000, guid: 4c1c33a609f87c0ffb9e02ae1ba28783, type: 3}
+  despliegue: {fileID: 8300000, guid: e217df60f35d7c4a2b5105a9e14aaa78, type: 3}
+  transferencia: {fileID: 8300000, guid: fb4ace75c104cf5678b0769be7050e83, type: 3}
+  propulsores: {fileID: 8300000, guid: 3c1193a7c55ae153daf5ba5a5b59841a, type: 3}
+  servo: {fileID: 8300000, guid: afdcbd3bbdf7a1aaabd99173cf901194, type: 3}
+  fijarObjetivo: {fileID: 8300000, guid: b91f1bcc29c56c004a0264def92b2941, type: 3}
+  escaneoTermica: {fileID: 8300000, guid: 7f321a042fcafff58ad324f23ad5a0f4, type: 3}
+  escaneoRadar: {fileID: 8300000, guid: 2e8bfd6f4e1c983bfa4e615caf8afd25, type: 3}
+  escaneoAltaRes: {fileID: 8300000, guid: fb1172609ac36f4f0aadc309db2eb48c, type: 3}
+  escaneoAtmosferico: {fileID: 8300000, guid: 939a8c42cdee55d518e5856af1df7c76, type: 3}
+  escaneoEspectrometro: {fileID: 8300000, guid: be21cc957de77b4a2b7c4f6de6d33c97, type: 3}
+  ambienteOrbital: {fileID: 8300000, guid: b7760bd62e165fac995f34fc11925ea7, type: 3}
+  ambienteControl: {fileID: 8300000, guid: 98210849a8b8b15fd834025291b4ed67, type: 3}
   voces:
   - transmisionId: TX-00
     clip: {fileID: 8300000, guid: 5882c1b16f52dd13b8589d4deaaceea2, type: 3}

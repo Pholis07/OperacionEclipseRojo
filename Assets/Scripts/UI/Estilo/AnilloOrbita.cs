@@ -18,8 +18,8 @@ namespace SpaceMission
         LineRenderer linea;
         string dibujada = "-";
         float aparicion;
-        float angulo, excentricidadActual;
-        Quaternion rotacionActual = Quaternion.identity;
+        float angulo;
+        string orbitaActual;
 
         void Awake()
         {
@@ -54,41 +54,20 @@ namespace SpaceMission
             bool visible = linea.enabled;
             if (marcador.gameObject.activeSelf != visible) marcador.gameObject.SetActive(visible);
             if (!visible) return;
-            float r = Radio(angulo, excentricidadActual);
             // Segunda ley de Kepler (aproximada): la velocidad angular crece al acercarse al planeta.
             if (!Preferencias.ReducirMovimiento)
-                angulo += Time.unscaledDeltaTime * Mathf.PI * 2f / vueltaSegundos * (radio * radio) / (r * r);
-            marcador.localPosition = rotacionActual * new Vector3(Mathf.Cos(angulo) * r, 0f, Mathf.Sin(angulo) * r);
-        }
-
-        /// <summary>
-        /// Distancia al centro del planeta (radio de la esfera = 0.5). Circular: «radio». Elíptica: el punto más
-        /// cercano queda al 88 % de «radio», siempre fuera del planeta, con el planeta en un foco.
-        /// </summary>
-        float Radio(float a, float e)
-        {
-            if (e <= 0f) return radio;
-            float semilatus = radio * 0.88f * (1f + e);
-            return semilatus / (1f + e * Mathf.Cos(a));
+                angulo += Time.unscaledDeltaTime * Mathf.PI * 2f / vueltaSegundos * Trayectoria.Ritmo(orbitaActual, angulo);
+            marcador.localPosition = Trayectoria.Punto(orbitaActual, angulo, radio);
         }
 
         void Dibujar(string id)
         {
             linea.enabled = !string.IsNullOrEmpty(id);
             if (!linea.enabled) return;
-            float inclinacion = id == "polar" ? 80f : id == "media" ? 45f : 22f;
-            float excentricidad = id == "eliptica" ? 0.42f : 0f;
-            var rot = Quaternion.Euler(inclinacion, 0f, 20f);
-            rotacionActual = rot;
-            excentricidadActual = excentricidad;
+            orbitaActual = id;
+            // La forma de cada órbita está en Trayectoria (la misma en la cinemática y en la investigación).
             for (int i = 0; i < Puntos; i++)
-            {
-                float a = i * Mathf.PI * 2f / Puntos;
-                // Elipse con el planeta en un foco.
-                float r = Radio(a, excentricidad);
-                var p = new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r);
-                linea.SetPosition(i, rot * p);
-            }
+                linea.SetPosition(i, Trayectoria.Punto(id, i * Mathf.PI * 2f / Puntos, radio));
         }
     }
 }
