@@ -72,3 +72,9 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Cambió dos eventos de su propia propuesta que no eran plausibles para una nave en órbita.
 - Escribió la lógica pura `Operacion` y `Puntuacion`, los datos (reglas, 3 niveles, 5 eventos, 4 herramientas) y 23 pruebas. El cálculo y la evaluación aceptan ahora el nivel; sin nivel usan la misión del diseño, así que las pruebas anteriores no cambiaron.
 - Por estar el editor abierto con el trabajo de Diego, generó los datos y corrió las pruebas en una copia del proyecto y copió los archivos resultantes. Pasan 135 pruebas.
+
+## Gameplay nuevo, paso 2: interfaz de la Operación, niveles y puntos
+
+- Escribió `OperacionUI` (instrumentos con interruptor, energía, órbitas, mapa para escanear, eventos y herramientas) y `MapaMarteUI` (mapa de Marte generado por código, sin imágenes externas). Sustituyen a la Investigación.
+- Añadió el selector de nivel en el Briefing y los puntos con su desglose y el mejor puntaje por nivel en el informe; el informe marca los datos de baja calidad.
+- Adaptó las pruebas al diseño aprobado: las transmisiones ya no llegan en orden fijo sino al encontrar la anomalía, y la escena Resultado sí muestra puntos (se revirtió la decisión 7). La prueba PlayMode juega la Operación con eventos aleatorios reales y herramientas. Pasan 136 EditMode y 19 PlayMode.

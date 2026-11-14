@@ -20,10 +20,10 @@ namespace SpaceMission
 
         public const string SinValor = "—";
 
-        public static Barra[] Barras(Evaluacion e, Configuracion c, CatalogoDatos catalogo)
+        public static Barra[] Barras(Evaluacion e, Configuracion c, CatalogoDatos catalogo, MisionDatos nivel = null)
         {
             var r = e.Calculo;
-            var m = catalogo.mision;
+            var m = nivel != null ? nivel : catalogo.mision;
             var lanzador = string.IsNullOrEmpty(c.LanzadorId) ? null : catalogo.Lanzador(c.LanzadorId);
             bool sinCalculo = r.Estado == EstadoSemaforo.Gris; // en Gris no se calcula (diseño, casos B1, B7 y B8)
             return new[]
@@ -80,7 +80,7 @@ namespace SpaceMission
 
         // ---------- Revisión ----------
 
-        public static string Resumen(Evaluacion e, Configuracion c, CatalogoDatos catalogo)
+        public static string Resumen(Evaluacion e, Configuracion c, CatalogoDatos catalogo, MisionDatos nivel = null)
         {
             var orbita = string.IsNullOrEmpty(c.OrbitaId) ? null : catalogo.Orbita(c.OrbitaId);
             var lanzador = string.IsNullOrEmpty(c.LanzadorId) ? null : catalogo.Lanzador(c.LanzadorId);
@@ -93,7 +93,7 @@ namespace SpaceMission
                 "<b>Instrumentos:</b> " + (instrumentos.Count > 0 ? string.Join(", ", instrumentos) : "ninguno"),
                 ""
             };
-            foreach (var b in Barras(e, c, catalogo))
+            foreach (var b in Barras(e, c, catalogo, nivel))
                 lineas.Add("<b>" + b.Nombre + ":</b> " + (b.Excedida ? "<color=#EF4444>" + b.Texto + "</color>" : b.Texto));
             lineas.Add("");
             lineas.Add("<b>Semáforo:</b> <color=#" + ColorUtility.ToHtmlStringRGB(ColorSemaforo(e.Estado)) + ">" +

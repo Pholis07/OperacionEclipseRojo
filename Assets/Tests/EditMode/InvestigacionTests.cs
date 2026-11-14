@@ -28,47 +28,74 @@ namespace SpaceMission.Tests
         static Configuracion Config(string lanzador, string orbita, string instrumentos) =>
             new Configuracion(orbita, lanzador, instrumentos.Split('+'));
 
+        // Gameplay aprobado: las transmisiones ya no salen en un orden fijo, sino cuando cada instrumento
+        // encuentra la anomalía en el mapa. Se comprueba que al final llegan exactamente las de la tabla.
         [TestCase("1", "explorador", "polar", "termica+radar", "TX-00,TX-01,TX-02")]
         [TestCase("2", "explorador", "media", "termica+radar", "TX-00,TX-01,TX-02")]
         [TestCase("3", "explorador", "eliptica", "termica+radar", "TX-00,TX-01,TX-02")]
         [TestCase("4", "titan", "eliptica", "termica+radar+atmosferico", "TX-00,TX-01,TX-02,TX-03")]
         [TestCase("5", "explorador", "media", "termica+atmosferico", "TX-00,TX-01,TX-03")]
         [TestCase("6", "titan", "polar", "alta_res+atmosferico", "TX-00,TX-04")]
-        public void LaInvestigacionMuestraLasTransmisionesEnOrdenUnaPorUna(string caso, string lanzador, string orbita,
+        public void LaOperacionEntregaLasTransmisionesDeLaTabla(string caso, string lanzador, string orbita,
             string instrumentos, string esperadas)
         {
             EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
-            var ui = Object.FindFirstObjectByType<InvestigacionUI>(FindObjectsInactive.Include);
-            Assert.IsNotNull(ui, "Falta InvestigacionUI en la escena Mision");
+            var ui = Object.FindFirstObjectByType<OperacionUI>(FindObjectsInactive.Include);
+            Assert.IsNotNull(ui, "Falta OperacionUI en la escena Mision");
 
-            ui.Comenzar(Evaluador.Evaluar(Config(lanzador, orbita, instrumentos), catalogo));
-            var vistos = new List<string> { ui.TextoActual };
-            var botones = new List<string> { ui.EtiquetaBoton.text };
-            while (ui.Avanzar())
+            EstadoJuego.Configuracion = Config(lanzador, orbita, instrumentos);
+            ui.Comenzar(Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo), 7);
+            var op = ui.Op;
+            op.ProgramarEventos(new EventoDatos[0], new int[0]);
+            Assert.AreEqual("TX-00", op.Recibidas[0], "TX-00 llega al empezar");
+
+            foreach (var id in op.Instrumentos.ToList())
             {
-                vistos.Add(ui.TextoActual);
-                botones.Add(ui.EtiquetaBoton.text);
+                foreach (var otro in op.Encendidos.ToList()) ui.AlternarInstrumento(otro); // apaga los demás
+                ui.AlternarInstrumento(id);
+                ui.ElegirEscaner(id);
+                ui.EscanearEn(op.Anomalia);
             }
 
-            var textos = esperadas.Split(',').Select(id => catalogo.Transmision(id).texto).ToArray();
-            CollectionAssert.AreEqual(textos, vistos, "transmisiones del caso " + caso);
-            // «Continuar investigación» entre cada una; la última lleva al informe.
-            CollectionAssert.AreEqual(
-                Enumerable.Repeat("Continuar investigación", textos.Length - 1).Concat(new[] { "Ver informe" }).ToArray(),
-                botones, "botones del caso " + caso);
+            CollectionAssert.AreEquivalent(esperadas.Split(','), op.Recibidas, "transmisiones del caso " + caso);
+            Assert.IsTrue(op.Completa);
+            CollectionAssert.IsEmpty(op.BajaCalidad);
+            Assert.AreEqual(0, op.Apagones);
         }
 
         [Test]
-        public void Caso7NoLlegaAInvestigacion()
+        public void Caso7NoLlegaALaOperacion()
         {
             EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
-            var ui = Object.FindFirstObjectByType<InvestigacionUI>(FindObjectsInactive.Include);
+            var ui = Object.FindFirstObjectByType<OperacionUI>(FindObjectsInactive.Include);
             var e = Evaluador.Evaluar(Config("titan", "media", "termica+radar+espectrometro+atmosferico"), catalogo);
 
             Assert.IsFalse(e.SePuedeLanzar);
             ui.Comenzar(e);
-            Assert.IsEmpty(ui.TextoActual);
-            Assert.IsFalse(ui.Avanzar());
+            Assert.IsNull(ui.Op);
+        }
+
+        [Test]
+        public void EnLaPantallaUnApagonAvisaYNoTerminaLaMision()
+        {
+            EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
+            var ui = Object.FindFirstObjectByType<OperacionUI>(FindObjectsInactive.Include);
+            EstadoJuego.Configuracion = Config("titan", "eliptica", "termica+radar+atmosferico");
+            ui.Comenzar(Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo), 7);
+            ui.Op.ProgramarEventos(new EventoDatos[0], new int[0]);
+            ui.Op.AplicarEvento(catalogo.eventos.First(x => x.id == "micrometeorito"));
+            ui.Op.AplicarEvento(catalogo.eventos.First(x => x.id == "sombra"));   // límite 350 W
+
+            ui.AlternarInstrumento("termica");   // 230 W
+            ui.AlternarInstrumento("radar");     // 430 W: apagón
+            StringAssert.Contains("Apagón", ui.UltimoMensaje);
+            Assert.AreEqual(1, ui.Op.Apagones);
+            Assert.IsFalse(ui.Op.Terminada);
+
+            ui.UsarHerramienta("bateria");        // límite 500 W
+            ui.AlternarInstrumento("radar");
+            ui.AlternarInstrumento("termica");
+            Assert.AreEqual(1, ui.Op.Apagones, "con la batería ya caben los dos");
         }
 
         [Test]
@@ -86,8 +113,10 @@ namespace SpaceMission.Tests
                 new[] { "TX-A1", "TX-A2", "TX-A5" }.Select(id => catalogo.Transmision(id).texto).ToArray(), informe.Faltantes);
         }
 
+        // PM2 original decía «no da puntos»; desde el gameplay aprobado los puntos van aparte (Puntuacion),
+        // así que aquí se comprueba solo que el informe da victoria y muestra los recursos usados.
         [Test]
-        public void PM2_LaConfiguracionMasBarataDaVictoriaMuestraRecursosYNoDaPuntos()
+        public void PM2_LaConfiguracionMasBarataDaVictoriaYMuestraRecursos()
         {
             var c = Config("explorador", "media", "termica+radar");
             var informe = InformeMision.Construir(Evaluador.Evaluar(c, catalogo), c, catalogo);
@@ -115,7 +144,7 @@ namespace SpaceMission.Tests
         }
 
         [Test]
-        public void LaEscenaResultadoNoTieneNuevaMisionNiPuntos()
+        public void LaEscenaResultadoNoTieneNuevaMision()
         {
             EditorSceneManager.OpenScene("Assets/Escenas/Resultado.unity");
             var ui = Object.FindFirstObjectByType<ResultadoUI>();
@@ -128,7 +157,7 @@ namespace SpaceMission.Tests
             Assert.IsTrue(textos.Contains("Investigación fallida"));
             Assert.IsTrue(textos.Contains("Modificar mi misión"));
             Assert.IsFalse(textos.Any(t => t.Contains("Nueva misión")));
-            Assert.IsFalse(textos.Any(t => t.ToLowerInvariant().Contains("puntos")));
+            // Los puntos sí existen desde el gameplay aprobado (se revirtió la decisión 7); sin una Operación jugada no se muestran.
         }
 
         [Test]

@@ -30,7 +30,7 @@ namespace SpaceMission
         public void Mostrar(Evaluacion e)
         {
             evaluacion = e;
-            textoResumen.text = PresentacionMision.Resumen(e, EstadoJuego.Configuracion, catalogo);
+            textoResumen.text = PresentacionMision.Resumen(e, EstadoJuego.Configuracion, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice));
             botonLanzar.interactable = e.SePuedeLanzar;
         }
 

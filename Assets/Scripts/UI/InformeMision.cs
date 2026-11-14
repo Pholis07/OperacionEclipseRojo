@@ -19,14 +19,16 @@ namespace SpaceMission
             public string Recursos;
         }
 
-        public static Informe Construir(Evaluacion e, Configuracion c, CatalogoDatos catalogo)
+        /// <param name="op">La Operación jugada; si es null (pruebas antiguas), todo cuenta como recibido bien.</param>
+        public static Informe Construir(Evaluacion e, Configuracion c, CatalogoDatos catalogo,
+            Operacion op = null, MisionDatos nivel = null)
         {
             var categoria = e.Categoria ?? CategoriaResultado.Fracaso;
             var informe = new Informe
             {
                 Titulo = TextosResultado.Titulo(categoria),
                 Texto = TextosResultado.Texto(categoria),
-                Recursos = Recursos(e, c, catalogo)
+                Recursos = Recursos(e, c, catalogo, nivel) + TextoOperacion(op)
             };
 
             foreach (var id in e.Transmisiones)
@@ -34,7 +36,8 @@ namespace SpaceMission
                 var t = catalogo.Transmision(id);
                 if (string.IsNullOrEmpty(t.instrumentoId)) continue; // TX-00 es de la misión
                 var instrumento = catalogo.Instrumento(t.instrumentoId);
-                var linea = instrumento.nombre + ": " + instrumento.pistaAsociada + ".";
+                var linea = instrumento.nombre + ": " + instrumento.pistaAsociada + "." +
+                            (op != null && op.BajaCalidad.Contains(id) ? " (datos de baja calidad)" : "");
                 if (t.tipo == TipoTransmision.Principal) informe.Evidencias.Add(linea);
                 else informe.Revelaciones.Add(linea);
             }
@@ -45,15 +48,25 @@ namespace SpaceMission
             return informe;
         }
 
-        public static string Recursos(Evaluacion e, Configuracion c, CatalogoDatos catalogo)
+        public static string Recursos(Evaluacion e, Configuracion c, CatalogoDatos catalogo, MisionDatos nivel = null)
         {
             var r = e.Calculo;
-            var m = catalogo.mision;
+            var m = nivel != null ? nivel : catalogo.mision;
             var lanzador = catalogo.Lanzador(c.LanzadorId);
             return "Usaste " + TextosBriefing.Numero(r.CostoCr) + " de " + TextosBriefing.Numero(m.presupuestoCr) + " créditos, " +
                    TextosBriefing.Numero(r.MasaKg) + " de " + TextosBriefing.Numero(lanzador.capacidadKg) + " kg, " +
                    TextosBriefing.Numero(r.PotenciaW) + " de " + TextosBriefing.Numero(m.potenciaDisponibleW) + " W y " +
                    r.EspaciosUsados + " de " + lanzador.espacios + " espacios.";
+        }
+
+        static string TextoOperacion(Operacion op)
+        {
+            if (op == null) return "";
+            var texto = " Te quedaron " + op.Orbitas + " órbitas de navegación.";
+            if (op.Apagones > 0)
+                texto += " La nave se apagó " + op.Apagones + (op.Apagones == 1 ? " vez" : " veces") +
+                         " y los reinicios costaron " + TextosBriefing.Numero(op.CreditosPerdidos) + " créditos.";
+            return texto;
         }
 
         /// <summary>Encabezado de una transmisión en la fase Investigación.</summary>
