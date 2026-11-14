@@ -118,7 +118,38 @@ azul = Image.eval(ImageChops.subtract(marte.split()[2], marte.split()[0]), lambd
 marte = Image.composite(entorno, marte, azul.filter(ImageFilter.MaxFilter(9)))
 marte = marte.resize((2048, 1024), Image.LANCZOS).filter(ImageFilter.GaussianBlur(1.2))
 marte = ImageEnhance.Contrast(marte).enhance(1.15)
-guardar(marte, "Texturas/Marte_Superficie.jpg")
+# Ya no es la superficie del planeta: queda como foto de la tormenta (fondos, evidencia de la misión) y como
+# capa de polvo semitransparente encima del planeta.
+polvo_gris = ImageEnhance.Contrast(marte.convert("L")).enhance(1.6)
+alfa = polvo_gris.point(lambda v: max(0, min(255, int((v - 105) * 1.6))))
+polvo = Image.merge("RGBA", (Image.new("L", marte.size, 236), Image.new("L", marte.size, 196),
+                             Image.new("L", marte.size, 150), alfa.filter(ImageFilter.GaussianBlur(3))))
+guardar(polvo, "Texturas/Marte_Polvo.png")
+
+# Superficie del planeta: mapa global de Solar System Scope (CC BY 4.0, basado en datos de NASA), opcional.
+mapa_global = ORIGEN / "8k_mars.jpg"
+if mapa_global.exists():
+    sup = Image.open(mapa_global).convert("RGB").resize((4096, 2048), Image.LANCZOS)
+    sup = ImageEnhance.Color(sup).enhance(0.92)
+    guardar(sup, "Texturas/Marte_Superficie.jpg", 90)
+    # Relieve aproximado a partir del brillo (detalle de cráteres y cañones): mapa de normales.
+    alto = Image.open(mapa_global).convert("L").resize((2048, 1024), Image.LANCZOS).filter(ImageFilter.GaussianBlur(1.0))
+    import array
+    w, h = alto.size
+    px = alto.load()
+    normal = Image.new("RGB", (w, h))
+    pn = normal.load()
+    fuerza = 2.2
+    for y in range(h):
+        for x in range(w):
+            dx = (px[(x + 1) % w, y] - px[(x - 1) % w, y]) / 255.0 * fuerza
+            dy = (px[x, min(h - 1, y + 1)] - px[x, max(0, y - 1)]) / 255.0 * fuerza
+            nx, ny, nz = -dx, dy, 1.0
+            l = math.sqrt(nx * nx + ny * ny + nz * nz)
+            pn[x, y] = (int((nx / l * 0.5 + 0.5) * 255), int((ny / l * 0.5 + 0.5) * 255), int((nz / l * 0.5 + 0.5) * 255))
+    guardar(normal, "Texturas/Marte_Normal.png")
+else:
+    guardar(marte, "Texturas/Marte_Superficie.jpg")
 
 # ---------- Fondos ----------
 guardar(tratar_fondo(cubrir(abrir("PIA23513"), 1920, 1080), oscurecer=0.62), "Fondos/Fondo_Briefing.jpg")

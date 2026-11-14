@@ -46,6 +46,9 @@ public static class ConstructorEscenas
 
     const string RutaCatalogo = "Assets/Datos/Catalogo.asset";
 
+    /// <summary>Plataforma de lanzamiento de la escena Mision: lejos de la nave y del planeta, fuera de su encuadre.</summary>
+    static readonly Vector3 Plataforma = new Vector3(70f, 0f, 0f);
+
     // Recursos de estilo, cargados por PrepararEstilo().
     static ArteDatos arte;
     static Sprite sChaflan, sChaflanBorde, sCirculo, sHalo;
@@ -437,6 +440,8 @@ public static class ConstructorEscenas
         // Más pequeña que en el Menú para que quepa entera entre los dos paneles de Configuración.
         nave.transform.position = new Vector3(0, 0.55f, 0);
         nave.transform.localScale = Vector3.one * 0.5f;
+        var cohetes = ConstruirCohetes(Plataforma);
+        ConstruirEstrellas(Plataforma + new Vector3(0, 4f, 60f));
         ConstruirIluminacion();
 
         // Vista Configuración: transparente en el centro para que se vea la nave 3D.
@@ -444,6 +449,7 @@ public static class ConstructorEscenas
         Estirar(configuracion);
         configuracion.SetAsFirstSibling(); // debajo del Briefing
         var configUI = ConstruirConfiguracion(configuracion, catalogo, controlador, nave);
+        var marteCentro = marte.transform.position;
 
         // Vista Revisión: tarjeta encima de la configuración.
         var revision = Panel(canvas, "VistaRevision", new Color(0, 0, 0, 0.8f));
@@ -458,6 +464,31 @@ public static class ConstructorEscenas
 
         var musica = CrearMusica(ArteDatos.Musica.Configuracion);
         ConstruirEfectoLanzamiento(canvas, revisionUI, musica);
+
+        // Navegación de Configuración y cámara que se acerca a lo que se está eligiendo.
+        Asignar(configuracion.GetComponent<GuiaConfiguracion>(), "vistaRevision", revision.gameObject);
+        var camara = Camera.main.gameObject.AddComponent<CamaraConfiguracion>();
+        Asignar(camara, "configuracion", configUI);
+        Asignar(camara, "vistaConfiguracion", configuracion.gameObject);
+        AsignarEncuadre(camara, "nave", new Vector3(0, 0.45f, -7.4f), new Vector3(0, 0.5f, 0), 60f);
+        AsignarEncuadre(camara, "planeta", marteCentro + new Vector3(0, 12f, -45f), marteCentro + new Vector3(0, 1.5f, 0), 60f);
+        AsignarEncuadre(camara, "plataforma", Plataforma + new Vector3(0, 5.3f, -17f), Plataforma + new Vector3(0, 5f, 0), 60f);
+        Asignar(camara, "raizNave", nave.transform);
+        Asignar(camara, "coheteExplorador", cohetes.explorador);
+        Asignar(camara, "coheteTitan", cohetes.titan);
+        Asignar(camara, "resaltadoExplorador", cohetes.resaltadoExplorador);
+        Asignar(camara, "resaltadoTitan", cohetes.resaltadoTitan);
+        Asignar(camara, "catalogo", catalogo);
+        var etiqueta = Columna(configuracion, "EtiquetaInstalado", 2, TextAnchor.MiddleCenter, new Color(Fondo.r, Fondo.g, Fondo.b, 0.85f), 14);
+        etiqueta.anchorMin = etiqueta.anchorMax = new Vector2(0.5f, 0.5f);
+        etiqueta.sizeDelta = new Vector2(440, 84);
+        etiqueta.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        etiqueta.GetComponent<UnityEngine.UI.VerticalLayoutGroup>().childControlHeight = true;
+        MarcoHud(etiqueta);
+        var textoEtiqueta = Texto(etiqueta, "Texto", "", 26, Cian, FontStyles.Bold, TextAlignmentOptions.Center);
+        etiqueta.gameObject.SetActive(false);
+        Asignar(camara, "etiquetaFoco", etiqueta);
+        Asignar(camara, "textoFoco", textoEtiqueta);
 
         CrearEventSystem();
         Asignar(controlador, "operacion", operacionUI);
@@ -747,6 +778,7 @@ public static class ConstructorEscenas
         var pestanas = Fila(izq, "Pestanas", 10);
         Alto(pestanas, 72);
         var pOrbita = Boton(pestanas, "PestanaOrbita", SpaceMission.Iconos.Orbita + " Órbita", false);
+        // GuiaConfiguracion añade a cada pestaña el ✓ cuando esa parte está elegida.
         var pLanzador = Boton(pestanas, "PestanaLanzador", SpaceMission.Iconos.Lanzador + " Lanzador", false);
         var pInstrumentos = Boton(pestanas, "PestanaInstrumentos", SpaceMission.Iconos.Instrumentos + " Instrumentos", false);
         foreach (var p in new[] { pOrbita, pLanzador, pInstrumentos })
@@ -789,9 +821,17 @@ public static class ConstructorEscenas
         var ayuda = Texto(cajaAyuda, "TextoAyuda", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         ayuda.lineSpacing = 0;
 
-        var verBriefing = Boton(izq, "BotonBriefing", SpaceMission.Iconos.Atras + "  Ver briefing", false);
-        var leBriefing = verBriefing.GetComponent<UnityEngine.UI.LayoutElement>();
-        leBriefing.preferredWidth = -1; leBriefing.minHeight = 64; leBriefing.preferredHeight = 64;
+        var filaNavegacion = Fila(izq, "Navegacion", 12);
+        Alto(filaNavegacion, 64);
+        var verBriefing = Boton(filaNavegacion, "BotonBriefing", SpaceMission.Iconos.Atras + "  Briefing", false);
+        var siguiente = Boton(filaNavegacion, "BotonSiguiente", "Lanzador  " + SpaceMission.Iconos.Siguiente, true);
+        foreach (var b in new[] { verBriefing, siguiente })
+        {
+            var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.preferredWidth = -1; le.flexibleWidth = 1; le.minHeight = 64; le.preferredHeight = 64;
+            var t = b.GetComponentInChildren<TextMeshProUGUI>();
+            t.fontSize = 30; t.enableAutoSizing = true; t.fontSizeMin = 24; t.fontSizeMax = 30;
+        }
 
         // Panel derecho: barras, semáforo y botón de revisión.
         var der = Columna(vista, "PanelDerecho", 14, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
@@ -846,9 +886,9 @@ public static class ConstructorEscenas
         var halo = new GameObject("Halo", typeof(RectTransform), typeof(UnityEngine.UI.Image)).GetComponent<UnityEngine.UI.Image>();
         halo.transform.SetParent(contenedorLuz, false);
         halo.sprite = sHalo;
-        halo.color = new Color(0.61f, 0.64f, 0.69f, 0.5f);
+        halo.color = new Color(0.61f, 0.64f, 0.69f, 0.18f);
         halo.raycastTarget = false;
-        Anclar(halo.rectTransform, new Vector2(-0.6f, -0.6f), new Vector2(1.6f, 1.6f));
+        Anclar(halo.rectTransform, new Vector2(-0.22f, -0.22f), new Vector2(1.22f, 1.22f)); // el halo apenas sobresale
         var luz = new GameObject("Luz", typeof(RectTransform), typeof(UnityEngine.UI.Image)).GetComponent<UnityEngine.UI.Image>();
         luz.transform.SetParent(contenedorLuz, false);
         luz.sprite = sCirculo;
@@ -873,7 +913,10 @@ public static class ConstructorEscenas
         // Centro: queda libre para la nave; solo el paso actual arriba y una leyenda abajo.
         var paso = Texto(vista, "Paso", Paso(2), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
         paso.font = ConstructorEstilo.Mono;
-        Anclar(paso.rectTransform, new Vector2(0.37f, 0.91f), new Vector2(0.645f, 0.97f));
+        Anclar(paso.rectTransform, new Vector2(0.37f, 0.93f), new Vector2(0.645f, 0.975f));
+        var instruccion = Texto(vista, "Instruccion", "", 30, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
+        instruccion.characterSpacing = 3;
+        Anclar(instruccion.rectTransform, new Vector2(0.37f, 0.875f), new Vector2(0.645f, 0.93f));
         var leyenda = Texto(vista, "LeyendaNave", "VISTA DE LA NAVE\n<size=24><color=#" + ColorUtility.ToHtmlStringRGB(TextoSecundario) +
             ">Cada instrumento elegido se instala y se ilumina. El anillo cian es tu órbita.</color></size>",
             26, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
@@ -885,6 +928,15 @@ public static class ConstructorEscenas
         Anclar(fondoLeyenda, new Vector2(0.375f, 0.025f), new Vector2(0.64f, 0.135f));
         fondoLeyenda.SetSiblingIndex(leyenda.transform.GetSiblingIndex());
         Aparecer(vista, izq, der);
+
+        var guia = vista.gameObject.AddComponent<GuiaConfiguracion>();
+        Asignar(guia, "configuracion", ui);
+        Asignar(guia, "textoPestanaOrbita", pOrbita.GetComponentInChildren<TextMeshProUGUI>());
+        Asignar(guia, "textoPestanaLanzador", pLanzador.GetComponentInChildren<TextMeshProUGUI>());
+        Asignar(guia, "textoPestanaInstrumentos", pInstrumentos.GetComponentInChildren<TextMeshProUGUI>());
+        Asignar(guia, "botonSiguiente", siguiente);
+        Asignar(guia, "textoInstruccion", instruccion);
+        Asignar(guia, "textoLeyenda", leyenda);
 
         Asignar(ui, "catalogo", catalogo);
         Asignar(ui, "mision", mision);
@@ -1055,11 +1107,205 @@ public static class ConstructorEscenas
         return nave;
     }
 
+    // ---------- Cohetes ----------
+
+    /// <summary>
+    /// Plataforma con los dos lanzadores, a escala aproximada entre ellos (el SLS mide el doble que el Soyuz):
+    /// - Explorador, inspirado en el Soyuz: etapa central gris claro, cuatro propulsores cónicos con faldón,
+    ///   banda naranja, etapa superior y cofia ojival.
+    /// - Titán, inspirado en el SLS de Artemis II: etapa central naranja (espuma aislante), dos propulsores sólidos
+    ///   blancos, etapa superior, Orion y su torre de escape.
+    /// Debajo de cada uno, un anillo de acento que se enciende cuando ese lanzador está elegido.
+    /// </summary>
+    static (GameObject explorador, GameObject titan, GameObject resaltadoExplorador, GameObject resaltadoTitan) ConstruirCohetes(Vector3 plataforma)
+    {
+        var blanco = CrearMaterial("Cohete_Blanco", Hex("#ECEEF0"), 0.05f, 0.55f);
+        var grisVerde = CrearMaterial("Cohete_GrisSoyuz", Hex("#C9CFC6"), 0.05f, 0.45f);
+        var naranja = CrearMaterial("Cohete_Naranja", Hex("#C8651E"), 0f, 0.2f);
+        var oscuro = CrearMaterial("Nave_Oscuro", Hex("#2B2F36"), 0.7f, 0.5f);
+        var negro = CrearMaterial("Cohete_Negro", Hex("#16181C"), 0.2f, 0.4f);
+        var plata = CrearMaterial("Nave_Plata", Hex("#C9CED6"), 0.85f, 0.7f);
+        var bandaNaranja = CrearMaterial("Cohete_BandaNaranja", Hex("#E2643A"), 0.05f, 0.5f);
+        var azul = CrearMaterial("Cohete_Azul", Hex("#1E3A8A"), 0.1f, 0.6f);
+        var llama = CrearMaterial("Nave_Tobera", Hex("#FF8A3D"), 0f, 0.2f, null, Vector2.one, Hex("#FF8A3D") * 3.5f);
+        var suelo = CrearMaterial("Plataforma", Hex("#3A3F47"), 0.3f, 0.35f);
+        var resalte = CrearMaterial("Plataforma_Resalte", Acento, 0f, 0.5f, null, Vector2.one, Acento * 1.6f);
+
+        var raiz = new GameObject("PlataformaLanzamiento").transform;
+        raiz.position = plataforma;
+        Pieza(PrimitiveType.Cylinder, "Suelo", raiz, new Vector3(0, -0.06f, 0), Vector3.zero, new Vector3(9f, 0.06f, 4.5f), suelo);
+
+        // ----- Explorador (Soyuz) -----
+        var soyuz = new GameObject("Cohete_explorador").transform;
+        soyuz.SetParent(raiz, false);
+        soyuz.localPosition = new Vector3(-2.1f, 0, 0);
+        var mNucleo = GuardarMalla(Torno(new[] { P(0.13f, 0.35f), P(0.17f, 0.5f), P(0.235f, 2.9f), P(0.24f, 3.3f), P(0.2f, 3.45f) }), "Soyuz_Nucleo");
+        var mPropulsor = GuardarMalla(Torno(new[] { P(0.16f, 0.22f), P(0.25f, 0.42f), P(0.235f, 0.7f), P(0.07f, 2.55f), P(0f, 2.75f) }), "Soyuz_Propulsor");
+        var mCofia = GuardarMalla(Torno(new[] { P(0.2f, 0f), P(0.26f, 0.12f), P(0.26f, 0.85f), P(0.22f, 1.1f), P(0.12f, 1.35f), P(0f, 1.5f) }), "Soyuz_Cofia");
+        var mTobera = GuardarMalla(Cono(0.1f, 0.05f, 0.22f), "Tobera_Pequena");
+        Malla(mNucleo, "Nucleo", soyuz, Vector3.zero, Vector3.zero, Vector3.one, grisVerde);
+        for (int i = 0; i < 4; i++)
+        {
+            float a = i * 90f + 45f;
+            var dir = Quaternion.Euler(0, a, 0) * Vector3.forward;
+            var propulsor = Malla(mPropulsor, "Propulsor" + i, soyuz, dir * 0.31f, new Vector3(0, a, 0), Vector3.one, grisVerde);
+            propulsor.transform.localRotation = Quaternion.AngleAxis(-3f, Vector3.Cross(Vector3.up, dir)) * propulsor.transform.localRotation;
+            Pieza(PrimitiveType.Cube, "Aleta" + i, soyuz, dir * 0.6f + Vector3.up * 0.45f, new Vector3(0, a, 0), new Vector3(0.02f, 0.28f, 0.18f), oscuro);
+            Malla(mTobera, "Tobera" + i, soyuz, dir * 0.31f + Vector3.up * 0.0f, Vector3.zero, Vector3.one, oscuro);
+            Pieza(PrimitiveType.Cylinder, "Llama" + i, soyuz, dir * 0.31f, Vector3.zero, new Vector3(0.12f, 0.005f, 0.12f), llama);
+        }
+        Malla(mTobera, "ToberaCentral", soyuz, Vector3.up * 0.13f, Vector3.zero, Vector3.one * 1.1f, oscuro);
+        Pieza(PrimitiveType.Cylinder, "Celosia", soyuz, Vector3.up * 3.6f, Vector3.zero, new Vector3(0.38f, 0.15f, 0.38f), oscuro);
+        Pieza(PrimitiveType.Cylinder, "BandaNaranja", soyuz, Vector3.up * 3.82f, Vector3.zero, new Vector3(0.41f, 0.07f, 0.41f), bandaNaranja);
+        Pieza(PrimitiveType.Cylinder, "EtapaSuperior", soyuz, Vector3.up * 4.25f, Vector3.zero, new Vector3(0.4f, 0.36f, 0.4f), blanco);
+        Malla(mCofia, "Cofia", soyuz, Vector3.up * 4.6f, Vector3.zero, Vector3.one, blanco);
+        Pieza(PrimitiveType.Cube, "Emblema", soyuz, new Vector3(0, 5.2f, -0.262f), Vector3.zero, new Vector3(0.14f, 0.22f, 0.01f), azul);
+        soyuz.gameObject.AddComponent<GiroLento>().enabled = false;
+
+        // ----- Titán (SLS + Orion) -----
+        var sls = new GameObject("Cohete_titan").transform;
+        sls.SetParent(raiz, false);
+        sls.localPosition = new Vector3(2.1f, 0, 0);
+        var mEtapa = GuardarMalla(Torno(new[] { P(0.4f, 0.35f), P(0.42f, 0.45f), P(0.42f, 6.85f), P(0.4f, 6.95f) }), "SLS_EtapaCentral");
+        var mSrb = GuardarMalla(Torno(new[] { P(0.24f, 0.25f), P(0.2f, 0.55f), P(0.2f, 6.2f), P(0.17f, 6.45f), P(0.08f, 6.8f), P(0f, 6.9f) }), "SLS_Propulsor");
+        var mAdaptador = GuardarMalla(Torno(new[] { P(0.42f, 0f), P(0.27f, 0.7f) }), "SLS_Adaptador");
+        var mLas = GuardarMalla(Torno(new[] { P(0.28f, 0f), P(0.26f, 0.2f), P(0.13f, 0.75f), P(0.05f, 0.95f), P(0.05f, 1.6f), P(0.07f, 1.62f), P(0.07f, 1.75f), P(0.04f, 1.8f), P(0f, 2.05f) }), "Orion_TorreEscape");
+        var mRs25 = GuardarMalla(Cono(0.13f, 0.05f, 0.3f), "Tobera_RS25");
+        Pieza(PrimitiveType.Cylinder, "SeccionMotores", sls, Vector3.up * 0.4f, Vector3.zero, new Vector3(0.84f, 0.08f, 0.84f), blanco);
+        Malla(mEtapa, "EtapaCentral", sls, Vector3.zero, Vector3.zero, Vector3.one, naranja);
+        Pieza(PrimitiveType.Cylinder, "Anillo", sls, Vector3.up * 5.3f, Vector3.zero, new Vector3(0.855f, 0.03f, 0.855f), CrearMaterial("Cohete_NaranjaOscuro", Hex("#9A4B14"), 0f, 0.3f));
+        for (int i = 0; i < 4; i++)
+        {
+            var pos = new Vector3((i % 2 == 0 ? -1 : 1) * 0.17f, 0.32f, (i < 2 ? -1 : 1) * 0.17f);
+            Malla(mRs25, "RS25_" + i, sls, pos - Vector3.up * 0.3f, Vector3.zero, Vector3.one, oscuro);
+            Pieza(PrimitiveType.Cylinder, "Llama" + i, sls, pos - Vector3.up * 0.3f, Vector3.zero, new Vector3(0.24f, 0.005f, 0.24f), llama);
+        }
+        foreach (int lado in new[] { -1, 1 })
+        {
+            var x = lado * 0.66f;
+            Malla(mSrb, lado < 0 ? "PropulsorIzquierdo" : "PropulsorDerecho", sls, new Vector3(x, 0, 0), Vector3.zero, Vector3.one, blanco);
+            Pieza(PrimitiveType.Cylinder, "Faldon", sls, new Vector3(x, 0.38f, 0), Vector3.zero, new Vector3(0.5f, 0.14f, 0.5f), negro);
+            foreach (var y in new[] { 1.6f, 3.4f, 5.2f })
+                Pieza(PrimitiveType.Cylinder, "Union", sls, new Vector3(x, y, 0), Vector3.zero, new Vector3(0.41f, 0.015f, 0.41f), negro);
+            Pieza(PrimitiveType.Cylinder, "Toberas", sls, new Vector3(x, 0.15f, 0), Vector3.zero, new Vector3(0.3f, 0.12f, 0.3f), oscuro);
+            Pieza(PrimitiveType.Cylinder, "Llama", sls, new Vector3(x, 0.02f, 0), Vector3.zero, new Vector3(0.27f, 0.005f, 0.27f), llama);
+            foreach (var y in new[] { 0.9f, 6.0f })
+                Pieza(PrimitiveType.Cylinder, "Soporte", sls, new Vector3(lado * 0.42f, y, 0), new Vector3(0, 0, 90), new Vector3(0.05f, 0.12f, 0.05f), oscuro);
+        }
+        Malla(mAdaptador, "Adaptador", sls, Vector3.up * 6.95f, Vector3.zero, Vector3.one, blanco);
+        Pieza(PrimitiveType.Cylinder, "EtapaSuperior", sls, Vector3.up * 7.95f, Vector3.zero, new Vector3(0.5f, 0.3f, 0.5f), plata);
+        Pieza(PrimitiveType.Cylinder, "ModuloServicio", sls, Vector3.up * 8.5f, Vector3.zero, new Vector3(0.56f, 0.25f, 0.56f), blanco);
+        Malla(mLas, "OrionYTorre", sls, Vector3.up * 8.75f, Vector3.zero, Vector3.one, blanco);
+        sls.gameObject.AddComponent<GiroLento>().enabled = false;
+
+        // Anillos que señalan el lanzador elegido.
+        GameObject Resalte(string nombre, Vector3 x)
+        {
+            var r = Pieza(PrimitiveType.Cylinder, nombre, raiz, x + Vector3.up * 0.005f, Vector3.zero, new Vector3(1.9f, 0.004f, 1.9f), resalte);
+            r.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+            r.SetActive(false);
+            return r;
+        }
+        var rExp = Resalte("ElegidoExplorador", soyuz.localPosition);
+        var rTit = Resalte("ElegidoTitan", sls.localPosition);
+        return (soyuz.gameObject, sls.gameObject, rExp, rTit);
+    }
+
+    static Vector2 P(float radio, float alto) => new Vector2(radio, alto);
+
+    /// <summary>Malla de revolución: gira un perfil (radio, alto) de abajo arriba alrededor del eje Y.</summary>
+    static Mesh Torno(Vector2[] perfil, int segmentos = 40)
+    {
+        var v = new List<Vector3>(); var uv = new List<Vector2>(); var t = new List<int>();
+        int fila = segmentos + 1;
+        for (int i = 0; i < perfil.Length; i++)
+            for (int s = 0; s <= segmentos; s++)
+            {
+                float a = s * Mathf.PI * 2f / segmentos;
+                v.Add(new Vector3(Mathf.Cos(a) * perfil[i].x, perfil[i].y, Mathf.Sin(a) * perfil[i].x));
+                uv.Add(new Vector2((float)s / segmentos, (float)i / (perfil.Length - 1)));
+            }
+        for (int i = 0; i < perfil.Length - 1; i++)
+            for (int s = 0; s < segmentos; s++)
+            {
+                int a = i * fila + s, b = a + fila;
+                t.AddRange(new[] { a, b, a + 1, a + 1, b, b + 1 });
+            }
+        // Tapa inferior si el perfil no empieza en el eje.
+        if (perfil[0].x > 0.001f)
+        {
+            int centro = v.Count;
+            v.Add(new Vector3(0, perfil[0].y, 0)); uv.Add(new Vector2(0.5f, 0));
+            for (int s = 0; s < segmentos; s++) t.AddRange(new[] { centro, s, s + 1 });
+        }
+        var m = new Mesh();
+        m.SetVertices(v); m.SetUVs(0, uv); m.SetTriangles(t, 0);
+        m.RecalculateNormals();
+        m.RecalculateTangents();
+        m.RecalculateBounds();
+        return m;
+    }
+
+    /// <summary>Esfera UV de alta resolución (silueta suave al acercarse) con la proyección equirectangular de los mapas.</summary>
+    static Mesh EsferaUV()
+    {
+        const string ruta = "Assets/Arte/Mallas/Esfera_Planeta.asset";
+        var existente = AssetDatabase.LoadAssetAtPath<Mesh>(ruta);
+        if (existente != null) return existente;
+        const int lon = 128, lat = 64;
+        var v = new List<Vector3>(); var n = new List<Vector3>(); var uv = new List<Vector2>(); var t = new List<int>();
+        for (int y = 0; y <= lat; y++)
+            for (int x = 0; x <= lon; x++)
+            {
+                float fi = Mathf.PI * y / lat, la = 2f * Mathf.PI * x / lon;
+                var p = new Vector3(-Mathf.Sin(fi) * Mathf.Cos(la), -Mathf.Cos(fi), -Mathf.Sin(fi) * Mathf.Sin(la));
+                v.Add(p * 0.5f); n.Add(p); uv.Add(new Vector2((float)x / lon, (float)y / lat)); // este a la derecha, sin espejo
+            }
+        for (int y = 0; y < lat; y++)
+            for (int x = 0; x < lon; x++)
+            {
+                int a = y * (lon + 1) + x, b = a + lon + 1;
+                t.AddRange(new[] { a, b, a + 1, a + 1, b, b + 1 }); // caras hacia fuera
+            }
+        var m = new Mesh { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+        m.SetVertices(v); m.SetNormals(n); m.SetUVs(0, uv); m.SetTriangles(t, 0);
+        m.RecalculateTangents();
+        m.RecalculateBounds();
+        return GuardarMalla(m, "Esfera_Planeta");
+    }
+
+    static void AsignarEncuadre(Object destino, string campo, Vector3 posicion, Vector3 mirarA, float fov)
+    {
+        var so = new SerializedObject(destino);
+        so.FindProperty(campo + ".posicion").vector3Value = posicion;
+        so.FindProperty(campo + ".mirarA").vector3Value = mirarA;
+        so.FindProperty(campo + ".campo").floatValue = fov;
+        so.ApplyModifiedPropertiesWithoutUndo();
+    }
+
     /// <summary>Marte con la textura real (MARCI, tormenta global de 2018) y un borde de atmósfera.</summary>
     static GameObject ConstruirMarte(Vector3 posicion, float diametro)
     {
-        var mat = CrearMaterial("Marte", Color.white, 0f, 0.12f, ConstructorEstilo.Imagen("Texturas/Marte_Superficie"), Vector2.one);
-        var marte = Pieza(PrimitiveType.Sphere, "Marte", null, posicion, new Vector3(0, 0, -12), Vector3.one * diametro, mat);
+        var mat = CrearMaterial("Marte", Color.white, 0f, 0.1f, ConstructorEstilo.Imagen("Texturas/Marte_Superficie"), Vector2.one);
+        mat.SetTexture("_BumpMap", ConstructorEstilo.Imagen("Texturas/Marte_Normal"));
+        mat.SetFloat("_BumpScale", 1f);
+        mat.EnableKeyword("_NORMALMAP");
+        EditorUtility.SetDirty(mat);
+        var marte = Malla(EsferaUV(), "Marte", null, posicion, new Vector3(0, 0, -12), Vector3.one * diametro, mat);
+
+        // Capa de polvo: la tormenta global de 2018 (MARCI) semitransparente, girando un poco más rápido.
+        var matPolvo = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materiales/Marte_Polvo.mat");
+        if (matPolvo == null)
+        {
+            matPolvo = new Material(Shader.Find("OperacionEclipseRojo/CapaPolvo"));
+            AssetDatabase.CreateAsset(matPolvo, "Assets/Materiales/Marte_Polvo.mat");
+        }
+        matPolvo.SetTexture("_BaseMap", ConstructorEstilo.Imagen("Texturas/Marte_Polvo"));
+        matPolvo.SetFloat("_Opacidad", 0.5f);
+        EditorUtility.SetDirty(matPolvo);
+        var polvo = Malla(EsferaUV(), "TormentaPolvo", null, posicion, new Vector3(0, 40, -12), Vector3.one * diametro * 1.008f, matPolvo);
+        polvo.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+        Asignar(polvo.AddComponent<GiroLento>(), "gradosPorSegundo", 2.4f);
         var matAtmosfera = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materiales/Atmosfera.mat");
         if (matAtmosfera == null)
         {
@@ -1095,10 +1341,18 @@ public static class ConstructorEscenas
         linea.enabled = false;
         var anillo = go.AddComponent<AnilloOrbita>();
         Asignar(anillo, "radio", 0.66f);
+        // Marcador de la nave en órbita: una esfera cian encendida (el Bloom la hace brillar).
+        var matMarcador = CrearMaterial("Marcador_Orbita", Cian, 0f, 0.5f, null, Vector2.one, Cian * 3f);
+        var marcador = Pieza(PrimitiveType.Sphere, "MarcadorNave", go.transform, Vector3.zero, Vector3.zero, Vector3.one * 0.022f, matMarcador);
+        marcador.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+        marcador.SetActive(false);
+        Asignar(anillo, "marcador", marcador.transform);
     }
 
     /// <summary>Cielo de estrellas propio en un plano lejano que llena la vista (se mueve un poco con el ratón).</summary>
-    static void ConstruirEstrellas()
+    static void ConstruirEstrellas() => ConstruirEstrellas(new Vector3(0, 0.2f, 60f));
+
+    static void ConstruirEstrellas(Vector3 centro)
     {
         var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materiales/Estrellas.mat");
         if (mat == null)
@@ -1109,7 +1363,7 @@ public static class ConstructorEscenas
         mat.SetTexture("_BaseMap", ConstructorEstilo.Imagen("Texturas/Estrellas"));
         mat.SetColor("_BaseColor", Color.white);
         EditorUtility.SetDirty(mat);
-        var cielo = Pieza(PrimitiveType.Quad, "Estrellas", null, new Vector3(0, 0.2f, 60f), Vector3.zero, new Vector3(128f, 72f, 1f), mat);
+        var cielo = Pieza(PrimitiveType.Quad, "Estrellas", null, centro, Vector3.zero, new Vector3(128f, 72f, 1f), mat);
         cielo.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
         var parallax = cielo.AddComponent<Parallax>();
         Asignar(parallax, "amplitud", new Vector2(2.5f, 1.4f));
@@ -1126,7 +1380,7 @@ public static class ConstructorEscenas
         sol.color = new Color(1f, 0.93f, 0.84f);
         sol.intensity = 2.1f;
         sol.shadows = LightShadows.Soft;
-        sol.transform.rotation = Quaternion.Euler(28, 62, 0);
+        sol.transform.rotation = Quaternion.Euler(24, 38, 0); // de frente y algo de lado: el planeta se ve casi todo iluminado
 
         var contra = new GameObject("LuzContorno").AddComponent<Light>();
         contra.type = LightType.Directional;
@@ -1150,25 +1404,35 @@ public static class ConstructorEscenas
     {
         const string ruta = "Assets/Arte/PostProceso.asset";
         var perfil = AssetDatabase.LoadAssetAtPath<VolumeProfile>(ruta);
-        if (perfil != null) return perfil;
-        perfil = ScriptableObject.CreateInstance<VolumeProfile>();
-        AssetDatabase.CreateAsset(perfil, ruta);
-        var bloom = perfil.Add<Bloom>(true);
-        bloom.threshold.Override(1f);
-        bloom.intensity.Override(0.9f);
-        bloom.scatter.Override(0.65f);
-        var tono = perfil.Add<Tonemapping>(true);
-        tono.mode.Override(TonemappingMode.ACES);
-        var vineta = perfil.Add<Vignette>(true);
-        vineta.intensity.Override(0.32f);
+        if (perfil == null)
+        {
+            perfil = ScriptableObject.CreateInstance<VolumeProfile>();
+            AssetDatabase.CreateAsset(perfil, ruta);
+        }
+        // Los valores se aplican siempre, aunque el perfil ya exista, para que cambiarlos aquí tenga efecto.
+        var bloom = Componente<Bloom>(perfil);
+        bloom.threshold.Override(1.15f);   // solo brilla lo realmente encendido (toberas, módulos)
+        bloom.intensity.Override(0.55f);
+        bloom.scatter.Override(0.5f);
+        Componente<Tonemapping>(perfil).mode.Override(TonemappingMode.ACES);
+        var vineta = Componente<Vignette>(perfil);
+        vineta.intensity.Override(0.3f);
         vineta.smoothness.Override(0.5f);
-        var color = perfil.Add<ColorAdjustments>(true);
+        var color = Componente<ColorAdjustments>(perfil);
         color.postExposure.Override(0.35f);
         color.contrast.Override(8f);
-        foreach (var componente in perfil.components) AssetDatabase.AddObjectToAsset(componente, perfil);
         EditorUtility.SetDirty(perfil);
         AssetDatabase.SaveAssets();
         return perfil;
+    }
+
+    static T Componente<T>(VolumeProfile perfil) where T : VolumeComponent
+    {
+        if (perfil.TryGet<T>(out var c)) return c;
+        c = perfil.Add<T>(true);
+        c.name = typeof(T).Name;
+        AssetDatabase.AddObjectToAsset(c, perfil);
+        return c;
     }
 
     static void PrepararCamara()
@@ -1265,10 +1529,12 @@ public static class ConstructorEscenas
             return nueva;
         }
         existente.Clear();
+        existente.indexFormat = nueva.indexFormat;
         existente.vertices = nueva.vertices;
         existente.normals = nueva.normals;
         existente.uv = nueva.uv;
         existente.triangles = nueva.triangles;
+        existente.tangents = nueva.tangents;
         existente.RecalculateBounds();
         EditorUtility.SetDirty(existente);
         return existente;

@@ -167,8 +167,12 @@ Todo está en `Assets/Editor/ConstructorEscenas.cs`. Busca el nombre entre comil
   - Un módulo por instrumento (`Modulo_<id>`, con la forma de cada instrumento y el acento encendido) que se «instala» al elegirlo (`Instalacion`).
   - Materiales en `Assets/Materiales/Nave_*`; mallas en `Assets/Arte/Mallas`.
   - En Mision está en 0, 0.55, 0 con escala 0.5.
-- **Marte en Configuración:** en 0, -17.5, 16, con diámetro 26 y el anillo cian de la órbita elegida (`AnilloOrbita`: polar, media inclinada o elíptica).
-- **Luz y posprocesado:** `ConstruirIluminacion` y `PerfilPostProceso`.
+- **Marte** (método `ConstruirMarte`): esfera de alta resolución (`Esfera_Planeta`), textura de Solar System Scope a 4096 px con relieve (`Marte_Normal`), capa de polvo de la tormenta de 2018 (`Marte_Polvo`, shader `CapaPolvo`) y borde de atmósfera. En Configuración está en 0, -17.5, 16, con diámetro 26 y el anillo cian de la órbita elegida (`AnilloOrbita`: polar, media inclinada o elíptica, con un marcador que la recorre).
+- **Cohetes** (método `ConstruirCohetes`, en la plataforma `Plataforma` = 70, 0, 0): Explorador inspirado en el Soyuz y Titán inspirado en el SLS de Artemis II, a escala aproximada entre ellos, hechos con mallas de revolución (`Torno`). El anillo de acento bajo cada uno se enciende y el cohete gira cuando está elegido.
+- **Cámara de Configuración** (`CamaraConfiguracion`, en la cámara principal): pestaña Órbita, el planeta; pestaña Lanzador, la plataforma; pestaña Instrumentos, la nave. Al instalar un instrumento, la cámara se acerca a su módulo y una etiqueta «INSTALADO AQUÍ» lo señala. Los encuadres se asignan en `ConstruirMision` (`AsignarEncuadre`).
+- **Navegación de Configuración** (`GuiaConfiguracion`): ✓ en cada pestaña ya completada, instrucción «1 · ELIGE LA ÓRBITA» y similares, botón «Siguiente», leyenda según la pestaña y teclas 1, 2 y 3.
+- **Luz y posprocesado:** `ConstruirIluminacion` (Sol en 24, 38, 0) y `PerfilPostProceso` (Bloom con umbral 1.15 e intensidad 0.55: solo brilla lo encendido). Los valores del perfil se aplican cada vez que se construye.
+- **Semáforo:** el halo de la luz es suave a propósito (alfa 0.22, apenas sobresale de la luz).
 
 Colores de las opciones elegidas y de las barras: en `Assets/Scripts/UI/ConfiguracionUI.cs` (`ColorElegida`, `ColorNormal`, `ColorPestanaActiva`, `ColorExcedida`, `ColorBarra`). Colores del semáforo: `Assets/Scripts/UI/PresentacionMision.cs` (`ColorSemaforo`).
 

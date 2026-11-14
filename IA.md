@@ -115,3 +115,18 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - La caja de ayuda desbordada.
 - Pasan las 112 pruebas EditMode y las 19 PlayMode.
 - Al subirlo, integró el gameplay nuevo de Adrian (Operación, niveles y puntos), que se había subido mientras tanto. Restyló la vista de Operación con el mismo estilo: barras segmentadas, mapa con marco HUD e imagen real del instrumento de la última señal (`VisorEvidencia`, ahora lee `OperacionUI`). También restyló el selector de nivel del Briefing y los puntos del Resultado. Borró el marcador azul del rover que traía la foto de Marte. Pasan las 136 pruebas EditMode y las 19 PlayMode.
+
+## Cohetes, zoom y navegación de Configuración (con Diego)
+
+- Diego pidió cohetes basados en referencias reales, acercamiento al planeta al elegir la órbita y a la nave al instalar instrumentos, mejores texturas y mejor navegación. También pidió contener los brillos del semáforo.
+- Construyó dos cohetes con mallas de revolución: el Explorador (inspirado en el Soyuz) y el Titán (inspirado en el SLS de Artemis II, con Orion y torre de escape), a escala aproximada entre ellos y sin logotipos.
+- Añadió `CamaraConfiguracion`, que encuadra el planeta, la plataforma o la nave según la pestaña. También se acerca al módulo de cada instrumento instalado, con una etiqueta flotante.
+- Añadió `GuiaConfiguracion`: ✓ por pestaña completada, botón «Siguiente», instrucción por paso, leyenda según la pestaña y teclas 1, 2 y 3.
+- Mejoró Marte:
+  - Mapa de Solar System Scope (CC BY 4.0) con relieve calculado y una capa de polvo semitransparente con la tormenta real de 2018.
+  - Esfera de alta resolución.
+  - Marcador de la nave recorriendo el anillo de órbita.
+- Bajó el halo del semáforo y el Bloom.
+- Fallos encontrados con las capturas y corregidos: la textura en espejo y los triángulos de la esfera invertidos (se veía la cara interior). También la órbita elíptica, que entraba en el planeta, y el Sol demasiado de lado.
+- El audio sigue pendiente: las herramientas de ElevenLabs no se cargaron en esta sesión.
+- Pasan las 136 pruebas EditMode y las 19 PlayMode.

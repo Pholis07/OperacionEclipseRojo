@@ -30,7 +30,7 @@ namespace SpaceMission
             anterior = luz.color;
             var estado = Estado(luz.color);
             if (icono != null) icono.text = Iconos.DeEstado(estado);
-            if (halo != null) halo.color = new Color(luz.color.r, luz.color.g, luz.color.b, 0.55f);
+            if (halo != null) halo.color = new Color(luz.color.r, luz.color.g, luz.color.b, 0.22f); // brillo contenido
             StopAllCoroutines();
             StartCoroutine(Latido());
             if (estado == EstadoSemaforo.Rojo)
@@ -52,7 +52,7 @@ namespace SpaceMission
         {
             if (halo == null) yield break;
             var rt = halo.rectTransform;
-            yield return Animar.Durante(0.45f, t => rt.localScale = Vector3.one * Mathf.Lerp(1.6f, 1f, t));
+            yield return Animar.Durante(0.4f, t => rt.localScale = Vector3.one * Mathf.Lerp(1.15f, 1f, t));
         }
 
         IEnumerator Sacudir()

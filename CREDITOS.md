@@ -10,7 +10,7 @@ Descargadas de la NASA Image and Video Library (images.nasa.gov) el 2026-11-14. 
 
 | Archivo en `Assets/Arte` | Imagen original | Crédito |
 |---|---|---|
-| `Texturas/Marte_Superficie.jpg` | PIA22329, «Dust Storm Covers Opportunity» (MARCI, MRO, 2018). Mapa global con los huecos entre órbitas rellenados | NASA/JPL-Caltech/MSSS |
+| `Texturas/Marte_Polvo.png` | PIA22329, «Dust Storm Covers Opportunity» (MARCI, MRO, 2018). Mapa global de la tormenta con los huecos rellenados, convertido en capa de polvo semitransparente | NASA/JPL-Caltech/MSSS |
 | `Evidencias/Evidencia_mision.jpg`, `Fondos/Fondo_Resultado.jpg` | PIA22329 (la misma, ya rellenada) | NASA/JPL-Caltech/MSSS |
 | `Fondos/Fondo_Briefing.jpg`, `Evidencias/Evidencia_atmosferico.jpg` | PIA23513, «A Mars Dust Tower Stands Out» (MARCI, MRO) | NASA/JPL-Caltech/MSSS |
 | `Evidencias/Evidencia_region.jpg` | PIA26329, «Gullies in the Depths of Hellas» (HiRISE, MRO) | NASA/JPL-Caltech/University of Arizona |
@@ -20,6 +20,12 @@ Descargadas de la NASA Image and Video Library (images.nasa.gov) el 2026-11-14. 
 | `Evidencias/Evidencia_espectrometro.jpg` | PIA20763, «Adding Composition Data About Mars Gullies» (CRISM y HiRISE, MRO), mitad inferior | NASA/JPL-Caltech/UA/JHUAPL |
 
 Los créditos se muestran en el juego junto a cada imagen (Briefing, Investigación y Resultado) y en el pie del Menú.
+
+## Mapa de la superficie de Marte
+
+| Archivo en `Assets/Arte` | Origen | Licencia |
+|---|---|---|
+| `Texturas/Marte_Superficie.jpg` (y `Texturas/Marte_Normal.png`, relieve calculado a partir de ella) | «8k Mars» de Solar System Scope (solarsystemscope.com/textures), basado en datos de elevación e imágenes de NASA. Reducido a 4096 x 2048 | Creative Commons Attribution 4.0 (CC BY 4.0). Crédito: Solar System Scope |
 
 ## Fuentes
 

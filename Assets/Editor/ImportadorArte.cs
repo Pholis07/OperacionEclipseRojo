@@ -9,7 +9,7 @@ using UnityEngine;
 public class ImportadorArte : AssetPostprocessor
 {
     // Subir este número fuerza a Unity a reimportar las imágenes con los ajustes nuevos.
-    public override uint GetVersion() => 2;
+    public override uint GetVersion() => 3;
 
     void OnPreprocessTexture()
     {
@@ -45,9 +45,14 @@ public class ImportadorArte : AssetPostprocessor
         {
             bool repetible = nombre == "Lamina_Dorada" || nombre == "Celdas_Solares";
             ti.wrapMode = repetible ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
+            // Los mapas de planeta se repiten a lo ancho (longitud) para que no se vea la costura.
+            if (nombre.StartsWith("Marte_")) ti.wrapModeU = TextureWrapMode.Repeat;
             ti.mipmapEnabled = nombre != "Estrellas"; // las estrellas se ven a 1:1, sin mipmaps quedan nítidas
             ti.anisoLevel = 4;
-            ti.maxTextureSize = 2048;
+            // La superficie de Marte se ve de cerca al elegir la órbita: más resolución.
+            ti.maxTextureSize = nombre == "Marte_Superficie" ? 4096 : 2048;
+            if (nombre == "Marte_Normal") ti.textureType = TextureImporterType.NormalMap;
+            if (nombre == "Marte_Polvo") ti.alphaIsTransparency = true;
         }
     }
 }
