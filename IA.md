@@ -52,3 +52,10 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Amplió el constructor de escenas con estas vistas y una nave 3D hecha con primitivas de Unity (cuerpo, dos paneles y un módulo por instrumento) con tres materiales propios.
 - Escribió 21 pruebas: los casos 1 a 7 y B1 a B8 con los valores y colores de la tabla, el recorrido en la escena y el bloqueo de «Lanzar».
 - Fallos encontrados: otro nombre de campo con «semáforo» (se renombró el campo) y una expectativa mal escrita por la propia IA en la prueba de B8 (faltaba la unidad «kg»; se corrigió la expectativa porque el código era coherente con las demás barras). Pasan las 99 pruebas.
+
+## Fase 7: investigación y resultado
+
+- Escribió `InvestigacionUI` (transmisiones de una en una con «Continuar investigación»), `InformeMision` (conclusión, evidencias por instrumento, revelación complementaria, lo que faltó y recursos usados), `ResultadoUI` y la vuelta a Configuración con «Modificar mi misión».
+- Los títulos y textos de las tres conclusiones se extrajeron con un script del diseño del equipo, sin reescribirlos; se añadió el punto final de la frase, que en el documento va fuera de las comillas.
+- Amplió el constructor con la vista Investigación y la escena Resultado. Dejó de reconstruir la escena Menu, que pasa a editarse a mano (ver `GUIA-INTERFAZ.md`, que también escribió).
+- Escribió 13 pruebas: transmisiones de los casos 1 a 6 en orden, caso 7 sin Investigación, F1, PM2, escena Resultado sin «Nueva misión» ni puntos, y «Modificar mi misión». Pasan las 112 pruebas en el primer intento.

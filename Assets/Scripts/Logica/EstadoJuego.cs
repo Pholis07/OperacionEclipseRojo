@@ -12,11 +12,15 @@ namespace SpaceMission
         /// <summary>La evaluación de la misión lanzada, o null si todavía no se lanzó.</summary>
         public static Evaluacion Resultado;
 
+        /// <summary>«Modificar mi misión» lo pone en true para que Mision abra en Configuración y no en el Briefing.</summary>
+        public static bool EntrarEnConfiguracion;
+
         /// <summary>Deja todo como al empezar una misión nueva.</summary>
         public static void Reiniciar()
         {
             Configuracion = new Configuracion();
             Resultado = null;
+            EntrarEnConfiguracion = false;
         }
     }
 }

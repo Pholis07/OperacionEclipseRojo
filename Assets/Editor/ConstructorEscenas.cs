@@ -9,7 +9,9 @@ using UnityEngine.InputSystem.UI;
 /// <summary>
 /// Arma la interfaz de las escenas por código. Se usa desde el menú Herramientas o en modo batch
 /// (-executeMethod ConstructorEscenas.ConstruirTodo). OJO: reconstruye las escenas desde cero, así que
-/// los cambios hechos a mano en Menu y Mision se pierden al volver a ejecutarlo.
+/// los cambios hechos a mano en las escenas que construye se pierden al volver a ejecutarlo.
+/// Desde el 2026-11-14 la escena Menu la edita Diego a mano: ConstruirTodo ya NO la toca.
+/// Ver GUIA-INTERFAZ.md en la raíz del proyecto.
 /// </summary>
 public static class ConstructorEscenas
 {
@@ -36,19 +38,28 @@ public static class ConstructorEscenas
         TMP_PackageResourceImporter.ImportResources(true, false, false);
     }
 
-    [MenuItem("Herramientas/Construir escenas")]
+    /// <summary>Reconstruye las escenas que todavía genera el código (Mision y Resultado). No toca Menu.</summary>
+    [MenuItem("Herramientas/Construir escenas (sin Menu)")]
     public static void ConstruirTodo()
     {
-        ConstruirMenu();
         ConstruirMision();
+        ConstruirResultado();
         AssetDatabase.SaveAssets();
         Debug.Log("ConstructorEscenas: listo");
     }
 
     // ---------- Menu ----------
 
-    static void ConstruirMenu()
+    /// <summary>
+    /// Versión original del Menú. Ya no se ejecuta sola: BORRA lo que se haya editado a mano en Menu.
+    /// Solo para recuperarlo si se rompe por completo.
+    /// </summary>
+    [MenuItem("Herramientas/Recuperar Menu original (borra cambios manuales)")]
+    public static void ConstruirMenu()
     {
+        if (!Application.isBatchMode && !EditorUtility.DisplayDialog("Recuperar Menu original",
+                "Esto rehace la escena Menu desde cero y borra los cambios hechos a mano. ¿Seguir?", "Sí, rehacer", "Cancelar"))
+            return;
         var escena = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
         var canvas = CrearCanvas();
 
@@ -136,14 +147,13 @@ public static class ConstructorEscenas
         Estirar(revision);
         var revisionUI = ConstruirRevision(revision, catalogo, controlador);
 
-        // Vista Investigación: se construye en la fase 7.
+        // Vista Investigación: las transmisiones de una en una.
         var investigacion = Panel(canvas, "VistaInvestigacion", Fondo);
         Estirar(investigacion);
-        var aviso = Texto(investigacion, "Pendiente", "Investigación (en construcción)", 48,
-            TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
-        Estirar(aviso.rectTransform);
+        var investigacionUI = ConstruirInvestigacion(investigacion, catalogo);
 
         CrearEventSystem();
+        Asignar(controlador, "investigacion", investigacionUI);
 
         Asignar(controlador, "catalogo", catalogo);
         Asignar(controlador, "vistaBriefing", briefing.gameObject);
@@ -163,6 +173,67 @@ public static class ConstructorEscenas
         investigacion.gameObject.SetActive(false);
 
         EditorSceneManager.SaveScene(escena, "Assets/Escenas/Mision.unity");
+    }
+
+    static InvestigacionUI ConstruirInvestigacion(RectTransform vista, CatalogoDatos catalogo)
+    {
+        var ui = vista.gameObject.AddComponent<InvestigacionUI>();
+        var tarjeta = Columna(vista, "Tarjeta", 32, TextAnchor.UpperLeft, Tarjeta, 56);
+        Anclar(tarjeta, new Vector2(0.15f, 0.15f), new Vector2(0.85f, 0.85f));
+        Texto(tarjeta, "Etiqueta", "INVESTIGACIÓN EN CURSO", 28, Acento, FontStyles.Bold, TextAlignmentOptions.Left);
+        var encabezado = Texto(tarjeta, "Encabezado", "", 36, TextoSecundario, FontStyles.Bold, TextAlignmentOptions.Left);
+        var texto = Texto(tarjeta, "TextoTransmision", "", 40, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        texto.lineSpacing = 10;
+        texto.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var continuar = Boton(tarjeta, "BotonContinuar", "Continuar investigación", true);
+
+        Asignar(ui, "catalogo", catalogo);
+        Asignar(ui, "textoEncabezado", encabezado);
+        Asignar(ui, "textoTransmision", texto);
+        Asignar(ui, "botonContinuar", continuar);
+        return ui;
+    }
+
+    // ---------- Resultado ----------
+
+    static void ConstruirResultado()
+    {
+        var escena = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+        var canvas = CrearCanvas();
+        var catalogo = AssetDatabase.LoadAssetAtPath<CatalogoDatos>(RutaCatalogo);
+
+        var fondo = Panel(canvas, "Fondo", Fondo);
+        Estirar(fondo);
+
+        // Izquierda: conclusión, recursos y botón.
+        var izq = Columna(canvas, "Conclusion", 28, TextAnchor.UpperLeft);
+        Anclar(izq, new Vector2(0.05f, 0.06f), new Vector2(0.48f, 0.94f));
+        Texto(izq, "Etiqueta", "INFORME DE LA MISIÓN", 28, Acento, FontStyles.Bold, TextAlignmentOptions.Left);
+        var titulo = Texto(izq, "Titulo", "", 72, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        var conclusion = Texto(izq, "TextoConclusion", "", 34, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        conclusion.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var cajaRecursos = Columna(izq, "Recursos", 8, TextAnchor.UpperLeft, Tarjeta, 28);
+        var recursos = Texto(cajaRecursos, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        var modificar = Boton(izq, "BotonModificar", "Modificar mi misión", true);
+
+        // Derecha: evidencias, revelación y lo que faltó.
+        var der = Columna(canvas, "Detalle", 28, TextAnchor.UpperLeft, Tarjeta, 40);
+        Anclar(der, new Vector2(0.52f, 0.06f), new Vector2(0.95f, 0.94f));
+        var evidencias = Texto(der, "TextoEvidencias", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        var faltantes = Texto(der, "TextoFaltantes", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+
+        CrearEventSystem();
+
+        var ui = new GameObject("ResultadoUI").AddComponent<ResultadoUI>();
+        Asignar(ui, "catalogo", catalogo);
+        Asignar(ui, "textoTitulo", titulo);
+        Asignar(ui, "textoConclusion", conclusion);
+        Asignar(ui, "textoEvidencias", evidencias);
+        Asignar(ui, "textoFaltantes", faltantes);
+        Asignar(ui, "textoRecursos", recursos);
+        Asignar(ui, "botonModificar", modificar);
+
+        EditorSceneManager.SaveScene(escena, "Assets/Escenas/Resultado.unity");
     }
 
     static ConfiguracionUI ConstruirConfiguracion(RectTransform vista, CatalogoDatos catalogo, MisionUI mision, NaveUI nave)

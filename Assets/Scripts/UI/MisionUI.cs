@@ -17,6 +17,7 @@ namespace SpaceMission
         [SerializeField] GameObject vistaRevision;
         [SerializeField] GameObject vistaInvestigacion;
         [SerializeField] RevisionUI revision;
+        [SerializeField] InvestigacionUI investigacion;
 
         [Header("Briefing")]
         [SerializeField] TMP_Text textoObjetivo;
@@ -31,8 +32,22 @@ namespace SpaceMission
         {
             botonContinuar.onClick.AddListener(MostrarConfiguracion);
             LlenarBriefing();
-            MostrarBriefing();
+            AbrirVistaInicial();
         }
+
+        /// <summary>Briefing al empezar; Configuración si se viene de «Modificar mi misión».</summary>
+        public void AbrirVistaInicial()
+        {
+            if (EstadoJuego.EntrarEnConfiguracion)
+            {
+                EstadoJuego.EntrarEnConfiguracion = false;
+                MostrarConfiguracion();
+            }
+            else
+                MostrarBriefing();
+        }
+
+        public bool VistaActivaEsConfiguracion => vistaConfiguracion.activeSelf && !vistaRevision.activeSelf;
 
         public void LlenarBriefing()
         {
@@ -52,7 +67,11 @@ namespace SpaceMission
             revision.Mostrar(e);
         }
 
-        public void MostrarInvestigacion() => Mostrar(vistaInvestigacion);
+        public void MostrarInvestigacion()
+        {
+            Mostrar(vistaInvestigacion);
+            investigacion.Comenzar(EstadoJuego.Resultado);
+        }
 
         void Mostrar(GameObject vista)
         {
