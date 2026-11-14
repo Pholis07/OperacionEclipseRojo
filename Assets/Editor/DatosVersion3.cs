@@ -62,6 +62,19 @@ public static class DatosVersion3
             Op("Aprovechar para observar (+1 órbita)", EfectoOpcion.GanarOrbitas, duracion: 1),
             Op("Abrir ahora una ventana de contacto con la Tierra", EfectoOpcion.AbrirContacto));
 
+        var peticion = Evento(catalogo, "peticion", "Petición de la NASA",
+            "El equipo de un rover pide observar un punto cercano para planear su ruta. Si lo escaneas, la NASA te lo agradece.",
+            EfectoEvento.Peticion, 150);
+        var tormenta = Evento(catalogo, "tormenta", "Tormenta creciendo",
+            "La tormenta de polvo crece. Desde la altitud normal las lecturas se vuelven confusas.",
+            EfectoEvento.Tormenta, 0);
+        Opciones(catalogo, "peticion",
+            Op("Aceptar: escanear el punto marcado en el mapa (+150 puntos)", EfectoOpcion.AceptarObjetivo),
+            Op("Rechazar y seguir con la misión", EfectoOpcion.Aguantar));
+        Opciones(catalogo, "tormenta",
+            Op("Bajar de altitud sin gastar combustible (después el arrastre sí gasta)", EfectoOpcion.BajarAltitud),
+            Op("Seguir así (el próximo escaneo puede dar una lectura falsa)", EfectoOpcion.Aguantar));
+
         catalogo.objetivos = new List<ObjetivoDatos>
         {
             Objetivo("rapido", "Encontrar todo en 5 escaneos o menos", TipoObjetivo.EscaneosMaximos, 5, 150),
@@ -97,6 +110,24 @@ public static class DatosVersion3
         var e = c.eventos.Find(x => x.id == eventoId);
         e.opciones = new List<OpcionEvento>(opciones);
         EditorUtility.SetDirty(e);
+    }
+
+    static EventoDatos Evento(CatalogoDatos c, string id, string nombre, string texto, EfectoEvento efecto, int puntos)
+    {
+        string ruta = Carpeta + "/Evento_" + id + ".asset";
+        var e = AssetDatabase.LoadAssetAtPath<EventoDatos>(ruta);
+        bool nuevo = e == null;
+        if (nuevo) e = ScriptableObject.CreateInstance<EventoDatos>();
+        e.id = id;
+        e.nombre = nombre;
+        e.texto = texto;
+        e.efecto = efecto;
+        e.puntos = puntos;
+        e.herramientaId = "";
+        if (nuevo) AssetDatabase.CreateAsset(e, ruta);
+        else EditorUtility.SetDirty(e);
+        if (!c.eventos.Contains(e)) c.eventos.Add(e);
+        return e;
     }
 
     static ObjetivoDatos Objetivo(string id, string texto, TipoObjetivo tipo, int valor, int puntos)

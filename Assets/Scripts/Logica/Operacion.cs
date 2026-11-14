@@ -35,6 +35,7 @@ namespace SpaceMission
         readonly List<EventoDatos> eventosProgramados = new List<EventoDatos>();
         readonly List<int> momentosEvento = new List<int>();   // número de escaneo tras el que ocurre cada evento
         bool sinLecturaProxima;
+        bool lecturaRuidosa;   // tormenta: el próximo escaneo frío se lee como tibio
 
         public Vector2 Anomalia { get; private set; }
         public int Orbitas { get; private set; }
@@ -59,6 +60,16 @@ namespace SpaceMission
         public readonly List<string> EnMemoria = new List<string>();
         public int OrbitasTranscurridas { get; private set; }
         bool contactoForzado;
+
+        /// <summary>Evento que espera la respuesta del jugador (v3). Mientras tanto la Operación está en pausa.</summary>
+        public EventoActivo Decision { get; private set; }
+        public bool EsperandoDecision => Decision != null;
+
+        /// <summary>Petición de la NASA aceptada: punto a escanear y si ya se cumplió.</summary>
+        public bool PeticionAceptada { get; private set; }
+        public Vector2 PuntoPeticion { get; private set; }
+        public bool PeticionCumplida { get; private set; }
+        public int PuntosPeticion { get; private set; }
         public int CreditosCarga => Carga != null ? Carga.CreditosGastados : 0;
         public readonly List<ObjetivoDatos> Objetivos;
         /// <summary>Escaneos hechos y órbitas que quedaban cuando llegó la última transmisión (0 si no llegó).</summary>
@@ -151,7 +162,7 @@ namespace SpaceMission
         /// <summary>Cambia de altitud pagando combustible. Devuelve false si ya estaba ahí o no alcanza.</summary>
         public bool CambiarAltitud(Altitud nueva)
         {
-            if (Terminada || nueva == Altitud || Combustible < reglas.combustiblePorCambioAltitud) return false;
+            if (Terminada || EsperandoDecision || nueva == Altitud || Combustible < reglas.combustiblePorCambioAltitud) return false;
             Combustible -= reglas.combustiblePorCambioAltitud;
             Altitud = nueva;
             return true;
@@ -195,7 +206,7 @@ namespace SpaceMission
         /// <summary>Escanea el punto (coordenadas de 0 a 1) con un instrumento encendido.</summary>
         public Lectura? Escanear(string instrumentoId, Vector2 punto)
         {
-            if (Terminada || !Encendidos.Contains(instrumentoId) || MemoriaLlena) return null;
+            if (Terminada || EsperandoDecision || !Encendidos.Contains(instrumentoId) || MemoriaLlena) return null;
             if (ConMemoria) MemoriaUsada++;
             Escaneos++;
 
@@ -212,7 +223,13 @@ namespace SpaceMission
                     : d <= reglas.distanciaCaliente ? Lectura.Caliente
                     : d <= reglas.distanciaTibio ? Lectura.Tibio
                     : Lectura.Frio;
+                if (lecturaRuidosa && lectura == Lectura.Frio) lectura = Lectura.Tibio;
             }
+            lecturaRuidosa = false;
+
+            if (PeticionAceptada && !PeticionCumplida
+                && Vector2.Distance(punto, PuntoPeticion) / FactorLectura <= reglas.radioDeteccion)
+                PeticionCumplida = true;
 
             if (lectura == Lectura.Encontrada)
             {
@@ -263,7 +280,7 @@ namespace SpaceMission
         /// </summary>
         public bool Enviar()
         {
-            if (Terminada || !ConMemoria || !ContactoAbierto || MemoriaUsada == 0) return false;
+            if (Terminada || EsperandoDecision || !ConMemoria || !ContactoAbierto || MemoriaUsada == 0) return false;
             if (ConsumoW + reglas.vatiosTransmisor > LimiteW)
             {
                 Apagon();
@@ -281,6 +298,7 @@ namespace SpaceMission
         {
             if (Terminada) return;
             Terminada = true;
+            Decision = null;
             Encendidos.Clear();
             foreach (var id in evaluacion.Transmisiones.Where(id => Pendientes.ContainsKey(id) || EnMemoria.Contains(id)))
                 BajaCalidad.Add(id);
@@ -292,8 +310,11 @@ namespace SpaceMission
 
         void ProgramarEventosAlAzar()
         {
-            int cantidad = Mathf.Min(nivel.eventosPorMision, catalogo.eventos.Count);
-            var mezclados = catalogo.eventos.OrderBy(_ => azar.Next()).Take(cantidad).ToList();
+            // Sin Carga (modo anterior a la v3) no salen los eventos que solo tienen sentido con decisiones.
+            var posibles = catalogo.eventos.Where(e => ConMemoria ||
+                (e.efecto != EfectoEvento.Peticion && e.efecto != EfectoEvento.Tormenta)).ToList();
+            int cantidad = Mathf.Min(nivel.eventosPorMision, posibles.Count);
+            var mezclados = posibles.OrderBy(_ => azar.Next()).Take(cantidad).ToList();
             int ultimo = Mathf.Max(1, nivel.orbitasNavegacion - 2);
             var momentos = Enumerable.Range(1, ultimo).OrderBy(_ => azar.Next()).Take(cantidad).OrderBy(m => m).ToList();
             ProgramarEventos(mezclados, momentos);
@@ -311,12 +332,87 @@ namespace SpaceMission
         /// <summary>Coloca la anomalía en un punto fijo. Para las pruebas.</summary>
         public void PonerAnomalia(Vector2 punto) => Anomalia = punto;
 
+        /// <summary>
+        /// Hace ocurrir un evento. Con Carga (v3) y respuestas en los datos, la Operación se pausa hasta
+        /// que el jugador elige con Decidir; si no, el efecto se aplica al momento, como antes.
+        /// </summary>
         public void AplicarEvento(EventoDatos datos)
         {
             var e = new EventoActivo { Datos = datos, OrbitasRestantes = datos.orbitas };
-            Eventos.Add(e);
             UltimoEvento = e;
+            if (ConMemoria && datos.opciones.Count > 0)
+            {
+                Decision = e;
+                return;
+            }
+            Eventos.Add(e);
+            AplicarEfecto(e, datos.orbitas);
+        }
 
+        /// <summary>Respuestas que se muestran: la de herramienta solo si la herramienta subió a la nave.</summary>
+        public IEnumerable<OpcionEvento> Opciones => Decision == null ? Enumerable.Empty<OpcionEvento>()
+            : Decision.Datos.opciones.Where(o => o.efecto != EfectoOpcion.UsarHerramienta || TieneHerramienta(Decision.Datos.herramientaId));
+
+        /// <summary>Se puede elegir: se muestra, alcanza el combustible y la herramienta no se usó.</summary>
+        public bool PuedeElegir(OpcionEvento o) =>
+            Opciones.Contains(o) && Combustible >= o.combustible
+            && (o.efecto != EfectoOpcion.UsarHerramienta || !HerramientasUsadas.Contains(Decision.Datos.herramientaId));
+
+        /// <summary>Responde al evento en pausa. Devuelve false si esa respuesta no se puede elegir.</summary>
+        public bool Decidir(OpcionEvento o)
+        {
+            if (Terminada || !PuedeElegir(o)) return false;
+            var e = Decision;
+            var d = e.Datos;
+            Decision = null;
+            Combustible -= o.combustible;
+            Eventos.Add(e);
+
+            switch (o.efecto)
+            {
+                case EfectoOpcion.UsarHerramienta:
+                    HerramientasUsadas.Add(d.herramientaId);
+                    e.Resuelto = true;
+                    break;
+                case EfectoOpcion.Acortar:
+                    e.OrbitasRestantes = o.duracion;
+                    AplicarEfecto(e, o.duracion);
+                    break;
+                case EfectoOpcion.Aguantar:
+                    AplicarEfecto(e, d.orbitas);
+                    break;
+                case EfectoOpcion.GanarOrbitas:
+                    Orbitas += o.duracion;
+                    e.Resuelto = true;
+                    break;
+                case EfectoOpcion.AbrirContacto:
+                    AbrirContacto();
+                    e.Resuelto = true;
+                    break;
+                case EfectoOpcion.AceptarObjetivo:
+                    PeticionAceptada = true;
+                    PuntosPeticion = d.puntos;
+                    PuntoPeticion = new Vector2(Aleatorio(0.15f, 0.85f), Aleatorio(0.15f, 0.85f));
+                    e.Resuelto = true;
+                    break;
+                case EfectoOpcion.BajarAltitud:
+                    Altitud = Altitud.Baja;
+                    e.Resuelto = true;
+                    break;
+                default:   // Resolver
+                    e.Resuelto = true;
+                    break;
+            }
+            if (o.orbitas > 0) GastarOrbitas(o.orbitas);
+            return true;
+        }
+
+        /// <summary>Coloca el punto de la petición de la NASA en un sitio fijo. Para las pruebas.</summary>
+        public void PonerPuntoPeticion(Vector2 punto) => PuntoPeticion = punto;
+
+        void AplicarEfecto(EventoActivo e, int orbitas)
+        {
+            var datos = e.Datos;
             switch (datos.efecto)
             {
                 case EfectoEvento.ReducirLimite:
@@ -328,7 +424,7 @@ namespace SpaceMission
                     if (mayor != null)
                     {
                         Encendidos.Remove(mayor);
-                        Bloqueados[mayor] = datos.orbitas;
+                        Bloqueados[mayor] = orbitas;
                     }
                     else e.Resuelto = true; // no había nada encendido: no pasa nada
                     break;
@@ -336,7 +432,14 @@ namespace SpaceMission
                     sinLecturaProxima = true;
                     break;
                 case EfectoEvento.GanarOrbitas:
-                    Orbitas += datos.orbitas;
+                    Orbitas += orbitas;
+                    e.Resuelto = true;
+                    break;
+                case EfectoEvento.Tormenta:
+                    lecturaRuidosa = true;
+                    e.Resuelto = true;
+                    break;
+                default:   // Peticion rechazada
                     e.Resuelto = true;
                     break;
             }
@@ -355,7 +458,7 @@ namespace SpaceMission
         /// <summary>Usa una herramienta (una vez por misión). Devuelve false si no resuelve nada.</summary>
         public bool UsarHerramienta(string herramientaId)
         {
-            if (Terminada || !TieneHerramienta(herramientaId) || HerramientasUsadas.Contains(herramientaId)) return false;
+            if (Terminada || EsperandoDecision || !TieneHerramienta(herramientaId) || HerramientasUsadas.Contains(herramientaId)) return false;
             var e = Eventos.FirstOrDefault(x => !x.Resuelto && x.Datos.herramientaId == herramientaId);
             if (e == null) return false;
 

@@ -10,7 +10,9 @@ namespace SpaceMission
         ReducirLimite,           // panel dañado: baja el límite hasta repararlo
         BloquearInstrumento,     // sobrecalentamiento: apaga y bloquea el instrumento encendido de mayor consumo
         AnularLectura,           // pérdida de orientación: el próximo escaneo no da lectura
-        GanarOrbitas             // ventana despejada
+        GanarOrbitas,            // ventana despejada
+        Peticion,                // v3: la NASA pide escanear un punto (objetivo extra)
+        Tormenta                 // v3: la tormenta crece; si se sigue, el próximo escaneo puede dar una lectura falsa
     }
 
     /// <summary>Qué pasa al elegir una respuesta a un evento (versión 3).</summary>
@@ -48,6 +50,7 @@ namespace SpaceMission
         public int vatios;      // cuánto baja el límite (ReducirLimite y ReducirLimiteTemporal)
         public int orbitas;     // duración (temporal o bloqueo) u órbitas ganadas
         public string herramientaId;   // vacío si no necesita herramienta
+        public int puntos;             // Peticion: puntos del objetivo extra
 
         [Header("Decisión (versión 3)")]
         public List<OpcionEvento> opciones = new List<OpcionEvento>();

@@ -113,10 +113,13 @@ namespace SpaceMission.Tests
             Assert.AreEqual(1, op.Combustible);
 
             op.AplicarEvento(catalogo.eventos.First(x => x.id == "micrometeorito"));
-            CollectionAssert.IsEmpty(op.HerramientasUtiles.ToList(), "la reconfiguración no subió");
+            Assert.IsFalse(op.Opciones.Any(o => o.efecto == EfectoOpcion.UsarHerramienta), "la reconfiguración no subió");
+            op.Decidir(op.Opciones.First(o => o.efecto == EfectoOpcion.Aguantar));
+            CollectionAssert.IsEmpty(op.HerramientasUtiles.ToList());
             Assert.IsFalse(op.UsarHerramienta("reconfiguracion"));
             op.AplicarEvento(catalogo.eventos.First(x => x.id == "sombra"));
-            Assert.IsTrue(op.UsarHerramienta("bateria"));
+            Assert.IsTrue(op.Decidir(op.Opciones.First(o => o.efecto == EfectoOpcion.UsarHerramienta)));
+            Assert.AreEqual(500, op.LimiteW, "la sombra quedó resuelta; sigue el micrometeorito");
         }
 
         [Test]

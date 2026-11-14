@@ -45,6 +45,9 @@ namespace SpaceMission
             if (op.Orbitas > 0)
                 lineas.Add(new Linea { Concepto = "Órbitas sobrantes (" + op.Orbitas + ")", Puntos = op.Orbitas * reglas.puntosPorOrbitaSobrante });
 
+            if (op.PeticionCumplida)
+                lineas.Add(new Linea { Concepto = "Petición de la NASA cumplida", Puntos = op.PuntosPeticion });
+
             if (op.Combustible > 0)
                 lineas.Add(new Linea { Concepto = "Combustible sobrante (" + op.Combustible + ")", Puntos = op.Combustible * reglas.puntosPorCombustible });
 

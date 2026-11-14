@@ -276,8 +276,9 @@ namespace SpaceMission.Tests
         [Test]
         public void CadaEventoTieneUnaHerramientaQueExisteSalvoLaVentana()
         {
-            Assert.AreEqual(5, catalogo.eventos.Count);
-            foreach (var e in catalogo.eventos.Where(e => e.efecto != EfectoEvento.GanarOrbitas))
+            Assert.AreEqual(7, catalogo.eventos.Count, "5 de la v2 y 2 de la v3 (petición y tormenta)");
+            foreach (var e in catalogo.eventos.Where(e => e.efecto != EfectoEvento.GanarOrbitas
+                                                          && e.efecto != EfectoEvento.Peticion && e.efecto != EfectoEvento.Tormenta))
                 Assert.IsNotNull(catalogo.Herramienta(e.herramientaId), "sin herramienta: " + e.id);
         }
     }

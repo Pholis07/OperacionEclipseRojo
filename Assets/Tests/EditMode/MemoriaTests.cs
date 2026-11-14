@@ -101,7 +101,8 @@ namespace SpaceMission.Tests
             var op = Caso2();
             op.Encender("radar");                                                   // 430 W
             op.Escanear("termica", Centro);
-            op.AplicarEvento(catalogo.eventos.First(x => x.id == "micrometeorito")); // límite 500
+            op.AplicarEvento(catalogo.eventos.First(x => x.id == "micrometeorito"));
+            op.Decidir(op.Opciones.Last());                                         // aguantar: límite 500
             op.Escanear("termica", Lejos);
             Assert.IsTrue(op.ContactoAbierto);
 
@@ -118,6 +119,7 @@ namespace SpaceMission.Tests
             op.Encender("radar");
             op.Escanear("termica", Centro);
             op.AplicarEvento(catalogo.eventos.First(x => x.id == "micrometeorito"));
+            op.Decidir(op.Opciones.Last());
             op.Escanear("termica", Lejos);
             op.Apagar("radar");                                                     // 250 + 150 = 400
             Assert.IsTrue(op.Enviar());

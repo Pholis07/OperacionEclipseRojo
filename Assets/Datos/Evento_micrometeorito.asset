@@ -19,6 +19,7 @@ MonoBehaviour:
   vatios: 200
   orbitas: 0
   herramientaId: reconfiguracion
+  puntos: 0
   opciones:
   - texto: "Usar la reconfiguraci\xF3n de energ\xEDa"
     efecto: 0

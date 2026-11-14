@@ -19,6 +19,7 @@ MonoBehaviour:
   vatios: 0
   orbitas: 2
   herramientaId: refrigeracion
+  puntos: 0
   opciones:
   - texto: "Usar la refrigeraci\xF3n de emergencia"
     efecto: 0

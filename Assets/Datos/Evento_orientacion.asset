@@ -19,6 +19,7 @@ MonoBehaviour:
   vatios: 0
   orbitas: 0
   herramientaId: giroscopio
+  puntos: 0
   opciones:
   - texto: Usar el giroscopio de respaldo
     efecto: 0

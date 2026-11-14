@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f609a82bca07c95ba94b58307d0360, type: 3}
+  m_Name: Evento_peticion
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
+  id: peticion
+  nombre: "Petici\xF3n de la NASA"
+  texto: El equipo de un rover pide observar un punto cercano para planear su ruta. Si lo escaneas, la NASA te lo agradece.
+  efecto: 5
+  vatios: 0
+  orbitas: 0
+  herramientaId: 
+  puntos: 150
+  opciones:
+  - texto: 'Aceptar: escanear el punto marcado en el mapa (+150 puntos)'
+    efecto: 6
+    combustible: 0
+    orbitas: 0
+    duracion: 0
+  - texto: "Rechazar y seguir con la misi\xF3n"
+    efecto: 3
+    combustible: 0
+    orbitas: 0
+    duracion: 0

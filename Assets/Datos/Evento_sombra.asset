@@ -19,6 +19,7 @@ MonoBehaviour:
   vatios: 150
   orbitas: 3
   herramientaId: bateria
+  puntos: 0
   opciones:
   - texto: "Usar la bater\xEDa de respaldo"
     efecto: 0

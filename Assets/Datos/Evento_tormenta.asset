@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f609a82bca07c95ba94b58307d0360, type: 3}
+  m_Name: Evento_tormenta
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
+  id: tormenta
+  nombre: Tormenta creciendo
+  texto: La tormenta de polvo crece. Desde la altitud normal las lecturas se vuelven confusas.
+  efecto: 6
+  vatios: 0
+  orbitas: 0
+  herramientaId: 
+  puntos: 0
+  opciones:
+  - texto: "Bajar de altitud sin gastar combustible (despu\xE9s el arrastre s\xED gasta)"
+    efecto: 7
+    combustible: 0
+    orbitas: 0
+    duracion: 0
+  - texto: "Seguir as\xED (el pr\xF3ximo escaneo puede dar una lectura falsa)"
+    efecto: 3
+    combustible: 0
+    orbitas: 0
+    duracion: 0

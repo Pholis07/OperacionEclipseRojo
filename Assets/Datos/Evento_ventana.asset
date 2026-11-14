@@ -19,6 +19,7 @@ MonoBehaviour:
   vatios: 0
   orbitas: 1
   herramientaId: 
+  puntos: 0
   opciones:
   - texto: "Aprovechar para observar (+1 \xF3rbita)"
     efecto: 4

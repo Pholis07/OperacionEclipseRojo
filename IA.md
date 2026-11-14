@@ -182,3 +182,14 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Lo que siga en memoria al terminar llega con baja calidad.
 - Como en los pasos anteriores, la memoria solo existe con Carga. Sin ella (el juego actual hasta el paso 6), lo encontrado llega al momento.
 - 9 pruebas nuevas en `MemoriaTests.cs`. Pasan las 171 pruebas EditMode y las 19 PlayMode.
+
+## Gameplay versión 3, paso 4: eventos con decisiones y dos eventos nuevos
+
+- Con Carga, cada evento pausa la Operación: no se puede escanear, enviar, cambiar de altitud ni usar herramientas hasta que el jugador elige con `Decidir`. El efecto no se aplica hasta la decisión.
+- Las respuestas son las de la tabla de la propuesta. La de herramienta solo aparece si la herramienta subió a la nave. Las que piden combustible no se pueden elegir si no alcanza.
+- Eventos nuevos:
+  - Petición de la NASA: si se acepta, hay que escanear un punto marcado y da +150 puntos.
+  - Tormenta creciendo: se puede bajar de altitud gratis o seguir; si se sigue, el próximo escaneo frío se lee como tibio.
+- Sin Carga (el juego actual hasta el paso 6), los eventos se aplican al momento como antes y los dos nuevos no salen al azar.
+- La prueba de la v2 que contaba 5 eventos ahora cuenta 7, porque la propuesta aprobada añade dos. Las pruebas de memoria y carga que usaban eventos ahora eligen una respuesta.
+- 14 pruebas nuevas en `DecisionesTests.cs`. Pasan las 185 pruebas EditMode y las 19 PlayMode.
