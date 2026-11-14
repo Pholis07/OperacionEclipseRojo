@@ -2,6 +2,16 @@
 
 Todo recurso externo del juego tiene que estar en esta lista con su fuente y su licencia. Si añades una imagen, fuente, icono o sonido, anótalo aquí en el mismo commit.
 
+## Licencia del proyecto
+
+El código y los recursos propios del juego tienen licencia MIT (ver `LICENSE`). Los recursos de terceros de esta lista conservan su propia licencia, indicada en cada fila.
+
+## Motor
+
+El build WebGL incluye el runtime de Unity 6000.6.9f1, que no es de código abierto: se distribuye según los términos de Unity (Unity Personal). Está pendiente confirmar con los organizadores si cuenta como material de terceros según los términos de participación.
+
+## Uso de imágenes de NASA
+
 El juego no usa el logo ni la insignia de NASA: sus normas de uso de imágenes no permiten dar a entender que NASA respalda el proyecto. Las imágenes de NASA/JPL son de uso libre con crédito.
 
 ## Imágenes de Marte (NASA)
@@ -19,13 +29,13 @@ Descargadas de la NASA Image and Video Library (images.nasa.gov) el 2026-11-14. 
 | `Evidencias/Evidencia_alta_res.jpg` | PIA19940, «Possible Sulfates in the Northeast Syrtis Major Region» (HiRISE, MRO) | NASA/JPL-Caltech/Univ. of Arizona |
 | `Evidencias/Evidencia_espectrometro.jpg` | PIA20763, «Adding Composition Data About Mars Gullies» (CRISM y HiRISE, MRO), mitad inferior | NASA/JPL-Caltech/UA/JHUAPL |
 
-Los créditos se muestran en el juego junto a cada imagen (Briefing, Investigación y Resultado) y en el pie del Menú.
+Los créditos se muestran en el juego junto a cada imagen (Briefing, Operación y Resultado) y en el pie del Menú.
 
 ## Mapa de la superficie de Marte
 
 | Archivo en `Assets/Arte` | Origen | Licencia |
 |---|---|---|
-| `Texturas/Marte_Superficie.jpg` (y `Texturas/Marte_Normal.png`, relieve calculado a partir de ella) | «8k Mars» de Solar System Scope (solarsystemscope.com/textures), basado en datos de elevación e imágenes de NASA. Reducido a 4096 x 2048 | Creative Commons Attribution 4.0 (CC BY 4.0). Crédito: Solar System Scope |
+| `Texturas/Marte_Superficie.jpg` (y `Texturas/Marte_Normal.png`, relieve calculado a partir de ella) | «8k Mars» de Solar System Scope (solarsystemscope.com/textures), basado en datos de elevación e imágenes de NASA. Reducido a 4096 x 2048. Es la superficie del planeta en 3D y también el mapa de la fase de Operación (cada misión muestra una zona distinta, sin modificar la imagen) | Creative Commons Attribution 4.0 (CC BY 4.0). Crédito: Solar System Scope |
 
 ## Fuentes
 
@@ -48,6 +58,7 @@ Descargadas del repositorio de Google Fonts (github.com/google/fonts).
 
 Hechos para este juego, sin licencias de terceros:
 - **Generados por `Herramientas/arte.py`:** el cielo de estrellas (`Texturas/Estrellas.png`), la lámina dorada y las celdas solares de la nave, y los sprites de interfaz (`Interfaz/*`: chaflanes, círculo, halo, segmentos y barrido).
+- **Generado por `Herramientas/favicon.py`:** el icono de la pestaña del navegador (`Assets/WebGLTemplates/PantallaCompleta/TemplateData/favicon.png`), Marte con la sombra de un eclipse. Se genera con `python3 -I Herramientas/favicon.py <ruta de salida>`.
 - **Generados por código en el constructor:** la nave, el shader de atmósfera y las mallas de `Assets/Arte/Mallas`.
 
 ## Audio

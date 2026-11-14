@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+    <title>{{{ PRODUCT_NAME }}}</title>
+    <link rel="icon" type="image/png" href="TemplateData/favicon.png">
+    <!-- Plantilla propia (basada en «Minimal» de Unity): el juego ocupa toda la ventana del navegador,
+         así no se corta en pantallas más pequeñas que 1920x1080. La interfaz se adapta con el CanvasScaler. -->
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0B0B10; }
+      #unity-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: #0B0B10; outline: none; }
+      #carga { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+               gap: 18px; color: #F8FAFC; font: 600 20px/1.4 system-ui, sans-serif; letter-spacing: 0.08em; }
+      #carga .titulo { font-size: 34px; letter-spacing: 0.12em; }
+      #barra { width: min(420px, 70vw); height: 8px; background: #2A2A31; }
+      #relleno { width: 0; height: 100%; background: #E2643A; transition: width 0.2s; }
+      #error { display: none; max-width: 70vw; color: #EF4444; text-align: center; font-weight: 400; letter-spacing: 0; }
+    </style>
+  </head>
+  <body>
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="carga">
+      <div class="titulo">OPERACIÓN ECLIPSE ROJO</div>
+      <div id="barra"><div id="relleno"></div></div>
+      <div>CARGANDO MISIÓN…</div>
+      <div id="error"></div>
+    </div>
+    <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+    <script>
+      var lienzo = document.querySelector("#unity-canvas");
+      createUnityInstance(lienzo, {
+        arguments: [],
+#if PROGRESSIVE_ASSET_LOADING
+        primaryDataUrls: {{{ JSON.stringify(PRIMARY_DATA_FILES) }}},
+        secondaryDataUrls: {{{ JSON.stringify(SECONDARY_DATA_FILES) }}},
+#else
+        dataUrl: "Build/{{{ DATA_FILENAME }}}",
+#endif
+        frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+#if USE_WASM
+        codeUrl: "Build/{{{ CODE_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+        symbolsUrl: "Build/{{{ SYMBOLS_FILENAME }}}",
+#endif
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+        productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+        productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+      }, function (progreso) {
+        document.querySelector("#relleno").style.width = (100 * progreso) + "%";
+      }).then(function () {
+        document.querySelector("#carga").style.display = "none";
+        lienzo.focus();
+      }).catch(function (mensaje) {
+        var error = document.querySelector("#error");
+        error.textContent = "No se pudo cargar el juego: " + mensaje;
+        error.style.display = "block";
+      });
+    </script>
+  </body>
+</html>
