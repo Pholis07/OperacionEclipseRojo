@@ -15,3 +15,5 @@ MonoBehaviour:
   id: refrigeracion
   nombre: "Refrigeraci\xF3n de emergencia"
   descripcion: "Enfr\xEDa un instrumento sobrecalentado para volver a encenderlo."
+  costoCr: 30
+  masaKg: 15

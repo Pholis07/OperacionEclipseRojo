@@ -19,3 +19,14 @@ MonoBehaviour:
   vatios: 0
   orbitas: 1
   herramientaId: 
+  opciones:
+  - texto: "Aprovechar para observar (+1 \xF3rbita)"
+    efecto: 4
+    combustible: 0
+    orbitas: 0
+    duracion: 1
+  - texto: Abrir ahora una ventana de contacto con la Tierra
+    efecto: 5
+    combustible: 0
+    orbitas: 0
+    duracion: 0

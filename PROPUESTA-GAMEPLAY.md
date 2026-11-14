@@ -80,3 +80,83 @@ En el nivel 3 la victoria en elíptica (1,130 cr) cabe justo. Los 19 casos de pr
 6. Pruebas PlayMode del recorrido y build.
 
 Cada paso deja el juego funcionando.
+
+---
+
+# Versión 3: más decisiones (aprobada)
+
+Adrian pidió el 2026-11-14 misiones más interactivas, con más decisiones y mecánicas. Eligió las cuatro: eventos con decisiones, combustible y maniobras, memoria y envío a Tierra, y equipar herramientas con objetivos extra. Los números los propone Claude y viven en los datos. **Adrian la aprobó tal cual el 2026-11-14.** Avance: paso 1 hecho.
+
+**Se mantiene el principio:** la categoría (victoria, parcial o fracaso) sigue saliendo solo de la configuración, y los 19 casos no cambian. Lo nuevo se calcula **después** de evaluar y solo usa lo que sobra (créditos y capacidad del lanzador).
+
+**Reparto con Diego:** Claude hace la lógica, los datos, las pruebas y una interfaz básica funcional. Diego, que ahora trabaja en interfaz, animaciones, arte y una pestaña nueva, la estiliza después. Para no pisarnos, Claude no toca sus scripts de `UI/Estilo` ni las pestañas de Configuración.
+
+## 1. Carga de la nave (pantalla nueva entre Revisión y Lanzar)
+
+- Después de «Revisar», una pantalla de **Carga** deja elegir qué herramientas se suben. La bodega tiene **2 espacios**, así que no caben todas. Solo se paga con lo que sobra: créditos (presupuesto − costo) y masa (capacidad − masa).
+
+| Herramienta | Créditos | Masa |
+|---|---|---|
+| Batería de respaldo | 40 | 20 kg |
+| Reconfiguración de energía | 30 | 10 kg |
+| Refrigeración de emergencia | 30 | 15 kg |
+| Giroscopio de respaldo | 40 | 15 kg |
+
+- **Combustible:** la capacidad que el lanzador sigue teniendo libre después de las herramientas se convierte en combustible, a **1 unidad por cada 10 kg** (máximo 20). Así cargar herramientas te deja con menos combustible.
+- En el nivel 3, con victoria en elíptica (1,130 cr), sobran 20 créditos: no alcanza para ninguna herramienta. Es intencional, porque es el nivel difícil.
+
+## 2. Combustible y maniobras (en la Operación)
+
+- Hay dos **altitudes**, normal y baja. Cambiar de una a otra cuesta **3 de combustible**.
+- **En baja**, el radio de detección y las distancias de frío, tibio y caliente crecen un **50 %**, así que encuentras antes. A cambio, el arrastre gasta **1 de combustible por órbita**. Si se acaba, la nave sube sola y pierdes 1 órbita.
+- El combustible también paga respuestas a los eventos (ver 4).
+- Al final, cada unidad que sobra da +10 puntos.
+
+## 3. Memoria y envío a Tierra
+
+- La memoria de la nave guarda **4 bloques** en el nivel 1, **3** en el 2 y **3** en el 3. Cada escaneo ocupa 1 bloque. Si está llena, no puedes escanear.
+- Una transmisión encontrada **no cuenta como recibida hasta que se envía**. Mientras tanto queda «en memoria».
+- Solo puedes **enviar** durante una **ventana de contacto con la Tierra**, que se abre 1 órbita de cada 3; la pantalla avisa cuántas faltan. Enviar vacía la memoria y no gasta órbita. Mientras tanto el transmisor consume **150 W**, así que muchas veces hay que apagar instrumentos para no provocar un apagón.
+- Lo que siga en memoria al terminar llega con baja calidad (−100 por transmisión, como ahora).
+
+## 4. Eventos con decisiones
+
+Cuando ocurre un evento, la Operación se pausa y Control de Misión pide elegir. La opción de la herramienta solo aparece si la cargaste.
+
+| Evento | A: herramienta | B: alternativa | C: aguantar |
+|---|---|---|---|
+| Sombra de Marte (−150 W) | Batería: se resuelve | Maniobrar: −4 combustible, dura 1 órbita | Dura 3 órbitas |
+| Micrometeorito (−200 W) | Reconfiguración: se resuelve | Desviar la corriente a mano: −1 órbita, se resuelve | Sigue hasta el final |
+| Sobrecalentamiento | Refrigeración: se libera | Girar la nave hacia la sombra: −2 combustible, bloqueo de 1 órbita | Bloqueo de 2 órbitas |
+| Pérdida de orientación | Giroscopio: se evita | Corregir con propulsores: −3 combustible | Próximo escaneo sin lectura |
+| Ventana despejada (buena) | — | +1 órbita | Abrir ahora una ventana de contacto con la Tierra |
+| **Nuevo:** Petición de la NASA | — | Aceptar: objetivo extra (+150) de escanear un punto marcado | Rechazar: nada |
+| **Nuevo:** Tormenta creciendo | — | Bajar de altitud gratis esta vez | Seguir: el próximo escaneo cuenta como tibio a menos que sea caliente o encontrado |
+
+Los eventos por nivel siguen siendo 0, 2 y 3.
+
+## 5. Objetivos secundarios
+
+Al empezar la Operación salen 2 objetivos opcionales, sacados al azar de esta lista:
+
+| Objetivo | Puntos |
+|---|---|
+| Encontrar todo en 5 escaneos o menos | +150 |
+| Ningún apagón | +100 |
+| Terminar con 5 o más de combustible | +100 |
+| Enviar todo antes de la última órbita | +100 |
+| No usar ninguna herramienta | +150 |
+
+El informe los muestra cumplidos o no.
+
+## Orden de construcción
+
+1. Datos nuevos (herramientas con costo y masa, opciones de eventos, objetivos, memoria por nivel) y lógica de la Carga, con pruebas.
+2. Combustible y altitud, con pruebas.
+3. Memoria, ventanas y envío, con pruebas.
+4. Eventos con decisiones y los 2 eventos nuevos, con pruebas.
+5. Objetivos y puntos.
+6. Interfaz básica: pantalla de Carga, controles de altitud, memoria y envío, ventana de decisión y objetivos. Diego la estiliza.
+7. PlayMode del recorrido, build y verificación en el navegador.
+
+Cada paso deja el juego funcionando y con todas las pruebas pasando.

@@ -19,3 +19,19 @@ MonoBehaviour:
   vatios: 0
   orbitas: 0
   herramientaId: giroscopio
+  opciones:
+  - texto: Usar el giroscopio de respaldo
+    efecto: 0
+    combustible: 0
+    orbitas: 0
+    duracion: 0
+  - texto: Corregir con los propulsores (-3 de combustible)
+    efecto: 1
+    combustible: 3
+    orbitas: 0
+    duracion: 0
+  - texto: "Seguir as\xED (el pr\xF3ximo escaneo no dar\xE1 lectura)"
+    efecto: 3
+    combustible: 0
+    orbitas: 0
+    duracion: 0

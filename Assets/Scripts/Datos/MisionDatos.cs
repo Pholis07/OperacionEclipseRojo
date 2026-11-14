@@ -16,6 +16,7 @@ namespace SpaceMission
         public string nombreNivel;
         public int orbitasNavegacion;
         public int eventosPorMision;
+        public int memoriaBloques;   // versión 3: cuántos escaneos caben en la memoria antes de enviar
         [TextArea] public string objetivo;
         [TextArea] public string narrativa;
     }

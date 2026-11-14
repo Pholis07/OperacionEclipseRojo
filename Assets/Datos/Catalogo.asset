@@ -54,3 +54,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 33690f43f30f421548aad9acd683c07b, type: 2}
   - {fileID: 11400000, guid: 214ffe0342f729b88bec9121cb6412d1, type: 2}
   - {fileID: 11400000, guid: 0907428c3c7c5dcfa9af9f5c21e11b73, type: 2}
+  objetivos:
+  - {fileID: 11400000, guid: d70b2359a686d0274aa270b671a6758b, type: 2}
+  - {fileID: 11400000, guid: 27299aaafa86856b0b4bd3e3f6b67b4a, type: 2}
+  - {fileID: 11400000, guid: f42e5dcf018e540a9ad98e64745804cd, type: 2}
+  - {fileID: 11400000, guid: cf023c341f7b070788e3b74fb5a32dd7, type: 2}
+  - {fileID: 11400000, guid: 5b35e27de5e4238b089d95a152026a15, type: 2}

@@ -15,3 +15,5 @@ MonoBehaviour:
   id: giroscopio
   nombre: Giroscopio de respaldo
   descripcion: "Recupera la orientaci\xF3n de la nave."
+  costoCr: 40
+  masaKg: 15

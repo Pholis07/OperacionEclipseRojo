@@ -154,3 +154,14 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Añadió ajustes de importación de audio para WebGL (Vorbis; efectos en mono y descomprimidos al cargar) y enlazó todo en `Arte.asset` reconstruyendo las escenas.
 - Encontró que en Linux la importación de audio para WebGL necesita `ffmpeg` instalado; sin él los clips fallan y el juego queda en silencio. Lo anotó en `AUDIO-ELEVENLABS.md`.
 - Pasan las 136 pruebas EditMode y las 19 PlayMode.
+
+## Gameplay versión 3, paso 1: datos y Carga de la nave
+
+- Adrian pidió misiones más interactivas. La IA propuso cuatro mecánicas (eventos con decisiones, combustible y maniobras, memoria y envío a Tierra, herramientas y objetivos) con números concretos en `PROPUESTA-GAMEPLAY.md` (versión 3), y Adrian la aprobó tal cual.
+- Paso 1: datos nuevos y lógica de la Carga.
+  - Herramientas con costo y masa, bodega de 2, combustible (1 por cada 10 kg libres, máximo 20), memoria por nivel (4, 3 y 3), respuestas de cada evento y 5 objetivos secundarios.
+  - Los escribe `Assets/Editor/DatosVersion3.cs`, que se puede volver a correr.
+  - Lógica nueva: `Carga.cs` y `Objetivos.cs`. `Operacion` recibe la carga y solo deja usar las herramientas que subieron; `Puntuacion` resta del sobrante lo gastado en la carga.
+  - Sin la pantalla de Carga (llega en el paso 6), la Operación sigue como antes, con todas las herramientas a bordo.
+- La categoría del resultado no cambia: la carga se calcula después de evaluar y solo usa lo que sobra.
+- 18 pruebas nuevas en `CargaTests.cs`. Pasan las 154 pruebas EditMode y las 19 PlayMode.

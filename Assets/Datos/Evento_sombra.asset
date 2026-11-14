@@ -19,3 +19,19 @@ MonoBehaviour:
   vatios: 150
   orbitas: 3
   herramientaId: bateria
+  opciones:
+  - texto: "Usar la bater\xEDa de respaldo"
+    efecto: 0
+    combustible: 0
+    orbitas: 0
+    duracion: 0
+  - texto: "Maniobrar para salir antes de la sombra (-4 de combustible, dura 1 \xF3rbita)"
+    efecto: 2
+    combustible: 4
+    orbitas: 0
+    duracion: 1
+  - texto: "Esperar a que pase (dura 3 \xF3rbitas)"
+    efecto: 3
+    combustible: 0
+    orbitas: 0
+    duracion: 0

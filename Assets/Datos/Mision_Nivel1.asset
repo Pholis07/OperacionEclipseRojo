@@ -20,5 +20,6 @@ MonoBehaviour:
   nombreNivel: 1. Entrenamiento
   orbitasNavegacion: 12
   eventosPorMision: 0
+  memoriaBloques: 4
   objetivo: "Explicar la anomal\xEDa t\xE9rmica que apareci\xF3 en una regi\xF3n de Marte mientras una tormenta de polvo dificulta la observaci\xF3n."
   narrativa: "Una se\xF1al t\xE9rmica rara aparece en una regi\xF3n de Marte y una tormenta de polvo dificulta la investigaci\xF3n. Los indicios del juego no son prueba de agua l\xEDquida actual ni de vida."

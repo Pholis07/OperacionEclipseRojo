@@ -15,3 +15,5 @@ MonoBehaviour:
   id: bateria
   nombre: "Bater\xEDa de respaldo"
   descripcion: "Alimenta la nave mientras est\xE1 en la sombra de Marte."
+  costoCr: 40
+  masaKg: 20

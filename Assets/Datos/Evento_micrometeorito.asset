@@ -19,3 +19,19 @@ MonoBehaviour:
   vatios: 200
   orbitas: 0
   herramientaId: reconfiguracion
+  opciones:
+  - texto: "Usar la reconfiguraci\xF3n de energ\xEDa"
+    efecto: 0
+    combustible: 0
+    orbitas: 0
+    duracion: 0
+  - texto: "Desviar la corriente a mano (-1 \xF3rbita)"
+    efecto: 1
+    combustible: 0
+    orbitas: 1
+    duracion: 0
+  - texto: "Seguir con menos energ\xEDa hasta el final"
+    efecto: 3
+    combustible: 0
+    orbitas: 0
+    duracion: 0

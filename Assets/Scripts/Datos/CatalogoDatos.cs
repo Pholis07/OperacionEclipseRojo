@@ -18,6 +18,7 @@ namespace SpaceMission
         public List<MisionDatos> niveles = new List<MisionDatos>();   // 0 = nivel 1; «mision» es el nivel 2
         public List<EventoDatos> eventos = new List<EventoDatos>();
         public List<HerramientaDatos> herramientas = new List<HerramientaDatos>();
+        public List<ObjetivoDatos> objetivos = new List<ObjetivoDatos>();
 
         public OrbitaDatos Orbita(string id) => orbitas.Find(o => o.id == id);
         public LanzadorDatos Lanzador(string id) => lanzadores.Find(l => l.id == id);

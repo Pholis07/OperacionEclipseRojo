@@ -15,3 +15,5 @@ MonoBehaviour:
   id: reconfiguracion
   nombre: "Reconfiguraci\xF3n de energ\xEDa"
   descripcion: "Desv\xEDa la energ\xEDa por un circuito sano de los paneles."
+  costoCr: 30
+  masaKg: 10

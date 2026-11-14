@@ -19,3 +19,19 @@ MonoBehaviour:
   vatios: 0
   orbitas: 2
   herramientaId: refrigeracion
+  opciones:
+  - texto: "Usar la refrigeraci\xF3n de emergencia"
+    efecto: 0
+    combustible: 0
+    orbitas: 0
+    duracion: 0
+  - texto: "Girar la nave hacia la sombra (-2 de combustible, bloqueo de 1 \xF3rbita)"
+    efecto: 2
+    combustible: 2
+    orbitas: 0
+    duracion: 1
+  - texto: "Esperar a que se enfr\xEDe (bloqueo de 2 \xF3rbitas)"
+    efecto: 3
+    combustible: 0
+    orbitas: 0
+    duracion: 0

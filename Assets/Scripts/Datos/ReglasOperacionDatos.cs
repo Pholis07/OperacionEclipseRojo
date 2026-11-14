@@ -28,5 +28,11 @@ namespace SpaceMission
         public int puntosPorOrbitaSobrante;
         public int puntosPorBajaCalidad;   // se restan
         public int puntosPorApagon;        // se restan
+
+        [Header("Carga y objetivos (versión 3)")]
+        public int espaciosBodega;         // herramientas que caben en la nave
+        public int kgPorCombustible;       // 1 unidad de combustible por cada N kg libres del lanzador
+        public int combustibleMaximo;
+        public int objetivosPorMision;
     }
 }

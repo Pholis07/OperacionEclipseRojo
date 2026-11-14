@@ -26,7 +26,7 @@ namespace SpaceMission
                 : categoria == CategoriaResultado.Parcial ? reglas.puntosParcial : reglas.puntosFracaso;
             lineas.Add(new Linea { Concepto = TextosResultado.Titulo(categoria), Puntos = puntosResultado });
 
-            int sobrante = nivel.presupuestoCr - e.Calculo.CostoCr - op.CreditosPerdidos;
+            int sobrante = nivel.presupuestoCr - e.Calculo.CostoCr - op.CreditosPerdidos - op.CreditosCarga;
             if (sobrante > 0)
                 lineas.Add(new Linea
                 {

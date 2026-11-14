@@ -40,6 +40,15 @@ namespace SpaceMission
         public int CreditosPerdidos { get; private set; }
         public bool Terminada { get; private set; }
 
+        /// <summary>Lo que se cargó antes de lanzar (v3). Null = sin pantalla de Carga: todas las herramientas a bordo.</summary>
+        public Carga Carga { get; }
+        public int Combustible { get; private set; }
+        public int CreditosCarga => Carga != null ? Carga.CreditosGastados : 0;
+        public readonly List<ObjetivoDatos> Objetivos;
+        /// <summary>Escaneos hechos y órbitas que quedaban cuando llegó la última transmisión (0 si no llegó).</summary>
+        public int EscaneosAlCompletar { get; private set; }
+        public int OrbitasAlCompletar { get; private set; }
+
         public readonly HashSet<string> Encendidos = new HashSet<string>();
         public readonly Dictionary<string, int> Bloqueados = new Dictionary<string, int>();
         public readonly HashSet<string> HerramientasUsadas = new HashSet<string>();
@@ -55,8 +64,11 @@ namespace SpaceMission
         /// <summary>Lo último que pasó, para mostrarlo en pantalla.</summary>
         public EventoActivo UltimoEvento { get; private set; }
 
-        public Operacion(Evaluacion evaluacion, Configuracion config, CatalogoDatos catalogo, MisionDatos nivel, int semilla)
+        public Operacion(Evaluacion evaluacion, Configuracion config, CatalogoDatos catalogo, MisionDatos nivel, int semilla,
+            Carga carga = null)
         {
+            Carga = carga;
+            Combustible = carga != null ? carga.Combustible : 0;
             this.evaluacion = evaluacion;
             enLaNave = new HashSet<string>(config.InstrumentoIds);
             this.catalogo = catalogo;
@@ -74,6 +86,7 @@ namespace SpaceMission
                 else Pendientes[id] = t.instrumentoId;
             }
             ProgramarEventosAlAzar();
+            Objetivos = SpaceMission.Objetivos.Elegir(catalogo, azar);
         }
 
         // ---------- Energía ----------
@@ -160,6 +173,11 @@ namespace SpaceMission
                     Recibidas.Add(par.Key);
                     Pendientes.Remove(par.Key);
                 }
+                if (Completa && EscaneosAlCompletar == 0)
+                {
+                    EscaneosAlCompletar = Escaneos;
+                    OrbitasAlCompletar = Orbitas - reglas.orbitasPorEscaneo;
+                }
             }
 
             GastarOrbitas(reglas.orbitasPorEscaneo);
@@ -244,13 +262,17 @@ namespace SpaceMission
         /// <summary>Herramientas que ahora mismo resolverían un evento activo.</summary>
         public IEnumerable<string> HerramientasUtiles =>
             Eventos.Where(e => !e.Resuelto && !string.IsNullOrEmpty(e.Datos.herramientaId)
+                               && TieneHerramienta(e.Datos.herramientaId)
                                && !HerramientasUsadas.Contains(e.Datos.herramientaId))
                    .Select(e => e.Datos.herramientaId).Distinct();
+
+        /// <summary>La herramienta va a bordo: se cargó, o no hubo pantalla de Carga.</summary>
+        public bool TieneHerramienta(string id) => Carga == null || Carga.Lleva(id);
 
         /// <summary>Usa una herramienta (una vez por misión). Devuelve false si no resuelve nada.</summary>
         public bool UsarHerramienta(string herramientaId)
         {
-            if (Terminada || HerramientasUsadas.Contains(herramientaId)) return false;
+            if (Terminada || !TieneHerramienta(herramientaId) || HerramientasUsadas.Contains(herramientaId)) return false;
             var e = Eventos.FirstOrDefault(x => !x.Resuelto && x.Datos.herramientaId == herramientaId);
             if (e == null) return false;
 

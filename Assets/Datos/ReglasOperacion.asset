@@ -26,3 +26,7 @@ MonoBehaviour:
   puntosPorOrbitaSobrante: 25
   puntosPorBajaCalidad: 100
   puntosPorApagon: 50
+  espaciosBodega: 2
+  kgPorCombustible: 10
+  combustibleMaximo: 20
+  objetivosPorMision: 2
