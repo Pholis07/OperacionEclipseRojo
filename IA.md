@@ -65,3 +65,11 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Escribió pruebas PlayMode que recorren el juego en modo Play pulsando los botones reales para los 19 casos de la tabla; los casos se generaron con un script desde la tabla del diseño.
 - Corrió las pruebas en una copia del proyecto, porque el editor estaba abierto con el trabajo de Diego: 112 EditMode y 19 PlayMode, todas pasan.
 - Generó `INFORME-PRUEBAS.md` desde los resultados reales (líneas `[Misión]` obtenidas en el juego). Queda pendiente la revisión visual, que hace el equipo.
+
+## Estilo HUD de la interfaz (con Diego)
+
+- A partir de cuatro referencias que eligió Diego (Starfield, una tabla de acciones de misión espacial y Vehicle Designer), rediseñó el Menú y reestilizó Mision y Resultado sin cambiar su lógica ni sus pruebas.
+- Menú: generado con «Herramientas > Diseñar Menu estilo HUD» como punto de partida para que Diego lo retoque a mano. Tiene la lista de acciones a la izquierda, la nave girando sobre Marte (script `GiroLento`) y las pistas de teclas. El foco del teclado empieza en «Iniciar misión», y `MenuUI` lo mueve al abrir y cerrar «Cómo jugar».
+- Constructor: piezas HUD nuevas (marco fino con escuadra de acento, etiquetas subrayadas, botones secundarios con marco), barra de pasos en el Briefing y «PASO n DE 4» en las demás vistas, paneles translúcidos y suelo con rejilla bajo la nave. La textura de la rejilla se genera por código.
+- Revisó el resultado con capturas generadas en modo batch con un script temporal, que borró después. Las capturas mostraron tres fallos, que corrigió: la nave tapada por los paneles (se redujo en Mision), la pestaña «Instrumentos» partida en dos líneas (tamaño automático de 30 a 24 pt) y la luz del semáforo estirada (las filas de alto fijo ya no crecen).
+- Actualizó `GUIA-INTERFAZ.md`. Pasan las 112 pruebas.

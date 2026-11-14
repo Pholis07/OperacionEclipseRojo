@@ -14,9 +14,18 @@ namespace SpaceMission
         void Awake()
         {
             botonIniciar.onClick.AddListener(IniciarMision);
-            botonComoJugar.onClick.AddListener(() => panelComoJugar.SetActive(true));
-            botonCerrarComoJugar.onClick.AddListener(() => panelComoJugar.SetActive(false));
+            botonComoJugar.onClick.AddListener(() => MostrarComoJugar(true));
+            botonCerrarComoJugar.onClick.AddListener(() => MostrarComoJugar(false));
             panelComoJugar.SetActive(false);
+        }
+
+        /// <summary>Abre o cierra «Cómo jugar» y mueve el foco del teclado al botón que queda a la vista.</summary>
+        void MostrarComoJugar(bool visible)
+        {
+            panelComoJugar.SetActive(visible);
+            var foco = visible ? botonCerrarComoJugar : botonComoJugar;
+            if (UnityEngine.EventSystems.EventSystem.current != null)
+                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(foco.gameObject);
         }
 
         public void IniciarMision()
