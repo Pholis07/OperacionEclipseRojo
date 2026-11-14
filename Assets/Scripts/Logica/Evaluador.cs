@@ -11,19 +11,21 @@ namespace SpaceMission
     /// </summary>
     public static class Evaluador
     {
-        public static Evaluacion Evaluar(Configuracion config, CatalogoDatos catalogo)
+        /// <param name="nivel">Datos del nivel; si es null, la misión del diseño (nivel 2).</param>
+        public static Evaluacion Evaluar(Configuracion config, CatalogoDatos catalogo, MisionDatos nivel = null)
         {
-            return Evaluar(config, Calculador.Calcular(config, catalogo), catalogo);
+            return Evaluar(config, Calculador.Calcular(config, catalogo, nivel), catalogo, nivel);
         }
 
-        public static Evaluacion Evaluar(Configuracion config, ResultadoCalculo calculo, CatalogoDatos catalogo)
+        public static Evaluacion Evaluar(Configuracion config, ResultadoCalculo calculo, CatalogoDatos catalogo,
+            MisionDatos nivel = null)
         {
             var e = new Evaluacion { Calculo = calculo, Estado = calculo.Estado };
 
             if (calculo.Estado == EstadoSemaforo.Gris)
                 e.Mensaje = MensajeGris(calculo);
             else if (calculo.Estado == EstadoSemaforo.Rojo)
-                e.Mensaje = MensajeRojo(calculo, config, catalogo);
+                e.Mensaje = MensajeRojo(calculo, config, catalogo, nivel != null ? nivel : catalogo.mision);
             else
                 EvaluarValida(e, config, catalogo);
 
@@ -112,9 +114,8 @@ namespace SpaceMission
             return "Configuración incompleta: falta elegir " + Unir(partes) + ".";
         }
 
-        static string MensajeRojo(ResultadoCalculo r, Configuracion config, CatalogoDatos catalogo)
+        static string MensajeRojo(ResultadoCalculo r, Configuracion config, CatalogoDatos catalogo, MisionDatos mision)
         {
-            var mision = catalogo.mision;
             var lanzador = catalogo.Lanzador(config.LanzadorId);
             var partes = new List<string>();
             if (r.LimitesSuperados.Contains(Limite.Masa))

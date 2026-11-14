@@ -7,7 +7,7 @@ Para Diego. Explica qué se puede cambiar en las pantallas, dónde está cada pa
 | Escena | Cómo se cambia | Quién |
 |--------|----------------|-------|
 | `Assets/Escenas/Menu.unity` | A mano en el editor de Unity (Hierarchy e Inspector) | Diego |
-| `Assets/Escenas/Mision.unity` (Briefing, Configuración, Revisión, Investigación) y `Assets/Escenas/Resultado.unity` | Cambiando los parámetros de `Assets/Editor/ConstructorEscenas.cs` y ejecutando **Herramientas > Construir escenas (sin Menu)** | Adrian/Claude. No las edites a mano hasta acordar el cambio: el constructor las rehace desde cero y se perderían tus cambios |
+| `Assets/Escenas/Mision.unity` (Briefing, Configuración, Revisión, Operación) y `Assets/Escenas/Resultado.unity` | Cambiando los parámetros de `Assets/Editor/ConstructorEscenas.cs` y ejecutando **Herramientas > Construir escenas (sin Menu)** | Adrian/Claude. No las edites a mano hasta acordar el cambio: el constructor las rehace desde cero y se perderían tus cambios |
 
 Dos opciones rehacen el Menú desde cero y **borran tus cambios**; úsalas solo si el Menú queda inservible o para partir del diseño nuevo:
 - **Herramientas > Diseñar Menu estilo HUD**: el Menú actual (pantalla de título, lista a la izquierda, nave girando sobre Marte, Opciones).
@@ -123,9 +123,10 @@ Todo está en `Assets/Editor/ConstructorEscenas.cs`. Busca el nombre entre comil
 - Barra de pasos arriba (24 pt, mono).
 - Columna izquierda con anclas 0.05,0.15 → 0.51,0.885:
   - Título 64 pt.
-  - Miniatura «REGIÓN OBSERVADA» (HiRISE), de 170 px.
+  - Miniatura «REGIÓN OBSERVADA» (HiRISE), de 120 px.
   - Objetivo 34 pt.
   - Requisitos 30 pt.
+  - «NIVEL DE DIFICULTAD» con los tres botones de nivel (64 px); los textos y colores los pone `MisionUI` con los datos.
 - Columna derecha con anclas 0.55,0.15 → 0.95,0.885: tarjetas LÍMITES y EL SEMÁFORO (28 pt).
 - Abajo, la pista (26 pt) y «Continuar».
 
@@ -143,21 +144,21 @@ Todo está en `Assets/Editor/ConstructorEscenas.cs`. Busca el nombre entre comil
   - Estado de 48 pt, mensaje de 26 pt y «Revisar misión».
 - **Centro (0.36 a 0.655):** queda libre para la escena 3D. Arriba, «PASO 2 DE 4»; abajo, la leyenda sobre un fondo oscuro.
 
-**Revisión, Investigación y lanzamiento**
+**Revisión, Operación y lanzamiento**
 
 - **Revisión** (método `ConstruirRevision`): tarjeta con anclas 0.25,0.08 → 0.75,0.92, con «Corregir» y «Lanzar».
-- **Investigación** (método `ConstruirInvestigacion`):
-  - Fondo de estrellas.
-  - A la izquierda (anclas 0.04,0.12 → 0.5,0.88), la imagen real del instrumento que transmite, con su crédito y el destello «SEÑAL RECIBIDA» (`VisorEvidencia`).
-  - A la derecha (0.53,0.12 → 0.96,0.88), la transmisión (34 pt, con efecto de máquina de escribir: `Escritura`).
+- **Operación** (método `ConstruirOperacion`, la fase de juego de Adrian), sobre un fondo de estrellas:
+  - Izquierda (anclas 0.012,0.03 → 0.30,0.97): instrumentos (filas de 64 px), energía con barra segmentada, órbitas y «ÚLTIMA SEÑAL». Esta última muestra la imagen real (NASA) del instrumento que envió la última transmisión, con su crédito y el destello «SEÑAL RECIBIDA» (`VisorEvidencia`).
+  - Centro (0.31 → 0.69): el paso, el mapa cuadrado con marco HUD y la caja de la última lectura.
+  - Derecha (0.70 → 0.988): transmisión (24 pt, con efecto de máquina de escribir: `Escritura`), progreso en cian, eventos, herramientas y «Terminar misión».
   - Las imágenes y créditos por instrumento están en `Assets/Arte/Arte.asset`.
-- **Lanzamiento** (`ConstruirEfectoLanzamiento`): destello «LANZAMIENTO» encima de la Investigación al pulsar «Lanzar». La música cambia a la de investigación.
+- **Lanzamiento** (`ConstruirEfectoLanzamiento`): destello «LANZAMIENTO» encima de la Operación al pulsar «Lanzar». La música cambia a la de la operación (`musica_investigacion`).
 
 **Resultado** (método `ConstruirResultado`)
 
 - Fondo con Marte durante la tormenta.
 - Columna izquierda: título de 80 pt en mayúsculas, conclusión de 32 pt, recursos y «Modificar mi misión» (ese texto exacto lo comprueban las pruebas).
-- Tarjeta derecha: evidencias, lo que faltó y una miniatura de Marte.
+- Tarjeta derecha: evidencias, lo que faltó, los puntos y una miniatura de Marte.
 
 **Escena 3D**
 
@@ -189,7 +190,7 @@ Colores de las opciones elegidas y de las barras: en `Assets/Scripts/UI/Configur
 
 1. `git pull` antes de empezar, para trabajar sobre lo último.
 2. Window > General > **Test Runner** > EditMode > **Run All** y después PlayMode > **Run All**. Todo tiene que salir en verde.
-3. Pulsa Play desde `Menu` y recorre: título, Menú, Opciones, Cómo jugar, Iniciar misión, Briefing, Configuración, Revisión, Lanzar, Investigación y Resultado.
+3. Pulsa Play desde `Menu` y recorre: título, Menú, Opciones, Cómo jugar, Iniciar misión, Briefing, Configuración, Revisión, Lanzar, Operación y Resultado.
 4. Commit solo de lo que tocaste (por ejemplo `Assets/Escenas/Menu.unity` y las imágenes nuevas con sus `.meta`), mensaje en español, y push.
 5. Avisa a Adrian si cambiaste algo de `Mision`, para no pisarnos.
 

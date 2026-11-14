@@ -29,9 +29,9 @@ namespace SpaceMission
             return texto;
         }
 
-        public static string TextoLimites(CatalogoDatos catalogo)
+        public static string TextoLimites(CatalogoDatos catalogo, MisionDatos nivel = null)
         {
-            var m = catalogo.mision;
+            var m = nivel != null ? nivel : catalogo.mision;
             var explorador = catalogo.Lanzador("explorador");
             var titan = catalogo.Lanzador("titan");
             return "Presupuesto: " + Numero(m.presupuestoCr) + " créditos\n" +

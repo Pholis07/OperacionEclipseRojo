@@ -17,7 +17,7 @@ El código del audio ya está listo y el juego funciona en silencio mientras fal
 |---|---|---|
 | `musica_menu` | Menú (bucle) | Ambient espacial lento, sintetizadores cálidos, misterio, sin percusión fuerte, 90 s, bucle sin cortes |
 | `musica_configuracion` | Briefing y Configuración (bucle) | Misma tonalidad que el menú, pulso suave y concentrado, sensación de taller de ingeniería, 90 s en bucle |
-| `musica_investigacion` | Investigación, tras «Lanzar» (bucle) | Más tensión: drones graves, arpegio lejano, sensación de señal que llega de muy lejos, 90 s en bucle |
+| `musica_investigacion` | Operación, tras «Lanzar» (bucle) | Más tensión: drones graves, arpegio lejano, sensación de señal que llega de muy lejos, 90 s en bucle |
 | `musica_victoria` | Resultado: misión cumplida | Cierre luminoso y esperanzador, 15 s |
 | `musica_parcial` | Resultado: parcial | Cierre agridulce y abierto, 15 s |
 | `musica_fracaso` | Resultado: fracaso | Cierre sobrio y melancólico, sin dramatismo, 15 s |

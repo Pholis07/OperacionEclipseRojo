@@ -38,7 +38,7 @@ namespace SpaceMission
 
         void OnDestroy() => Preferencias.Cambiaron -= Aplicar;
 
-        /// <summary>Cambia de tema con un fundido corto (por ejemplo, al pasar a Investigación).</summary>
+        /// <summary>Cambia de tema con un fundido corto (por ejemplo, al pasar a la Operación).</summary>
         public void Cambiar(ArteDatos.Musica nueva)
         {
             if (arte == null || fuenteMusica == null || nueva == musica) return;

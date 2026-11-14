@@ -96,16 +96,30 @@ namespace SpaceMission.PlayTests
             Pulsar("BotonLanzar");
             yield return null;
 
-            int pulsaciones = 0;
-            while (SceneManager.GetActiveScene().name == "Mision" && pulsaciones <= transmisiones)
+            // Fase de Operación: escanear la anomalía con cada instrumento, como un jugador, resolviendo
+            // los eventos aleatorios con las herramientas cuando hace falta.
+            var ui = Object.FindFirstObjectByType<OperacionUI>();
+            Assert.IsNotNull(ui?.Op, "No empezó la Operación en el caso " + caso);
+            var op = ui.Op;
+            foreach (var id in op.Instrumentos.ToList())
             {
-                Pulsar("BotonContinuar"); // de la Investigación
-                pulsaciones++;
-                yield return null;
-                yield return null;
+                for (int intento = 0; intento < 6 && !op.Terminada && op.Pendientes.ContainsValue(id); intento++)
+                {
+                    foreach (var otro in op.Encendidos.ToList()) ui.AlternarInstrumento(otro);
+                    foreach (var h in op.HerramientasUtiles.ToList()) ui.UsarHerramienta(h);
+                    if (!op.Encendidos.Contains(id)) ui.AlternarInstrumento(id);
+                    ui.ElegirEscaner(id);
+                    ui.EscanearEn(op.Anomalia);
+                    yield return null;
+                }
             }
+            Assert.AreEqual(transmisiones, op.Recibidas.Count + op.BajaCalidad.Count, "transmisiones del caso " + caso);
+            Debug.Log("OPERACION " + caso + " | recibidas: " + string.Join(",", op.Recibidas) +
+                      " | baja calidad: " + string.Join(",", op.BajaCalidad) + " | eventos: " +
+                      string.Join(",", op.Eventos.Select(e => e.Datos.id)) + " | apagones: " + op.Apagones);
+
+            Pulsar("BotonTerminar");
             yield return EsperarEscena("Resultado");
-            Assert.AreEqual(transmisiones, pulsaciones, "transmisiones mostradas en el caso " + caso);
 
             var titulo = GameObject.Find("Titulo").GetComponent<TMP_Text>().text;
             Assert.AreEqual(TextosResultado.Titulo(EstadoJuego.Resultado.Categoria.Value), titulo, "título del informe del caso " + caso);

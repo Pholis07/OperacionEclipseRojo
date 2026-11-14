@@ -16,6 +16,7 @@ namespace SpaceMission
         [SerializeField] TMP_Text textoEvidencias;
         [SerializeField] TMP_Text textoFaltantes;
         [SerializeField] TMP_Text textoRecursos;
+        [SerializeField] TMP_Text textoPuntos;
         [SerializeField] UnityEngine.UI.Button botonModificar;
 
         void Awake()
@@ -30,11 +31,13 @@ namespace SpaceMission
             {
                 textoTitulo.text = "Sin misión lanzada";
                 textoConclusion.text = "Vuelve al constructor para preparar y lanzar una misión.";
-                textoEvidencias.text = textoFaltantes.text = textoRecursos.text = "";
+                textoEvidencias.text = textoFaltantes.text = textoRecursos.text = textoPuntos.text = "";
                 return;
             }
 
-            var informe = InformeMision.Construir(e, c, catalogo);
+            var op = EstadoJuego.Operacion;
+            var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
+            var informe = InformeMision.Construir(e, c, catalogo, op, nivel);
             textoTitulo.text = informe.Titulo;
             textoConclusion.text = informe.Texto;
 
@@ -48,11 +51,39 @@ namespace SpaceMission
                 ? "<b>Lo que faltó</b>\n• " + string.Join("\n• ", informe.Faltantes)
                 : "<b>Lo que faltó</b>\nNada: la misión cubrió todo lo que pedía su órbita.";
             textoRecursos.text = "<b>Recursos usados</b>\n" + informe.Recursos;
+            textoPuntos.text = op != null ? TextoPuntos(e, op, nivel) : "";
+        }
+
+        string TextoPuntos(Evaluacion e, Operacion op, MisionDatos nivel)
+        {
+            var lineas = Puntuacion.Desglose(e, op, catalogo, nivel);
+            int total = Puntuacion.Total(lineas);
+            var texto = "<b>Puntos: " + TextosBriefing.Numero(total) + "</b>  (" + nivel.nombreNivel + ")\n";
+            foreach (var l in lineas)
+                texto += l.Concepto + ": " + (l.Puntos >= 0 ? "+" : "") + TextosBriefing.Numero(l.Puntos) + "\n";
+            texto += MejorPuntaje(total);
+            return texto;
+        }
+
+        /// <summary>Guarda en el navegador el mejor puntaje de cada nivel.</summary>
+        string MejorPuntaje(int total)
+        {
+            var clave = "mejor_puntaje_nivel_" + EstadoJuego.NivelIndice;
+            int mejor = PlayerPrefs.GetInt(clave, 0);
+            if (!Application.isPlaying) return "Mejor puntaje en este nivel: " + TextosBriefing.Numero(System.Math.Max(mejor, total));
+            if (total > mejor)
+            {
+                PlayerPrefs.SetInt(clave, total);
+                PlayerPrefs.Save();
+                return "<color=#22C55E>¡Nuevo mejor puntaje en este nivel!</color>";
+            }
+            return "Mejor puntaje en este nivel: " + TextosBriefing.Numero(mejor);
         }
 
         public void ModificarMision()
         {
             EstadoJuego.Resultado = null;
+            EstadoJuego.Operacion = null;
             EstadoJuego.EntrarEnConfiguracion = true;
             if (Application.isPlaying) SceneManager.LoadScene("Mision");
         }

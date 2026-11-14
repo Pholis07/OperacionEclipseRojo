@@ -17,7 +17,7 @@ namespace SpaceMission
         [SerializeField] GameObject vistaRevision;
         [SerializeField] GameObject vistaInvestigacion;
         [SerializeField] RevisionUI revision;
-        [SerializeField] InvestigacionUI investigacion;
+        [SerializeField] OperacionUI operacion;
 
         [Header("Briefing")]
         [SerializeField] TMP_Text textoObjetivo;
@@ -25,12 +25,18 @@ namespace SpaceMission
         [SerializeField] TMP_Text textoLimites;
         [SerializeField] TMP_Text textoColores;
         [SerializeField] UnityEngine.UI.Button botonContinuar;
+        [SerializeField] UnityEngine.UI.Button[] botonesNivel;   // 0, 1 y 2
 
         public CatalogoDatos Catalogo => catalogo;
 
         void Awake()
         {
             botonContinuar.onClick.AddListener(MostrarConfiguracion);
+            for (int i = 0; i < botonesNivel.Length; i++)
+            {
+                int nivel = i;
+                botonesNivel[i].onClick.AddListener(() => ElegirNivel(nivel));
+            }
             LlenarBriefing();
             AbrirVistaInicial();
         }
@@ -51,10 +57,26 @@ namespace SpaceMission
 
         public void LlenarBriefing()
         {
-            textoObjetivo.text = catalogo.mision.objetivo;
+            var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
+            textoObjetivo.text = nivel.objetivo;
             textoRequisitos.text = TextosBriefing.TextoRequisitos();
-            textoLimites.text = TextosBriefing.TextoLimites(catalogo);
+            textoLimites.text = TextosBriefing.TextoLimites(catalogo, nivel) +
+                                "\nTiempo de navegación: " + nivel.orbitasNavegacion + " órbitas" +
+                                "\nEventos de la nave: " + nivel.eventosPorMision;
             textoColores.text = TextosBriefing.ExplicacionColores;
+            for (int i = 0; i < botonesNivel.Length; i++)
+            {
+                botonesNivel[i].GetComponent<UnityEngine.UI.Image>().color =
+                    i == EstadoJuego.NivelIndice ? new Color32(0xE2, 0x64, 0x3A, 0xFF) : new Color32(0x2A, 0x2A, 0x31, 0xFF);
+                botonesNivel[i].GetComponentInChildren<TMP_Text>().text = catalogo.Nivel(i).nombreNivel;
+            }
+        }
+
+        /// <summary>Cambia el nivel (solo desde el Briefing) y actualiza los límites que se muestran.</summary>
+        public void ElegirNivel(int indice)
+        {
+            EstadoJuego.NivelIndice = indice;
+            LlenarBriefing();
         }
 
         public void MostrarBriefing() => Mostrar(vistaBriefing);
@@ -70,7 +92,7 @@ namespace SpaceMission
         public void MostrarInvestigacion()
         {
             Mostrar(vistaInvestigacion);
-            investigacion.Comenzar(EstadoJuego.Resultado);
+            operacion.Comenzar(EstadoJuego.Resultado);
         }
 
         void Mostrar(GameObject vista)

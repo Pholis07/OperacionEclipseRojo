@@ -38,3 +38,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1761b6cc2845178ce90dcf151626427f, type: 2}
   - {fileID: 11400000, guid: e5e57ddd49a2ca7b4b6323d9927074d8, type: 2}
   - {fileID: 11400000, guid: 22f915ac811f9189fb854883d61c2211, type: 2}
+  reglas: {fileID: 11400000, guid: 83e50f30dd15de941a127939728ace01, type: 2}
+  niveles:
+  - {fileID: 11400000, guid: e65a2d90e1db227fda6af11f3e45b0c5, type: 2}
+  - {fileID: 11400000, guid: 8742a07b1d167074d8bdd2392e72b25f, type: 2}
+  - {fileID: 11400000, guid: 7d8d7d20bed6dfb9b97bd6d5583dc28b, type: 2}
+  eventos:
+  - {fileID: 11400000, guid: e206543fcffcfc4e7a6a58e2df06a1ba, type: 2}
+  - {fileID: 11400000, guid: 8b6edcc29b888214a8816e830e349adf, type: 2}
+  - {fileID: 11400000, guid: 54482d87b0482e03a9e7ab9ab3b0766b, type: 2}
+  - {fileID: 11400000, guid: d7c7f1ea7dc0d5783a279b51898e2661, type: 2}
+  - {fileID: 11400000, guid: f11ec9d8bd13e6af79e69637677fa666, type: 2}
+  herramientas:
+  - {fileID: 11400000, guid: 1617c4613fcd8232a8dab164b9ab78ac, type: 2}
+  - {fileID: 11400000, guid: 33690f43f30f421548aad9acd683c07b, type: 2}
+  - {fileID: 11400000, guid: 214ffe0342f729b88bec9121cb6412d1, type: 2}
+  - {fileID: 11400000, guid: 0907428c3c7c5dcfa9af9f5c21e11b73, type: 2}

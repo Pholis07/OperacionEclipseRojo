@@ -110,7 +110,12 @@ def guardar(im, ruta, calidad=88):
 marte = abrir("PIA22329")
 marte = marte.crop((0, 70, marte.width, marte.height))  # quita la fecha impresa y la franja polar dentada
 marte = marte.resize((960, 480), Image.LANCZOS)
-marte = rellenar_huecos(marte).filter(ImageFilter.MedianFilter(5))  # borra marcadores sueltos (rover)
+marte = rellenar_huecos(marte).filter(ImageFilter.MedianFilter(5))
+# Borra el marcador azul del rover Opportunity que trae la foto: los píxeles claramente azules toman el color
+# del entorno (versión muy desenfocada).
+entorno = marte.filter(ImageFilter.GaussianBlur(10))
+azul = Image.eval(ImageChops.subtract(marte.split()[2], marte.split()[0]), lambda v: 255 if v > 25 else 0)
+marte = Image.composite(entorno, marte, azul.filter(ImageFilter.MaxFilter(9)))
 marte = marte.resize((2048, 1024), Image.LANCZOS).filter(ImageFilter.GaussianBlur(1.2))
 marte = ImageEnhance.Contrast(marte).enhance(1.15)
 guardar(marte, "Texturas/Marte_Superficie.jpg")

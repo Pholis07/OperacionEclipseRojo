@@ -9,7 +9,8 @@ namespace SpaceMission
     /// </summary>
     public static class Calculador
     {
-        public static ResultadoCalculo Calcular(Configuracion config, CatalogoDatos catalogo)
+        /// <param name="nivel">Datos del nivel; si es null, la misión del diseño (nivel 2).</param>
+        public static ResultadoCalculo Calcular(Configuracion config, CatalogoDatos catalogo, MisionDatos nivel = null)
         {
             var r = new ResultadoCalculo();
 
@@ -23,7 +24,7 @@ namespace SpaceMission
                 return r;
             }
 
-            var mision = catalogo.mision;
+            var mision = nivel != null ? nivel : catalogo.mision;
             var orbita = Buscar(catalogo.Orbita(config.OrbitaId), "órbita", config.OrbitaId);
             var lanzador = Buscar(catalogo.Lanzador(config.LanzadorId), "lanzador", config.LanzadorId);
 

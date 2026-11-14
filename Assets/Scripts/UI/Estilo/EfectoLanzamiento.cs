@@ -6,7 +6,7 @@ namespace SpaceMission
 {
     /// <summary>
     /// Al pulsar «Lanzar» (con la misión lista), un velo con «LANZAMIENTO» y un destello cubre la pantalla y se
-    /// desvanece mientras la Investigación ya está activa debajo. No bloquea clics ni retrasa nada.
+    /// desvanece mientras la Operación ya está activa debajo. No bloquea clics ni retrasa nada.
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class EfectoLanzamiento : MonoBehaviour

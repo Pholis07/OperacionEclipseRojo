@@ -42,7 +42,7 @@ public static class ConstructorEscenas
     const float LargoEsquina = 48f;
     const float GrosorEsquina = 4f;
 
-    static readonly string[] NombresPasos = { "Briefing", "Configuración", "Revisión", "Investigación" };
+    static readonly string[] NombresPasos = { "Briefing", "Configuración", "Revisión", "Operación" };
 
     const string RutaCatalogo = "Assets/Datos/Catalogo.asset";
 
@@ -380,13 +380,27 @@ public static class ConstructorEscenas
         Anclar(col, new Vector2(0.05f, 0.15f), new Vector2(0.51f, 0.885f));
         col.gameObject.AddComponent<CanvasGroup>();
         Texto(col, "Titulo", "Briefing de la misión", 64, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
-        Miniatura(col, "Region", ConstructorEstilo.Imagen("Evidencias/Evidencia_region"), 170,
+        Miniatura(col, "Region", ConstructorEstilo.Imagen("Evidencias/Evidencia_region"), 120,
             SpaceMission.Iconos.Objetivo + "  REGIÓN OBSERVADA  ·  NASA/JPL-Caltech/UArizona");
         Encabezado(col, "EtiquetaObjetivo", "OBJETIVO");
         var objetivo = Texto(col, "Objetivo", "", 34, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         Encabezado(col, "EtiquetaRequisitos", "REQUISITOS: LAS EVIDENCIAS QUE DEBES CONSEGUIR");
         var requisitos = Texto(col, "Requisitos", "", 30, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        requisitos.lineSpacing = 18;
+        requisitos.lineSpacing = 12;
+
+        // Selector de nivel (gameplay aprobado): los textos y colores los pone MisionUI con los datos.
+        Encabezado(col, "EtiquetaNivel", "NIVEL DE DIFICULTAD");
+        var filaNivel = Fila(col, "Niveles", 16);
+        Alto(filaNivel, 64);
+        var botonesNivel = new UnityEngine.UI.Button[3];
+        for (int i = 0; i < 3; i++)
+        {
+            botonesNivel[i] = Boton(filaNivel, "BotonNivel" + (i + 1), "Nivel " + (i + 1), false);
+            var le = botonesNivel[i].GetComponent<UnityEngine.UI.LayoutElement>();
+            le.preferredWidth = -1; le.flexibleWidth = 1; le.minHeight = 64; le.preferredHeight = 64;
+            var t = botonesNivel[i].GetComponentInChildren<TextMeshProUGUI>();
+            t.fontSize = 28; t.enableAutoSizing = true; t.fontSizeMin = 24; t.fontSizeMax = 28;
+        }
 
         var datos = Columna(briefing, "Datos", 28, TextAnchor.UpperLeft);
         Anclar(datos, new Vector2(0.55f, 0.15f), new Vector2(0.95f, 0.885f));
@@ -411,6 +425,7 @@ public static class ConstructorEscenas
         Aparecer(briefing, col, datos);
 
         var controlador = new GameObject("MisionUI").AddComponent<MisionUI>();
+        AsignarLista(controlador, "botonesNivel", botonesNivel);
 
         // Escena 3D de Configuración: estrellas, Marte abajo con la órbita elegida y la nave en el centro.
         PrepararCamara();
@@ -435,16 +450,17 @@ public static class ConstructorEscenas
         Estirar(revision);
         var revisionUI = ConstruirRevision(revision, catalogo, controlador);
 
-        // Vista Investigación: las transmisiones de una en una, con la imagen real de cada instrumento.
-        var investigacion = Panel(canvas, "VistaInvestigacion", Fondo);
+        // Vista Operación (sustituye a la Investigación): mapa, energía, órbitas, eventos y herramientas,
+        // con la imagen real del instrumento de cada transmisión.
+        var investigacion = Panel(canvas, "VistaOperacion", Fondo);
         Estirar(investigacion);
-        var investigacionUI = ConstruirInvestigacion(investigacion, catalogo);
+        var operacionUI = ConstruirOperacion(investigacion, catalogo);
 
         var musica = CrearMusica(ArteDatos.Musica.Configuracion);
         ConstruirEfectoLanzamiento(canvas, revisionUI, musica);
 
         CrearEventSystem();
-        Asignar(controlador, "investigacion", investigacionUI);
+        Asignar(controlador, "operacion", operacionUI);
 
         Asignar(controlador, "catalogo", catalogo);
         Asignar(controlador, "vistaBriefing", briefing.gameObject);
@@ -466,72 +482,183 @@ public static class ConstructorEscenas
         EditorSceneManager.SaveScene(escena, "Assets/Escenas/Mision.unity");
     }
 
-    static InvestigacionUI ConstruirInvestigacion(RectTransform vista, CatalogoDatos catalogo)
+    static OperacionUI ConstruirOperacion(RectTransform vista, CatalogoDatos catalogo)
     {
-        var ui = vista.gameObject.AddComponent<InvestigacionUI>();
+        var ui = vista.gameObject.AddComponent<OperacionUI>();
         FondoFoto(vista, ConstructorEstilo.Imagen("Texturas/Estrellas"), 0.9f, false);
 
-        // Izquierda: la imagen real que «envía» el instrumento.
-        var visor = Columna(vista, "Evidencia", 14, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
-        Anclar(visor, new Vector2(0.04f, 0.12f), new Vector2(0.5f, 0.88f));
-        visor.gameObject.AddComponent<CanvasGroup>();
-        MarcoHud(visor);
-        var fuente = Texto(visor, "Fuente", "", 30, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
-        Linea(visor);
-        var marco = Vacio(visor, "MarcoImagen");
-        marco.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var imagen = new GameObject("Imagen", typeof(RectTransform), typeof(UnityEngine.UI.RawImage),
-            typeof(UnityEngine.UI.AspectRatioFitter)).GetComponent<UnityEngine.UI.RawImage>();
-        imagen.transform.SetParent(marco, false);
+        // Izquierda: instrumentos, energía, órbitas y la imagen de la última señal.
+        var izq = Columna(vista, "PanelInstrumentos", 12, TextAnchor.UpperLeft, TarjetaTranslucida, 24);
+        Anclar(izq, new Vector2(0.012f, 0.03f), new Vector2(0.30f, 0.97f));
+        izq.gameObject.AddComponent<CanvasGroup>();
+        MarcoHud(izq);
+        Encabezado(izq, "Etiqueta", SpaceMission.Iconos.Instrumentos + "  INSTRUMENTOS");
+        Texto(izq, "Ayuda", "Pulsa uno para encenderlo y escanear con él; otra vez para apagarlo.", 24,
+            TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
+        var lista = Columna(izq, "ListaInstrumentos", 8, TextAnchor.UpperLeft);
+        lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var plantilla = Boton(lista, "PlantillaInstrumento", "Instrumento", false);
+        Opcion(plantilla, 24);
+
+        var filaEnergia = Fila(izq, "FilaEnergia", 10);
+        Alto(filaEnergia, 40);
+        filaEnergia.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
+        var iconoEnergia = Texto(filaEnergia, "Icono", SpaceMission.Iconos.Potencia, 30, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
+        iconoEnergia.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 36;
+        var energia = Texto(filaEnergia, "TextoEnergia", "Energía", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        energia.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+        var fondoBarra = Panel(izq, "BarraEnergia", FondoBarra);
+        Alto(fondoBarra, 22);
+        Bordes(fondoBarra, LineaHud);
+        var relleno = Panel(fondoBarra, "Relleno", Hex("#22C55E"));
+        relleno.anchorMin = Vector2.zero; relleno.anchorMax = new Vector2(0, 1);
+        relleno.pivot = new Vector2(0, 0.5f); relleno.offsetMin = new Vector2(2, 2); relleno.offsetMax = new Vector2(0, -2);
+        relleno.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        relleno.gameObject.AddComponent<BarraAnimada>();
+        var segmentos = new GameObject("Segmentos", typeof(RectTransform), typeof(UnityEngine.UI.RawImage))
+            .GetComponent<UnityEngine.UI.RawImage>();
+        segmentos.transform.SetParent(fondoBarra, false);
+        segmentos.texture = tSegmentos;
+        segmentos.uvRect = new Rect(0, 0, 10, 1);
+        segmentos.raycastTarget = false;
+        Estirar(segmentos.rectTransform);
+
+        var filaOrbitas = Fila(izq, "FilaOrbitas", 10);
+        Alto(filaOrbitas, 40);
+        filaOrbitas.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
+        var iconoOrbitas = Texto(filaOrbitas, "Icono", SpaceMission.Iconos.Orbita, 30, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
+        iconoOrbitas.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 36;
+        var orbitas = Texto(filaOrbitas, "TextoOrbitas", "Órbitas", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        orbitas.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+
+        // Imagen real (NASA) del instrumento que envió la última transmisión.
+        Encabezado(izq, "EtiquetaSenal", SpaceMission.Iconos.Senal + "  ÚLTIMA SEÑAL");
+        var marcoImagen = Vacio(izq, "MarcoImagen");
+        Alto(marcoImagen, 170);
+        var imagen = new GameObject("Imagen", typeof(RectTransform), typeof(UnityEngine.UI.RawImage)).GetComponent<UnityEngine.UI.RawImage>();
+        imagen.transform.SetParent(marcoImagen, false);
         imagen.raycastTarget = false;
-        var ajuste = imagen.GetComponent<UnityEngine.UI.AspectRatioFitter>();
-        ajuste.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.FitInParent;
-        ajuste.aspectRatio = 1024f / 640f;
-        Bordes(imagen.rectTransform, LineaHud);
-        // Franja «SEÑAL RECIBIDA» que destella sobre la imagen al llegar cada transmisión.
-        var senal = Panel(imagen.rectTransform, "SenalRecibida", new Color(Cian.r, Cian.g, Cian.b, 0.85f));
-        Anclar(senal, new Vector2(0, 0.42f), new Vector2(1, 0.58f));
+        // Recorte centrado: las evidencias son 1024 x 640 y el marco es más apaisado.
+        float aspectoMarco = (0.288f * 1920f - 48f) / 170f, aspectoFoto = 1024f / 640f;
+        float alturaUv = Mathf.Min(1f, aspectoFoto / aspectoMarco);
+        imagen.uvRect = new Rect(0, (1 - alturaUv) / 2f, 1, alturaUv);
+        Estirar(imagen.rectTransform);
+        var veloCredito = Panel(marcoImagen, "VeloCredito", new Color(0, 0, 0, 0.6f));
+        veloCredito.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        Anclar(veloCredito, Vector2.zero, new Vector2(1, 0.36f));
+        var credito = Texto(marcoImagen, "Credito", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        Anclar(credito.rectTransform, Vector2.zero, new Vector2(1, 0.36f));
+        credito.margin = new Vector4(12, 0, 12, 0);
+        credito.textWrappingMode = TextWrappingModes.NoWrap;
+        credito.overflowMode = TextOverflowModes.Ellipsis;
+        var veloFuente = Panel(marcoImagen, "VeloFuente", new Color(0, 0, 0, 0.6f));
+        veloFuente.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        Anclar(veloFuente, new Vector2(0, 0.7f), Vector2.one);
+        var fuente = Texto(marcoImagen, "Fuente", "", 24, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
+        Anclar(fuente.rectTransform, new Vector2(0, 0.7f), Vector2.one);
+        fuente.margin = new Vector4(16, 0, 12, 0);
+        fuente.textWrappingMode = TextWrappingModes.NoWrap;
+        fuente.overflowMode = TextOverflowModes.Ellipsis;
+        var senal = Panel(marcoImagen, "SenalRecibida", new Color(Cian.r, Cian.g, Cian.b, 0.85f));
+        Estirar(senal);
         senal.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
         var grupoSenal = senal.gameObject.AddComponent<CanvasGroup>();
         grupoSenal.alpha = 0f;
         grupoSenal.blocksRaycasts = false;
-        var textoSenal = Texto(senal, "Texto", SpaceMission.Iconos.Senal + "   SEÑAL RECIBIDA", 40, Fondo, FontStyles.Bold,
+        var textoSenal = Texto(senal, "Texto", SpaceMission.Iconos.Senal + "   SEÑAL RECIBIDA", 32, Fondo, FontStyles.Bold,
             TextAlignmentOptions.Center);
-        textoSenal.characterSpacing = 10;
+        textoSenal.characterSpacing = 8;
         Estirar(textoSenal.rectTransform);
-        var credito = Texto(visor, "Credito", "", 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
+        MarcoHud(marcoImagen);
 
-        // Derecha: la transmisión.
-        var tarjeta = Columna(vista, "Tarjeta", 28, TextAnchor.UpperLeft, TarjetaTranslucida, 48);
-        Anclar(tarjeta, new Vector2(0.53f, 0.12f), new Vector2(0.96f, 0.88f));
-        tarjeta.gameObject.AddComponent<CanvasGroup>();
-        MarcoHud(tarjeta);
-        var paso = Texto(tarjeta, "Paso", Paso(4), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
+        // Centro: el paso, el mapa cuadrado que se puede pulsar y la última lectura debajo.
+        var paso = Texto(vista, "Paso", Paso(4), 24, TextoSecundario,
+            FontStyles.Normal, TextAlignmentOptions.Center);
         paso.font = ConstructorEstilo.Mono;
-        Encabezado(tarjeta, "Etiqueta", "INVESTIGACIÓN EN CURSO");
-        var encabezado = Texto(tarjeta, "Encabezado", "", 32, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
-        var texto = Texto(tarjeta, "TextoTransmision", "", 34, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        texto.lineSpacing = 14;
-        texto.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        texto.gameObject.AddComponent<Escritura>();
-        var continuar = Boton(tarjeta, "BotonContinuar", "Continuar investigación", true);
-        continuar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
-        Aparecer(vista, visor, tarjeta);
+        Anclar(paso.rectTransform, new Vector2(0.31f, 0.925f), new Vector2(0.69f, 0.97f));
+        var zonaMapa = Vacio(vista, "ZonaMapa");
+        Anclar(zonaMapa, new Vector2(0.31f, 0.2f), new Vector2(0.69f, 0.915f));
+        var goMapa = new GameObject("Mapa", typeof(RectTransform), typeof(UnityEngine.UI.RawImage), typeof(UnityEngine.UI.AspectRatioFitter));
+        goMapa.transform.SetParent(zonaMapa, false);
+        var ajuste = goMapa.GetComponent<UnityEngine.UI.AspectRatioFitter>();
+        ajuste.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.FitInParent;
+        ajuste.aspectRatio = 1f;
+        var capaMarcas = Vacio(goMapa.transform, "Marcas");
+        Estirar(capaMarcas);
+        MarcoHud((RectTransform)goMapa.transform);
+        var mapa = goMapa.AddComponent<MapaMarteUI>();
+        Asignar(mapa, "imagen", goMapa.GetComponent<UnityEngine.UI.RawImage>());
+        Asignar(mapa, "capaMarcas", capaMarcas);
+
+        var cajaLectura = Columna(vista, "CajaLectura", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 20);
+        Anclar(cajaLectura, new Vector2(0.31f, 0.03f), new Vector2(0.69f, 0.185f));
+        Bordes(cajaLectura, LineaHud);
+        var lectura = Texto(cajaLectura, "TextoLectura", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+
+        // Derecha: transmisión, eventos, herramientas y fin.
+        var der = Columna(vista, "PanelDerecho", 12, TextAnchor.UpperLeft, TarjetaTranslucida, 24);
+        Anclar(der, new Vector2(0.70f, 0.03f), new Vector2(0.988f, 0.97f));
+        der.gameObject.AddComponent<CanvasGroup>();
+        MarcoHud(der);
+        Encabezado(der, "EtiquetaTransmision", SpaceMission.Iconos.Senal + "  TRANSMISIÓN");
+        var transmision = Texto(der, "TextoTransmision", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        transmision.lineSpacing = 4;
+        transmision.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        transmision.gameObject.AddComponent<Escritura>();
+        var progreso = Texto(der, "TextoProgreso", "", 24, Cian, FontStyles.Normal, TextAlignmentOptions.Left);
+        progreso.font = ConstructorEstilo.Mono;
+        Encabezado(der, "EtiquetaEventos", SpaceMission.Iconos.Amarillo + "  EVENTOS DE LA NAVE");
+        var evento = Texto(der, "TextoEvento", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        Encabezado(der, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  HERRAMIENTAS (UN USO)");
+        var herramientas = Columna(der, "ListaHerramientas", 6, TextAnchor.UpperLeft);
+        var plantillaH = Boton(herramientas, "PlantillaHerramienta", "Herramienta", false);
+        Opcion(plantillaH, 24);
+        plantillaH.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 52;
+        plantillaH.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 52;
+        var terminar = Boton(der, "BotonTerminar", "Terminar misión", true);
+        terminar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
+        Aparecer(vista, izq, der);
 
         Asignar(ui, "catalogo", catalogo);
-        Asignar(ui, "textoEncabezado", encabezado);
-        Asignar(ui, "textoTransmision", texto);
-        Asignar(ui, "botonContinuar", continuar);
+        Asignar(ui, "mapa", mapa);
+        Asignar(ui, "listaInstrumentos", lista);
+        Asignar(ui, "plantillaInstrumento", plantilla);
+        Asignar(ui, "rellenoEnergia", relleno);
+        Asignar(ui, "textoEnergia", energia);
+        Asignar(ui, "textoOrbitas", orbitas);
+        Asignar(ui, "textoLectura", lectura);
+        Asignar(ui, "textoEvento", evento);
+        Asignar(ui, "textoTransmision", transmision);
+        Asignar(ui, "textoProgreso", progreso);
+        Asignar(ui, "listaHerramientas", herramientas);
+        Asignar(ui, "plantillaHerramienta", plantillaH);
+        Asignar(ui, "botonTerminar", terminar);
 
         var visorUI = vista.gameObject.AddComponent<VisorEvidencia>();
         Asignar(visorUI, "catalogo", catalogo);
         Asignar(visorUI, "arte", arte);
-        Asignar(visorUI, "investigacion", ui);
+        Asignar(visorUI, "operacion", ui);
         Asignar(visorUI, "imagen", imagen);
         Asignar(visorUI, "textoFuente", fuente);
         Asignar(visorUI, "textoCredito", credito);
         Asignar(visorUI, "senal", grupoSenal);
         return ui;
+    }
+
+    /// <summary>Convierte un botón en fila de lista: ancho completo, 64 px y texto normal a la izquierda.</summary>
+    static void Opcion(UnityEngine.UI.Button boton, float tamanoTexto)
+    {
+        var le = boton.GetComponent<UnityEngine.UI.LayoutElement>();
+        le.preferredWidth = -1; le.minHeight = 64; le.preferredHeight = 64;
+        var etiqueta = boton.GetComponentInChildren<TextMeshProUGUI>();
+        etiqueta.font = ConstructorEstilo.Texto;
+        etiqueta.fontSize = tamanoTexto;
+        etiqueta.fontStyle = FontStyles.Normal;
+        etiqueta.characterSpacing = 0;
+        etiqueta.lineSpacing = -8;
+        etiqueta.alignment = TextAlignmentOptions.Left;
+        etiqueta.margin = new Vector4(16, 0, 16, 0);
+        Asignar(boton.GetComponent<BotonVivo>(), "escalaEncima", 1.015f);
     }
 
     static void ConstruirEfectoLanzamiento(RectTransform canvas, RevisionUI revision, MusicaEscena musica)
@@ -584,8 +711,10 @@ public static class ConstructorEscenas
         evidencias.lineSpacing = 8;
         var faltantes = Texto(der, "TextoFaltantes", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         faltantes.lineSpacing = 8;
+        var puntos = Texto(der, "TextoPuntos", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        puntos.lineSpacing = 8;
         Alto(Vacio(der, "Espacio"), 0).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        Miniatura(der, "Mision", arte.imagenMision, 300, SpaceMission.Iconos.Senal + "  MARTE DURANTE LA TORMENTA  ·  NASA/JPL-Caltech/MSSS");
+        Miniatura(der, "Mision", arte.imagenMision, 200, SpaceMission.Iconos.Senal + "  MARTE DURANTE LA TORMENTA  ·  NASA/JPL-Caltech/MSSS");
 
         CrearEventSystem();
         var musica = CrearMusica(ArteDatos.Musica.Ninguna);
@@ -598,6 +727,7 @@ public static class ConstructorEscenas
         Asignar(ui, "textoEvidencias", evidencias);
         Asignar(ui, "textoFaltantes", faltantes);
         Asignar(ui, "textoRecursos", recursos);
+        Asignar(ui, "textoPuntos", puntos);
         Asignar(ui, "botonModificar", modificar);
 
         EditorSceneManager.SaveScene(escena, "Assets/Escenas/Resultado.unity");

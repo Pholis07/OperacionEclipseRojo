@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f609a82bca07c95ba94b58307d0360, type: 3}
+  m_Name: Evento_sombra
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
+  id: sombra
+  nombre: Paso por la sombra de Marte
+  texto: "La nave entra en la sombra del planeta y los paneles dejan de recibir luz. Hay menos energ\xEDa durante unas \xF3rbitas."
+  efecto: 0
+  vatios: 150
+  orbitas: 3
+  herramientaId: bateria

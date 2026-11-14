@@ -158,9 +158,10 @@ namespace SpaceMission
         /// <summary>Calcula, evalúa (escribe la línea [Misión]) y actualiza barras, semáforo y nave.</summary>
         public Evaluacion Recalcular()
         {
-            Ultima = Evaluador.Evaluar(Config, catalogo);
+            var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
+            Ultima = Evaluador.Evaluar(Config, catalogo, nivel);
 
-            var barras = PresentacionMision.Barras(Ultima, Config, catalogo);
+            var barras = PresentacionMision.Barras(Ultima, Config, catalogo, nivel);
             for (int i = 0; i < barras.Length; i++)
             {
                 textosBarra[i].text = barras[i].Nombre + ": " + barras[i].Texto;
