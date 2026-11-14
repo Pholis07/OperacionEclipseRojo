@@ -12288,7 +12288,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Los valores del juego son ficticios: no son capacidades ni precios oficiales de NASA. Im\xE1genes de Marte: NASA/JPL-Caltech (ver cr\xE9ditos)."
+  m_text: "Los valores del juego son ficticios: no son capacidades ni precios oficiales de NASA. Im\xE1genes de Marte: NASA/JPL-Caltech y Solar System Scope (CC BY 4.0), ver cr\xE9ditos."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8ffc11dc04732f67e805ef02f556252d, type: 2}
   m_sharedMaterial: {fileID: 4039928615207978615, guid: 8ffc11dc04732f67e805ef02f556252d, type: 2}

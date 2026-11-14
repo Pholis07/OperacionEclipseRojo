@@ -65,7 +65,7 @@ namespace SpaceMission
                     break;
                 case ConfiguracionUI.Pestana.Lanzador:
                     textoInstruccion.text = "2 · ELIGE EL COHETE";
-                    textoLeyenda.text = "PLATAFORMA DE LANZAMIENTO\n<size=24><color=#94A3B8>Explorador: tipo Soyuz · Titán: tipo SLS (Artemis II)</color></size>";
+                    textoLeyenda.text = "PLATAFORMA DE LANZAMIENTO\n<size=24><color=#94A3B8>Explorador: aspecto inspirado en el Soyuz · Titán: aspecto inspirado en el SLS. Capacidades ficticias.</color></size>";
                     break;
                 default:
                     textoInstruccion.text = "3 · INSTALA LOS INSTRUMENTOS";

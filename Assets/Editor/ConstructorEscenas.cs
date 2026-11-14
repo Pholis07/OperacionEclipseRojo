@@ -200,7 +200,7 @@ public static class ConstructorEscenas
         Dato(ficha, "SEÑAL", "Anomalía térmica sin explicar");
 
         var pie = Texto(canvas, "Pie", "Los valores del juego son ficticios: no son capacidades ni precios oficiales de NASA. " +
-            "Imágenes de Marte: NASA/JPL-Caltech (ver créditos).", 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
+            "Imágenes de Marte: NASA/JPL-Caltech y Solar System Scope (CC BY 4.0), ver créditos.", 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         Anclar(pie.rectTransform, new Vector2(0.05f, 0.025f), new Vector2(0.43f, 0.1f));
         var teclas = Texto(canvas, "Teclas", Tecla("ENTER") + " Seleccionar     " + Tecla("↑ ↓") + " Moverse",
             24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Right);
