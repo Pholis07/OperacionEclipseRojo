@@ -456,6 +456,11 @@ public static class ConstructorEscenas
         Estirar(revision);
         var revisionUI = ConstruirRevision(revision, catalogo, controlador);
 
+        // Vista Carga (gameplay v3): herramientas que suben a la nave, entre Revisión y Lanzar.
+        var vistaCarga = Panel(canvas, "VistaCarga", new Color(0, 0, 0, 0.8f));
+        Estirar(vistaCarga);
+        var cargaUI = ConstruirCarga(vistaCarga, catalogo, controlador);
+
         // Vista Operación (sustituye a la Investigación): mapa, energía, órbitas, eventos y herramientas,
         // con la imagen real del instrumento de cada transmisión.
         var investigacion = Panel(canvas, "VistaOperacion", Fondo);
@@ -463,7 +468,7 @@ public static class ConstructorEscenas
         var operacionUI = ConstruirOperacion(investigacion, catalogo);
 
         var musica = CrearMusica(ArteDatos.Musica.Configuracion);
-        ConstruirEfectoLanzamiento(canvas, revisionUI, musica);
+        ConstruirEfectoLanzamiento(canvas, cargaUI.BotonLanzar, musica);
 
         // Navegación de Configuración y cámara que se acerca a lo que se está eligiendo.
         Asignar(configuracion.GetComponent<GuiaConfiguracion>(), "vistaRevision", revision.gameObject);
@@ -499,6 +504,8 @@ public static class ConstructorEscenas
         Asignar(controlador, "vistaRevision", revision.gameObject);
         Asignar(controlador, "vistaInvestigacion", investigacion.gameObject);
         Asignar(controlador, "revision", revisionUI);
+        Asignar(controlador, "vistaCarga", vistaCarga.gameObject);
+        Asignar(controlador, "carga", cargaUI);
         Asignar(controlador, "textoObjetivo", objetivo);
         Asignar(controlador, "textoRequisitos", requisitos);
         Asignar(controlador, "textoLimites", limites);
@@ -508,9 +515,58 @@ public static class ConstructorEscenas
         // Al abrir la escena solo se ve el Briefing (MisionUI también lo hace al empezar).
         configuracion.gameObject.SetActive(false);
         revision.gameObject.SetActive(false);
+        vistaCarga.gameObject.SetActive(false);
         investigacion.gameObject.SetActive(false);
 
         EditorSceneManager.SaveScene(escena, "Assets/Escenas/Mision.unity");
+    }
+
+    /// <summary>Vista Carga (gameplay v3): interfaz básica, misma tarjeta que la Revisión. Diego la estiliza.</summary>
+    static CargaUI ConstruirCarga(RectTransform vista, CatalogoDatos catalogo, MisionUI mision)
+    {
+        var ui = vista.gameObject.AddComponent<CargaUI>();
+        var tarjeta = Columna(vista, "Tarjeta", 18, TextAnchor.UpperLeft, Tarjeta, 48);
+        Anclar(tarjeta, new Vector2(0.22f, 0.06f), new Vector2(0.78f, 0.94f));
+        tarjeta.gameObject.AddComponent<CanvasGroup>();
+        MarcoHud(tarjeta);
+        var paso = Texto(tarjeta, "Paso", Paso(3), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
+        paso.font = ConstructorEstilo.Mono;
+        Texto(tarjeta, "Titulo", "Carga de la nave", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Linea(tarjeta);
+        var recursos = Texto(tarjeta, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        recursos.lineSpacing = 4;
+        Encabezado(tarjeta, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  HERRAMIENTAS");
+        var lista = Columna(tarjeta, "ListaCarga", 8, TextAnchor.UpperLeft);
+        lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var plantilla = Boton(lista, "PlantillaCarga", "Herramienta", false);
+        Opcion(plantilla, 26);
+        plantilla.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 92;
+        plantilla.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 92;
+        plantilla.GetComponentInChildren<TextMeshProUGUI>().lineSpacing = 0;
+        var botones = Fila(tarjeta, "Botones", 24);
+        Alto(botones, 88);
+        var volver = Boton(botones, "BotonVolverCarga", SpaceMission.Iconos.Atras + "  Revisión", false);
+        var lanzar = Boton(botones, "BotonLanzarCarga", SpaceMission.Iconos.Lanzador + "  Lanzar", true);
+        Aparecer(vista, tarjeta);
+
+        Asignar(ui, "catalogo", catalogo);
+        Asignar(ui, "mision", mision);
+        Asignar(ui, "textoRecursos", recursos);
+        Asignar(ui, "listaHerramientas", lista);
+        Asignar(ui, "plantillaHerramienta", plantilla);
+        Asignar(ui, "botonVolver", volver);
+        Asignar(ui, "botonLanzar", lanzar);
+        return ui;
+    }
+
+    /// <summary>Botón de acción pequeño (52 px) dentro de un panel de la Operación.</summary>
+    static UnityEngine.UI.Button BotonAccion(Transform padre, string nombre, string texto)
+    {
+        var b = Boton(padre, nombre, texto, false);
+        Opcion(b, 24);
+        var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
+        le.minHeight = 52; le.preferredHeight = 52;
+        return b;
     }
 
     static OperacionUI ConstruirOperacion(RectTransform vista, CatalogoDatos catalogo)
@@ -561,6 +617,10 @@ public static class ConstructorEscenas
         iconoOrbitas.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 36;
         var orbitas = Texto(filaOrbitas, "TextoOrbitas", "Órbitas", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         orbitas.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+
+        // Gameplay v3: altitud y combustible.
+        var combustible = Texto(izq, "TextoCombustible", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        var altitud = BotonAccion(izq, "BotonAltitud", "Bajar a órbita baja");
 
         // Imagen real (NASA) del instrumento que envió la última transmisión.
         Encabezado(izq, "EtiquetaSenal", SpaceMission.Iconos.Senal + "  ÚLTIMA SEÑAL");
@@ -642,6 +702,14 @@ public static class ConstructorEscenas
         transmision.gameObject.AddComponent<Escritura>();
         var progreso = Texto(der, "TextoProgreso", "", 24, Cian, FontStyles.Normal, TextAlignmentOptions.Left);
         progreso.font = ConstructorEstilo.Mono;
+        // Gameplay v3: memoria y envío a la Tierra.
+        var memoria = Texto(der, "TextoMemoria", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        var filaEnvio = Fila(der, "FilaEnvio", 8);
+        Alto(filaEnvio, 52);
+        var enviar = BotonAccion(filaEnvio, "BotonEnviar", "Enviar a la Tierra");
+        enviar.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 2;
+        var esperar = BotonAccion(filaEnvio, "BotonEsperar", "Esperar 1 órbita");
+        esperar.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
         Encabezado(der, "EtiquetaEventos", SpaceMission.Iconos.Amarillo + "  EVENTOS DE LA NAVE");
         var evento = Texto(der, "TextoEvento", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         Encabezado(der, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  HERRAMIENTAS (UN USO)");
@@ -650,9 +718,23 @@ public static class ConstructorEscenas
         Opcion(plantillaH, 24);
         plantillaH.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 52;
         plantillaH.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 52;
+        var objetivos = Texto(der, "TextoObjetivos", "", 22, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         var terminar = Boton(der, "BotonTerminar", "Terminar misión", true);
         terminar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
         Aparecer(vista, izq, der);
+
+        // Gameplay v3: ventana de decisión encima de todo cuando ocurre un evento.
+        var decision = Panel(vista, "PanelDecision", new Color(0, 0, 0, 0.7f));
+        Estirar(decision);
+        var tarjetaDecision = Columna(decision, "Tarjeta", 16, TextAnchor.UpperLeft, Tarjeta, 40);
+        Anclar(tarjetaDecision, new Vector2(0.28f, 0.22f), new Vector2(0.72f, 0.78f));
+        MarcoHud(tarjetaDecision);
+        Encabezado(tarjetaDecision, "Etiqueta", SpaceMission.Iconos.Amarillo + "  EVENTO DE LA NAVE");
+        var textoDecision = Texto(tarjetaDecision, "TextoDecision", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        textoDecision.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var opciones = Columna(tarjetaDecision, "ListaRespuestas", 8, TextAnchor.UpperLeft);
+        var plantillaOpcion = Boton(opciones, "PlantillaRespuesta", "Respuesta", false);
+        Opcion(plantillaOpcion, 24);
 
         Asignar(ui, "catalogo", catalogo);
         Asignar(ui, "mapa", mapa);
@@ -668,6 +750,16 @@ public static class ConstructorEscenas
         Asignar(ui, "listaHerramientas", herramientas);
         Asignar(ui, "plantillaHerramienta", plantillaH);
         Asignar(ui, "botonTerminar", terminar);
+        Asignar(ui, "textoCombustible", combustible);
+        Asignar(ui, "botonAltitud", altitud);
+        Asignar(ui, "textoMemoria", memoria);
+        Asignar(ui, "botonEnviar", enviar);
+        Asignar(ui, "botonEsperar", esperar);
+        Asignar(ui, "textoObjetivos", objetivos);
+        Asignar(ui, "panelDecision", decision.gameObject);
+        Asignar(ui, "textoDecision", textoDecision);
+        Asignar(ui, "listaOpciones", opciones);
+        Asignar(ui, "plantillaOpcion", plantillaOpcion);
 
         var visorUI = vista.gameObject.AddComponent<VisorEvidencia>();
         Asignar(visorUI, "catalogo", catalogo);
@@ -696,7 +788,7 @@ public static class ConstructorEscenas
         Asignar(boton.GetComponent<BotonVivo>(), "escalaEncima", 1.015f);
     }
 
-    static void ConstruirEfectoLanzamiento(RectTransform canvas, RevisionUI revision, MusicaEscena musica)
+    static void ConstruirEfectoLanzamiento(RectTransform canvas, UnityEngine.UI.Button lanzar, MusicaEscena musica)
     {
         var efecto = Panel(canvas, "EfectoLanzamiento", new Color(1f, 0.62f, 0.4f, 0.45f));
         Estirar(efecto);
@@ -707,7 +799,7 @@ public static class ConstructorEscenas
         var grupo = efecto.GetComponent<CanvasGroup>();
         grupo.alpha = 0f;
         grupo.blocksRaycasts = false;
-        Asignar(ui, "botonLanzar", revision.BotonLanzar);
+        Asignar(ui, "botonLanzar", lanzar);
         Asignar(ui, "texto", texto);
         Asignar(ui, "musica", musica);
     }
@@ -980,7 +1072,7 @@ public static class ConstructorEscenas
         var botones = Fila(tarjeta, "Botones", 24);
         Alto(botones, 88);
         var corregir = Boton(botones, "BotonCorregir", SpaceMission.Iconos.Atras + "  Corregir", false);
-        var lanzar = Boton(botones, "BotonLanzar", SpaceMission.Iconos.Lanzador + "  Lanzar", true);
+        var lanzar = Boton(botones, "BotonLanzar", "Cargar la nave  " + SpaceMission.Iconos.Siguiente, true);
         Aparecer(vista, tarjeta);
 
         Asignar(ui, "catalogo", catalogo);

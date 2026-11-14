@@ -15,8 +15,10 @@ namespace SpaceMission
         [SerializeField] GameObject vistaBriefing;
         [SerializeField] GameObject vistaConfiguracion;
         [SerializeField] GameObject vistaRevision;
+        [SerializeField] GameObject vistaCarga;
         [SerializeField] GameObject vistaInvestigacion;
         [SerializeField] RevisionUI revision;
+        [SerializeField] CargaUI carga;
         [SerializeField] OperacionUI operacion;
 
         [Header("Briefing")]
@@ -89,18 +91,32 @@ namespace SpaceMission
             revision.Mostrar(e);
         }
 
+        /// <summary>Carga de la nave (v3), entre Revisión y Lanzar. Sin la vista (escena vieja), lanza directo.</summary>
+        public void MostrarCarga(Evaluacion e)
+        {
+            if (vistaCarga == null || carga == null)
+            {
+                EstadoJuego.Carga = null;
+                MostrarInvestigacion();
+                return;
+            }
+            Mostrar(vistaCarga);
+            carga.Mostrar(e);
+        }
+
         public void MostrarInvestigacion()
         {
             Mostrar(vistaInvestigacion);
-            operacion.Comenzar(EstadoJuego.Resultado);
+            operacion.Comenzar(EstadoJuego.Resultado, EstadoJuego.Carga);
         }
 
         void Mostrar(GameObject vista)
         {
             vistaBriefing.SetActive(vista == vistaBriefing);
             // La configuración sigue visible debajo de la Revisión (la Revisión es una tarjeta encima).
-            vistaConfiguracion.SetActive(vista == vistaConfiguracion || vista == vistaRevision);
+            vistaConfiguracion.SetActive(vista == vistaConfiguracion || vista == vistaRevision || (vista != null && vista == vistaCarga));
             vistaRevision.SetActive(vista == vistaRevision);
+            if (vistaCarga != null) vistaCarga.SetActive(vista == vistaCarga);
             vistaInvestigacion.SetActive(vista == vistaInvestigacion);
         }
     }

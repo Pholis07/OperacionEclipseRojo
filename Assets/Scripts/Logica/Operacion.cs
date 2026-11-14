@@ -272,6 +272,17 @@ namespace SpaceMission
         public int OrbitasParaContacto => contactoForzado ? 0
             : reglas.cicloContacto - 1 - OrbitasTranscurridas % reglas.cicloContacto;
 
+        /// <summary>
+        /// Deja pasar una órbita sin escanear (por ejemplo, con la memoria llena hasta la próxima ventana).
+        /// No dispara eventos: los eventos van tras los escaneos.
+        /// </summary>
+        public bool Esperar()
+        {
+            if (Terminada || EsperandoDecision) return false;
+            GastarOrbitas(1);
+            return true;
+        }
+
         /// <summary>Abre una ventana de contacto en esta órbita (respuesta a la ventana despejada).</summary>
         public void AbrirContacto() => contactoForzado = true;
 

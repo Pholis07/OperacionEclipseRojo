@@ -93,18 +93,25 @@ namespace SpaceMission.PlayTests
             }
 
             var elegidas = EstadoJuego.Configuracion.InstrumentoIds.ToArray();
-            Pulsar("BotonLanzar");
+            Pulsar("BotonLanzar");          // de la Revisión a la Carga (gameplay v3)
+            yield return null;
+            var primera = Boton("Carga_" + catalogo.herramientas[0].id);
+            if (primera.interactable) primera.onClick.Invoke();   // sube una herramienta si cabe
+            Pulsar("BotonLanzarCarga");
             yield return null;
 
-            // Fase de Operación: escanear la anomalía con cada instrumento, como un jugador, resolviendo
-            // los eventos aleatorios con las herramientas cuando hace falta.
+            // Fase de Operación: escanear la anomalía con cada instrumento, como un jugador. Responde a los
+            // eventos con la primera opción posible, y envía a la Tierra (o espera la ventana) cuando hace falta.
             var ui = Object.FindFirstObjectByType<OperacionUI>();
             Assert.IsNotNull(ui?.Op, "No empezó la Operación en el caso " + caso);
             var op = ui.Op;
+            Assert.IsTrue(op.ConMemoria, "la Operación debe empezar con la Carga");
             foreach (var id in op.Instrumentos.ToList())
             {
-                for (int intento = 0; intento < 6 && !op.Terminada && op.Pendientes.ContainsValue(id); intento++)
+                for (int intento = 0; intento < 12 && !op.Terminada && op.Pendientes.ContainsValue(id); intento++)
                 {
+                    Responder(ui);
+                    if (op.MemoriaLlena || (op.ContactoAbierto && op.MemoriaUsada > 0)) { EnviarOEsperar(ui); continue; }
                     foreach (var otro in op.Encendidos.ToList()) ui.AlternarInstrumento(otro);
                     foreach (var h in op.HerramientasUtiles.ToList()) ui.UsarHerramienta(h);
                     if (!op.Encendidos.Contains(id)) ui.AlternarInstrumento(id);
@@ -113,6 +120,7 @@ namespace SpaceMission.PlayTests
                     yield return null;
                 }
             }
+            for (int intento = 0; intento < 6 && !op.Terminada && op.EnMemoria.Count > 0; intento++) EnviarOEsperar(ui);
             Assert.AreEqual(transmisiones, op.Recibidas.Count + op.BajaCalidad.Count, "transmisiones del caso " + caso);
             Debug.Log("OPERACION " + caso + " | recibidas: " + string.Join(",", op.Recibidas) +
                       " | baja calidad: " + string.Join(",", op.BajaCalidad) + " | eventos: " +
@@ -131,6 +139,28 @@ namespace SpaceMission.PlayTests
             CollectionAssert.AreEqual(elegidas, EstadoJuego.Configuracion.InstrumentoIds, "Modificar debe conservar los instrumentos");
             Assert.AreEqual(orbita, EstadoJuego.Configuracion.OrbitaId);
             Assert.AreEqual(lanzador, EstadoJuego.Configuracion.LanzadorId);
+        }
+
+        /// <summary>Responde al evento en pausa con la primera opción que se pueda elegir.</summary>
+        static void Responder(OperacionUI ui)
+        {
+            var op = ui.Op;
+            if (!op.EsperandoDecision) return;
+            var opciones = op.Opciones.ToList();
+            ui.Decidir(opciones.FindIndex(op.PuedeElegir));
+        }
+
+        /// <summary>Con la ventana abierta apaga todo y envía; si no, deja pasar una órbita.</summary>
+        static void EnviarOEsperar(OperacionUI ui)
+        {
+            var op = ui.Op;
+            Responder(ui);
+            if (op.ContactoAbierto)
+            {
+                foreach (var otro in op.Encendidos.ToList()) ui.AlternarInstrumento(otro);
+                ui.Enviar();
+            }
+            else ui.Esperar();
         }
 
         static IEnumerator EsperarEscena(string nombre)

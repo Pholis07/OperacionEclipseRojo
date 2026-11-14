@@ -15,6 +15,9 @@ namespace SpaceMission
         /// <summary>Nivel elegido en el Briefing: 0, 1 o 2 (por defecto el 2, «Misión estándar», que es el del diseño).</summary>
         public static int NivelIndice = 1;
 
+        /// <summary>Las herramientas y el combustible que se cargaron antes de lanzar (gameplay v3).</summary>
+        public static Carga Carga;
+
         /// <summary>La operación de la última misión lanzada (para el informe y los puntos).</summary>
         public static Operacion Operacion;
 
@@ -26,6 +29,7 @@ namespace SpaceMission
         {
             Configuracion = new Configuracion();
             Resultado = null;
+            Carga = null;
             Operacion = null;
             EntrarEnConfiguracion = false;
             NivelIndice = 1;

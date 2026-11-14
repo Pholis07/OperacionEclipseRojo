@@ -38,7 +38,7 @@ namespace SpaceMission
         {
             if (evaluacion == null || !evaluacion.SePuedeLanzar) return;
             EstadoJuego.Resultado = evaluacion;
-            mision.MostrarInvestigacion();
+            mision.MostrarCarga(evaluacion);
         }
     }
 }

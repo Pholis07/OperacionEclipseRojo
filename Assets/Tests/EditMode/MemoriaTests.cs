@@ -137,6 +137,21 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void ConLaMemoriaLlenaSePuedeEsperarALaProximaVentana()
+        {
+            var op = Caso2();
+            for (int i = 0; i < 3; i++) op.Escanear("termica", Lejos);   // órbita 3: memoria llena, contacto en 2
+            Assert.IsTrue(op.MemoriaLlena);
+            Assert.IsFalse(op.ContactoAbierto);
+            Assert.IsTrue(op.Esperar());
+            Assert.IsTrue(op.Esperar());
+            Assert.IsTrue(op.ContactoAbierto);
+            Assert.AreEqual(5, op.Orbitas);
+            Assert.IsTrue(op.Enviar());
+            Assert.IsFalse(op.MemoriaLlena);
+        }
+
+        [Test]
         public void AbrirContactoAbreLaVentanaSoloEstaOrbita()
         {
             var op = Caso2();
