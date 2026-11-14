@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d129c78de4a3bb170b7fc2913d464c90, type: 3}
   m_Name: Orbita_eliptica
   m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
-  id: 
-  nombre: 
-  descripcionBreve: 
-  costoCr: 0
-  ventaja: 
-  limitacion: 
-  requisitoDeVictoria: []
-  revelacionesDesbloqueadas: []
+  id: eliptica
+  nombre: "El\xEDptica"
+  descripcionBreve: "\xD3rbita alargada que da una vista panor\xE1mica y mide las condiciones ambientales."
+  costoCr: 140
+  ventaja: "Contexto panor\xE1mico y condiciones ambientales"
+  limitacion: "Para la victoria completa exige adem\xE1s el sensor atmosf\xE9rico"
+  requisitoDeVictoria:
+  - termica
+  - radar
+  - atmosferico
+  revelacionesDesbloqueadas:
+  - atmosferico

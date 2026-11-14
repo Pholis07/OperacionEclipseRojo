@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d38269f3749e294185c3bd9ede73ef6, type: 3}
   m_Name: Lanzador_titan
   m_EditorClassIdentifier: SpaceMission::SpaceMission.LanzadorDatos
-  id: 
-  nombre: 
-  costoCr: 0
-  capacidadKg: 0
-  espacios: 0
-  descripcion: 
+  id: titan
+  nombre: "Tit\xE1n"
+  costoCr: 360
+  capacidadKg: 750
+  espacios: 4
+  descripcion: "Mayor carga \xFAtil y mayor costo"

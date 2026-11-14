@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d129c78de4a3bb170b7fc2913d464c90, type: 3}
   m_Name: Orbita_polar
   m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
-  id: 
-  nombre: 
-  descripcionBreve: 
-  costoCr: 0
-  ventaja: 
-  limitacion: 
-  requisitoDeVictoria: []
-  revelacionesDesbloqueadas: []
+  id: polar
+  nombre: Polar baja
+  descripcionBreve: Pasa sobre los polos de Marte y sobrevuela regiones distintas en cada vuelta.
+  costoCr: 120
+  ventaja: "Observaci\xF3n detallada de distintas regiones"
+  limitacion: "Menor continuidad de observaci\xF3n de una regi\xF3n concreta"
+  requisitoDeVictoria:
+  - termica
+  - radar
+  revelacionesDesbloqueadas:
+  - alta_res
+  - espectrometro

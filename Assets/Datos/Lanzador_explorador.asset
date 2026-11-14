@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d38269f3749e294185c3bd9ede73ef6, type: 3}
   m_Name: Lanzador_explorador
   m_EditorClassIdentifier: SpaceMission::SpaceMission.LanzadorDatos
-  id: 
-  nombre: 
-  costoCr: 0
-  capacidadKg: 0
-  espacios: 0
-  descripcion: 
+  id: explorador
+  nombre: Explorador
+  costoCr: 190
+  capacidadKg: 650
+  espacios: 2
+  descripcion: "Ligero y econ\xF3mico"

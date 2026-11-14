@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b442728185d2cfb5b49a5cbe681b38c, type: 3}
   m_Name: Mision
   m_EditorClassIdentifier: SpaceMission::SpaceMission.MisionDatos
-  presupuestoCr: 0
-  potenciaDisponibleW: 0
-  masaBaseKg: 0
-  costoBaseCr: 0
-  consumoBaseW: 0
-  objetivo: 
-  narrativa: 
+  presupuestoCr: 1250
+  potenciaDisponibleW: 700
+  masaBaseKg: 350
+  costoBaseCr: 100
+  consumoBaseW: 100
+  objetivo: "Explicar la anomal\xEDa t\xE9rmica que apareci\xF3 en una regi\xF3n de Marte mientras una tormenta de polvo dificulta la observaci\xF3n."
+  narrativa: "Una se\xF1al t\xE9rmica rara aparece en una regi\xF3n de Marte y una tormenta de polvo dificulta la investigaci\xF3n. Los indicios del juego no son prueba de agua l\xEDquida actual ni de vida."

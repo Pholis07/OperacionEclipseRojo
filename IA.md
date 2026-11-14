@@ -15,3 +15,10 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Creó las carpetas, las dos assembly definitions (`SpaceMission` y `SpaceMission.Tests`) y la clase `EstadoJuego`, con una prueba mínima.
 - Creó las tres escenas vacías (`Menu`, `Mision`, `Resultado`), las agregó al Build Settings y ajustó WebGL (Gzip, Decompression Fallback, 1920x1080). Lo hizo con un script temporal en modo batch, que borró después.
 - Escribió `README.md` e `IA.md`.
+
+## Fase 2: datos
+
+- Escribió los ScriptableObjects (`OrbitaDatos`, `LanzadorDatos`, `InstrumentoDatos`, `MisionDatos`, `TransmisionDatos`, `CatalogoDatos`) y los tipos `CategoriaResultado` y `TipoTransmision`.
+- Creó los assets de `Assets/Datos` con los valores de las tablas del diseño, con un script temporal en modo batch que borró después. La primera versión del script guardaba los assets vacíos; las pruebas lo detectaron y se corrigió el script, no las pruebas.
+- Redactó textos que las tablas no traían: la evidencia que aporta cada instrumento, su texto de ayuda y la descripción breve de cada órbita. Están pendientes de revisión de Diego.
+- Escribió 22 pruebas EditMode de datos (ids, listas de las órbitas, valores, desglose del consumo en la ayuda, categorías de resultado y que no se guarde el semáforo).

@@ -12,11 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d129c78de4a3bb170b7fc2913d464c90, type: 3}
   m_Name: Orbita_media
   m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
-  id: 
-  nombre: 
-  descripcionBreve: 
-  costoCr: 0
-  ventaja: 
-  limitacion: 
-  requisitoDeVictoria: []
-  revelacionesDesbloqueadas: []
+  id: media
+  nombre: Media inclinada
+  descripcionBreve: "\xD3rbita inclinada de altitud intermedia que vuelve a pasar sobre la anomal\xEDa."
+  costoCr: 90
+  ventaja: "Seguimiento repetido de la anomal\xEDa"
+  limitacion: "Menos detalle de superficie en la simplificaci\xF3n del juego"
+  requisitoDeVictoria:
+  - termica
+  - radar
+  revelacionesDesbloqueadas:
+  - atmosferico
