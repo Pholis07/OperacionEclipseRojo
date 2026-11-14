@@ -37,11 +37,13 @@ Cada nivel tiene un número de eventos (0 / 2 / 3), que aparecen al azar despué
 
 | Evento | Efecto | Herramienta que lo resuelve |
 |--------|--------|-----------------------------|
-| Polvo sobre los paneles | Límite −150 W; se limpia solo tras 3 órbitas | Limpieza de paneles: lo quita al momento |
-| Panel solar dañado | Límite −200 W hasta repararlo | Kit de reparación: lo repara |
+| Paso por la sombra de Marte | Límite −150 W; pasa solo tras 3 órbitas | Batería de respaldo: lo compensa al momento |
+| Impacto de micrometeorito | Límite −200 W hasta desviar la corriente | Reconfiguración de energía: lo resuelve |
 | Sobrecalentamiento | Se apaga el instrumento encendido de mayor consumo y no se puede encender durante 2 órbitas | Refrigeración de emergencia: lo libera |
 | Pérdida de orientación | El próximo escaneo no da lectura | Giroscopio de respaldo: lo evita |
 | Ventana despejada (buena) | +1 órbita | — |
+
+Cambio respecto a la primera redacción (2026-11-14): «polvo sobre los paneles» y «panel dañado con kit de reparación» no son plausibles para una nave en órbita (la tormenta no llega a la órbita y nadie puede repararla). Se cambiaron por el paso por la sombra de Marte y el impacto de un micrometeorito, con el mismo efecto en el juego.
 
 Si al bajar el límite el consumo queda por encima, la nave se apaga (ver Energía): el jugador puede evitarlo apagando instrumentos o usando la herramienta.
 

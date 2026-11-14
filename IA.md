@@ -65,3 +65,10 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Escribió pruebas PlayMode que recorren el juego en modo Play pulsando los botones reales para los 19 casos de la tabla; los casos se generaron con un script desde la tabla del diseño.
 - Corrió las pruebas en una copia del proyecto, porque el editor estaba abierto con el trabajo de Diego: 112 EditMode y 19 PlayMode, todas pasan.
 - Generó `INFORME-PRUEBAS.md` desde los resultados reales (líneas `[Misión]` obtenidas en el juego). Queda pendiente la revisión visual, que hace el equipo.
+
+## Gameplay nuevo, paso 1: lógica de la Operación (pedido de Adrian, 2026-11-14)
+
+- Concretó en reglas y números el pedido de Adrian (escaneo, eventos con herramientas, límite de energía, apagón que cuesta tiempo y recursos, puntos y niveles) en `PROPUESTA-GAMEPLAY.md`; Adrian aprobó la versión 1 y eligió 1,150 créditos para el nivel 3. Los números los propuso la IA.
+- Cambió dos eventos de su propia propuesta que no eran plausibles para una nave en órbita.
+- Escribió la lógica pura `Operacion` y `Puntuacion`, los datos (reglas, 3 niveles, 5 eventos, 4 herramientas) y 23 pruebas. El cálculo y la evaluación aceptan ahora el nivel; sin nivel usan la misión del diseño, así que las pruebas anteriores no cambiaron.
+- Por estar el editor abierto con el trabajo de Diego, generó los datos y corrió las pruebas en una copia del proyecto y copió los archivos resultantes. Pasan 135 pruebas.

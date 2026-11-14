@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f609a82bca07c95ba94b58307d0360, type: 3}
+  m_Name: Evento_micrometeorito
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
+  id: micrometeorito
+  nombre: Impacto de micrometeorito
+  texto: "Un micrometeorito da\xF1a el circuito de un panel solar. La nave produce menos energ\xEDa hasta desviar la corriente."
+  efecto: 1
+  vatios: 200
+  orbitas: 0
+  herramientaId: reconfiguracion

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e4f74c238f71afc7b39eaf040fd26d0, type: 3}
+  m_Name: ReglasOperacion
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.ReglasOperacionDatos
+  orbitasPerdidasPorApagon: 2
+  creditosPorReinicio: 50
+  orbitasPorEscaneo: 1
+  radioDeteccion: 0.12
+  distanciaCaliente: 0.25
+  distanciaTibio: 0.45
+  puntosVictoria: 1000
+  puntosParcial: 500
+  puntosFracaso: 100
+  creditosPorPunto: 2
+  puntosPorRevelacion: 100
+  puntosPorOrbitaSobrante: 25
+  puntosPorBajaCalidad: 100
+  puntosPorApagon: 50

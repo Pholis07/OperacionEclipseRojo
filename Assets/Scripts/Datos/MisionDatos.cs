@@ -11,6 +11,11 @@ namespace SpaceMission
         public int masaBaseKg;
         public int costoBaseCr;
         public int consumoBaseW;
+
+        [Header("Nivel y fase de Operación")]
+        public string nombreNivel;
+        public int orbitasNavegacion;
+        public int eventosPorMision;
         [TextArea] public string objetivo;
         [TextArea] public string narrativa;
     }

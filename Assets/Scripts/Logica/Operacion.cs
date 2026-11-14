@@ -1,0 +1,266 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace SpaceMission
+{
+    /// <summary>Lectura de un escaneo según la distancia a la anomalía.</summary>
+    public enum Lectura { Frio, Tibio, Caliente, Encontrada, SinLectura }
+
+    /// <summary>Un evento que ya ocurrió en esta misión.</summary>
+    public class EventoActivo
+    {
+        public EventoDatos Datos;
+        public int OrbitasRestantes;   // solo para los temporales
+        public bool Resuelto;
+    }
+
+    /// <summary>
+    /// Fase de Operación (diseño aprobado, PROPUESTA-GAMEPLAY.md v2): energía con límite que los eventos
+    /// reducen, instrumentos que se encienden y apagan, apagón si el consumo supera el límite (cuesta órbitas
+    /// y créditos, no la partida), escaneo del mapa que gasta órbitas, eventos aleatorios y herramientas.
+    /// La categoría del resultado no cambia aquí: solo cuántas transmisiones llegan bien y los recursos.
+    /// </summary>
+    public class Operacion
+    {
+        readonly CatalogoDatos catalogo;
+        readonly ReglasOperacionDatos reglas;
+        readonly MisionDatos nivel;
+        readonly Evaluacion evaluacion;
+        readonly System.Random azar;
+
+        readonly List<EventoDatos> eventosProgramados = new List<EventoDatos>();
+        readonly List<int> momentosEvento = new List<int>();   // número de escaneo tras el que ocurre cada evento
+        bool sinLecturaProxima;
+
+        public Vector2 Anomalia { get; private set; }
+        public int Orbitas { get; private set; }
+        public int Escaneos { get; private set; }
+        public int Apagones { get; private set; }
+        public int CreditosPerdidos { get; private set; }
+        public bool Terminada { get; private set; }
+
+        public readonly HashSet<string> Encendidos = new HashSet<string>();
+        public readonly Dictionary<string, int> Bloqueados = new Dictionary<string, int>();
+        public readonly HashSet<string> HerramientasUsadas = new HashSet<string>();
+        public readonly List<EventoActivo> Eventos = new List<EventoActivo>();
+
+        /// <summary>Transmisiones recibidas bien, en el orden en que llegaron (TX-00 primero).</summary>
+        public readonly List<string> Recibidas = new List<string>();
+        /// <summary>Transmisiones que faltan por encontrar (id de transmisión → id de instrumento).</summary>
+        public readonly Dictionary<string, string> Pendientes = new Dictionary<string, string>();
+        /// <summary>Transmisiones que llegaron con baja calidad porque se acabaron las órbitas.</summary>
+        public readonly List<string> BajaCalidad = new List<string>();
+
+        /// <summary>Lo último que pasó, para mostrarlo en pantalla.</summary>
+        public EventoActivo UltimoEvento { get; private set; }
+
+        public Operacion(Evaluacion evaluacion, Configuracion config, CatalogoDatos catalogo, MisionDatos nivel, int semilla)
+        {
+            this.evaluacion = evaluacion;
+            enLaNave = new HashSet<string>(config.InstrumentoIds);
+            this.catalogo = catalogo;
+            this.nivel = nivel != null ? nivel : catalogo.mision;
+            reglas = catalogo.reglas;
+            azar = new System.Random(semilla);
+
+            Orbitas = this.nivel.orbitasNavegacion;
+            Anomalia = new Vector2(Aleatorio(0.15f, 0.85f), Aleatorio(0.15f, 0.85f));
+
+            foreach (var id in evaluacion.Transmisiones)
+            {
+                var t = catalogo.Transmision(id);
+                if (string.IsNullOrEmpty(t.instrumentoId)) Recibidas.Add(id); // TX-00 llega al empezar
+                else Pendientes[id] = t.instrumentoId;
+            }
+            ProgramarEventosAlAzar();
+        }
+
+        // ---------- Energía ----------
+
+        public int LimiteW =>
+            nivel.potenciaDisponibleW - Eventos.Where(e => !e.Resuelto &&
+                (e.Datos.efecto == EfectoEvento.ReducirLimite || e.Datos.efecto == EfectoEvento.ReducirLimiteTemporal))
+                .Sum(e => e.Datos.vatios);
+
+        public int ConsumoW => nivel.consumoBaseW + Encendidos.Sum(id => catalogo.Instrumento(id).ConsumoTotalW);
+
+        readonly HashSet<string> enLaNave;
+
+        /// <summary>Instrumentos que el jugador eligió en la configuración (los únicos que puede encender).</summary>
+        public IEnumerable<string> Instrumentos => catalogo.instrumentos.Select(i => i.id).Where(EnLaNave);
+
+        public bool EnLaNave(string id) => enLaNave.Contains(id);
+
+        /// <summary>Enciende un instrumento. Devuelve false si no se pudo (bloqueado o no está en la nave).
+        /// Si el consumo pasa el límite, la nave se apaga.</summary>
+        public bool Encender(string id)
+        {
+            if (Terminada || !EnLaNave(id) || Bloqueados.ContainsKey(id)) return false;
+            Encendidos.Add(id);
+            ComprobarEnergia();
+            return true;
+        }
+
+        public void Apagar(string id) => Encendidos.Remove(id);
+
+        void ComprobarEnergia()
+        {
+            if (ConsumoW > LimiteW) Apagon();
+        }
+
+        void Apagon()
+        {
+            Apagones++;
+            CreditosPerdidos += reglas.creditosPorReinicio;
+            Encendidos.Clear();
+            GastarOrbitas(reglas.orbitasPerdidasPorApagon);
+        }
+
+        // ---------- Tiempo y escaneo ----------
+
+        void GastarOrbitas(int cantidad)
+        {
+            for (int i = 0; i < cantidad && !Terminada; i++)
+            {
+                Orbitas--;
+                foreach (var e in Eventos.Where(e => !e.Resuelto && e.Datos.efecto == EfectoEvento.ReducirLimiteTemporal))
+                    if (--e.OrbitasRestantes <= 0) e.Resuelto = true;
+                foreach (var id in Bloqueados.Keys.ToList())
+                    if (--Bloqueados[id] <= 0) Bloqueados.Remove(id);
+                if (Orbitas <= 0) Terminar();
+            }
+        }
+
+        /// <summary>Escanea el punto (coordenadas de 0 a 1) con un instrumento encendido.</summary>
+        public Lectura? Escanear(string instrumentoId, Vector2 punto)
+        {
+            if (Terminada || !Encendidos.Contains(instrumentoId)) return null;
+            Escaneos++;
+
+            Lectura lectura;
+            if (sinLecturaProxima)
+            {
+                sinLecturaProxima = false;
+                lectura = Lectura.SinLectura;
+            }
+            else
+            {
+                float d = Vector2.Distance(punto, Anomalia);
+                lectura = d <= reglas.radioDeteccion ? Lectura.Encontrada
+                    : d <= reglas.distanciaCaliente ? Lectura.Caliente
+                    : d <= reglas.distanciaTibio ? Lectura.Tibio
+                    : Lectura.Frio;
+            }
+
+            if (lectura == Lectura.Encontrada)
+            {
+                foreach (var par in Pendientes.Where(p => p.Value == instrumentoId).ToList())
+                {
+                    Recibidas.Add(par.Key);
+                    Pendientes.Remove(par.Key);
+                }
+            }
+
+            GastarOrbitas(reglas.orbitasPorEscaneo);
+            if (!Terminada && momentosEvento.Count > 0 && Escaneos >= momentosEvento[0])
+            {
+                momentosEvento.RemoveAt(0);
+                var datos = eventosProgramados[0];
+                eventosProgramados.RemoveAt(0);
+                AplicarEvento(datos);
+            }
+            return lectura;
+        }
+
+        /// <summary>Todas las transmisiones ya llegaron: se puede pasar al informe.</summary>
+        public bool Completa => Pendientes.Count == 0;
+
+        /// <summary>El jugador termina la misión (o se acabaron las órbitas): lo pendiente llega con baja calidad.</summary>
+        public void Terminar()
+        {
+            if (Terminada) return;
+            Terminada = true;
+            Encendidos.Clear();
+            foreach (var id in evaluacion.Transmisiones.Where(Pendientes.ContainsKey))
+                BajaCalidad.Add(id);
+            Pendientes.Clear();
+        }
+
+        // ---------- Eventos y herramientas ----------
+
+        void ProgramarEventosAlAzar()
+        {
+            int cantidad = Mathf.Min(nivel.eventosPorMision, catalogo.eventos.Count);
+            var mezclados = catalogo.eventos.OrderBy(_ => azar.Next()).Take(cantidad).ToList();
+            int ultimo = Mathf.Max(1, nivel.orbitasNavegacion - 2);
+            var momentos = Enumerable.Range(1, ultimo).OrderBy(_ => azar.Next()).Take(cantidad).OrderBy(m => m).ToList();
+            ProgramarEventos(mezclados, momentos);
+        }
+
+        /// <summary>Fija qué eventos ocurren y tras qué escaneo. Lo usan las pruebas para no depender del azar.</summary>
+        public void ProgramarEventos(IList<EventoDatos> eventos, IList<int> despuesDelEscaneo)
+        {
+            eventosProgramados.Clear();
+            momentosEvento.Clear();
+            eventosProgramados.AddRange(eventos);
+            momentosEvento.AddRange(despuesDelEscaneo);
+        }
+
+        /// <summary>Coloca la anomalía en un punto fijo. Para las pruebas.</summary>
+        public void PonerAnomalia(Vector2 punto) => Anomalia = punto;
+
+        public void AplicarEvento(EventoDatos datos)
+        {
+            var e = new EventoActivo { Datos = datos, OrbitasRestantes = datos.orbitas };
+            Eventos.Add(e);
+            UltimoEvento = e;
+
+            switch (datos.efecto)
+            {
+                case EfectoEvento.ReducirLimite:
+                case EfectoEvento.ReducirLimiteTemporal:
+                    ComprobarEnergia();
+                    break;
+                case EfectoEvento.BloquearInstrumento:
+                    var mayor = Encendidos.OrderByDescending(id => catalogo.Instrumento(id).ConsumoTotalW).FirstOrDefault();
+                    if (mayor != null)
+                    {
+                        Encendidos.Remove(mayor);
+                        Bloqueados[mayor] = datos.orbitas;
+                    }
+                    else e.Resuelto = true; // no había nada encendido: no pasa nada
+                    break;
+                case EfectoEvento.AnularLectura:
+                    sinLecturaProxima = true;
+                    break;
+                case EfectoEvento.GanarOrbitas:
+                    Orbitas += datos.orbitas;
+                    e.Resuelto = true;
+                    break;
+            }
+        }
+
+        /// <summary>Herramientas que ahora mismo resolverían un evento activo.</summary>
+        public IEnumerable<string> HerramientasUtiles =>
+            Eventos.Where(e => !e.Resuelto && !string.IsNullOrEmpty(e.Datos.herramientaId)
+                               && !HerramientasUsadas.Contains(e.Datos.herramientaId))
+                   .Select(e => e.Datos.herramientaId).Distinct();
+
+        /// <summary>Usa una herramienta (una vez por misión). Devuelve false si no resuelve nada.</summary>
+        public bool UsarHerramienta(string herramientaId)
+        {
+            if (Terminada || HerramientasUsadas.Contains(herramientaId)) return false;
+            var e = Eventos.FirstOrDefault(x => !x.Resuelto && x.Datos.herramientaId == herramientaId);
+            if (e == null) return false;
+
+            HerramientasUsadas.Add(herramientaId);
+            e.Resuelto = true;
+            if (e.Datos.efecto == EfectoEvento.BloquearInstrumento) Bloqueados.Clear();
+            if (e.Datos.efecto == EfectoEvento.AnularLectura) sinLecturaProxima = false;
+            return true;
+        }
+
+        float Aleatorio(float min, float max) => min + (float)azar.NextDouble() * (max - min);
+    }
+}

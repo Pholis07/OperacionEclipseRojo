@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b442728185d2cfb5b49a5cbe681b38c, type: 3}
+  m_Name: Mision_Nivel1
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.MisionDatos
+  presupuestoCr: 1500
+  potenciaDisponibleW: 800
+  masaBaseKg: 350
+  costoBaseCr: 100
+  consumoBaseW: 100
+  nombreNivel: 1. Entrenamiento
+  orbitasNavegacion: 12
+  eventosPorMision: 0
+  objetivo: "Explicar la anomal\xEDa t\xE9rmica que apareci\xF3 en una regi\xF3n de Marte mientras una tormenta de polvo dificulta la observaci\xF3n."
+  narrativa: "Una se\xF1al t\xE9rmica rara aparece en una regi\xF3n de Marte y una tormenta de polvo dificulta la investigaci\xF3n. Los indicios del juego no son prueba de agua l\xEDquida actual ni de vida."
