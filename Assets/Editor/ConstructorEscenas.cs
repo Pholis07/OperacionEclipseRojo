@@ -121,26 +121,256 @@ public static class ConstructorEscenas
 
         var continuar = Boton(col, "BotonContinuar", "Continuar", true);
 
-        // Vista Configuración: se construye en la fase 6.
-        var configuracion = Panel(canvas, "VistaConfiguracion", Fondo);
+        var controlador = new GameObject("MisionUI").AddComponent<MisionUI>();
+        var nave = ConstruirNave();
+        PrepararCamara();
+
+        // Vista Configuración: transparente en el centro para que se vea la nave 3D.
+        var configuracion = Vacio(canvas, "VistaConfiguracion");
         Estirar(configuracion);
-        var aviso = Texto(configuracion, "Pendiente", "Configuración de la misión (en construcción)", 48,
+        configuracion.SetAsFirstSibling(); // debajo del Briefing
+        var configUI = ConstruirConfiguracion(configuracion, catalogo, controlador, nave);
+
+        // Vista Revisión: tarjeta encima de la configuración.
+        var revision = Panel(canvas, "VistaRevision", new Color(0, 0, 0, 0.85f));
+        Estirar(revision);
+        var revisionUI = ConstruirRevision(revision, catalogo, controlador);
+
+        // Vista Investigación: se construye en la fase 7.
+        var investigacion = Panel(canvas, "VistaInvestigacion", Fondo);
+        Estirar(investigacion);
+        var aviso = Texto(investigacion, "Pendiente", "Investigación (en construcción)", 48,
             TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
         Estirar(aviso.rectTransform);
 
         CrearEventSystem();
 
-        var controlador = new GameObject("MisionUI").AddComponent<MisionUI>();
         Asignar(controlador, "catalogo", catalogo);
         Asignar(controlador, "vistaBriefing", briefing.gameObject);
         Asignar(controlador, "vistaConfiguracion", configuracion.gameObject);
+        Asignar(controlador, "vistaRevision", revision.gameObject);
+        Asignar(controlador, "vistaInvestigacion", investigacion.gameObject);
+        Asignar(controlador, "revision", revisionUI);
         Asignar(controlador, "textoObjetivo", objetivo);
         Asignar(controlador, "textoRequisitos", requisitos);
         Asignar(controlador, "textoLimites", limites);
         Asignar(controlador, "textoColores", semaforo);
         Asignar(controlador, "botonContinuar", continuar);
 
+        // Al abrir la escena solo se ve el Briefing (MisionUI también lo hace al empezar).
+        configuracion.gameObject.SetActive(false);
+        revision.gameObject.SetActive(false);
+        investigacion.gameObject.SetActive(false);
+
         EditorSceneManager.SaveScene(escena, "Assets/Escenas/Mision.unity");
+    }
+
+    static ConfiguracionUI ConstruirConfiguracion(RectTransform vista, CatalogoDatos catalogo, MisionUI mision, NaveUI nave)
+    {
+        var ui = vista.gameObject.AddComponent<ConfiguracionUI>();
+
+        // Panel izquierdo: pestañas, opciones y ayuda.
+        var izq = Columna(vista, "PanelIzquierdo", 18, TextAnchor.UpperLeft, Tarjeta, 28);
+        Anclar(izq, new Vector2(0.015f, 0.03f), new Vector2(0.36f, 0.97f));
+        Texto(izq, "Titulo", "Configura tu misión", 48, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        var pestanas = Fila(izq, "Pestanas", 12);
+        Alto(pestanas, 72);
+        var pOrbita = Boton(pestanas, "PestanaOrbita", "Órbita", false);
+        var pLanzador = Boton(pestanas, "PestanaLanzador", "Lanzador", false);
+        var pInstrumentos = Boton(pestanas, "PestanaInstrumentos", "Instrumentos", false);
+        foreach (var p in new[] { pOrbita, pLanzador, pInstrumentos })
+        {
+            var le = p.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.preferredWidth = -1; le.flexibleWidth = 1; le.minHeight = 72; le.preferredHeight = 72;
+            p.GetComponentInChildren<TextMeshProUGUI>().fontSize = 30;
+        }
+
+        var lista = Columna(izq, "ListaOpciones", 10, TextAnchor.UpperLeft);
+        Alto(lista, 420);
+        var plantilla = Boton(lista, "PlantillaOpcion", "Opción", false);
+        var lePlantilla = plantilla.GetComponent<UnityEngine.UI.LayoutElement>();
+        lePlantilla.preferredWidth = -1; lePlantilla.minHeight = 72; lePlantilla.preferredHeight = 72;
+        var etiqueta = plantilla.GetComponentInChildren<TextMeshProUGUI>();
+        etiqueta.fontSize = 26; etiqueta.fontStyle = FontStyles.Normal; etiqueta.alignment = TextAlignmentOptions.Left;
+        etiqueta.margin = new Vector4(20, 0, 20, 0);
+
+        var cajaAyuda = Columna(izq, "Ayuda", 8, TextAnchor.UpperLeft, Hex("#15151A"), 20);
+        var leAyuda = cajaAyuda.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        leAyuda.flexibleHeight = 1;
+        var ayuda = Texto(cajaAyuda, "TextoAyuda", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+
+        var verBriefing = Boton(izq, "BotonBriefing", "Ver briefing", false);
+        verBriefing.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
+
+        // Panel derecho: barras, semáforo y botón de revisión.
+        var der = Columna(vista, "PanelDerecho", 16, TextAnchor.UpperLeft, Tarjeta, 28);
+        Anclar(der, new Vector2(0.655f, 0.03f), new Vector2(0.985f, 0.97f));
+        Texto(der, "EtiquetaRecursos", "RECURSOS", 28, Acento, FontStyles.Bold, TextAlignmentOptions.Left);
+
+        var rellenos = new RectTransform[4];
+        var textos = new TMP_Text[4];
+        string[] nombres = { "Masa", "Potencia", "Costo", "Espacios" };
+        for (int i = 0; i < 4; i++)
+        {
+            textos[i] = Texto(der, "Texto" + nombres[i], nombres[i], 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+            var fondoBarra = Panel(der, "Barra" + nombres[i], Hex("#2A2A31"));
+            Alto(fondoBarra, 24);
+            var relleno = Panel(fondoBarra, "Relleno", TextoSecundario);
+            relleno.anchorMin = Vector2.zero; relleno.anchorMax = new Vector2(0, 1);
+            relleno.pivot = new Vector2(0, 0.5f); relleno.offsetMin = Vector2.zero; relleno.offsetMax = Vector2.zero;
+            rellenos[i] = relleno;
+        }
+
+        Texto(der, "EtiquetaSemaforo", "SEMÁFORO", 28, Acento, FontStyles.Bold, TextAlignmentOptions.Left);
+        var filaLuz = Fila(der, "FilaSemaforo", 16);
+        Alto(filaLuz, 56);
+        filaLuz.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
+        var luz = Panel(filaLuz, "Luz", Hex("#9CA3AF"));
+        var leLuz = luz.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        leLuz.preferredWidth = 56; leLuz.preferredHeight = 56;
+        var estado = Texto(filaLuz, "TextoEstado", "GRIS", 40, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        var mensaje = Texto(der, "TextoMensaje", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        mensaje.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var revisar = Boton(der, "BotonRevisar", "Revisar misión", true);
+        revisar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
+
+        Asignar(ui, "catalogo", catalogo);
+        Asignar(ui, "mision", mision);
+        Asignar(ui, "nave", nave);
+        Asignar(ui, "pestanaOrbita", pOrbita);
+        Asignar(ui, "pestanaLanzador", pLanzador);
+        Asignar(ui, "pestanaInstrumentos", pInstrumentos);
+        Asignar(ui, "listaOpciones", lista);
+        Asignar(ui, "plantillaOpcion", plantilla);
+        Asignar(ui, "textoAyuda", ayuda);
+        AsignarLista(ui, "rellenosBarra", rellenos);
+        AsignarLista(ui, "textosBarra", textos);
+        Asignar(ui, "luzEstado", luz.GetComponent<UnityEngine.UI.Image>());
+        Asignar(ui, "textoEstado", estado);
+        Asignar(ui, "textoMensaje", mensaje);
+        Asignar(ui, "botonRevisar", revisar);
+        Asignar(ui, "botonBriefing", verBriefing);
+        return ui;
+    }
+
+    static RevisionUI ConstruirRevision(RectTransform vista, CatalogoDatos catalogo, MisionUI mision)
+    {
+        var ui = vista.gameObject.AddComponent<RevisionUI>();
+        var tarjeta = Columna(vista, "Tarjeta", 24, TextAnchor.UpperLeft, Tarjeta, 48);
+        Anclar(tarjeta, new Vector2(0.25f, 0.08f), new Vector2(0.75f, 0.92f));
+        Texto(tarjeta, "Titulo", "Revisión de la misión", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        var resumen = Texto(tarjeta, "TextoResumen", "", 30, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        resumen.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var botones = Fila(tarjeta, "Botones", 24);
+        Alto(botones, 88);
+        var corregir = Boton(botones, "BotonCorregir", "Corregir", false);
+        var lanzar = Boton(botones, "BotonLanzar", "Lanzar", true);
+
+        Asignar(ui, "catalogo", catalogo);
+        Asignar(ui, "mision", mision);
+        Asignar(ui, "textoResumen", resumen);
+        Asignar(ui, "botonCorregir", corregir);
+        Asignar(ui, "botonLanzar", lanzar);
+        return ui;
+    }
+
+    /// <summary>Nave fija hecha con primitivas: cuerpo, dos paneles solares y un módulo por instrumento.</summary>
+    static NaveUI ConstruirNave()
+    {
+        var matCuerpo = CrearMaterial("Nave_Cuerpo", Hex("#B8BEC6"));
+        var matPanel = CrearMaterial("Nave_Panel", Hex("#1E3A8A"));
+        var matModulo = CrearMaterial("Nave_Modulo", Acento);
+
+        var raiz = new GameObject("Nave");
+        raiz.transform.position = new Vector3(0, 0, 0);
+        raiz.transform.rotation = Quaternion.Euler(10, -25, 0);
+
+        Primitiva(PrimitiveType.Cylinder, "Cuerpo", raiz.transform, Vector3.zero, new Vector3(1.2f, 1.4f, 1.2f), matCuerpo);
+        Primitiva(PrimitiveType.Cube, "PanelIzquierdo", raiz.transform, new Vector3(-2.3f, 0.3f, 0), new Vector3(2.6f, 0.06f, 1.1f), matPanel);
+        Primitiva(PrimitiveType.Cube, "PanelDerecho", raiz.transform, new Vector3(2.3f, 0.3f, 0), new Vector3(2.6f, 0.06f, 1.1f), matPanel);
+
+        // Un módulo por instrumento, en el orden del catálogo. Aparecen al elegir el instrumento.
+        string[] ids = { "termica", "radar", "alta_res", "atmosferico", "espectrometro" };
+        Vector3[] posiciones =
+        {
+            new Vector3(0, -1.65f, 0), new Vector3(0.75f, -0.6f, -0.3f), new Vector3(-0.75f, -0.6f, -0.3f),
+            new Vector3(0, 1.75f, 0), new Vector3(0, 0.4f, -0.75f)
+        };
+        var modulos = new GameObject[ids.Length];
+        for (int i = 0; i < ids.Length; i++)
+        {
+            var forma = i == 3 ? PrimitiveType.Sphere : PrimitiveType.Cube;
+            modulos[i] = Primitiva(forma, "Modulo_" + ids[i], raiz.transform, posiciones[i], Vector3.one * 0.45f, matModulo);
+            modulos[i].SetActive(false);
+        }
+
+        var nave = raiz.AddComponent<NaveUI>();
+        var so = new SerializedObject(nave);
+        var pIds = so.FindProperty("idsInstrumento");
+        var pModulos = so.FindProperty("modulos");
+        pIds.arraySize = ids.Length;
+        pModulos.arraySize = ids.Length;
+        for (int i = 0; i < ids.Length; i++)
+        {
+            pIds.GetArrayElementAtIndex(i).stringValue = ids[i];
+            pModulos.GetArrayElementAtIndex(i).objectReferenceValue = modulos[i];
+        }
+        so.ApplyModifiedPropertiesWithoutUndo();
+        return nave;
+    }
+
+    static void PrepararCamara()
+    {
+        var camara = Camera.main;
+        camara.clearFlags = CameraClearFlags.SolidColor;
+        camara.backgroundColor = Fondo;
+        camara.transform.position = new Vector3(0, 0.2f, -8.5f);
+        camara.transform.rotation = Quaternion.identity;
+    }
+
+    static GameObject Primitiva(PrimitiveType tipo, string nombre, Transform padre, Vector3 posicion, Vector3 escala, Material material)
+    {
+        var go = GameObject.CreatePrimitive(tipo);
+        go.name = nombre;
+        go.transform.SetParent(padre, false);
+        go.transform.localPosition = posicion;
+        go.transform.localScale = escala;
+        Object.DestroyImmediate(go.GetComponent<Collider>());
+        go.GetComponent<Renderer>().sharedMaterial = material;
+        return go;
+    }
+
+    static Material CrearMaterial(string nombre, Color color)
+    {
+        if (!AssetDatabase.IsValidFolder("Assets/Materiales")) AssetDatabase.CreateFolder("Assets", "Materiales");
+        var ruta = "Assets/Materiales/" + nombre + ".mat";
+        var mat = AssetDatabase.LoadAssetAtPath<Material>(ruta);
+        if (mat == null)
+        {
+            mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            AssetDatabase.CreateAsset(mat, ruta);
+        }
+        mat.SetColor("_BaseColor", color);
+        EditorUtility.SetDirty(mat);
+        return mat;
+    }
+
+    static void Alto(RectTransform rt, float alto)
+    {
+        var le = rt.GetComponent<UnityEngine.UI.LayoutElement>();
+        if (le == null) le = rt.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        le.minHeight = alto;
+        le.preferredHeight = alto;
+    }
+
+    static void AsignarLista(Object destino, string campo, Object[] valores)
+    {
+        var so = new SerializedObject(destino);
+        var prop = so.FindProperty(campo);
+        prop.arraySize = valores.Length;
+        for (int i = 0; i < valores.Length; i++)
+            prop.GetArrayElementAtIndex(i).objectReferenceValue = valores[i];
+        so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     // ---------- Piezas ----------

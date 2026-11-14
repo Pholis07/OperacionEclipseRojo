@@ -45,3 +45,10 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Redactó los textos de «Cómo jugar», la explicación de los colores del semáforo y las etiquetas de la pantalla. Pendientes de revisión del equipo.
 - Importó los recursos esenciales de TextMeshPro, que traen la fuente Liberation Sans (licencia SIL Open Font License).
 - Escribió 6 pruebas de interfaz (la parte automática de PM1 e integridad de las escenas). Una prueba de la fase 2 detectó un campo con «semáforo» en el nombre; se renombró el campo, no se cambió la prueba. Pasan las 78 pruebas.
+
+## Fase 6: configuración y revisión
+
+- Escribió `ConfiguracionUI` (pestañas, opciones generadas desde los datos, ayuda contextual, cuatro barras y semáforo), `RevisionUI` («Corregir» y «Lanzar», bloqueado en Gris y Rojo), `NaveUI` y `PresentacionMision` (textos de barras, colores y resumen).
+- Amplió el constructor de escenas con estas vistas y una nave 3D hecha con primitivas de Unity (cuerpo, dos paneles y un módulo por instrumento) con tres materiales propios.
+- Escribió 21 pruebas: los casos 1 a 7 y B1 a B8 con los valores y colores de la tabla, el recorrido en la escena y el bloqueo de «Lanzar».
+- Fallos encontrados: otro nombre de campo con «semáforo» (se renombró el campo) y una expectativa mal escrita por la propia IA en la prueba de B8 (faltaba la unidad «kg»; se corrigió la expectativa porque el código era coherente con las demás barras). Pasan las 99 pruebas.
