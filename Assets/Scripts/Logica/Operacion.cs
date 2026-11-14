@@ -113,7 +113,8 @@ namespace SpaceMission
                 else Pendientes[id] = t.instrumentoId;
             }
             ProgramarEventosAlAzar();
-            Objetivos = SpaceMission.Objetivos.Elegir(catalogo, azar);
+            // Los objetivos son de la v3: sin Carga no hay (y los puntos del modo anterior no cambian).
+            Objetivos = ConMemoria ? SpaceMission.Objetivos.Elegir(catalogo, azar) : new List<ObjetivoDatos>();
         }
 
         // ---------- Energía ----------

@@ -66,6 +66,16 @@ namespace SpaceMission
             if (op.Apagones > 0)
                 texto += " La nave se apagó " + op.Apagones + (op.Apagones == 1 ? " vez" : " veces") +
                          " y los reinicios costaron " + TextosBriefing.Numero(op.CreditosPerdidos) + " créditos.";
+            if (op.ConMemoria)
+            {
+                if (op.CreditosCarga > 0)
+                    texto += " La carga de herramientas costó " + TextosBriefing.Numero(op.CreditosCarga) + " créditos.";
+                texto += " Te quedaron " + op.Combustible + " de combustible.";
+                if (op.PeticionAceptada)
+                    texto += op.PeticionCumplida ? " Cumpliste la petición de la NASA." : " No llegaste a cumplir la petición de la NASA.";
+                var objetivos = Objetivos.Resumen(op);
+                if (objetivos.Length > 0) texto += " " + objetivos;
+            }
             return texto;
         }
 

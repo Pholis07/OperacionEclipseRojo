@@ -10,6 +10,12 @@ namespace SpaceMission
             catalogo.objetivos.OrderBy(_ => azar.Next())
                 .Take(System.Math.Min(catalogo.reglas.objetivosPorMision, catalogo.objetivos.Count)).ToList();
 
+        /// <summary>«Objetivos extra: Ningún apagón (cumplido), … (no cumplido).» Vacío si la misión no tiene objetivos.</summary>
+        public static string Resumen(Operacion op) =>
+            op.Objetivos.Count == 0 ? ""
+                : "Objetivos extra: " + string.Join(", ", op.Objetivos.Select(o =>
+                    o.texto + (Cumplido(o, op) ? " (cumplido)" : " (no cumplido)"))) + ".";
+
         /// <summary>Se evalúa al terminar la misión.</summary>
         public static bool Cumplido(ObjetivoDatos o, Operacion op)
         {

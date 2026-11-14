@@ -193,3 +193,12 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Sin Carga (el juego actual hasta el paso 6), los eventos se aplican al momento como antes y los dos nuevos no salen al azar.
 - La prueba de la v2 que contaba 5 eventos ahora cuenta 7, porque la propuesta aprobada añade dos. Las pruebas de memoria y carga que usaban eventos ahora eligen una respuesta.
 - 14 pruebas nuevas en `DecisionesTests.cs`. Pasan las 185 pruebas EditMode y las 19 PlayMode.
+
+## Gameplay versión 3, paso 5: objetivos y puntos
+
+- Con Carga, cada misión saca 2 objetivos al azar. Sin Carga no hay objetivos, así que los puntos del modo anterior no cambian.
+- En el desglose de puntos:
+  - Cada objetivo cumplido suma sus puntos como «Objetivo: …».
+  - Ya estaban, de los pasos 2 y 4: el combustible sobrante (+10 por unidad) y la petición de la NASA cumplida (+150).
+- El informe de recursos dice cuánto costó la carga, cuánto combustible quedó, si se cumplió la petición de la NASA y qué objetivos se cumplieron. Lo arma `Objetivos.Resumen`.
+- 11 pruebas nuevas en `ObjetivosTests.cs`. Pasan las 196 pruebas EditMode y las 19 PlayMode.
