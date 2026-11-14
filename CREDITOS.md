@@ -63,7 +63,15 @@ Hechos para este juego, sin licencias de terceros:
 
 ## Audio
 
-Pendiente. Se generará con ElevenLabs (ver `AUDIO-ELEVENLABS.md`). Al añadirlo, anotar aquí el plan de ElevenLabs usado y la atribución que pida su licencia.
+Todo el audio de `Assets/Arte/Audio` (música, efectos, ambiente y voces) se generó con ElevenLabs el 2026-11-14 desde la cuenta de Diego (plan Starter, de pago, que incluye licencia de uso comercial sin atribución obligatoria). Se anota igualmente como cortesía.
+
+| Archivos | Herramienta de ElevenLabs |
+|---|---|
+| `Musica/musica_*.mp3` (6 pistas: menú, configuración, operación, victoria, parcial, fracaso) | Eleven Music v2.5, instrumental |
+| `Efectos/*.mp3` (11 efectos de interfaz, lanzamiento, señal y ambiente de tormenta) | Sound Effects v2 |
+| `Voces/voz_TX-00.mp3` a `voz_TX-05.mp3` (las transmisiones que se reciben en la Operación) | Multilingual v2 con la voz de biblioteca «César Augusto — Spanish (Neutral)», y el filtro «Bright Phone» de Audio Effects para el sonido de radio |
+
+Las indicaciones usadas están en `AUDIO-ELEVENLABS.md`.
 
 ## Cómo se generaron las imágenes
 

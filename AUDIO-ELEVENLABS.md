@@ -1,6 +1,12 @@
 # Audio con ElevenLabs
 
-El código del audio ya está listo y el juego funciona en silencio mientras falten los archivos. Solo hay que generar los audios, ponerlos en `Assets/Arte/Audio` con el nombre exacto de abajo y volver a construir las escenas (**Herramientas > Construir escenas (sin Menu)** y **Herramientas > Diseñar Menu estilo HUD**). `ConstructorEstilo.Arte()` los enlaza en `Assets/Arte/Arte.asset` por nombre.
+**Estado: generado el 2026-11-14** (23 archivos, unos 6,700 créditos del plan Starter). Todo está en el flow «Operación Eclipse Rojo · Audio del juego» de la cuenta de ElevenLabs de Diego: desde ahí se puede regenerar una pista o probar otra voz y volver a descargarla con el mismo nombre.
+
+- Voz de las transmisiones: «César Augusto — Spanish (Neutral)» (biblioteca de ElevenLabs), modelo Multilingual v2, con el filtro «Bright Phone» (Audio Effects) para el sonido de radio.
+- Solo se grabaron TX-00 a TX-05: son las que se reciben en la Operación. Las TX-A son texto del informe y no se oyen.
+- **Importante para compilar WebGL en Linux:** Unity convierte el audio a AAC con `ffmpeg`, y tiene que estar instalado (`sudo apt install ffmpeg`). Sin él, los audios fallan al importarse para WebGL y el juego queda en silencio.
+
+El código del audio funciona en silencio si falta algún archivo. Para cambiar uno: genera el audio, ponerlos en `Assets/Arte/Audio` con el nombre exacto de abajo y volver a construir las escenas (**Herramientas > Construir escenas (sin Menu)** y **Herramientas > Diseñar Menu estilo HUD**). `ConstructorEstilo.Arte()` los enlaza en `Assets/Arte/Arte.asset` por nombre.
 
 ## Antes de generar
 

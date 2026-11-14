@@ -143,3 +143,14 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Fallos encontrados con las capturas y corregidos: la textura en espejo y los triángulos de la esfera invertidos (se veía la cara interior). También la órbita elíptica, que entraba en el planeta, y el Sol demasiado de lado.
 - El audio sigue pendiente: las herramientas de ElevenLabs no se cargaron en esta sesión.
 - Pasan las 136 pruebas EditMode y las 19 PlayMode.
+
+## Audio con ElevenLabs (con Diego)
+
+- Diego conectó su cuenta de ElevenLabs (plan Starter). La IA comprobó los créditos, calculó el costo de cada audio antes de generarlo y armó un flow con todo el audio del juego. Generó una sola toma de cada audio para no pasarse del presupuesto: unos 6,700 de 18,600 créditos.
+- Generó:
+  - Música con Eleven Music: menú, configuración y operación (60 s en bucle) y cierres de victoria, parcial y fracaso (12 s).
+  - 11 efectos con Sound Effects, entre ellos el ambiente de la tormenta en bucle.
+  - Las voces de TX-00 a TX-05 con la voz de biblioteca «César Augusto» y un filtro de radio gratuito (Audio Effects). Los textos son exactamente los de los assets de transmisión.
+- Añadió ajustes de importación de audio para WebGL (Vorbis; efectos en mono y descomprimidos al cargar) y enlazó todo en `Arte.asset` reconstruyendo las escenas.
+- Encontró que en Linux la importación de audio para WebGL necesita `ffmpeg` instalado; sin él los clips fallan y el juego queda en silencio. Lo anotó en `AUDIO-ELEVENLABS.md`.
+- Pasan las 136 pruebas EditMode y las 19 PlayMode.

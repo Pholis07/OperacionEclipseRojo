@@ -9,7 +9,40 @@ using UnityEngine;
 public class ImportadorArte : AssetPostprocessor
 {
     // Subir este número fuerza a Unity a reimportar las imágenes con los ajustes nuevos.
-    public override uint GetVersion() => 3;
+    public override uint GetVersion() => 4;
+
+    /// <summary>
+    /// Audio de Assets/Arte/Audio (ElevenLabs): música comprimida en memoria (Vorbis), efectos cortos en mono y
+    /// descomprimidos al cargar (sin retraso al sonar) y voces en mono. Pensado para el peso del build WebGL.
+    /// </summary>
+    void OnPreprocessAudio()
+    {
+        if (!assetPath.StartsWith("Assets/Arte/Audio/")) return;
+        var ai = (AudioImporter)assetImporter;
+        var ajuste = ai.defaultSampleSettings;
+        ajuste.compressionFormat = AudioCompressionFormat.Vorbis;
+        if (assetPath.Contains("/Musica/"))
+        {
+            ai.forceToMono = false;
+            ajuste.loadType = AudioClipLoadType.CompressedInMemory;
+            ajuste.quality = 0.5f;
+        }
+        else if (assetPath.Contains("/Voces/"))
+        {
+            ai.forceToMono = true;
+            ajuste.loadType = AudioClipLoadType.CompressedInMemory;
+            ajuste.quality = 0.55f;
+        }
+        else
+        {
+            ai.forceToMono = true;
+            bool largo = assetPath.Contains("ambiente_");
+            ajuste.loadType = largo ? AudioClipLoadType.CompressedInMemory : AudioClipLoadType.DecompressOnLoad;
+            ajuste.quality = 0.6f;
+        }
+        ai.defaultSampleSettings = ajuste;
+        ai.loadInBackground = assetPath.Contains("/Musica/") || assetPath.Contains("ambiente_");
+    }
 
     void OnPreprocessTexture()
     {

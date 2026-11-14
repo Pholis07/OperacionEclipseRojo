@@ -30,21 +30,33 @@ MonoBehaviour:
     credito: NASA/JPL-Caltech/MSSS (MARCI, MRO).
   imagenMision: {fileID: 2800000, guid: 20ca32957e974b3faf35c0191a9ec4af, type: 3}
   creditoMision: NASA/JPL-Caltech/MSSS (MARCI, MRO). Tormenta global de 2018.
-  musicaMenu: {fileID: 0}
-  musicaConfiguracion: {fileID: 0}
-  musicaInvestigacion: {fileID: 0}
-  musicaVictoria: {fileID: 0}
-  musicaParcial: {fileID: 0}
-  musicaFracaso: {fileID: 0}
-  ambienteTormenta: {fileID: 0}
-  hover: {fileID: 0}
-  click: {fileID: 0}
-  elegir: {fileID: 0}
-  quitar: {fileID: 0}
-  pestana: {fileID: 0}
-  error: {fileID: 0}
-  luzVerde: {fileID: 0}
-  luzRoja: {fileID: 0}
-  lanzamiento: {fileID: 0}
-  senal: {fileID: 0}
-  voces: []
+  musicaMenu: {fileID: 8300000, guid: 870ead879dc31682bb52609047d85773, type: 3}
+  musicaConfiguracion: {fileID: 8300000, guid: 83409da2760f3833cb0becf8257fa0bd, type: 3}
+  musicaInvestigacion: {fileID: 8300000, guid: c5afc9cd2882fa924baf59e8b4cbfa34, type: 3}
+  musicaVictoria: {fileID: 8300000, guid: 456072995fd4488018f499f222c88aab, type: 3}
+  musicaParcial: {fileID: 8300000, guid: 2c273089fe215a9bd91d4b182b2f13a1, type: 3}
+  musicaFracaso: {fileID: 8300000, guid: fc0d019324f1c351982098fed48c5b36, type: 3}
+  ambienteTormenta: {fileID: 8300000, guid: 243674d983e9480e78e57c064c13cb62, type: 3}
+  hover: {fileID: 8300000, guid: 2ea4040d305d85171a0ad002b4c4d25a, type: 3}
+  click: {fileID: 8300000, guid: 083040dfff2cee20b9cf4e4856db9eac, type: 3}
+  elegir: {fileID: 8300000, guid: bbfbc271b9e71a360905400c06fd1874, type: 3}
+  quitar: {fileID: 8300000, guid: 0a51afcb6b20659ac975d46d15e42e64, type: 3}
+  pestana: {fileID: 8300000, guid: 972dc6db039307494a40547583cfed76, type: 3}
+  error: {fileID: 8300000, guid: c41622535d49f1d56bfcd7fb66d7e46f, type: 3}
+  luzVerde: {fileID: 8300000, guid: 5ed39157d21ac3cc381ccf52da136210, type: 3}
+  luzRoja: {fileID: 8300000, guid: 65518e775662fa0c9b89ced8b52dc624, type: 3}
+  lanzamiento: {fileID: 8300000, guid: 22b17408c4026f443bd7f9e153d5a69d, type: 3}
+  senal: {fileID: 8300000, guid: 133dc41641b6d449b8aeed170b296daf, type: 3}
+  voces:
+  - transmisionId: TX-00
+    clip: {fileID: 8300000, guid: 5882c1b16f52dd13b8589d4deaaceea2, type: 3}
+  - transmisionId: TX-01
+    clip: {fileID: 8300000, guid: 6779c40dc1ae6680683cb801340cc6c4, type: 3}
+  - transmisionId: TX-02
+    clip: {fileID: 8300000, guid: f991f28fc8a3627cd9049f98977edb3a, type: 3}
+  - transmisionId: TX-03
+    clip: {fileID: 8300000, guid: 071fed32ddd5ad5d3901666998bacaad, type: 3}
+  - transmisionId: TX-04
+    clip: {fileID: 8300000, guid: dd49d2e00741e19088b7e5fa94d71101, type: 3}
+  - transmisionId: TX-05
+    clip: {fileID: 8300000, guid: ae888f2715facbb85950067d541d00c4, type: 3}
