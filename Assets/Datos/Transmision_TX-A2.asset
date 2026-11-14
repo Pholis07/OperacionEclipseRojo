@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e712aeb5fa8cdb866bc6faa47e45d020, type: 3}
+  m_Name: Transmision_TX-A2
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.TransmisionDatos
+  id: TX-A2
+  instrumentoId: radar
+  orden: 0
+  tipo: 0
+  texto: "Sin radar de subsuelo, no hubo evidencia de lo que ocurre bajo la superficie. La anomal\xEDa t\xE9rmica, si se detect\xF3, queda sin explicaci\xF3n estructural."

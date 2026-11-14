@@ -26,4 +26,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: aa2e34d4f928944bbbc47b08b14ae66d, type: 2}
   - {fileID: 11400000, guid: a73b7aecd7a1e8ede8d988788bc22d11, type: 2}
   - {fileID: 11400000, guid: a77dd43d317bf3b3881dff7361268ccf, type: 2}
-  transmisiones: []
+  transmisiones:
+  - {fileID: 11400000, guid: 485c4e8bf5e27c49db48a5106836ed2c, type: 2}
+  - {fileID: 11400000, guid: 32599e1bb788e6f659305814ab24bcdd, type: 2}
+  - {fileID: 11400000, guid: 5ace0aee0cabe4da9a8a3af15e34c8fe, type: 2}
+  - {fileID: 11400000, guid: 3046f00e13623df3ea9f46d300b19c73, type: 2}
+  - {fileID: 11400000, guid: 92510e5ce80a58581b867f3291fa289d, type: 2}
+  - {fileID: 11400000, guid: af82c109c287f311391385905cd1623b, type: 2}
+  - {fileID: 11400000, guid: bbb4565abaf3b735aa499d73fed1115d, type: 2}
+  - {fileID: 11400000, guid: d2a8bf96a9b8a3e798b555b810dfbd79, type: 2}
+  - {fileID: 11400000, guid: 1761b6cc2845178ce90dcf151626427f, type: 2}
+  - {fileID: 11400000, guid: e5e57ddd49a2ca7b4b6323d9927074d8, type: 2}
+  - {fileID: 11400000, guid: 22f915ac811f9189fb854883d61c2211, type: 2}

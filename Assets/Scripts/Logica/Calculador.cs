@@ -1,11 +1,11 @@
 using System;
-using UnityEngine;
 
 namespace SpaceMission
 {
     /// <summary>
     /// Lógica pura: masa, potencia, costo, espacios y bloqueo (Gris o Rojo) de una configuración.
     /// Todos los números salen del CatalogoDatos. Un límite se supera solo si el valor es MAYOR que el límite.
+    /// No escribe la línea de registro: la escribe el Evaluador, que ya conoce el semáforo final y el resultado.
     /// </summary>
     public static class Calculador
     {
@@ -20,7 +20,6 @@ namespace SpaceMission
             if (r.Faltantes.Count > 0)
             {
                 r.Estado = EstadoSemaforo.Gris;
-                Debug.Log(LineaRegistro(r));
                 return r;
             }
 
@@ -46,7 +45,6 @@ namespace SpaceMission
             if (r.EspaciosUsados > lanzador.espacios) r.LimitesSuperados.Add(Limite.Espacios);
 
             r.Estado = r.LimitesSuperados.Count > 0 ? EstadoSemaforo.Rojo : EstadoSemaforo.Valida;
-            Debug.Log(LineaRegistro(r));
             return r;
         }
 

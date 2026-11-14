@@ -29,3 +29,11 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Escribió `Configuracion`, `Calculador` y `ResultadoCalculo`: masa, potencia, costo, espacios, límites superados y estado Gris, Rojo o Válida. Los números salen de los assets.
 - Cambió `EstadoJuego` para que guarde una `Configuracion`.
 - Las 47 pruebas pasaron en el primer intento.
+
+## Fase 4: evaluación y transmisiones
+
+- Creó los 11 assets de transmisiones. Los textos se extrajeron con un script de `Transmisiones.md` (el documento de diseño del equipo) y se comprobó que quedaron idénticos; la IA no los reescribió.
+- Escribió primero las pruebas con los 19 casos de la tabla (semáforo, resultado, transmisiones en orden y ausentes) y después `Evaluador` y `Evaluacion`.
+- Redactó los mensajes del semáforo (Gris, Rojo, Amarillo con «fracaso seguro», Verde), con las palabras de las evidencias. Pendientes de revisión del equipo.
+- Movió la línea de registro `[Misión]` al Evaluador, que ya conoce el semáforo final y el resultado.
+- Las 72 pruebas pasaron en el primer intento.

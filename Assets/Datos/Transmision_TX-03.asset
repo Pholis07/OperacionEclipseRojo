@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e712aeb5fa8cdb866bc6faa47e45d020, type: 3}
+  m_Name: Transmision_TX-03
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.TransmisionDatos
+  id: TX-03
+  instrumentoId: atmosferico
+  orden: 4
+  tipo: 1
+  texto: "El sensor atmosf\xE9rico mide la tormenta: la cantidad de polvo y la temperatura del aire sobre la regi\xF3n. Estos datos permiten separar mejor el efecto de la tormenta de la se\xF1al que se est\xE1 estudiando."

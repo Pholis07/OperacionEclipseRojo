@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e712aeb5fa8cdb866bc6faa47e45d020, type: 3}
+  m_Name: Transmision_TX-00
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.TransmisionDatos
+  id: TX-00
+  instrumentoId: 
+  orden: 1
+  tipo: 1
+  texto: "La nave entra en \xF3rbita sobre la regi\xF3n de la anomal\xEDa. La tormenta de polvo cubre buena parte del terreno, pero los instrumentos empiezan a recibir datos. Comienza la observaci\xF3n."

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e712aeb5fa8cdb866bc6faa47e45d020, type: 3}
+  m_Name: Transmision_TX-01
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.TransmisionDatos
+  id: TX-01
+  instrumentoId: termica
+  orden: 2
+  tipo: 0
+  texto: "La c\xE1mara t\xE9rmica infrarroja detecta una anomal\xEDa de temperatura bajo el polvo: una zona m\xE1s c\xE1lida que su entorno que se mantiene estable durante varias pasadas. El patr\xF3n es dif\xEDcil de atribuir solo a la luz del Sol. Todav\xEDa no se sabe qu\xE9 lo origina."

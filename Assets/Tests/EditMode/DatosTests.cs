@@ -121,6 +121,24 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void CadaInstrumentoTieneTransmisionDePresenteYDeAusente()
+        {
+            // DT3: TX-0x es la de presente y TX-Ax la de ausente. TX-00 es de la misión.
+            Assert.AreEqual(11, catalogo.transmisiones.Count);
+            Assert.IsNotNull(catalogo.Transmision("TX-00"));
+            foreach (var i in catalogo.instrumentos)
+            {
+                var deEste = catalogo.transmisiones.Where(t => t.instrumentoId == i.id).ToList();
+                Assert.AreEqual(1, deEste.Count(t => !t.id.StartsWith("TX-A")), "presente de " + i.id);
+                Assert.AreEqual(1, deEste.Count(t => t.id.StartsWith("TX-A")), "ausente de " + i.id);
+                Assert.IsTrue(deEste.All(t => t.tipo == deEste[0].tipo), "tipo distinto en las de " + i.id);
+            }
+            var principales = catalogo.transmisiones.Where(t => t.tipo == TipoTransmision.Principal)
+                .Select(t => t.instrumentoId).Distinct().ToArray();
+            CollectionAssert.AreEquivalent(new[] { "termica", "radar" }, principales);
+        }
+
+        [Test]
         public void LaCategoriaDeResultadoSoloAdmiteVictoriaParcialOFracaso()
         {
             CollectionAssert.AreEquivalent(
