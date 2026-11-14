@@ -245,3 +245,24 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Aviso para Diego: «Construir escenas (sin Menu)» reescribe 3 materiales del Aquarius (`NASA_Sat_Aquarius_tex_01` acaba con la textura `shiny_panel_right_001`) y cambia la emisión de `Marcador_Orbita`, `Nave_Tobera` y `Plataforma_Resalte`. Se dejaron sus versiones de la rama y no se tocó `Resultado.unity`.
 - Verificado en el navegador a 1366x768 (build de 35.3 MB): Carga, cinemática con «Omitir», Operación, escaneos con la vista 3D, memoria llena y ventana de contacto. En esa prueba no salió ningún evento al azar, así que la ventana de decisión solo está probada en las pruebas automáticas.
 - Pasan las 198 pruebas EditMode y las 19 PlayMode (el recorrido ahora pasa por la Carga, responde eventos y envía a la Tierra).
+
+## Gameplay versión 3, paso 7: partidas completas en el navegador
+
+- Se jugaron dos partidas completas a 1366x768 en el build WebGL, viendo cada pantalla antes de decidir la jugada. El navegador quedó abierto con un control local, sin cambiar el juego.
+- Partida 1, nivel 3 (Tormenta severa: 3 eventos seguros entre los escaneos 1 y 6):
+  - Configuración del caso 2. Carga: refrigeración y reconfiguración (25 kg, 0 de combustible).
+  - Cinemática con «Omitir» y escaneos con la vista 3D.
+  - Eventos y decisiones:
+    - Petición de la NASA: se aceptó, apareció el punto morado y se cumplió.
+    - Sombra de Marte: sin batería y sin combustible solo quedaba aguantar.
+    - Sobrecalentamiento: apareció la opción de la refrigeración porque se cargó, y se usó.
+  - Envío en las ventanas de contacto. La anomalía se encontró con la térmica y el radar.
+  - Informe: «Misión cumplida», 1,185 puntos (1,000 + 135 + 150 por la petición − 100 por un dato de baja calidad).
+- Partida 2, nivel 1: memoria llena, «Esperar órbita» hasta la ventana, envío y radar. 1,695 puntos, con dos objetivos cumplidos y combustible sobrante. El desglose cuadra.
+- Arreglado:
+  - Con un evento de texto largo, la transmisión se encimaba con «Transmisiones recibidas». Ahora el texto de la transmisión ajusta su tamaño solo (16 a 24).
+  - `ConfiguracionTests` buscaba «la primera» `NaveUI`, y desde la vista orbital de Diego hay dos. Fallaba o pasaba según el orden en que se regenerara la escena. Ahora usa la `NaveUI` que maneja la Configuración.
+- Nota de balance, sin cambiar:
+  - En el nivel 3 (8 órbitas), la última ventana de contacto cae justo cuando se acaban las órbitas, así que lo que se encuentre después de la órbita 5 llega con baja calidad. Es la tensión que busca el diseño, pero conviene que Adrian decida si se deja así.
+  - Con un evento en pausa, el texto del evento sale dos veces (en la ventana y en el panel derecho).
+- Pasan las 198 pruebas EditMode y las 19 PlayMode. Build de 35.3 MB sin errores.

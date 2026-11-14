@@ -824,6 +824,11 @@ public static partial class ConstructorEscenas
         var transmision = Texto(der, "TextoTransmision", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         transmision.lineSpacing = 4;
         transmision.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        // Con las filas del gameplay v3 el panel tiene menos alto: el texto se achica para no pisar lo de abajo.
+        transmision.enableAutoSizing = true;
+        transmision.fontSizeMin = 16;
+        transmision.fontSizeMax = 24;
+        transmision.overflowMode = TextOverflowModes.Truncate;
         transmision.gameObject.AddComponent<Escritura>();
         var progreso = Texto(der, "TextoProgreso", "", 24, Cian, FontStyles.Normal, TextAlignmentOptions.Left);
         progreso.font = ConstructorEstilo.Mono;

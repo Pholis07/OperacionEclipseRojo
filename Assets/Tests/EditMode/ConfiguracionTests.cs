@@ -92,7 +92,8 @@ namespace SpaceMission.Tests
             Assert.AreEqual("Costo: 820 / 1,250 cr", ui.TextosBarra[2].text);
 
             // La nave muestra solo los módulos elegidos.
-            var nave = Object.FindFirstObjectByType<NaveUI>();
+            // Desde la vista orbital de Diego hay dos NaveUI en la escena: se usa la que maneja la Configuración.
+            var nave = (NaveUI)new SerializedObject(ui).FindProperty("nave").objectReferenceValue;
             Assert.IsTrue(nave.transform.Find("Modulo_termica").gameObject.activeSelf);
             Assert.IsFalse(nave.transform.Find("Modulo_espectrometro").gameObject.activeSelf);
 
