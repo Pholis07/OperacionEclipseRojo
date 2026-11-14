@@ -35,3 +35,5 @@ MonoBehaviour:
   combustiblePorOrbitaBaja: 1
   orbitasPerdidasSinCombustible: 1
   puntosPorCombustible: 10
+  cicloContacto: 3
+  vatiosTransmisor: 150

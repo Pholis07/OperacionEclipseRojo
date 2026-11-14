@@ -49,6 +49,16 @@ namespace SpaceMission
         public Altitud Altitud { get; private set; }
         /// <summary>Veces que la nave subió sola porque no le quedaba combustible para seguir en baja.</summary>
         public int SubidasForzadas { get; private set; }
+
+        /// <summary>Con Carga (v3) hay memoria y envío a Tierra; sin ella, lo encontrado llega al momento, como antes.</summary>
+        public bool ConMemoria => Carga != null;
+        public int MemoriaCapacidad => nivel.memoriaBloques;
+        public int MemoriaUsada { get; private set; }
+        public bool MemoriaLlena => ConMemoria && MemoriaUsada >= MemoriaCapacidad;
+        /// <summary>Transmisiones encontradas que todavía no se enviaron a la Tierra.</summary>
+        public readonly List<string> EnMemoria = new List<string>();
+        public int OrbitasTranscurridas { get; private set; }
+        bool contactoForzado;
         public int CreditosCarga => Carga != null ? Carga.CreditosGastados : 0;
         public readonly List<ObjetivoDatos> Objetivos;
         /// <summary>Escaneos hechos y órbitas que quedaban cuando llegó la última transmisión (0 si no llegó).</summary>
@@ -172,6 +182,8 @@ namespace SpaceMission
             {
                 cantidad += Arrastre();
                 Orbitas--;
+                OrbitasTranscurridas++;
+                contactoForzado = false;
                 foreach (var e in Eventos.Where(e => !e.Resuelto && e.Datos.efecto == EfectoEvento.ReducirLimiteTemporal))
                     if (--e.OrbitasRestantes <= 0) e.Resuelto = true;
                 foreach (var id in Bloqueados.Keys.ToList())
@@ -183,7 +195,8 @@ namespace SpaceMission
         /// <summary>Escanea el punto (coordenadas de 0 a 1) con un instrumento encendido.</summary>
         public Lectura? Escanear(string instrumentoId, Vector2 punto)
         {
-            if (Terminada || !Encendidos.Contains(instrumentoId)) return null;
+            if (Terminada || !Encendidos.Contains(instrumentoId) || MemoriaLlena) return null;
+            if (ConMemoria) MemoriaUsada++;
             Escaneos++;
 
             Lectura lectura;
@@ -205,14 +218,10 @@ namespace SpaceMission
             {
                 foreach (var par in Pendientes.Where(p => p.Value == instrumentoId).ToList())
                 {
-                    Recibidas.Add(par.Key);
+                    (ConMemoria ? EnMemoria : Recibidas).Add(par.Key);
                     Pendientes.Remove(par.Key);
                 }
-                if (Completa && EscaneosAlCompletar == 0)
-                {
-                    EscaneosAlCompletar = Escaneos;
-                    OrbitasAlCompletar = Orbitas - reglas.orbitasPorEscaneo;
-                }
+                RegistrarSiCompleta(Orbitas - reglas.orbitasPorEscaneo);
             }
 
             GastarOrbitas(reglas.orbitasPorEscaneo);
@@ -227,7 +236,45 @@ namespace SpaceMission
         }
 
         /// <summary>Todas las transmisiones ya llegaron: se puede pasar al informe.</summary>
-        public bool Completa => Pendientes.Count == 0;
+        public bool Completa => Pendientes.Count == 0 && EnMemoria.Count == 0;
+
+        void RegistrarSiCompleta(int orbitasQueQuedan)
+        {
+            if (!Completa || EscaneosAlCompletar != 0) return;
+            EscaneosAlCompletar = Escaneos;
+            OrbitasAlCompletar = orbitasQueQuedan;
+        }
+
+        // ---------- Memoria y envío a Tierra ----------
+
+        /// <summary>La ventana de contacto con la Tierra está abierta en esta órbita.</summary>
+        public bool ContactoAbierto => contactoForzado || OrbitasParaContacto == 0;
+
+        /// <summary>Órbitas que faltan para la próxima ventana de contacto (0 = abierta ahora).</summary>
+        public int OrbitasParaContacto => contactoForzado ? 0
+            : reglas.cicloContacto - 1 - OrbitasTranscurridas % reglas.cicloContacto;
+
+        /// <summary>Abre una ventana de contacto en esta órbita (respuesta a la ventana despejada).</summary>
+        public void AbrirContacto() => contactoForzado = true;
+
+        /// <summary>
+        /// Envía a la Tierra lo que hay en memoria. Solo con la ventana abierta y algo que enviar; no gasta órbita.
+        /// El transmisor consume energía extra: si no cabe, la nave se apaga y no se envía nada.
+        /// </summary>
+        public bool Enviar()
+        {
+            if (Terminada || !ConMemoria || !ContactoAbierto || MemoriaUsada == 0) return false;
+            if (ConsumoW + reglas.vatiosTransmisor > LimiteW)
+            {
+                Apagon();
+                return false;
+            }
+            Recibidas.AddRange(evaluacion.Transmisiones.Where(EnMemoria.Contains));
+            EnMemoria.Clear();
+            MemoriaUsada = 0;
+            RegistrarSiCompleta(Orbitas);
+            return true;
+        }
 
         /// <summary>El jugador termina la misión (o se acabaron las órbitas): lo pendiente llega con baja calidad.</summary>
         public void Terminar()
@@ -235,9 +282,10 @@ namespace SpaceMission
             if (Terminada) return;
             Terminada = true;
             Encendidos.Clear();
-            foreach (var id in evaluacion.Transmisiones.Where(Pendientes.ContainsKey))
+            foreach (var id in evaluacion.Transmisiones.Where(id => Pendientes.ContainsKey(id) || EnMemoria.Contains(id)))
                 BajaCalidad.Add(id);
             Pendientes.Clear();
+            EnMemoria.Clear();
         }
 
         // ---------- Eventos y herramientas ----------

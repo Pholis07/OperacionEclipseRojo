@@ -172,3 +172,13 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Cada unidad de combustible sobrante da +10 puntos. Los números están en `ReglasOperacion.asset` y los escribe `DatosVersion3.cs`.
 - Sin pantalla de Carga (hasta el paso 6), la nave sale con 0 de combustible y no puede bajar, así que el juego actual no cambia.
 - 8 pruebas nuevas en `AltitudTests.cs`. Pasan las 162 pruebas EditMode y las 19 PlayMode.
+
+## Gameplay versión 3, paso 3: memoria, ventanas de contacto y envío a Tierra
+
+- Cada escaneo ocupa 1 bloque de memoria (4, 3 y 3 según el nivel). Con la memoria llena no se puede escanear, y el intento no gasta órbita.
+- Lo encontrado queda «en memoria» y solo cuenta como recibido al enviarlo.
+- La ventana de contacto con la Tierra se abre 1 órbita de cada 3 (órbitas 2, 5, 8…). `AbrirContacto()` abre una extra en la órbita actual, para la ventana despejada del paso 4.
+- Enviar no gasta órbita, pero el transmisor suma 150 W. Si no caben, la nave se apaga y lo de la memoria no se pierde.
+- Lo que siga en memoria al terminar llega con baja calidad.
+- Como en los pasos anteriores, la memoria solo existe con Carga. Sin ella (el juego actual hasta el paso 6), lo encontrado llega al momento.
+- 9 pruebas nuevas en `MemoriaTests.cs`. Pasan las 171 pruebas EditMode y las 19 PlayMode.

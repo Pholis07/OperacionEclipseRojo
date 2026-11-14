@@ -34,6 +34,8 @@ public static class DatosVersion3
         r.combustiblePorOrbitaBaja = 1;
         r.orbitasPerdidasSinCombustible = 1;
         r.puntosPorCombustible = 10;
+        r.cicloContacto = 3;
+        r.vatiosTransmisor = 150;
         EditorUtility.SetDirty(r);
 
         Memoria(catalogo.Nivel(0), 4);

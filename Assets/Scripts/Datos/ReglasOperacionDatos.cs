@@ -41,5 +41,9 @@ namespace SpaceMission
         public int combustiblePorOrbitaBaja;     // arrastre
         public int orbitasPerdidasSinCombustible;   // la nave sube sola
         public int puntosPorCombustible;
+
+        [Header("Memoria y envío a Tierra (versión 3)")]
+        public int cicloContacto;      // la ventana de contacto se abre 1 órbita de cada N
+        public int vatiosTransmisor;   // consumo extra mientras se envía
     }
 }
