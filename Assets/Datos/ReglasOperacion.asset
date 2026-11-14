@@ -30,3 +30,8 @@ MonoBehaviour:
   kgPorCombustible: 10
   combustibleMaximo: 20
   objetivosPorMision: 2
+  combustiblePorCambioAltitud: 3
+  factorAltitudBaja: 1.5
+  combustiblePorOrbitaBaja: 1
+  orbitasPerdidasSinCombustible: 1
+  puntosPorCombustible: 10

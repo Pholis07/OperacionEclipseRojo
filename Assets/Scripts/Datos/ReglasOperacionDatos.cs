@@ -34,5 +34,12 @@ namespace SpaceMission
         public int kgPorCombustible;       // 1 unidad de combustible por cada N kg libres del lanzador
         public int combustibleMaximo;
         public int objetivosPorMision;
+
+        [Header("Combustible y altitud (versión 3)")]
+        public int combustiblePorCambioAltitud;
+        public float factorAltitudBaja;          // en baja, radio y distancias de lectura se multiplican por esto
+        public int combustiblePorOrbitaBaja;     // arrastre
+        public int orbitasPerdidasSinCombustible;   // la nave sube sola
+        public int puntosPorCombustible;
     }
 }

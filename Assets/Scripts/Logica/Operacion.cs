@@ -7,6 +7,9 @@ namespace SpaceMission
     /// <summary>Lectura de un escaneo según la distancia a la anomalía.</summary>
     public enum Lectura { Frio, Tibio, Caliente, Encontrada, SinLectura }
 
+    /// <summary>Altitud de la órbita durante la Operación (v3).</summary>
+    public enum Altitud { Normal, Baja }
+
     /// <summary>Un evento que ya ocurrió en esta misión.</summary>
     public class EventoActivo
     {
@@ -43,6 +46,9 @@ namespace SpaceMission
         /// <summary>Lo que se cargó antes de lanzar (v3). Null = sin pantalla de Carga: todas las herramientas a bordo.</summary>
         public Carga Carga { get; }
         public int Combustible { get; private set; }
+        public Altitud Altitud { get; private set; }
+        /// <summary>Veces que la nave subió sola porque no le quedaba combustible para seguir en baja.</summary>
+        public int SubidasForzadas { get; private set; }
         public int CreditosCarga => Carga != null ? Carga.CreditosGastados : 0;
         public readonly List<ObjetivoDatos> Objetivos;
         /// <summary>Escaneos hechos y órbitas que quedaban cuando llegó la última transmisión (0 si no llegó).</summary>
@@ -130,12 +136,41 @@ namespace SpaceMission
             GastarOrbitas(reglas.orbitasPerdidasPorApagon);
         }
 
+        // ---------- Combustible y altitud ----------
+
+        /// <summary>Cambia de altitud pagando combustible. Devuelve false si ya estaba ahí o no alcanza.</summary>
+        public bool CambiarAltitud(Altitud nueva)
+        {
+            if (Terminada || nueva == Altitud || Combustible < reglas.combustiblePorCambioAltitud) return false;
+            Combustible -= reglas.combustiblePorCambioAltitud;
+            Altitud = nueva;
+            return true;
+        }
+
+        /// <summary>En baja, las lecturas alcanzan más lejos.</summary>
+        float FactorLectura => Altitud == Altitud.Baja ? reglas.factorAltitudBaja : 1f;
+
+        /// <summary>El arrastre de la órbita baja gasta combustible; si no queda, la nave sube sola y pierde órbitas.</summary>
+        int Arrastre()
+        {
+            if (Altitud != Altitud.Baja) return 0;
+            if (Combustible >= reglas.combustiblePorOrbitaBaja)
+            {
+                Combustible -= reglas.combustiblePorOrbitaBaja;
+                return 0;
+            }
+            Altitud = Altitud.Normal;
+            SubidasForzadas++;
+            return reglas.orbitasPerdidasSinCombustible;
+        }
+
         // ---------- Tiempo y escaneo ----------
 
         void GastarOrbitas(int cantidad)
         {
             for (int i = 0; i < cantidad && !Terminada; i++)
             {
+                cantidad += Arrastre();
                 Orbitas--;
                 foreach (var e in Eventos.Where(e => !e.Resuelto && e.Datos.efecto == EfectoEvento.ReducirLimiteTemporal))
                     if (--e.OrbitasRestantes <= 0) e.Resuelto = true;
@@ -159,7 +194,7 @@ namespace SpaceMission
             }
             else
             {
-                float d = Vector2.Distance(punto, Anomalia);
+                float d = Vector2.Distance(punto, Anomalia) / FactorLectura;
                 lectura = d <= reglas.radioDeteccion ? Lectura.Encontrada
                     : d <= reglas.distanciaCaliente ? Lectura.Caliente
                     : d <= reglas.distanciaTibio ? Lectura.Tibio

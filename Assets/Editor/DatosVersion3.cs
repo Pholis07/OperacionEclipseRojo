@@ -29,6 +29,11 @@ public static class DatosVersion3
         r.kgPorCombustible = 10;
         r.combustibleMaximo = 20;
         r.objetivosPorMision = 2;
+        r.combustiblePorCambioAltitud = 3;
+        r.factorAltitudBaja = 1.5f;
+        r.combustiblePorOrbitaBaja = 1;
+        r.orbitasPerdidasSinCombustible = 1;
+        r.puntosPorCombustible = 10;
         EditorUtility.SetDirty(r);
 
         Memoria(catalogo.Nivel(0), 4);

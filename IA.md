@@ -165,3 +165,10 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - Sin la pantalla de Carga (llega en el paso 6), la Operación sigue como antes, con todas las herramientas a bordo.
 - La categoría del resultado no cambia: la carga se calcula después de evaluar y solo usa lo que sobra.
 - 18 pruebas nuevas en `CargaTests.cs`. Pasan las 154 pruebas EditMode y las 19 PlayMode.
+
+## Gameplay versión 3, paso 2: combustible y altitud
+
+- Hay dos altitudes, normal y baja. Cambiar cuesta 3 de combustible. En baja, las lecturas alcanzan 1.5 veces más lejos y el arrastre gasta 1 de combustible por órbita. Si no queda, la nave sube sola y se pierde 1 órbita más.
+- Cada unidad de combustible sobrante da +10 puntos. Los números están en `ReglasOperacion.asset` y los escribe `DatosVersion3.cs`.
+- Sin pantalla de Carga (hasta el paso 6), la nave sale con 0 de combustible y no puede bajar, así que el juego actual no cambia.
+- 8 pruebas nuevas en `AltitudTests.cs`. Pasan las 162 pruebas EditMode y las 19 PlayMode.
