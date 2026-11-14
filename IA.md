@@ -115,3 +115,9 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - La caja de ayuda desbordada.
 - Pasan las 112 pruebas EditMode y las 19 PlayMode.
 - Al subirlo, integró el gameplay nuevo de Adrian (Operación, niveles y puntos), que se había subido mientras tanto. Restyló la vista de Operación con el mismo estilo: barras segmentadas, mapa con marco HUD e imagen real del instrumento de la última señal (`VisorEvidencia`, ahora lee `OperacionUI`). También restyló el selector de nivel del Briefing y los puntos del Resultado. Borró el marcador azul del rover que traía la foto de Marte. Pasan las 136 pruebas EditMode y las 19 PlayMode.
+
+## Revisión del push de Diego y arreglos para la publicación (2026-11-14)
+
+- Revisó los 3 commits de Diego (interfaz HUD, arte y fusión con el gameplay): sin secretos, licencias documentadas, 136 + 19 pruebas en verde, build WebGL correcto y juego jugable en el navegador (lo comprobó con capturas en Chromium).
+- Arreglos que hizo después de la revisión: plantilla web propia a pantalla completa (la de Unity fijaba 1920x1080 y se cortaba en pantallas pequeñas), retiro del paquete Sentis (rompía el build WebGL y no se usa), resolución de render al 100 % en WebGL (con 0.8 se activaba un escalado que desactivaba el postprocesado), mapa de la Operación con la foto de Marte de NASA que ya estaba en el proyecto, y el pie de «Vista de la nave», que se salía de su caja.
+- El disco donde estaba el proyecto quedó marcado como sucio tras un reinicio; lo montó en solo lectura y copió el proyecto a `~/Projects/OperacionEclipseRojo` antes de comitear.

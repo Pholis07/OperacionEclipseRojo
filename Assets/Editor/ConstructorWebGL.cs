@@ -16,6 +16,8 @@ public static class ConstructorWebGL
     [MenuItem("Herramientas/Build WebGL")]
     public static void Construir()
     {
+        // Plantilla propia: el juego ocupa toda la ventana (la de Unity fija 1920x1080 y se corta en pantallas pequeñas).
+        PlayerSettings.WebGL.template = "PROJECT:PantallaCompleta";
         PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
         PlayerSettings.WebGL.decompressionFallback = true;
 

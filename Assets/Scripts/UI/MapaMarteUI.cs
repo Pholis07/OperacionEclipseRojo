@@ -13,14 +13,28 @@ namespace SpaceMission
     {
         [SerializeField] UnityEngine.UI.RawImage imagen;
         [SerializeField] RectTransform capaMarcas;
+        [Tooltip("Foto de Marte (NASA). Si está, cada misión muestra una zona distinta de ella; si no, se genera un terreno.")]
+        [SerializeField] Texture2D texturaBase;
+        [SerializeField, Range(0.1f, 1f)] float tamanoZona = 0.3f;
 
         public event Action<Vector2> AlPulsar;
         readonly List<GameObject> marcas = new List<GameObject>();
         Texture2D textura;
 
-        /// <summary>Genera un terreno distinto según la semilla.</summary>
+        /// <summary>Muestra una zona distinta de la foto de Marte (o genera un terreno) según la semilla.</summary>
         public void Generar(int semilla)
         {
+            if (texturaBase != null)
+            {
+                // Solo se elige qué parte de la foto se ve: la imagen no se modifica.
+                var azarFoto = new System.Random(semilla);
+                imagen.texture = texturaBase;
+                float x = (float)azarFoto.NextDouble() * (1f - tamanoZona);
+                float y = 0.15f + (float)azarFoto.NextDouble() * (0.7f - tamanoZona); // lejos de los polos
+                imagen.uvRect = new Rect(x, y, tamanoZona, tamanoZona);
+                return;
+            }
+
             const int lado = 256;
             if (textura == null)
             {

@@ -589,6 +589,7 @@ public static class ConstructorEscenas
         var mapa = goMapa.AddComponent<MapaMarteUI>();
         Asignar(mapa, "imagen", goMapa.GetComponent<UnityEngine.UI.RawImage>());
         Asignar(mapa, "capaMarcas", capaMarcas);
+        Asignar(mapa, "texturaBase", ConstructorEstilo.Imagen("Texturas/Marte_Superficie"));
 
         var cajaLectura = Columna(vista, "CajaLectura", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 20);
         Anclar(cajaLectura, new Vector2(0.31f, 0.03f), new Vector2(0.69f, 0.185f));
@@ -877,6 +878,8 @@ public static class ConstructorEscenas
         var leyenda = Texto(vista, "LeyendaNave", "VISTA DE LA NAVE\n<size=24><color=#" + ColorUtility.ToHtmlStringRGB(TextoSecundario) +
             ">Cada instrumento elegido se instala y se ilumina. El anillo cian es tu órbita.</color></size>",
             26, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
+        leyenda.margin = new Vector4(20, 0, 20, 0);   // que la segunda línea no se salga del fondo
+        leyenda.fontSizeMax = 26; leyenda.fontSizeMin = 18; leyenda.enableAutoSizing = true;
         Anclar(leyenda.rectTransform, new Vector2(0.37f, 0.03f), new Vector2(0.645f, 0.13f));
         // Fondo oscuro detrás de la leyenda para que se lea sobre Marte.
         var fondoLeyenda = Panel(vista, "FondoLeyenda", new Color(Fondo.r, Fondo.g, Fondo.b, 0.7f));

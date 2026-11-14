@@ -10,7 +10,7 @@ Descargadas de la NASA Image and Video Library (images.nasa.gov) el 2026-11-14. 
 
 | Archivo en `Assets/Arte` | Imagen original | Crédito |
 |---|---|---|
-| `Texturas/Marte_Superficie.jpg` | PIA22329, «Dust Storm Covers Opportunity» (MARCI, MRO, 2018). Mapa global con los huecos entre órbitas rellenados | NASA/JPL-Caltech/MSSS |
+| `Texturas/Marte_Superficie.jpg` | PIA22329, «Dust Storm Covers Opportunity» (MARCI, MRO, 2018). Mapa global con los huecos entre órbitas rellenados. También es el mapa de la fase de Operación (se muestra una zona distinta en cada misión, sin modificar la imagen) | NASA/JPL-Caltech/MSSS |
 | `Evidencias/Evidencia_mision.jpg`, `Fondos/Fondo_Resultado.jpg` | PIA22329 (la misma, ya rellenada) | NASA/JPL-Caltech/MSSS |
 | `Fondos/Fondo_Briefing.jpg`, `Evidencias/Evidencia_atmosferico.jpg` | PIA23513, «A Mars Dust Tower Stands Out» (MARCI, MRO) | NASA/JPL-Caltech/MSSS |
 | `Evidencias/Evidencia_region.jpg` | PIA26329, «Gullies in the Depths of Hellas» (HiRISE, MRO) | NASA/JPL-Caltech/University of Arizona |
@@ -19,7 +19,7 @@ Descargadas de la NASA Image and Video Library (images.nasa.gov) el 2026-11-14. 
 | `Evidencias/Evidencia_alta_res.jpg` | PIA19940, «Possible Sulfates in the Northeast Syrtis Major Region» (HiRISE, MRO) | NASA/JPL-Caltech/Univ. of Arizona |
 | `Evidencias/Evidencia_espectrometro.jpg` | PIA20763, «Adding Composition Data About Mars Gullies» (CRISM y HiRISE, MRO), mitad inferior | NASA/JPL-Caltech/UA/JHUAPL |
 
-Los créditos se muestran en el juego junto a cada imagen (Briefing, Investigación y Resultado) y en el pie del Menú.
+Los créditos se muestran en el juego junto a cada imagen (Briefing, Operación y Resultado) y en el pie del Menú.
 
 ## Fuentes
 
