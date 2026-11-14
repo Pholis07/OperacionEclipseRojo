@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SpaceMission
 {
-    /// <summary>Panel «Opciones» del Menú: volumen de música, efectos y voz, y «Reducir movimiento».</summary>
+    /// <summary>Panel «Opciones» del Menú: volumen de música, ambiente, efectos y voz, «Silenciar todo» y «Reducir movimiento».</summary>
     public class OpcionesUI : MonoBehaviour
     {
         [SerializeField] UnityEngine.UI.Button botonAbrir;
@@ -12,6 +12,8 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Slider efectos;
         [SerializeField] UnityEngine.UI.Slider voz;
         [SerializeField] UnityEngine.UI.Toggle reducirMovimiento;
+        [SerializeField] UnityEngine.UI.Slider ambiente;
+        [SerializeField] UnityEngine.UI.Toggle silencio;
 
         void Awake()
         {
@@ -29,6 +31,16 @@ namespace SpaceMission
             });
             voz.onValueChanged.AddListener(v => Preferencias.VolumenVoz = v);
             reducirMovimiento.onValueChanged.AddListener(v => Preferencias.ReducirMovimiento = v);
+            if (ambiente != null)
+            {
+                ambiente.SetValueWithoutNotify(Preferencias.VolumenAmbiente);
+                ambiente.onValueChanged.AddListener(v => Preferencias.VolumenAmbiente = v);
+            }
+            if (silencio != null)
+            {
+                silencio.SetIsOnWithoutNotify(Preferencias.Silencio);
+                silencio.onValueChanged.AddListener(v => Preferencias.Silencio = v);
+            }
 
             botonAbrir.onClick.AddListener(() => Mostrar(true));
             botonCerrar.onClick.AddListener(() => Mostrar(false));

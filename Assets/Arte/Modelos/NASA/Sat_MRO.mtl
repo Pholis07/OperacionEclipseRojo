@@ -1,0 +1,27 @@
+newmtl tex_02
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_MRO_tex_02.png
+
+newmtl tex_01
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_MRO_tex_01.png
+
+newmtl foil_gold
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_MRO_foil_gold.png
+
+newmtl black_krinkle
+Kd 0.1048 0.1048 0.1048
+
+newmtl shiny_panel
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_MRO_shiny_panel.png
+
+newmtl foil_silver2
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_MRO_foil_silver2.png
+
+newmtl foil_silver
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_MRO_foil_silver.png
+

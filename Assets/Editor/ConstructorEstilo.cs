@@ -59,7 +59,19 @@ public static class ConstructorEstilo
     {
         var ruta = $"{CarpetaFuentes}/{nombre} SDF.asset";
         var existente = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(ruta);
-        if (existente != null) return existente;
+        if (existente != null)
+        {
+            // Si se añadieron caracteres (por ejemplo, iconos nuevos), se agregan al atlas existente.
+            if (!existente.HasCharacters(caracteres, out var nuevos, false, false) && nuevos != null && nuevos.Length > 0)
+            {
+                existente.atlasPopulationMode = AtlasPopulationMode.Dynamic;
+                existente.TryAddCharacters(caracteres, out _);
+                existente.atlasPopulationMode = AtlasPopulationMode.Static;
+                EditorUtility.SetDirty(existente);
+                AssetDatabase.SaveAssets();
+            }
+            return existente;
+        }
 
         var ttf = AssetDatabase.LoadAssetAtPath<Font>($"{CarpetaFuentes}/{archivo}");
         if (ttf == null) throw new FileNotFoundException("Falta la fuente " + archivo + " en " + CarpetaFuentes);
@@ -131,6 +143,23 @@ public static class ConstructorEstilo
         arte.luzRoja = Audio("Efectos/ui_luz_roja");
         arte.lanzamiento = Audio("Efectos/lanzamiento");
         arte.senal = Audio("Efectos/senal_entrante");
+        // Cinemática de lanzamiento y escaneo orbital (paquete de especificaciones del equipo; ids del CSV).
+        arte.musicaLanzamiento = Audio("Musica/MUS_Lanzamiento_Cinematica");
+        arte.cuentaAtras = Audio("Efectos/SFX_Countdown_System");
+        arte.despegue = Audio("Efectos/SFX_Rocket_Liftoff");
+        arte.separacion = Audio("Efectos/SFX_Stage_Separation");
+        arte.despliegue = Audio("Efectos/SFX_Solar_Array_Deploy");
+        arte.transferencia = Audio("Efectos/SFX_Transfer_Swoosh");
+        arte.propulsores = Audio("Efectos/SFX_Orbital_Thruster");
+        arte.servo = Audio("Efectos/SFX_Satellite_Servo");
+        arte.fijarObjetivo = Audio("Efectos/SFX_Target_Lock");
+        arte.escaneoTermica = Audio("Efectos/SFX_Scan_Thermal");
+        arte.escaneoRadar = Audio("Efectos/SFX_Scan_Radar");
+        arte.escaneoAltaRes = Audio("Efectos/SFX_Scan_HighRes");
+        arte.escaneoAtmosferico = Audio("Efectos/SFX_Scan_Atmospheric");
+        arte.escaneoEspectrometro = Audio("Efectos/SFX_Scan_Spectrometer");
+        arte.ambienteOrbital = Audio("Efectos/AMB_Investigacion_Orbital");
+        arte.ambienteControl = Audio("Efectos/AMB_Menu_Control");
         arte.voces = new List<ArteDatos.Voz>();
         foreach (var guid in AssetDatabase.FindAssets("t:AudioClip", new[] { "Assets/Arte/Audio/Voces" }))
         {

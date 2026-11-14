@@ -53,12 +53,33 @@ namespace SpaceMission
         readonly List<GameObject> filas = new List<GameObject>();
         bool inicializada;
 
+        /// <summary>
+        /// Después de cada escaneo válido: instrumento, punto del mapa (0 a 1), lectura y si llegó una transmisión
+        /// nueva. Solo lo usa la vista 3D (SecuenciaEscaneo); la lógica ya terminó cuando se avisa.
+        /// </summary>
+        public event System.Action<string, Vector2, Lectura, bool> AlEscanear;
+
         public Operacion Op { get; private set; }
         public string Escaner { get; private set; }
         public string UltimoMensaje => textoLectura.text;
 
         CatalogoDatos Catalogo => catalogo;
         ReglasOperacionDatos Reglas => catalogo.reglas;
+
+        // Presentación de Diego (cinemática y vista 3D del escaneo): la ventana de decisión espera a que terminen.
+        SecuenciaEscaneo secuenciaEscaneo;
+        DirectorCinematica director;
+
+        void Update() => ActualizarPanelDecision();
+
+        /// <summary>La ventana de decisión se ve si hay un evento en pausa y no se está viendo una animación.</summary>
+        void ActualizarPanelDecision()
+        {
+            if (panelDecision == null || Op == null) return;
+            bool ocupada = (secuenciaEscaneo != null && secuenciaEscaneo.Activa) || (director != null && director.Reproduciendo);
+            bool ver = Op.EsperandoDecision && !ocupada;
+            if (panelDecision.activeSelf != ver) panelDecision.SetActive(ver);
+        }
 
         public void Inicializar()
         {
@@ -73,6 +94,8 @@ namespace SpaceMission
             if (botonAltitud != null) botonAltitud.onClick.AddListener(CambiarAltitud);
             if (botonEnviar != null) botonEnviar.onClick.AddListener(Enviar);
             if (botonEsperar != null) botonEsperar.onClick.AddListener(Esperar);
+            secuenciaEscaneo = FindFirstObjectByType<SecuenciaEscaneo>(FindObjectsInactive.Include);
+            director = FindFirstObjectByType<DirectorCinematica>(FindObjectsInactive.Include);
         }
 
         /// <summary>Empieza la Operación sin Carga (modo anterior a la v3). La semilla fija solo la usan las pruebas.</summary>
@@ -157,6 +180,7 @@ namespace SpaceMission
             if (Op.Apagones > apagones) textoLectura.text += "\n" + MensajeApagon();
             if (Op.Terminada) textoLectura.text += "\nSe acabaron las órbitas: lo que falte llegará con baja calidad.";
             Refrescar();
+            AlEscanear?.Invoke(Escaner, punto, lectura.Value, Op.Recibidas.Count > recibidas || Op.EnMemoria.Count > enMemoria);
         }
 
         public void UsarHerramienta(string id)
@@ -275,7 +299,7 @@ namespace SpaceMission
         void DibujarDecision()
         {
             if (panelDecision == null) return;
-            panelDecision.SetActive(Op.EsperandoDecision);
+            ActualizarPanelDecision();
             if (!Op.EsperandoDecision) return;
             textoDecision.text = TextoDecision(Op.Decision);
             int i = 0;

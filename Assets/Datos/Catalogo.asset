@@ -38,6 +38,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1761b6cc2845178ce90dcf151626427f, type: 2}
   - {fileID: 11400000, guid: e5e57ddd49a2ca7b4b6323d9927074d8, type: 2}
   - {fileID: 11400000, guid: 22f915ac811f9189fb854883d61c2211, type: 2}
+  satelites:
+  - {fileID: 11400000, guid: ab2af4c28e5b4cf3592d165e329ec4ee, type: 2}
+  - {fileID: 11400000, guid: 13e2e8acd61b0a0c98e01dece0956677, type: 2}
+  - {fileID: 11400000, guid: a22690b564701ba61bb444559af10bc7, type: 2}
+  - {fileID: 11400000, guid: ce5f961a5aeffeb8d8d876a6829a7554, type: 2}
+  - {fileID: 11400000, guid: 0298209afbfb39b0abbacd56d70469a7, type: 2}
   reglas: {fileID: 11400000, guid: 83e50f30dd15de941a127939728ace01, type: 2}
   niveles:
   - {fileID: 11400000, guid: e65a2d90e1db227fda6af11f3e45b0c5, type: 2}

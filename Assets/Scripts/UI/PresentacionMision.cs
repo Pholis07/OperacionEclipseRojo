@@ -80,6 +80,9 @@ namespace SpaceMission
             Tarjeta(Iconos.DeInstrumento(i.id), i.nombre, Chip(Iconos.Masa, i.masaKg + " kg"),
                 Chip(Iconos.Potencia, i.ConsumoTotalW + " W"), Chip(Iconos.Costo, i.costoCr + " cr"));
 
+        public static string TextoOpcion(SateliteDatos s) =>
+            Tarjeta(Iconos.Satelite, s.nombre, Chip(Iconos.Informe, s.inspiradoEn));
+
         static string Dato(string icono, string nombre, string valor) =>
             "\n<color=" + Cian + ">" + icono + "</color> <b>" + nombre + ":</b> " + valor;
 
@@ -94,6 +97,10 @@ namespace SpaceMission
         public static string Ayuda(InstrumentoDatos i) =>
             "<b>" + i.nombre + "</b>\n" + i.textoAyuda + Dato(Iconos.Masa, "Masa", i.masaKg + " kg") +
             Dato(Iconos.Costo, "Costo", i.costoCr + " créditos");
+
+        public static string Ayuda(SateliteDatos s) =>
+            "<b>" + s.nombre + "</b>\n" + s.descripcion + Dato(Iconos.Informe, "Basado en", s.inspiradoEn) +
+            "\n<size=85%><color=#94A3B8>" + s.credito + ". Solo cambia el aspecto de la nave.</color></size>";
 
         // ---------- Revisión ----------
 

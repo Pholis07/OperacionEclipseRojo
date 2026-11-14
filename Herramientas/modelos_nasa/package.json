@@ -1,0 +1,12 @@
+{
+  "name": "modelos-nasa",
+  "private": true,
+  "description": "Convierte los modelos de NASA 3D Resources (GLB con Draco / STL) a OBJ+MTL+PNG para Unity",
+  "type": "module",
+  "dependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "draco3dgltf": "1.5.9",
+    "meshoptimizer": "1.3.0"
+  }
+}

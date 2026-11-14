@@ -26,12 +26,16 @@ namespace SpaceMission
         public const string Ajustes = "";     // settings
         public const string Volumen = "";     // volume-2
         public const string Siguiente = "";   // arrow-right
+        public const string Satelite = Instrumentos;      // satellite
+        public const string Microscopio = "\ue2e4";      // microscope
+        public const string Mira = "\ue0ac";             // crosshair
+        public const string Omitir = "\ue160";           // skip-forward
         public const string Atras = "";       // arrow-left
 
         /// <summary>Todos los iconos, para generar el atlas de la fuente.</summary>
         public static readonly string Todos = Masa + Potencia + Costo + Espacios + Orbita + Lanzador + Instrumentos +
             Elegido + SinElegir + Gris + Rojo + Amarillo + Verde + Senal + Objetivo + Informe + Ajustes + Volumen +
-            Siguiente + Atras + "";
+            Siguiente + Atras + Microscopio + Mira + Omitir + "";
 
         public static string DeInstrumento(string id)
         {

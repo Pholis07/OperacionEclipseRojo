@@ -9,7 +9,7 @@ using UnityEngine;
 public class ImportadorArte : AssetPostprocessor
 {
     // Subir este número fuerza a Unity a reimportar las imágenes con los ajustes nuevos.
-    public override uint GetVersion() => 4;
+    public override uint GetVersion() => 5;
 
     /// <summary>
     /// Audio de Assets/Arte/Audio (ElevenLabs): música comprimida en memoria (Vorbis), efectos cortos en mono y
@@ -36,12 +36,32 @@ public class ImportadorArte : AssetPostprocessor
         else
         {
             ai.forceToMono = true;
-            bool largo = assetPath.Contains("ambiente_");
+            bool largo = assetPath.Contains("ambiente_") || assetPath.Contains("/AMB_");
             ajuste.loadType = largo ? AudioClipLoadType.CompressedInMemory : AudioClipLoadType.DecompressOnLoad;
             ajuste.quality = 0.6f;
         }
         ai.defaultSampleSettings = ajuste;
-        ai.loadInBackground = assetPath.Contains("/Musica/") || assetPath.Contains("ambiente_");
+        ai.loadInBackground = assetPath.Contains("/Musica/") || assetPath.Contains("ambiente_") || assetPath.Contains("/AMB_");
+    }
+
+    /// <summary>
+    /// Modelos de NASA 3D Resources (convertidos a OBJ con Herramientas/modelos): sin animación ni colisiones,
+    /// materiales a partir del MTL (el constructor los cambia por materiales URP propios).
+    /// </summary>
+    void OnPreprocessModel()
+    {
+        if (!assetPath.StartsWith("Assets/Arte/Modelos/")) return;
+        var mi = (ModelImporter)assetImporter;
+        mi.animationType = ModelImporterAnimationType.None;
+        mi.importAnimation = false;
+        mi.importCameras = false;
+        mi.importLights = false;
+        mi.isReadable = false;
+        mi.addCollider = false;
+        mi.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
+        mi.importNormals = ModelImporterNormals.Import;
+        mi.meshCompression = ModelImporterMeshCompression.Medium;
+        mi.globalScale = 1f;
     }
 
     void OnPreprocessTexture()
@@ -74,12 +94,19 @@ public class ImportadorArte : AssetPostprocessor
             ti.mipmapEnabled = false;
             ti.maxTextureSize = 1024;
         }
+        else if (assetPath.Contains("/Modelos/"))
+        {
+            ti.maxTextureSize = 1024;
+            ti.anisoLevel = 2;
+            // Las rampas de lámina dorada/plateada son tiras de pocos píxeles: sin compresión para que no se manchen.
+            if (nombre.Contains("foil")) ti.textureCompression = TextureImporterCompression.Uncompressed;
+        }
         else if (assetPath.Contains("/Texturas/"))
         {
             bool repetible = nombre == "Lamina_Dorada" || nombre == "Celdas_Solares";
             ti.wrapMode = repetible ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
             // Los mapas de planeta se repiten a lo ancho (longitud) para que no se vea la costura.
-            if (nombre.StartsWith("Marte_")) ti.wrapModeU = TextureWrapMode.Repeat;
+            if (nombre.StartsWith("Marte_") || nombre.StartsWith("Tierra_")) ti.wrapModeU = TextureWrapMode.Repeat;
             ti.mipmapEnabled = nombre != "Estrellas"; // las estrellas se ven a 1:1, sin mipmaps quedan nítidas
             ti.anisoLevel = 4;
             // La superficie de Marte se ve de cerca al elegir la órbita: más resolución.

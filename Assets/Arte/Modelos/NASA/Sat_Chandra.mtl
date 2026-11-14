@@ -1,0 +1,22 @@
+newmtl AO_HRMA
+Kd 0.8000 0.8000 0.8000
+
+newmtl foil_gold
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Chandra_foil_gold.png
+
+newmtl foil_silver
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Chandra_foil_silver.png
+
+newmtl shiny_panel
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Chandra_shiny_panel.png
+
+newmtl tex_01
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Chandra_tex_01.png
+
+newmtl sin
+Kd 0.8000 0.8000 0.8000
+

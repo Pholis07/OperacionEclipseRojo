@@ -1,0 +1,39 @@
+newmtl AO_dish_dep
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_AO_dish_dep.png
+
+newmtl AO_other_dep
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_AO_other_dep.png
+
+newmtl foil_gold
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_foil_gold.png
+
+newmtl foil_silver
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_foil_silver.png
+
+newmtl shiny_panel_left_001
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_shiny_panel_left_001.png
+
+newmtl shiny_panel_right_001
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_shiny_panel_right_001.png
+
+newmtl tex_01
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_tex_01.png
+
+newmtl tex_02_001
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_tex_02_001.png
+
+newmtl tex_black_001
+Kd 1.0000 1.0000 1.0000
+map_Kd Sat_Aquarius_tex_black_001.png
+
+newmtl sin
+Kd 0.8000 0.8000 0.8000
+
