@@ -1,0 +1,154 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
+
+namespace SpaceMission.PlayTests
+{
+    /// <summary>
+    /// Fase 8: recorre el juego en modo Play, pulsando los botones reales, para los 19 casos de la tabla
+    /// del prompt 08 (generados de esa tabla con un script). Compara la línea [Misión] de la consola,
+    /// el bloqueo de «Lanzar», el número de transmisiones y «Modificar mi misión».
+    /// </summary>
+    public class RecorridoTests
+    {
+        const int MaxCuadros = 600;
+        readonly List<string> lineas = new List<string>();
+
+        void Capturar(string mensaje, string pila, LogType tipo)
+        {
+            if (mensaje.StartsWith("[Misión]")) lineas.Add(mensaje);
+        }
+
+        [SetUp]
+        public void Preparar()
+        {
+            lineas.Clear();
+            Application.logMessageReceived += Capturar;
+            EstadoJuego.Reiniciar();
+        }
+
+        [TearDown]
+        public void Limpiar() => Application.logMessageReceived -= Capturar;
+
+        [TestCase("1", "explorador", "polar", "termica+radar", "[Misión] masa=620 potencia=430 costo=850 semáforo=VERDE resultado=VICTORIA", 3, ExpectedResult = null)]
+        [TestCase("2", "explorador", "media", "termica+radar", "[Misión] masa=620 potencia=430 costo=820 semáforo=VERDE resultado=VICTORIA", 3, ExpectedResult = null)]
+        [TestCase("3", "explorador", "eliptica", "termica+radar", "[Misión] masa=620 potencia=430 costo=870 semáforo=AMARILLO resultado=PARCIAL", 3, ExpectedResult = null)]
+        [TestCase("4", "titan", "eliptica", "termica+radar+atmosferico", "[Misión] masa=670 potencia=500 costo=1130 semáforo=VERDE resultado=VICTORIA", 4, ExpectedResult = null)]
+        [TestCase("5", "explorador", "media", "termica+atmosferico", "[Misión] masa=500 potencia=300 costo=650 semáforo=AMARILLO resultado=PARCIAL", 3, ExpectedResult = null)]
+        [TestCase("6", "titan", "polar", "alta_res+atmosferico", "[Misión] masa=485 potencia=320 costo=800 semáforo=AMARILLO resultado=FRACASO", 2, ExpectedResult = null)]
+        [TestCase("7", "titan", "media", "termica+radar+espectrometro+atmosferico", "[Misión] masa=780 potencia=760 costo=1300 semáforo=ROJO resultado=-", 0, ExpectedResult = null)]
+        [TestCase("B1", "titan", "media", "", "[Misión] masa=- potencia=- costo=- semáforo=GRIS resultado=-", 0, ExpectedResult = null)]
+        [TestCase("B2", "explorador", "media", "termica+alta_res+atmosferico", "[Misión] masa=585 potencia=450 costo=780 semáforo=ROJO resultado=-", 0, ExpectedResult = null)]
+        [TestCase("B4", "titan", "media", "termica+radar+alta_res+atmosferico", "[Misión] masa=755 potencia=650 costo=1210 semáforo=ROJO resultado=-", 0, ExpectedResult = null)]
+        [TestCase("B4b", "titan", "media", "termica+alta_res+atmosferico+espectrometro", "[Misión] masa=695 potencia=710 costo=1170 semáforo=ROJO resultado=-", 0, ExpectedResult = null)]
+        [TestCase("B5", "titan", "eliptica", "termica+radar+espectrometro", "[Misión] masa=730 potencia=690 costo=1260 semáforo=ROJO resultado=-", 0, ExpectedResult = null)]
+        [TestCase("B6", "explorador", "media", "radar", "[Misión] masa=520 potencia=300 costo=640 semáforo=AMARILLO resultado=PARCIAL", 2, ExpectedResult = null)]
+        [TestCase("B7", "titan", null, "termica+radar", "[Misión] masa=- potencia=- costo=- semáforo=GRIS resultado=-", 0, ExpectedResult = null)]
+        [TestCase("B8", null, "media", "termica+radar", "[Misión] masa=- potencia=- costo=- semáforo=GRIS resultado=-", 0, ExpectedResult = null)]
+        [TestCase("RV1", "titan", "polar", "termica+alta_res+espectrometro", "[Misión] masa=645 potencia=640 costo=1110 semáforo=AMARILLO resultado=PARCIAL", 4, ExpectedResult = null)]
+        [TestCase("RV2", "titan", "media", "termica+espectrometro+atmosferico", "[Misión] masa=610 potencia=560 costo=1040 semáforo=AMARILLO resultado=PARCIAL", 3, ExpectedResult = null)]
+        [TestCase("RV3", "titan", "eliptica", "termica+alta_res+atmosferico", "[Misión] masa=585 potencia=450 costo=1000 semáforo=AMARILLO resultado=PARCIAL", 3, ExpectedResult = null)]
+        [TestCase("RV4", "explorador", "polar", "termica+atmosferico", "[Misión] masa=500 potencia=300 costo=680 semáforo=AMARILLO resultado=PARCIAL", 2, ExpectedResult = null)]
+        public IEnumerator Recorrido(string caso, string lanzador, string orbita, string instrumentos,
+            string lineaEsperada, int transmisiones)
+        {
+            SceneManager.LoadScene("Menu");
+            yield return EsperarEscena("Menu");
+
+            Pulsar("BotonIniciar");
+            yield return EsperarEscena("Mision");
+            Pulsar("BotonContinuar"); // del Briefing
+            yield return null;
+
+            var catalogo = Object.FindFirstObjectByType<MisionUI>().Catalogo;
+            if (lanzador != null) { Pulsar("PestanaLanzador"); PulsarOpcion(catalogo.Lanzador(lanzador).nombre); }
+            if (orbita != null) { Pulsar("PestanaOrbita"); PulsarOpcion(catalogo.Orbita(orbita).nombre); }
+            if (instrumentos != "")
+            {
+                Pulsar("PestanaInstrumentos");
+                foreach (var id in instrumentos.Split('+')) PulsarOpcion(catalogo.Instrumento(id).nombre);
+            }
+            yield return null;
+
+            Assert.IsNotEmpty(lineas, "No se escribió ninguna línea [Misión] en el caso " + caso);
+            Debug.Log("RECORRIDO " + caso + " | esperado: " + lineaEsperada + " | obtenido: " + lineas.Last());
+            Assert.AreEqual(lineaEsperada, lineas.Last(), "línea [Misión] del caso " + caso);
+
+            Pulsar("BotonRevisar");
+            yield return null;
+            var lanzar = Boton("BotonLanzar");
+            Assert.AreEqual(transmisiones > 0, lanzar.interactable, "«Lanzar» del caso " + caso);
+
+            if (transmisiones == 0)
+            {
+                Pulsar("BotonCorregir");
+                yield return null;
+                Assert.IsTrue(Object.FindFirstObjectByType<MisionUI>().VistaActivaEsConfiguracion);
+                yield break;
+            }
+
+            var elegidas = EstadoJuego.Configuracion.InstrumentoIds.ToArray();
+            Pulsar("BotonLanzar");
+            yield return null;
+
+            int pulsaciones = 0;
+            while (SceneManager.GetActiveScene().name == "Mision" && pulsaciones <= transmisiones)
+            {
+                Pulsar("BotonContinuar"); // de la Investigación
+                pulsaciones++;
+                yield return null;
+                yield return null;
+            }
+            yield return EsperarEscena("Resultado");
+            Assert.AreEqual(transmisiones, pulsaciones, "transmisiones mostradas en el caso " + caso);
+
+            var titulo = GameObject.Find("Titulo").GetComponent<TMP_Text>().text;
+            Assert.AreEqual(TextosResultado.Titulo(EstadoJuego.Resultado.Categoria.Value), titulo, "título del informe del caso " + caso);
+
+            Pulsar("BotonModificar");
+            yield return EsperarEscena("Mision");
+            yield return null;
+            Assert.IsTrue(Object.FindFirstObjectByType<MisionUI>().VistaActivaEsConfiguracion, "Modificar debe abrir Configuración");
+            CollectionAssert.AreEqual(elegidas, EstadoJuego.Configuracion.InstrumentoIds, "Modificar debe conservar los instrumentos");
+            Assert.AreEqual(orbita, EstadoJuego.Configuracion.OrbitaId);
+            Assert.AreEqual(lanzador, EstadoJuego.Configuracion.LanzadorId);
+        }
+
+        static IEnumerator EsperarEscena(string nombre)
+        {
+            int cuadros = 0;
+            while (SceneManager.GetActiveScene().name != nombre && cuadros++ < MaxCuadros) yield return null;
+            Assert.AreEqual(nombre, SceneManager.GetActiveScene().name, "No se cargó la escena " + nombre);
+            yield return null; // deja correr Awake y Start
+        }
+
+        static UnityEngine.UI.Button Boton(string nombre)
+        {
+            var go = GameObject.Find(nombre);
+            Assert.IsNotNull(go, "No se encontró el botón activo " + nombre);
+            return go.GetComponent<UnityEngine.UI.Button>();
+        }
+
+        static void Pulsar(string nombre)
+        {
+            var boton = Boton(nombre);
+            Assert.IsTrue(boton.interactable, nombre + " no está habilitado");
+            boton.onClick.Invoke();
+        }
+
+        static void PulsarOpcion(string texto)
+        {
+            var lista = GameObject.Find("ListaOpciones");
+            Assert.IsNotNull(lista, "No hay lista de opciones visible");
+            var boton = lista.GetComponentsInChildren<UnityEngine.UI.Button>()
+                .FirstOrDefault(b => b.name != "PlantillaOpcion" && b.GetComponentInChildren<TMP_Text>().text.Contains(texto));
+            Assert.IsNotNull(boton, "No hay opción con el texto " + texto);
+            boton.onClick.Invoke();
+        }
+    }
+}

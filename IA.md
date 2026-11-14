@@ -59,3 +59,9 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Los títulos y textos de las tres conclusiones se extrajeron con un script del diseño del equipo, sin reescribirlos; se añadió el punto final de la frase, que en el documento va fuera de las comillas.
 - Amplió el constructor con la vista Investigación y la escena Resultado. Dejó de reconstruir la escena Menu, que pasa a editarse a mano (ver `GUIA-INTERFAZ.md`, que también escribió).
 - Escribió 13 pruebas: transmisiones de los casos 1 a 6 en orden, caso 7 sin Investigación, F1, PM2, escena Resultado sin «Nueva misión» ni puntos, y «Modificar mi misión». Pasan las 112 pruebas en el primer intento.
+
+## Fase 8: pruebas finales
+
+- Escribió pruebas PlayMode que recorren el juego en modo Play pulsando los botones reales para los 19 casos de la tabla; los casos se generaron con un script desde la tabla del diseño.
+- Corrió las pruebas en una copia del proyecto, porque el editor estaba abierto con el trabajo de Diego: 112 EditMode y 19 PlayMode, todas pasan.
+- Generó `INFORME-PRUEBAS.md` desde los resultados reales (líneas `[Misión]` obtenidas en el juego). Queda pendiente la revisión visual, que hace el equipo.
