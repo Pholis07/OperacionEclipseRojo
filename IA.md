@@ -228,3 +228,20 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - la atmósfera facetada,
   - el encuadre lejano.
 - Pasan las 136 pruebas EditMode y las 19 PlayMode. El detalle está en `ECLIPSE-IMPLEMENTACION.md`.
+
+## Gameplay versión 3, paso 6: interfaz básica, fusionada con la rama de Diego
+
+- Interfaz básica (Diego la estiliza):
+  - Pantalla de Carga entre Revisión y Lanzar. El botón de la Revisión ahora dice «Cargar la nave».
+  - En la Operación: altitud y combustible, memoria con la cuenta para la ventana de contacto, «Enviar» y «Esperar órbita», ventana de decisión con las respuestas del evento, y objetivos extra. Solo aparecen las herramientas que subieron.
+  - Los marcos cuadrados morados del mapa son la petición de la NASA.
+- Hueco del diseño que se encontró al probar: con la memoria llena y la ventana cerrada no había forma de avanzar. Se añadió `Operacion.Esperar()` (deja pasar una órbita sin escanear y sin eventos).
+- Objetivo imposible: «Terminar con 5 de combustible» ya no sale si la nave arranca con menos de 5.
+- Fusión con `feat/eclipse-cinematics-audio` (cinemática, investigación orbital 3D, satélites de NASA, audio):
+  - La cinemática de Diego ahora empieza con «Lanzar» de la Carga (`ConstruirCinematica` recibe el botón).
+  - La ventana de decisión espera a que terminen la cinemática y la vista 3D del escaneo.
+  - `AlEscanear` cuenta como «nueva» también la transmisión que queda en memoria.
+  - Se quitó `ConstruirEfectoLanzamiento`, porque Diego borró `EfectoLanzamiento`.
+- Aviso para Diego: «Construir escenas (sin Menu)» reescribe 3 materiales del Aquarius (`NASA_Sat_Aquarius_tex_01` acaba con la textura `shiny_panel_right_001`) y cambia la emisión de `Marcador_Orbita`, `Nave_Tobera` y `Plataforma_Resalte`. Se dejaron sus versiones de la rama y no se tocó `Resultado.unity`.
+- Verificado en el navegador a 1366x768 (build de 35.3 MB): Carga, cinemática con «Omitir», Operación, escaneos con la vista 3D, memoria llena y ventana de contacto. En esa prueba no salió ningún evento al azar, así que la ventana de decisión solo está probada en las pruebas automáticas.
+- Pasan las 198 pruebas EditMode y las 19 PlayMode (el recorrido ahora pasa por la Carga, responde eventos y envía a la Tierra).

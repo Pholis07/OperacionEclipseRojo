@@ -340,13 +340,13 @@ namespace SpaceMission
             {
                 botonEnviar.gameObject.SetActive(Op.ConMemoria);
                 botonEnviar.interactable = !Op.Terminada && !Op.EsperandoDecision && Op.ContactoAbierto && Op.MemoriaUsada > 0;
-                botonEnviar.GetComponentInChildren<TMP_Text>().text = "Enviar a la Tierra (+" + Reglas.vatiosTransmisor + " W)";
+                botonEnviar.GetComponentInChildren<TMP_Text>().text = "Enviar (+" + Reglas.vatiosTransmisor + " W)";
             }
             if (botonEsperar != null)
             {
                 botonEsperar.gameObject.SetActive(Op.ConMemoria);
                 botonEsperar.interactable = !Op.Terminada && !Op.EsperandoDecision;
-                botonEsperar.GetComponentInChildren<TMP_Text>().text = "Esperar 1 órbita";
+                botonEsperar.GetComponentInChildren<TMP_Text>().text = "Esperar órbita";
             }
             if (textoObjetivos != null)
             {

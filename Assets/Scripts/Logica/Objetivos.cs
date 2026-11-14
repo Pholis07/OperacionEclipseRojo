@@ -6,8 +6,10 @@ namespace SpaceMission
     /// <summary>Objetivos secundarios (PROPUESTA-GAMEPLAY.md v3): elegirlos al azar y saber si se cumplieron.</summary>
     public static class Objetivos
     {
-        public static List<ObjetivoDatos> Elegir(CatalogoDatos catalogo, System.Random azar) =>
-            catalogo.objetivos.OrderBy(_ => azar.Next())
+        /// <param name="combustibleInicial">Sin él no salen objetivos de combustible imposibles (no se puede ganar combustible).</param>
+        public static List<ObjetivoDatos> Elegir(CatalogoDatos catalogo, System.Random azar, int combustibleInicial = int.MaxValue) =>
+            catalogo.objetivos.Where(o => o.tipo != TipoObjetivo.CombustibleMinimo || combustibleInicial >= o.valor)
+                .OrderBy(_ => azar.Next())
                 .Take(System.Math.Min(catalogo.reglas.objetivosPorMision, catalogo.objetivos.Count)).ToList();
 
         /// <summary>«Objetivos extra: Ningún apagón (cumplido), … (no cumplido).» Vacío si la misión no tiene objetivos.</summary>

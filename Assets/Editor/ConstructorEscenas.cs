@@ -657,6 +657,8 @@ public static partial class ConstructorEscenas
         Linea(tarjeta);
         var recursos = Texto(tarjeta, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         recursos.lineSpacing = 4;
+        var leRecursos = recursos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        leRecursos.minHeight = 170; leRecursos.preferredHeight = 170;
         Encabezado(tarjeta, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  HERRAMIENTAS");
         var lista = Columna(tarjeta, "ListaCarga", 8, TextAnchor.UpperLeft);
         lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
@@ -830,7 +832,7 @@ public static partial class ConstructorEscenas
         var filaEnvio = Fila(der, "FilaEnvio", 8);
         Alto(filaEnvio, 52);
         var enviar = BotonAccion(filaEnvio, "BotonEnviar", "Enviar a la Tierra");
-        enviar.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 2;
+        enviar.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
         var esperar = BotonAccion(filaEnvio, "BotonEsperar", "Esperar 1 órbita");
         esperar.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
         Encabezado(der, "EtiquetaEventos", SpaceMission.Iconos.Amarillo + "  EVENTOS DE LA NAVE");

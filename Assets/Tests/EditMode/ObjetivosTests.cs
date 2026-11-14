@@ -53,6 +53,16 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void NoSaleElObjetivoDeCombustibleSiNoSePuedeCumplir()
+        {
+            for (int semilla = 0; semilla < 30; semilla++)
+            {
+                var op = new Operacion(evaluacion, config, catalogo, null, semilla, new Carga(evaluacion, config, catalogo));   // 3 de combustible
+                Assert.IsFalse(op.Objetivos.Any(o => o.tipo == TipoObjetivo.CombustibleMinimo), "semilla " + semilla);
+            }
+        }
+
+        [Test]
         public void SinCargaNoHayObjetivosYLosPuntosNoCambian()
         {
             var op = new Operacion(evaluacion, config, catalogo, null, 1);

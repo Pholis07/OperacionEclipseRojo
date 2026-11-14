@@ -85,7 +85,7 @@ Cada paso deja el juego funcionando.
 
 # Versión 3: más decisiones (aprobada)
 
-Adrian pidió el 2026-11-14 misiones más interactivas, con más decisiones y mecánicas. Eligió las cuatro: eventos con decisiones, combustible y maniobras, memoria y envío a Tierra, y equipar herramientas con objetivos extra. Los números los propone Claude y viven en los datos. **Adrian la aprobó tal cual el 2026-11-14.** Avance: pasos 1 a 5 hechos.
+Adrian pidió el 2026-11-14 misiones más interactivas, con más decisiones y mecánicas. Eligió las cuatro: eventos con decisiones, combustible y maniobras, memoria y envío a Tierra, y equipar herramientas con objetivos extra. Los números los propone Claude y viven en los datos. **Adrian la aprobó tal cual el 2026-11-14.** Avance: pasos 1 a 6 hechos (con la rama de Diego fusionada en local).
 
 **Se mantiene el principio:** la categoría (victoria, parcial o fracaso) sigue saliendo solo de la configuración, y los 19 casos no cambian. Lo nuevo se calcula **después** de evaluar y solo usa lo que sobra (créditos y capacidad del lanzador).
 

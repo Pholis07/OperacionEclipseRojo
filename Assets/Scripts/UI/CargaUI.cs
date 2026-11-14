@@ -65,8 +65,8 @@ namespace SpaceMission
             filas.Clear();
 
             textoRecursos.text =
-                "Elige qué herramientas subes. La bodega tiene " + catalogo.reglas.espaciosBodega + " espacios y solo pagas con lo que te sobra.\n" +
-                "La capacidad del lanzador que quede libre se convierte en combustible (1 por cada " + catalogo.reglas.kgPorCombustible + " kg).\n\n" +
+                "Bodega de " + catalogo.reglas.espaciosBodega + " espacios. Pagas con lo que te sobra, y la masa libre se vuelve combustible (1 por cada " +
+                catalogo.reglas.kgPorCombustible + " kg).\n" +
                 "<b>Créditos disponibles:</b> " + TextosBriefing.Numero(Carga.CreditosDisponibles) +
                 "   <b>Masa libre:</b> " + Carga.MasaLibreKg + " kg" +
                 "   <b>Espacios libres:</b> " + Carga.EspaciosLibres +

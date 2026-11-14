@@ -114,7 +114,7 @@ namespace SpaceMission
             }
             ProgramarEventosAlAzar();
             // Los objetivos son de la v3: sin Carga no hay (y los puntos del modo anterior no cambian).
-            Objetivos = ConMemoria ? SpaceMission.Objetivos.Elegir(catalogo, azar) : new List<ObjetivoDatos>();
+            Objetivos = ConMemoria ? SpaceMission.Objetivos.Elegir(catalogo, azar, Combustible) : new List<ObjetivoDatos>();
         }
 
         // ---------- Energía ----------
