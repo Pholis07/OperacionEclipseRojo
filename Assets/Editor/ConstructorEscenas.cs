@@ -590,6 +590,9 @@ public static class ConstructorEscenas
         Asignar(mapa, "imagen", goMapa.GetComponent<UnityEngine.UI.RawImage>());
         Asignar(mapa, "capaMarcas", capaMarcas);
         Asignar(mapa, "texturaBase", ConstructorEstilo.Imagen("Texturas/Marte_Superficie"));
+        var soMapa = new SerializedObject(mapa);
+        soMapa.FindProperty("tamanoZona").floatValue = 0.25f;   // 512x512 píxeles de la foto de 2048x1024: casi 1:1 en pantalla
+        soMapa.ApplyModifiedPropertiesWithoutUndo();
 
         var cajaLectura = Columna(vista, "CajaLectura", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 20);
         Anclar(cajaLectura, new Vector2(0.31f, 0.03f), new Vector2(0.69f, 0.185f));

@@ -42,6 +42,7 @@ Descargadas del repositorio de Google Fonts (github.com/google/fonts).
 
 Hechos para este juego, sin licencias de terceros:
 - **Generados por `Herramientas/arte.py`:** el cielo de estrellas (`Texturas/Estrellas.png`), la lámina dorada y las celdas solares de la nave, y los sprites de interfaz (`Interfaz/*`: chaflanes, círculo, halo, segmentos y barrido).
+- **Generado por `Herramientas/favicon.py`:** el icono de la pestaña del navegador (`Assets/WebGLTemplates/PantallaCompleta/TemplateData/favicon.png`), Marte con la sombra de un eclipse. Se genera con `python3 -I Herramientas/favicon.py <ruta de salida>`.
 - **Generados por código en el constructor:** la nave, el shader de atmósfera y las mallas de `Assets/Arte/Mallas`.
 
 ## Audio
