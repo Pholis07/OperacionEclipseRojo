@@ -266,3 +266,9 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - En el nivel 3 (8 órbitas), la última ventana de contacto cae justo cuando se acaban las órbitas, así que lo que se encuentre después de la órbita 5 llega con baja calidad. Es la tensión que busca el diseño, pero conviene que Adrian decida si se deja así.
   - Con un evento en pausa, el texto del evento sale dos veces (en la ventana y en el panel derecho).
 - Pasan las 198 pruebas EditMode y las 19 PlayMode. Build de 35.3 MB sin errores.
+
+## Gameplay versión 3: decisiones de Adrian tras el paso 7
+
+- **La última órbita siempre tiene ventana de contacto.** `OrbitasParaContacto` toma la menor entre la ventana normal y las órbitas que faltan para la última. Así, lo que se encuentra al final ya no se pierde solo por el calendario. En el nivel 3, lo de la órbita 6 ahora se puede enviar en la última.
+- **Sin texto duplicado:** con un evento en pausa, el panel derecho muestra solo el nombre y «Control de Misión espera tu decisión». El texto completo queda en la ventana de decisión. Verificado en el navegador con una «Ventana despejada».
+- 2 pruebas nuevas en `MemoriaTests.cs`. Pasan las 200 pruebas EditMode y las 19 PlayMode. Build de 35.3 MB sin errores.

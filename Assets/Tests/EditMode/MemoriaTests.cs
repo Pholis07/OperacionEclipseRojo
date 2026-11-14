@@ -152,6 +152,42 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void LaUltimaOrbitaSiempreTieneVentanaDeContacto()
+        {
+            var op = Caso2();   // 10 órbitas: ventanas normales con 8, 5 y 2 órbitas restantes
+            op.Escanear("termica", Centro);
+            for (int i = 0; i < 7; i++) op.Esperar();   // quedan 2 órbitas: ventana normal
+            Assert.IsTrue(op.ContactoAbierto);
+            op.Esperar();                               // queda 1: es la última
+            Assert.AreEqual(1, op.Orbitas);
+            Assert.IsTrue(op.ContactoAbierto, "la última órbita siempre tiene contacto");
+            Assert.IsTrue(op.Enviar());
+            CollectionAssert.IsEmpty(op.BajaCalidad);
+        }
+
+        [Test]
+        public void EnElNivel3LoDeLaOrbita6SePuedeEnviarEnLaUltima()
+        {
+            var c = new Configuracion("media", "explorador", new[] { "termica", "radar" });
+            var nivel = catalogo.Nivel(2);   // 8 órbitas: la ventana normal de la órbita 8 cae cuando ya no quedan
+            var e = Evaluador.Evaluar(c, catalogo, nivel);
+            var op = new Operacion(e, c, catalogo, nivel, 1, new Carga(e, c, catalogo, nivel));
+            op.ProgramarEventos(new EventoDatos[0], new int[0]);
+            op.PonerAnomalia(Centro);
+            op.Encender("termica");
+            for (int i = 0; i < 6; i++)
+            {
+                Assert.IsNotNull(op.Escanear("termica", i == 5 ? Centro : Lejos));
+                if (op.ContactoAbierto && i < 5) Assert.IsTrue(op.Enviar());   // ventanas normales de las órbitas 2 y 5
+            }
+            Assert.AreEqual(2, op.Orbitas);
+            Assert.AreEqual(1, op.OrbitasParaContacto, "antes: 2");
+            op.Esperar();
+            Assert.IsTrue(op.Enviar());
+            CollectionAssert.Contains(op.Recibidas, "TX-01");
+        }
+
+        [Test]
         public void AbrirContactoAbreLaVentanaSoloEstaOrbita()
         {
             var op = Caso2();

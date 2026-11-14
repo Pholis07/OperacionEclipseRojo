@@ -176,7 +176,9 @@ namespace SpaceMission
             if (Op.EnMemoria.Count > enMemoria) textoLectura.text += " Los datos quedan en la memoria hasta que los envíes.";
             if (Op.Recibidas.Count > recibidas) MostrarTransmision(Op.Recibidas.Last());
             if (Op.Eventos.Count > eventos) MostrarEvento(Op.UltimoEvento);
-            if (Op.EsperandoDecision && Op.UltimoEvento != ultimoEvento) MostrarEvento(Op.UltimoEvento);
+            // El texto completo del evento va en la ventana de decisión: aquí solo el nombre, sin repetirlo.
+            if (Op.EsperandoDecision && Op.UltimoEvento != ultimoEvento)
+                textoEvento.text = "<b><color=#EAB308>" + Op.UltimoEvento.Datos.nombre + "</color></b>\nControl de Misión espera tu decisión.";
             if (Op.Apagones > apagones) textoLectura.text += "\n" + MensajeApagon();
             if (Op.Terminada) textoLectura.text += "\nSe acabaron las órbitas: lo que falte llegará con baja calidad.";
             Refrescar();

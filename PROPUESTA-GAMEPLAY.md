@@ -116,7 +116,7 @@ Adrian pidió el 2026-11-14 misiones más interactivas, con más decisiones y me
 
 - La memoria de la nave guarda **4 bloques** en el nivel 1, **3** en el 2 y **3** en el 3. Cada escaneo ocupa 1 bloque. Si está llena, no puedes escanear.
 - Una transmisión encontrada **no cuenta como recibida hasta que se envía**. Mientras tanto queda «en memoria».
-- Solo puedes **enviar** durante una **ventana de contacto con la Tierra**, que se abre 1 órbita de cada 3; la pantalla avisa cuántas faltan. Enviar vacía la memoria y no gasta órbita. Mientras tanto el transmisor consume **150 W**, así que muchas veces hay que apagar instrumentos para no provocar un apagón.
+- Solo puedes **enviar** durante una **ventana de contacto con la Tierra**, que se abre 1 órbita de cada 3 y siempre en la última órbita (cambio de Adrian del 2026-11-14); la pantalla avisa cuántas faltan. Enviar vacía la memoria y no gasta órbita. Mientras tanto el transmisor consume **150 W**, así que muchas veces hay que apagar instrumentos para no provocar un apagón.
 - Lo que siga en memoria al terminar llega con baja calidad (−100 por transmisión, como ahora).
 
 ## 4. Eventos con decisiones

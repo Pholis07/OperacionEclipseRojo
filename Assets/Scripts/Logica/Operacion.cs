@@ -266,11 +266,14 @@ namespace SpaceMission
         // ---------- Memoria y envío a Tierra ----------
 
         /// <summary>La ventana de contacto con la Tierra está abierta en esta órbita.</summary>
-        public bool ContactoAbierto => contactoForzado || OrbitasParaContacto == 0;
+        public bool ContactoAbierto => OrbitasParaContacto == 0;
 
-        /// <summary>Órbitas que faltan para la próxima ventana de contacto (0 = abierta ahora).</summary>
+        /// <summary>
+        /// Órbitas que faltan para la próxima ventana de contacto (0 = abierta ahora). Se abre 1 órbita de cada
+        /// «cicloContacto» y, además, siempre en la última órbita, para poder enviar lo que quede en memoria.
+        /// </summary>
         public int OrbitasParaContacto => contactoForzado ? 0
-            : reglas.cicloContacto - 1 - OrbitasTranscurridas % reglas.cicloContacto;
+            : System.Math.Min(reglas.cicloContacto - 1 - OrbitasTranscurridas % reglas.cicloContacto, System.Math.Max(0, Orbitas - 1));
 
         /// <summary>
         /// Deja pasar una órbita sin escanear (por ejemplo, con la memoria llena hasta la próxima ventana).
