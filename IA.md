@@ -73,3 +73,31 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Constructor: piezas HUD nuevas (marco fino con escuadra de acento, etiquetas subrayadas, botones secundarios con marco), barra de pasos en el Briefing y «PASO n DE 4» en las demás vistas, paneles translúcidos y suelo con rejilla bajo la nave. La textura de la rejilla se genera por código.
 - Revisó el resultado con capturas generadas en modo batch con un script temporal, que borró después. Las capturas mostraron tres fallos, que corrigió: la nave tapada por los paneles (se redujo en Mision), la pestaña «Instrumentos» partida en dos líneas (tamaño automático de 30 a 24 pt) y la luz del semáforo estirada (las filas de alto fijo ya no crecen).
 - Actualizó `GUIA-INTERFAZ.md`. Pasan las 112 pruebas.
+
+## Fase de arte: fuentes, fotos de NASA, nave, movimiento y audio preparado (con Diego)
+
+- Diego eligió la dirección (referencias de Starfield y Vehicle Designer, fotos reales de NASA, audio con ElevenLabs) y pidió mejorar la nave, los fondos, la tipografía y el movimiento.
+- Descargó imágenes de la NASA Image and Video Library y las procesó con `Herramientas/arte.py`:
+  - Rellenó los huecos del mapa global de Marte.
+  - Aplicó una paleta térmica a la tira de THEMIS.
+  - Oscureció y entintó los fondos.
+  - Los créditos están en `CREDITOS.md` y en pantalla.
+- Añadió fuentes OFL (Rajdhani, Barlow e IBM Plex Mono) e iconos de Lucide (ISC) como fuentes TextMeshPro de atlas fijo (`ConstructorEstilo`).
+- Rehízo el constructor de escenas sin cambiar la lógica:
+  - Botones con chaflán, opciones como tarjetas con iconos y datos, y barras segmentadas en cian.
+  - Semáforo redondo con halo.
+  - Fondos con foto, miniatura de la región en el Briefing e imagen real de cada instrumento en la Investigación.
+  - Estrellas, Marte texturizado con atmósfera (shader propio) y anillo de la órbita elegida.
+  - Nave nueva de primitivas y mallas propias, con materiales PBR, luces y posprocesado.
+- Añadió animaciones que solo cambian alfa, escala o posición, para que las pruebas PlayMode sigan pulsando los botones al instante:
+  - Entrada de vistas y respuesta de los botones.
+  - Barras, latido del semáforo e instalación de módulos.
+  - Máquina de escribir, destello de lanzamiento y pantalla de título.
+- Añadió Opciones (volúmenes y «Reducir movimiento») y dejó listo el audio. Los archivos y las indicaciones para ElevenLabs están en `AUDIO-ELEVENLABS.md` y faltan por generar.
+- Como el editor de Diego estaba abierto, construyó, capturó y probó en una copia del proyecto, y trajo las escenas y los recursos generados.
+- Fallos encontrados y corregidos:
+  - `.meta` mínimos que Unity importó como Cubemap.
+  - Una prueba que exige el texto exacto «Modificar mi misión».
+  - El panel de Opciones visible en la escena.
+  - La caja de ayuda desbordada.
+- Pasan las 112 pruebas EditMode y las 19 PlayMode.

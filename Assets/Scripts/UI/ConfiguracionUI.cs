@@ -39,7 +39,7 @@ namespace SpaceMission
         static readonly Color ColorNormal = new Color32(0x2A, 0x2A, 0x31, 0xFF);
         static readonly Color ColorPestanaActiva = new Color32(0xE2, 0x64, 0x3A, 0xFF);
         static readonly Color ColorExcedida = new Color32(0xEF, 0x44, 0x44, 0xFF);
-        static readonly Color ColorBarra = new Color32(0x94, 0xA3, 0xB8, 0xFF);
+        static readonly Color ColorBarra = new Color32(0x5E, 0xC8, 0xE5, 0xFF); // cian: los datos van en cian
 
         readonly List<GameObject> opciones = new List<GameObject>();
         bool inicializada;
@@ -142,7 +142,9 @@ namespace SpaceMission
             var boton = Instantiate(plantillaOpcion, listaOpciones);
             boton.gameObject.SetActive(true);
             boton.GetComponent<UnityEngine.UI.Image>().color = elegida ? ColorElegida : ColorNormal;
-            boton.GetComponentInChildren<TMP_Text>().text = (elegida ? "• " : "") + texto;
+            // Casilla de la tarjeta: marcada y en color de acento si está elegida.
+            boton.GetComponentInChildren<TMP_Text>().text =
+                (elegida ? "<color=#E2643A>" + Iconos.Elegido : "<color=#64748B>" + Iconos.SinElegir) + "</color>" + texto;
             boton.onClick.AddListener(alPulsar);
             opciones.Add(boton.gameObject);
         }

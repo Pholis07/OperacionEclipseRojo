@@ -59,24 +59,41 @@ namespace SpaceMission
 
         // ---------- Opciones y ayuda ----------
 
-        public static string TextoOpcion(OrbitaDatos o) => o.nombre + "  ·  " + o.costoCr + " cr";
+        // Las opciones son tarjetas de dos líneas: nombre arriba y «chips» de datos con icono abajo.
+        // La casilla (elegida o no) la antepone ConfiguracionUI.
+        const string Cian = "#5EC8E5";
+
+        static string Chip(string icono, string valor) => "<color=" + Cian + ">" + icono + "</color> " + valor;
+
+        static string Tarjeta(string icono, string nombre, params string[] chips) =>
+            "<indent=1.5em><color=" + Cian + ">" + icono + "</color> <b>" + nombre + "</b>\n" +
+            "<size=89%><color=#94A3B8>" + string.Join("     ", chips) + "</color></size></indent>";
+
+        public static string TextoOpcion(OrbitaDatos o) =>
+            Tarjeta(Iconos.Orbita, o.nombre, Chip(Iconos.Costo, TextosBriefing.Numero(o.costoCr) + " cr"));
 
         public static string TextoOpcion(LanzadorDatos l) =>
-            l.nombre + "  ·  " + l.costoCr + " cr  ·  " + l.capacidadKg + " kg  ·  " + l.espacios + " espacios";
+            Tarjeta(Iconos.Lanzador, l.nombre, Chip(Iconos.Costo, TextosBriefing.Numero(l.costoCr) + " cr"),
+                Chip(Iconos.Masa, TextosBriefing.Numero(l.capacidadKg) + " kg"), Chip(Iconos.Espacios, l.espacios + " espacios"));
 
         public static string TextoOpcion(InstrumentoDatos i) =>
-            i.nombre + "  ·  " + i.masaKg + " kg  ·  " + i.ConsumoTotalW + " W  ·  " + i.costoCr + " cr";
+            Tarjeta(Iconos.DeInstrumento(i.id), i.nombre, Chip(Iconos.Masa, i.masaKg + " kg"),
+                Chip(Iconos.Potencia, i.ConsumoTotalW + " W"), Chip(Iconos.Costo, i.costoCr + " cr"));
+
+        static string Dato(string icono, string nombre, string valor) =>
+            "\n<color=" + Cian + ">" + icono + "</color> <b>" + nombre + ":</b> " + valor;
 
         public static string Ayuda(OrbitaDatos o) =>
             "<b>" + o.nombre + "</b>\n" + o.descripcionBreve + "\n<b>Ventaja:</b> " + o.ventaja +
-            "\n<b>Limitación:</b> " + o.limitacion + "\n<b>Costo:</b> " + o.costoCr + " créditos";
+            "\n<b>Limitación:</b> " + o.limitacion + Dato(Iconos.Costo, "Costo", o.costoCr + " créditos");
 
         public static string Ayuda(LanzadorDatos l) =>
-            "<b>" + l.nombre + "</b>\n" + l.descripcion + "\n<b>Costo:</b> " + l.costoCr + " créditos" +
-            "\n<b>Masa máxima:</b> " + TextosBriefing.Numero(l.capacidadKg) + " kg\n<b>Espacios:</b> " + l.espacios;
+            "<b>" + l.nombre + "</b>\n" + l.descripcion + Dato(Iconos.Costo, "Costo", l.costoCr + " créditos") +
+            Dato(Iconos.Masa, "Masa máxima", TextosBriefing.Numero(l.capacidadKg) + " kg") + Dato(Iconos.Espacios, "Espacios", l.espacios.ToString());
 
         public static string Ayuda(InstrumentoDatos i) =>
-            "<b>" + i.nombre + "</b>\n" + i.textoAyuda + "\n<b>Masa:</b> " + i.masaKg + " kg\n<b>Costo:</b> " + i.costoCr + " créditos";
+            "<b>" + i.nombre + "</b>\n" + i.textoAyuda + Dato(Iconos.Masa, "Masa", i.masaKg + " kg") +
+            Dato(Iconos.Costo, "Costo", i.costoCr + " créditos");
 
         // ---------- Revisión ----------
 

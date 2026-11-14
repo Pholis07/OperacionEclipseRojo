@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6181664982646f8aefea61065c99708, type: 3}
+  m_Name: Arte
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.ArteDatos
+  evidencias:
+  - instrumentoId: termica
+    imagen: {fileID: 2800000, guid: 49674538e3dc45be97f3d651550a1e62, type: 3}
+    credito: "NASA/JPL/Arizona State University (THEMIS, Mars Odyssey). Infrarrojo nocturno; colores a\xF1adidos."
+  - instrumentoId: radar
+    imagen: {fileID: 2800000, guid: 06489910e6cd4651ab67b74ee390f844, type: 3}
+    credito: NASA/JPL-Caltech/ASI/University of Rome/PSI/Smithsonian Institution (SHARAD, MRO).
+  - instrumentoId: alta_res
+    imagen: {fileID: 2800000, guid: ce701848913b47cd87a886c04a1c0066, type: 3}
+    credito: NASA/JPL-Caltech/Univ. of Arizona (HiRISE, MRO).
+  - instrumentoId: espectrometro
+    imagen: {fileID: 2800000, guid: cc1e44e63b3d4bbf8605371eb32e72e3, type: 3}
+    credito: NASA/JPL-Caltech/UA/JHUAPL (CRISM y HiRISE, MRO).
+  - instrumentoId: atmosferico
+    imagen: {fileID: 2800000, guid: 18fdbfcf2ca644ce9cf62b10f743a91f, type: 3}
+    credito: NASA/JPL-Caltech/MSSS (MARCI, MRO).
+  imagenMision: {fileID: 2800000, guid: 20ca32957e974b3faf35c0191a9ec4af, type: 3}
+  creditoMision: NASA/JPL-Caltech/MSSS (MARCI, MRO). Tormenta global de 2018.
+  musicaMenu: {fileID: 0}
+  musicaConfiguracion: {fileID: 0}
+  musicaInvestigacion: {fileID: 0}
+  musicaVictoria: {fileID: 0}
+  musicaParcial: {fileID: 0}
+  musicaFracaso: {fileID: 0}
+  ambienteTormenta: {fileID: 0}
+  hover: {fileID: 0}
+  click: {fileID: 0}
+  elegir: {fileID: 0}
+  quitar: {fileID: 0}
+  pestana: {fileID: 0}
+  error: {fileID: 0}
+  luzVerde: {fileID: 0}
+  luzRoja: {fileID: 0}
+  lanzamiento: {fileID: 0}
+  senal: {fileID: 0}
+  voces: []
