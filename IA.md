@@ -122,3 +122,9 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Arreglos que hizo después de la revisión: plantilla web propia a pantalla completa (la de Unity fijaba 1920x1080 y se cortaba en pantallas pequeñas), retiro del paquete Sentis (rompía el build WebGL y no se usa), resolución de render al 100 % en WebGL (con 0.8 se activaba un escalado que desactivaba el postprocesado), mapa de la Operación con la foto de Marte de NASA que ya estaba en el proyecto, y el pie de «Vista de la nave», que se salía de su caja.
 - El disco donde estaba el proyecto quedó marcado como sucio tras un reinicio; lo montó en solo lectura y copió el proyecto a `~/Projects/OperacionEclipseRojo` antes de comitear.
 - Corrigió el mapa de la Operación: recortaba una zona que no era cuadrada en píxeles (la foto es 2:1) y se estiraba; ahora muestra 512x512 píxeles de la foto, casi 1:1. Generó un favicon propio con `Herramientas/favicon.py` (Marte con la sombra de un eclipse) y lo enlazó en la plantilla web. Verificó el build a 1366x768 en Chromium: no se corta nada y la consola no tiene errores.
+
+## Fase 9: build y publicación
+
+- Creó `LICENSE` con la licencia MIT, que eligió el equipo, y completó `CREDITOS.md` con la licencia del proyecto y la nota del runtime de Unity.
+- Escribió `PUBLICAR.md` y `Herramientas/preparar-pages.sh`, que prepara la rama local `gh-pages` con el build sin hacer push. Lo probó: la rama local quedó con el build y no se publicó nada.
+- Actualizó el README con cómo se juega, las pruebas, la publicación, los documentos y la licencia.

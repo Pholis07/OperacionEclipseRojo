@@ -15,8 +15,34 @@ Los valores del juego son ficticios: no son capacidades ni precios oficiales de 
 - `Assets/Scripts/Datos`, `Logica`, `UI`: código del juego (assembly `SpaceMission`).
 - `Assets/Datos`: ScriptableObjects con los valores.
 - `Assets/Escenas`: `Menu`, `Mision` y `Resultado`.
-- `Assets/Tests/EditMode`: pruebas (assembly `SpaceMission.Tests`).
+- `Assets/Tests/EditMode` y `Assets/Tests/PlayMode`: pruebas.
+- `Assets/WebGLTemplates/PantallaCompleta`: plantilla web del build.
+- `Herramientas/`: scripts (arte, favicon y preparación de GitHub Pages).
+- `respaldo-nginx/`: respaldo local con Podman.
 
-## Estado
+## Cómo se juega
 
-En construcción. Las fases se registran en `IA.md`.
+1. **Briefing:** lees el objetivo y los requisitos, y eliges el nivel (Entrenamiento, Misión estándar o Tormenta severa).
+2. **Configuración y revisión:** eliges órbita, lanzador e instrumentos. El semáforo avisa si te pasas de un límite o si te falta evidencia.
+3. **Operación:** enciendes instrumentos sin pasarte de la energía, escaneas el mapa de Marte para encontrar la anomalía y resuelves los eventos de la nave con sus herramientas. Si la nave se apaga, pierdes tiempo y créditos.
+4. **Informe:** conclusión, evidencias, recursos usados y puntos.
+
+## Pruebas
+
+En Unity: Window > General > Test Runner, pestañas EditMode y PlayMode, «Run All». El último resultado está en `INFORME-PRUEBAS.md`.
+
+## Publicar
+
+Ver `PUBLICAR.md` (build WebGL, respaldo con nginx en Podman y GitHub Pages).
+
+## Documentos
+
+- `PROPUESTA-GAMEPLAY.md`: reglas de la fase de Operación, niveles y puntos.
+- `GUIA-INTERFAZ.md`: cómo cambiar las pantallas.
+- `CREDITOS.md`: recursos de terceros y sus licencias.
+- `IA.md`: uso de herramientas de IA en el proyecto.
+- `AUDIO-ELEVENLABS.md`: audio pendiente.
+
+## Licencia
+
+MIT (ver `LICENSE`) para el código y los recursos propios. Los recursos de terceros conservan su licencia (ver `CREDITOS.md`).

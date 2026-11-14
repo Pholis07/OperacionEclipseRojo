@@ -2,6 +2,16 @@
 
 Todo recurso externo del juego tiene que estar en esta lista con su fuente y su licencia. Si añades una imagen, fuente, icono o sonido, anótalo aquí en el mismo commit.
 
+## Licencia del proyecto
+
+El código y los recursos propios del juego tienen licencia MIT (ver `LICENSE`). Los recursos de terceros de esta lista conservan su propia licencia, indicada en cada fila.
+
+## Motor
+
+El build WebGL incluye el runtime de Unity 6000.6.9f1, que no es de código abierto: se distribuye según los términos de Unity (Unity Personal). Está pendiente confirmar con los organizadores si cuenta como material de terceros según los términos de participación.
+
+## Uso de imágenes de NASA
+
 El juego no usa el logo ni la insignia de NASA: sus normas de uso de imágenes no permiten dar a entender que NASA respalda el proyecto. Las imágenes de NASA/JPL son de uso libre con crédito.
 
 ## Imágenes de Marte (NASA)
