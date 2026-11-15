@@ -44,6 +44,7 @@ namespace SpaceMission
 
             CrearPantallaCompleta();
             CrearContornos();
+            foreach (var casilla in panel.GetComponentsInChildren<UnityEngine.UI.Toggle>(true)) ArreglarMarca(casilla);
             botonAbrir.onClick.AddListener(() => Mostrar(true));
             botonCerrar.onClick.AddListener(() => Mostrar(false));
         }
@@ -65,6 +66,20 @@ namespace SpaceMission
             if (etiqueta != null) etiqueta.text = "Full screen";   // TraductorEscena lo pasa al español
             pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);
             pantallaCompleta.onValueChanged.AddListener(v => Screen.fullScreen = v);
+        }
+
+        /// <summary>
+        /// Versión 8: la marca de las casillas tenía tamaño negativo (anclada a un punto con −12 de tamaño) y no se
+        /// veía nunca, estuviera marcada o no. Se estira dentro de su caja con un margen.
+        /// </summary>
+        static void ArreglarMarca(UnityEngine.UI.Toggle casilla)
+        {
+            if (casilla == null || casilla.graphic == null) return;
+            var marca = casilla.graphic.rectTransform;
+            marca.anchorMin = Vector2.zero;
+            marca.anchorMax = Vector2.one;
+            marca.offsetMin = new Vector2(7f, 7f);
+            marca.offsetMax = new Vector2(-7f, -7f);
         }
 
         UnityEngine.UI.Toggle contornos;
