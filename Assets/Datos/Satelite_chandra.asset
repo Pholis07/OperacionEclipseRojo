@@ -23,13 +23,13 @@ MonoBehaviour:
   costoCr: 30
   masaKg: 40
   ventaja: 'Very precise pointing: loss of orientation does not affect it, and the thermal and high-resolution cameras read 20% farther.'
-  desventaja: 'Very heavy: its 40 kg cost 4 fuel.'
+  desventaja: 'Very heavy (40 kg cost 4 fuel) and only 1.8 Gb on board, like the real Chandra: -1 memory block.'
   instrumentosConAlcance:
   - termica
   - alta_res
   factorAlcance: 1.2
   combustiblePorCambioAltitud: -1
-  memoriaExtra: 0
+  memoriaExtra: -1
   inmuneOrientacion: 1
   inmuneTormenta: 0
   consumoExtraW: 0

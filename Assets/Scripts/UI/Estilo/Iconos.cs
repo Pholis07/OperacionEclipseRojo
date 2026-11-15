@@ -30,12 +30,15 @@ namespace SpaceMission
         public const string Microscopio = "\ue2e4";      // microscope
         public const string Mira = "\ue0ac";             // crosshair
         public const string Omitir = "\ue160";           // skip-forward
+        public const string Sube = "\ue04a";             // arrow-up: buff (versión 5)
+        public const string Baja = "\ue042";             // arrow-down: debuff
+        public const string Pista = "\ue1c2";            // lightbulb: guía del siguiente paso
         public const string Atras = "";       // arrow-left
 
         /// <summary>Todos los iconos, para generar el atlas de la fuente.</summary>
         public static readonly string Todos = Masa + Potencia + Costo + Espacios + Orbita + Lanzador + Instrumentos +
             Elegido + SinElegir + Gris + Rojo + Amarillo + Verde + Senal + Objetivo + Informe + Ajustes + Volumen +
-            Siguiente + Atras + Microscopio + Mira + Omitir + "";
+            Siguiente + Atras + Microscopio + Mira + Omitir + Sube + Baja + Pista + "";
 
         public static string DeInstrumento(string id)
         {

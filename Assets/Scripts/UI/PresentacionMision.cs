@@ -98,8 +98,8 @@ namespace SpaceMission
             "\n<color=" + Cian + ">" + icono + "</color> <b>" + nombre + ":</b> " + valor;
 
         public static string Ayuda(OrbitaDatos o) =>
-            "<b>" + o.nombre + "</b>\n" + o.descripcionBreve + "\n<b>Advantage:</b> " + o.ventaja +
-            "\n<b>Limitation:</b> " + o.limitacion + Dato(Iconos.Costo, "Cost", o.costoCr + " credits") + Nasa(o.datoNasa, o.fuenteNasa);
+            "<b>" + o.nombre + "</b>\n" + o.descripcionBreve +
+            Modificador(new SpaceMission.Modificador(true, o.ventaja)) + Modificador(new SpaceMission.Modificador(false, o.limitacion)) + Dato(Iconos.Costo, "Cost", o.costoCr + " credits") + Nasa(o.datoNasa, o.fuenteNasa);
 
         public static string Ayuda(LanzadorDatos l) =>
             "<b>" + l.nombre + "</b>\n" + l.descripcion + Dato(Iconos.Costo, "Cost", l.costoCr + " credits") +
@@ -112,8 +112,27 @@ namespace SpaceMission
             Nasa(i.datoNasa, i.fuenteNasa);
 
         public static string Ayuda(SateliteDatos s) =>
-            "<b>" + s.nombre + "</b>\n" + s.descripcion + Dato(Iconos.Informe, "Based on", s.inspiradoEn) + Nasa(s.datoNasa, s.fuenteNasa) +
-            "\n<size=85%><color=#94A3B8>" + s.credito + ". Advantage and drawback: see Cargo.</color></size>";
+            // Versión 5: primero lo que cambia en el juego (flechas), después el dato real. La lista ya dice en qué misión se basa.
+            "<b>" + s.nombre + "</b>" +
+            (catalogoActual != null ? Modificadores(SpaceMission.Modificadores.DeSatelite(s, catalogoActual)) : "") +
+            Nasa(s.datoNasa, s.fuenteNasa) + "\n<size=80%><color=#94A3B8>" + s.credito + ".</color></size>";
+
+        /// <summary>Catálogo para calcular los modificadores del satélite en su ayuda. Lo fija ConfiguracionUI.</summary>
+        public static CatalogoDatos catalogoActual;
+
+        public const string ColorBuff = "#22C55E", ColorDebuff = "#EF4444";
+
+        /// <summary>Un buff (flecha arriba, verde) o un debuff (flecha abajo, rojo): se distinguen por icono y color.</summary>
+        public static string Modificador(SpaceMission.Modificador m) =>
+            "\n<color=" + (m.Positivo ? ColorBuff : ColorDebuff) + ">" + (m.Positivo ? Iconos.Sube : Iconos.Baja) + " " + m.Texto + "</color>";
+
+        /// <summary>Lista de modificadores; los buffs primero. Sin ninguno: «sin ventajas ni desventajas».</summary>
+        public static string Modificadores(System.Collections.Generic.List<SpaceMission.Modificador> l)
+        {
+            if (l == null) return "";
+            if (l.Count == 0) return "\n<color=#94A3B8>No advantages or drawbacks: the reference spacecraft.</color>";
+            return string.Concat(l.OrderBy(m => m.Positivo ? 0 : 1).Select(Modificador));
+        }
 
         /// <summary>El dato real de la NASA en que se basa la opción, en color de datos y con su fuente.</summary>
         public static string Nasa(string dato, string fuente) =>

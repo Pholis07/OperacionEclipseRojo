@@ -60,6 +60,7 @@ namespace SpaceMission.Tests
             CollectionAssert.AreEqual(new[] { "termica", "alta_res" }, S("chandra").instrumentosConAlcance);
             Assert.AreEqual(1.2f, S("chandra").factorAlcance);
             Assert.IsTrue(S("chandra").inmuneOrientacion);
+            Assert.AreEqual(-1, S("chandra").memoriaExtra, "versión 5: 1.8 Gb a bordo frente a 160 Gb del MRO");
 
             Assert.AreEqual(1, S("aquarius").memoriaExtra);
             Assert.IsTrue(S("aquarius").inmuneTormenta);

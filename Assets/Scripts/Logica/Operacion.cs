@@ -39,6 +39,8 @@ namespace SpaceMission
         public string Motivo;        // por qué no se resolvió (solo si no es válido)
         public int Mes;
         public int DiasUtiles;
+        /// <summary>Factores de la calidad de este mes: base × días/30 × tormenta × altitud (para el resumen).</summary>
+        public float CalidadBase, FactorTormenta = 1f, FactorAltitud = 1f;
         public bool Maniobra;
         public Altitud Altitud;
         public int CreditosGastados;
@@ -96,6 +98,11 @@ namespace SpaceMission
         public int Combustible { get; private set; }
         public Altitud Altitud { get; private set; }
         public int SubidasForzadas { get; private set; }
+
+        /// <summary>Lo que ya se sabe del mes siguiente (para mostrar los modificadores activos).</summary>
+        public bool SinLecturaProxima => sinLecturaProxima;
+        public bool CalidadReducidaProxima => calidadReducidaProxima;
+        public int DiasPerdidosProximos => diasPerdidos;
 
         // ---------- Plan del mes (editarlo no gasta nada) ----------
 
@@ -305,9 +312,10 @@ namespace SpaceMission
             r.Altitud = Altitud;
 
             // 2. Observar y almacenar: un registro por instrumento encendido con región, si cabe en la memoria.
-            float calidad = Mathf.Clamp(reglas.calidadBase * dias / reglas.diasPorMes
-                * (calidadReducidaProxima ? reglas.factorCalidadTormenta : 1f)
-                * (Altitud == Altitud.Baja ? reglas.factorCalidadBaja : 1f), 0f, 100f);
+            r.CalidadBase = reglas.calidadBase;
+            r.FactorTormenta = calidadReducidaProxima ? reglas.factorCalidadTormenta : 1f;
+            r.FactorAltitud = Altitud == Altitud.Baja ? reglas.factorCalidadBaja : 1f;
+            float calidad = Mathf.Clamp(reglas.calidadBase * dias / reglas.diasPorMes * r.FactorTormenta * r.FactorAltitud, 0f, 100f);
             foreach (var id in Instrumentos.Where(Encendidos.Contains).ToList())
             {
                 if (dias <= 0) break;

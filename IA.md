@@ -368,3 +368,12 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - Las pruebas que dependían de poco combustible usan ahora naves más cargadas (radar con espectrómetro, o el Titán con alta resolución).
   - Prueba nueva: cada opción tiene su dato NASA en los dos idiomas.
 - Pasan las 213 pruebas EditMode y las 19 PlayMode.
+
+## Versión 5, bloque 2: buffs y debuffs visibles
+
+- `Modificadores.cs` calcula los buffs y debuffs desde los datos del satélite y del estado de la Operación; `PresentacionMision.Modificadores` los pinta con flecha y color (iconos nuevos de Lucide: arrow-up, arrow-down y lightbulb, añadidos a `Iconos.Todos`).
+- Se ven en la ayuda del satélite, en la Carga, en el panel nuevo «Active modifiers» de la Operación (constructor de escenas) y en el desglose de la calidad del resumen (`ResultadoMes` guarda los factores).
+- Chandra: -1 bloque de memoria por su dato real (1.8 Gb).
+- Comprobado en el navegador a 1366x768: Configuración, Carga y Operación. La ayuda del satélite se reordenó porque con tanto texto se achicaba demasiado.
+- Al volver a correr los scripts de datos, Unity reescribe las comillas del YAML de muchos assets sin cambiar el contenido: la IA lo verificó y solo comiteó el cambio real (el Chandra).
+- 9 pruebas nuevas en `ModificadoresTests.cs`. Pasan las 221 pruebas EditMode y las 19 PlayMode.

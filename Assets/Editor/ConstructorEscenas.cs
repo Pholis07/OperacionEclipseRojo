@@ -857,6 +857,12 @@ public static partial class ConstructorEscenas
         lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var plantilla = Boton(lista, "PlantillaInstrumento", "Instrument", false);
         Opcion(plantilla, 24);
+        // Versión 5: buffs y debuffs activos (satélite, altitud, eventos, bloqueos), con flecha y color.
+        var modificadores = Texto(izq, "TextoModificadores", "", 20, TextoClaro, FontStyles.Normal, TextAlignmentOptions.BottomLeft);
+        modificadores.enableAutoSizing = true; modificadores.fontSizeMin = 15; modificadores.fontSizeMax = 20;
+        modificadores.overflowMode = TextOverflowModes.Truncate;
+        var leMod = modificadores.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        leMod.flexibleHeight = 1; leMod.minHeight = 60;
 
         var filaEnergia = Fila(izq, "FilaEnergia", 10);
         Alto(filaEnergia, 40);
@@ -1058,6 +1064,7 @@ public static partial class ConstructorEscenas
         Asignar(ui, "textoMemoria", memoria);
         Asignar(ui, "botonEnviar", enviar);
         Asignar(ui, "botonResolver", resolver);
+        Asignar(ui, "textoModificadores", modificadores);
         Asignar(ui, "panelResumen", resumen.gameObject);
         Asignar(ui, "textoResumen", textoResumen);
         Asignar(ui, "botonContinuar", continuar);

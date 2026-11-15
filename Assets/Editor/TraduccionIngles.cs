@@ -235,7 +235,7 @@ public static class TraduccionIngles
             a.descripcion = "X-ray space telescope: a very long optical tube with two wings of solar panels.";
             a.credito = "3D model: NASA 3D Resources";
             a.ventaja = "Very precise pointing: loss of orientation does not affect it, and the thermal and high-resolution cameras read 20% farther.";
-            a.desventaja = "Very heavy: its 40 kg cost 4 fuel.";
+            a.desventaja = "Very heavy (40 kg cost 4 fuel) and only 1.8 Gb on board, like the real Chandra: -1 memory block.";
             EditorUtility.SetDirty(a);
         }
         {

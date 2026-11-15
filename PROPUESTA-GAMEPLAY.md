@@ -261,3 +261,11 @@ Masa = real × 3 y potencia = real × 5 (redondeo a 5). Los créditos son moneda
 - Cada instrumento, órbita, lanzador y satélite guarda el dato real en inglés y en español, con su fuente (`DatosNasa.cs`), y la ayuda lo muestra.
 - **Los 19 casos conservan su resultado** (verde, amarillo, rojo o gris); solo cambian masa, potencia y costo. Algunos rojos lo son por otro límite: 7, B4 y B5 por costo, B4b por potencia, B2 por masa y espacios.
 - Con menos masa, la nave sale con más combustible: 7 en el caso 2 (antes 3) y el tope de 20 con el Titán.
+
+## Bloque 2: buffs y debuffs visibles
+
+- `Modificadores.cs` genera los buffs y debuffs a partir de los números de los datos, así que lo que se ve siempre coincide con lo que hace el juego. Flecha arriba en verde (buff) o abajo en rojo (debuff), con la cifra: «Memory 6 → 5 blocks», «Power limit 700 → 600 W», «40 kg: -4 fuel».
+- Se muestran en la ayuda del satélite (Configuración), en la Carga y en un panel «Active modifiers» de la Operación, que suma la altitud, los eventos activos con los meses que quedan, los bloqueos, lo que ya se sabe del mes siguiente y las herramientas a bordo.
+- Las órbitas muestran su ventaja y su limitación con las mismas flechas.
+- El resumen del mes desglosa la calidad: «70 base ↓ × 28/30 days ↑ × 1.2 low orbit = 78 (valid evidence needs 60)».
+- El Chandra gana «-1 memory block»: el real solo guardaba 1.8 Gb (el MRO, 160 Gb).

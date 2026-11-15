@@ -104,9 +104,10 @@ public static class DatosVersion3
         magellan.combustiblePorCambioAltitud = 2; magellan.memoriaExtra = -1;
         var chandra = Satelite(catalogo, "chandra", 30, 40,
             "Very precise pointing: loss of orientation does not affect it, and the thermal and high-resolution cameras read 20% farther.",
-            "Very heavy: its 40 kg cost 4 fuel.");
+            "Very heavy (40 kg cost 4 fuel) and only 1.8 Gb on board, like the real Chandra: -1 memory block.");
         chandra.instrumentosConAlcance = new[] { "termica", "alta_res" }; chandra.factorAlcance = 1.2f;
         chandra.inmuneOrientacion = true;
+        chandra.memoriaExtra = -1;   // versión 5: el Chandra real solo guardaba 1.8 Gb (el MRO, 160 Gb)
         var aquarius = Satelite(catalogo, "aquarius", 40, 20,
             "Microwave radiometer: +1 memory block, and the growing storm does not lower its data quality.",
             "The radiometer is always on: +50 W of power draw during the Operation.");

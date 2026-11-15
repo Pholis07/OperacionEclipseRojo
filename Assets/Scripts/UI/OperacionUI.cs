@@ -41,6 +41,7 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Button botonEnviar;    // enviar al final del mes: sí o no
         [SerializeField] UnityEngine.UI.Button botonResolver;
         [SerializeField] TMP_Text textoObjetivos;
+        [SerializeField] TMP_Text textoModificadores;   // versión 5: buffs y debuffs activos
 
         [Header("Resumen del mes y decisión del evento")]
         [SerializeField] GameObject panelResumen;
@@ -313,11 +314,26 @@ namespace SpaceMission
             return "<b>Month " + r.Mes + " resolved</b>  ·  " + r.DiasUtiles + (r.DiasUtiles == 1 ? " useful day" : " useful days") + "\n\n" +
                    "<b>You decided:</b> " + string.Join(", ", decidi) + ".\n\n" +
                    "<b>What happened:</b>\n" + string.Join("\n", ocurrio) + "\n\n" +
+                   (r.Observaciones.Count > 0 ? "<b>Quality:</b> " + DesgloseCalidad(r) + "\n\n" : "") +
                    "<b>You spent:</b> " + (gaste.Count > 0 ? string.Join(", ", gaste) : "nothing") + ".\n\n" +
                    "<b>Next:</b> " + sigue;
         }
 
         static string Meses(int n) => n + (n == 1 ? " month" : " months");
+
+        /// <summary>«70 base × 28/30 days ▼ × 0.8 storm ▲ × 1.2 low orbit = 63»: de dónde sale la calidad del mes.</summary>
+        string DesgloseCalidad(ResultadoMes r)
+        {
+            var t = Mathf.RoundToInt(r.CalidadBase) + " base";
+            if (r.DiasUtiles < Reglas.diasPorMes)
+                t += " <color=" + PresentacionMision.ColorDebuff + ">" + Iconos.Baja + " × " + r.DiasUtiles + "/" + Reglas.diasPorMes + " days</color>";
+            if (r.FactorTormenta != 1f)
+                t += " <color=" + PresentacionMision.ColorDebuff + ">" + Iconos.Baja + " × " + r.FactorTormenta.ToString("0.#") + " storm</color>";
+            if (r.FactorAltitud != 1f)
+                t += " <color=" + PresentacionMision.ColorBuff + ">" + Iconos.Sube + " × " + r.FactorAltitud.ToString("0.#") + " low orbit</color>";
+            float q = Mathf.Clamp(r.CalidadBase * r.DiasUtiles / Reglas.diasPorMes * r.FactorTormenta * r.FactorAltitud, 0f, 100f);
+            return t + " = <b>" + Mathf.RoundToInt(q) + "</b> (valid evidence needs " + Mathf.RoundToInt(Reglas.calidadMinima) + ")";
+        }
 
         string TextoLectura(Registro o)
         {
@@ -461,6 +477,11 @@ namespace SpaceMission
                 objetivos.Add("• <color=#A855F7>NASA request</color>: observe the purple point (+" + Op.PuntosPeticion + ")" +
                               (Op.PeticionCumplida ? " <color=#22C55E>fulfilled</color>" : ""));
             textoObjetivos.text = objetivos.Count > 0 ? "<b>Bonus objectives</b>\n" + string.Join("\n", objetivos) : "";
+            if (textoModificadores != null)
+            {
+                var activos = Modificadores.Activos(Op, catalogo);
+                textoModificadores.text = activos.Count == 0 ? "" : "<b>ACTIVE MODIFIERS</b>" + PresentacionMision.Modificadores(activos);
+            }
 
             int enMemoria = Op.Memoria.Sum(r => r.Evidencias.Count);
             int recibidas = Op.Recibidas.Count(id => !string.IsNullOrEmpty(catalogo.Transmision(id).instrumentoId));   // TX-00 es de la misión

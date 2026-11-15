@@ -107,6 +107,7 @@ namespace SpaceMission
         /// <summary>Solo el aspecto de la nave: no recalcula recursos ni semáforo.</summary>
         public void ElegirSatelite(string id)
         {
+            PresentacionMision.catalogoActual = catalogo;
             Config.SateliteId = id;
             var s = catalogo.Satelite(id);
             if (s != null) textoAyuda.text = PresentacionMision.Ayuda(s);

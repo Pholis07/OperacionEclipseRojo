@@ -91,7 +91,7 @@ namespace SpaceMission
                     break;
                 case ConfiguracionUI.Pestana.Satelite:
                     textoInstruccion.text = "3 · CHOOSE THE SATELLITE";
-                    textoLeyenda.text = "YOUR SATELLITE\n<size=24><color=#94A3B8>Inspired by real missions. Each one has an advantage and a drawback: you will see them in Cargo.</color></size>";
+                    textoLeyenda.text = "YOUR SATELLITE\n<size=24><color=#94A3B8>Inspired by real NASA data. Green arrows help, red arrows cost: see the list on the left.</color></size>";
                     break;
                 default:
                     textoInstruccion.text = n + " · INSTALL THE INSTRUMENTS";

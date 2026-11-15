@@ -83,8 +83,8 @@ namespace SpaceMission
                 "\n<b>Fuel at departure:</b> " + Carga.Combustible;
             var s = Carga.Satelite;
             if (s != null)
-                textoRecursos.text += "\n<b>Satellite:</b> " + s.nombre + "  ·  " + s.costoCr + " cr  ·  " + s.masaKg + " kg" +
-                                      "\n<size=80%><color=#22C55E>+</color> " + s.ventaja + "  <color=#EF4444>-</color> " + s.desventaja + "</size>";
+                textoRecursos.text += "\n<b>Satellite:</b> " + s.nombre + "<size=85%>" +
+                                      PresentacionMision.Modificadores(Modificadores.DeSatelite(s, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice))) + "</size>";
             if (!Carga.PuedeLanzar)
                 textoRecursos.text += "\n<color=#EF4444><b>What you have left is not enough.</b></color> Remove tools or use the MRO to launch.";
             botonLanzar.interactable = Carga.PuedeLanzar;
