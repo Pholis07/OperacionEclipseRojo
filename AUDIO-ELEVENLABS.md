@@ -51,7 +51,7 @@ Una por transmisión, con el texto exacto de `Assets/Datos/Transmision_<id>.asse
 - Ids: `TX-00`, `TX-01`, `TX-02`, `TX-03`, `TX-04`, `TX-05`, `TX-A1`, `TX-A2`, `TX-A3`, `TX-A4` y `TX-A5`.
 - Voz: control de misión, español latino neutro, tono sereno y claro, ritmo pausado.
 - Efecto de radio dentro del archivo: filtro de paso de banda y una estática ligera.
-- Los subtítulos siempre se ven: la transmisión escrita es la fuente y la voz es un extra.
+- La transmisión escrita siempre se ve: es la fuente y la voz es un extra. (Los subtítulos de la cinemática se quitaron en `254a405`.)
 
 ## Segunda tanda: cinemática y escaneo orbital (2026-11-14)
 
@@ -126,3 +126,15 @@ El juego pasó a inglés. Se generaron las 6 transmisiones y las 4 frases de con
 - **`Assets/Scripts/UI/Estilo/Preferencias.cs`:** volúmenes de música, ambiente, efectos y voz, «Silenciar todo» (AudioListener) y «Reducir movimiento». Se cambian en Menú > Opciones.
 - **`DirectorCinematica.cs` y `SecuenciaEscaneo.cs`:** cada uno tiene su propio AudioSource para sus efectos, así que «Omitir» o salir de la escena los corta sin dejar sonidos sueltos. No usan AudioMixer: el proyecto ya tenía volúmenes por categoría en Preferencias, y crear un mixer desde código no es posible con la API pública.
 - En WebGL el navegador no deja sonar nada hasta el primer clic o tecla. La pantalla de título («Pulsa cualquier tecla») resuelve eso.
+
+## Versión 6: voces por idioma (2026-11-15)
+
+- `ArteDatos` guarda las dos grabaciones de cada voz y suena la del idioma del juego (`SegunIdioma`).
+  - Control de misión: `VOZ_*_en` y `VOZ_*`.
+  - Transmisiones: `voz_TX-0*_en` y `voz_TX-0*`.
+- Se comparó el texto de las 6 transmisiones en español con el que hoy sale en pantalla: coinciden. No se generó audio nuevo ni se gastaron créditos.
+- Duraciones en español: Encendido 3.9 s (más larga que su toma de 3.6 s), Despegue 2.2 s, Separación 4.1 s y Órbita 3.6 s.
+- Cambios contra el encimado:
+  - En la cinemática, cada toma con voz espera a que termine su frase (con tope).
+  - Las transmisiones van en fila: no se cortan y se oyen todas.
+  - La música, el ambiente y el motor bajan al 35 % mientras habla una voz (`Atenuacion`).

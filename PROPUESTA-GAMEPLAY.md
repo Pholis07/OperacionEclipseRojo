@@ -317,3 +317,71 @@ Masa = real × 3 y potencia = real × 5 (redondeo a 5). Los créditos son moneda
   - metal cepillado en el Explorador, el AztechSat-1 y los instrumentos.
 - Los modelos de NASA 3D conservan sus texturas originales. Se revisaron y no llevan el logo de la NASA.
 - El build crece unos 5 MB (de 48 a 53 MB).
+
+---
+
+# Versión 6: alcance real del lanzador, ayuda en el modo normal, informe en dos pantallas, voces por idioma y Marte unificado (2026-11-15)
+
+Diego probó la versión 5 y pidió: entender el juego sin pasar por la Misión 0, un informe menos saturado, elegir primero el lanzador y que su alcance (con física real y datos de la NASA, a la vista) decida las órbitas, el Marte del menú en todas partes con más detalle, que los diálogos no se encimen y que las voces sigan al idioma. Adrian estuvo de acuerdo con cambiar la lógica.
+
+## Alcance del lanzador (física real, sin aerofrenado)
+
+**Revierte la regla de la sección «Satélites»: el satélite ahora cuenta en la masa.**
+
+- Orden de la configuración: **Lanzador → Satélite → Instrumentos → Órbita**.
+- Frenado que pide cada órbita, en el punto más bajo (vis-viva): `√(v∞² + 2μ/rp) − √(μ(2/rp − 1/a))`, con GM 42,828 km³/s² y radio 3,389.5 km (NASA NSSDC) y llegada a 2.7 km/s.
+
+  | Órbita | Altitudes reales | Frenado |
+  |---|---|---|
+  | Polar baja (MRO) | 255 × 320 km | 2,106 m/s |
+  | Media (TGO) | 400 × 400 km | 2,106 m/s |
+  | Elíptica (MAVEN) | 150 × 6,200 km | 1,407 m/s |
+
+  En la realidad polar y media cuestan lo mismo; no se inventa diferencia.
+- Frenado que tiene la nave (ecuación del cohete): `Isp × g0 × ln(masa inyectada ÷ masa seca)`, Isp 230 s (hidracina, familia MR-107 del MRO: 222 a 236 s).
+- Masa seca = base 350 kg + satélite + instrumentos.
+- Masa que cada lanzador manda hacia Marte:
+  - Explorador: 1,223 kg (dato real: Mars Express en Soyuz-Fregat, ESA).
+  - Titán: 1,850 kg (valor de juego, 1.5 veces el Explorador).
+- Masa seca máxima con la que se llega:
+
+  | Lanzador | Órbitas bajas | Elíptica |
+  |---|---|---|
+  | Explorador | 480 kg | 655 kg (manda su tope de 500 kg) |
+  | Titán | 727 kg | 991 kg (manda su tope de 750 kg) |
+
+- Validación: con 2,180 kg al salir y 1,031 kg en seco, el MRO real tiene 1,688 m/s y no llega a 255 × 320 km. Coincide con la historia: frenó ~1 km/s hasta 400 × 35,000 km y luego hizo seis meses de aerofrenado.
+- Límite nuevo `Limite.Alcance` y quinta barra «Frenado» (lo que pide la órbita sobre lo que tiene la nave).
+  - Las órbitas fuera de alcance se ven bloqueadas y no se eligen.
+  - Una órbita ya elegida que deja de alcanzarse se conserva en rojo.
+  - La nota «¿Hasta dónde llegas?» muestra la fórmula con los números de la nave y la fuente.
+- Las barras muestran los parciales desde el primer paso, aunque falte algo.
+- Los 19 casos conservan su color; B2 suma el límite de alcance. Cada nivel sigue siendo ganable.
+- La Carga no cuenta dos veces el satélite. Sus números (combustible, masa libre) no cambian.
+
+## Ayuda en el modo normal
+
+- Tarjeta con el siguiente paso en Briefing, Configuración, Revisión y Carga, y contorno que late en el control que toca (`GuiaPantallas`).
+- Botón «?» en todas las pantallas de la misión: explicación completa de esa pantalla. Desde ahí, o con «×», se ocultan los consejos.
+- «Cómo jugar» con los pasos reales del juego.
+
+## Informe en dos pantallas
+
+1. Veredicto: título, conclusión, puntos y sello, con el botón «Ver detalles».
+2. Detalle: evidencias, lo que faltó, desglose de puntos y recursos usados, con «Modificar mi misión» (vuelve a la configuración) y «Volver al veredicto».
+
+## Voces
+
+- Las 10 voces (4 de control y 6 transmisiones) suenan en el idioma elegido. Las grabaciones en español ya existían y coinciden con el texto en pantalla, así que no hubo que generar audio nuevo.
+- En la cinemática, cada toma dura lo que su frase (con tope).
+- Las transmisiones van en fila: no se cortan y se oyen todas.
+- La música, el ambiente y el motor bajan mientras habla una voz.
+
+## Marte
+
+- El shader del planeta (compartido por el menú, la configuración, la cinemática y el informe) suma:
+  - nubes de hielo de agua (textura propia generada por código);
+  - escarcha con brillo en los casquetes;
+  - crepúsculo azulado.
+- El Briefing muestra el mismo Marte 3D en vez de una foto.
+- El mapa de la Operación sigue con el relieve de Gale de la NASA: el mapa global de 8K se vería peor a esa escala.

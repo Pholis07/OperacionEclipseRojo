@@ -428,3 +428,22 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - La primera lámina parecía empedrado y luego purpurina: se quitaron los contornos oscuros, se agrandaron las facetas y se bajó el brillo.
 - 12 pruebas nuevas en `TexturasTests.cs`. Pasan las 257 pruebas EditMode y las 19 PlayMode.
 - Riesgo: la textura de 8192 necesita una GPU que la acepte. Los equipos de escritorio sí; un móvil viejo podría mostrar el cielo negro.
+
+## Versión 6 (Diego, 2026-11-15)
+
+- Diego probó la versión 5 y pidió cinco cambios. La IA exploró el código con tres agentes y diseñó la mecánica del alcance con un cuarto. Le preguntó a Diego:
+  - el modelo de alcance: delta-v real sin aerofrenado;
+  - si Adrian estaba de acuerdo con cambiar su lógica: sí;
+  - qué ayuda quería: guía por pantalla, «?» y «Cómo jugar»;
+  - qué hacer con el mapa de Marte.
+- La IA verificó en fuentes los datos que el juego rotula como «NASA data»: GM y radio de Marte (NSSDC), 1,223 kg de Mars Express (ESA), inserción del MRO de ~1 km/s más aerofrenado (NSSDC) e Isp de la familia MR-107 (222 a 236 s).
+- Lo hizo en bloques, con un commit por bloque y todas las pruebas en verde en cada uno: informe en dos pantallas, voces, alcance, ayuda y Marte.
+- Pruebas: la línea base de main tenía 1 fallo de 257, solo en un equipo con configuración regional en español («×1,5»). Se corrigió usando formato invariante.
+  - Pruebas nuevas: `AlcanceTests`, `VocesTests`, `GuiaPantallasTests` y un recorrido PlayMode con el orden nuevo.
+  - Al final pasan las 282 EditMode y las 20 PlayMode.
+- La IA revisó cada pantalla con capturas en batch, en español y en inglés. De ahí salieron varios arreglos:
+  - la tarjeta de órbita bloqueada partía «kg» en tres líneas;
+  - la guía tapaba el título del paso;
+  - el «?» de la Operación se encimaba con un panel;
+  - el planeta del Briefing quedaba detrás de los cuadros.
+- Sin numpy en el equipo, las texturas nuevas (nubes de Marte y degradado del Briefing) se generan con un script de editor propio (`GeneradorCapasMarte`).
