@@ -143,6 +143,39 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void ElDatoDeLaNasaSoloSeVeAlPulsarSuBoton()
+        {
+            EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
+            EstadoJuego.Reiniciar();
+            var ui = Object.FindFirstObjectByType<ConfiguracionUI>(FindObjectsInactive.Include);
+            ui.Inicializar();
+
+            ui.ElegirLanzador("explorador");
+            StringAssert.DoesNotContain("NASA data", ui.TextoAyuda, "cerrado al elegir");
+            Assert.IsFalse(ui.NasaAbierto);
+            ui.AlternarNasa();
+            StringAssert.Contains("NASA data", ui.TextoAyuda);
+            StringAssert.Contains("1,223 kg", ui.TextoAyuda);
+            ui.AlternarNasa();
+            StringAssert.DoesNotContain("NASA data", ui.TextoAyuda, "se vuelve a cerrar");
+
+            // Otra opción empieza cerrada aunque la anterior estuviera abierta.
+            ui.AlternarNasa();
+            ui.AlternarInstrumento("termica");
+            Assert.IsFalse(ui.NasaAbierto);
+
+            // La nota del alcance es corta; al pulsarla explica la fórmula en la ayuda.
+            ui.MostrarPestana(ConfiguracionUI.Pestana.Orbita);
+            var nota = System.Array.Find(ui.GetComponentsInChildren<UnityEngine.UI.Button>(true), b => b.name == "NotaAlcance")?.gameObject;
+            Assert.IsNotNull(nota, "la pestaña de órbitas tiene su nota de alcance");
+            var textoNota = nota.GetComponentInChildren<TMPro.TMP_Text>().text;
+            StringAssert.Contains("Your braking: <b>2,606 m/s</b>", textoNota);
+            StringAssert.DoesNotContain("ln(", textoNota);
+            nota.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            StringAssert.Contains("230 s × 9.81 × ln(1,223 kg ÷ 385 kg)", ui.TextoAyuda);
+        }
+
+        [Test]
         public void UnaOrbitaElegidaQueDejaDeAlcanzarseSeConservaEnRojo()
         {
             EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");

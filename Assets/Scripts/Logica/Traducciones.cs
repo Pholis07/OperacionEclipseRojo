@@ -785,6 +785,18 @@ namespace SpaceMission
             { "Level 1", "Nivel 1" },
             { "Level 2", "Nivel 2" },
             { "Level 3", "Nivel 3" },
+            // Versión 6: Briefing esencial.
+            { "YOU NEED", "NECESITAS" },
+            { " spacecraft events", " eventos de la nave" },
+            { "\n\n<b>LIMITS</b>\n", "\n\n<b>LÍMITES</b>\n" },
+            { "\n\n<b>THE STATUS LIGHT</b>\n", "\n\n<b>EL SEMÁFORO</b>\n" },
+            { "<b>Satellite:</b> ", "<b>Satélite:</b> " },
+            { "MRO Orbiter (default)", "Orbitador MRO (por defecto)" },
+            // Versión 6: dato de la NASA bajo un botón.
+            { "+ NASA data", "+ Dato NASA" },
+            { "– NASA data", "– Dato NASA" },
+            { "Your braking: ", "Tu frenado: " },
+            { "How is it calculated?", "¿Cómo se calcula?" },
         };
     }
 }

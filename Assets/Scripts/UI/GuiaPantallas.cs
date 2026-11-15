@@ -86,6 +86,18 @@ namespace SpaceMission
 
         // ---------- Explicación completa (botón «?») ----------
 
+        /// <summary>
+        /// La explicación con los datos del nivel: en el Briefing añade los límites y el semáforo, que ya no ocupan
+        /// la pantalla (versión 6).
+        /// </summary>
+        public static string AyudaCompleta(PantallaMision p, CatalogoDatos catalogo, MisionDatos nivel)
+        {
+            var texto = Ayuda(p);
+            if (p != PantallaMision.Briefing || catalogo == null) return texto;
+            return texto + Idioma.T("\n\n<b>LIMITS</b>\n") + TextosBriefing.TextoLimites(catalogo, nivel) +
+                   Idioma.T("\n\n<b>THE STATUS LIGHT</b>\n") + TextosBriefing.ExplicacionColores;
+        }
+
         public static string Ayuda(PantallaMision p)
         {
             switch (p)

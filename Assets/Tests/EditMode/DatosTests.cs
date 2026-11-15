@@ -87,7 +87,9 @@ namespace SpaceMission.Tests
             var i = catalogo.Instrumento(id);
             var ayuda = PresentacionMision.Ayuda(i);
             StringAssert.Contains("Power:</b> " + i.ConsumoTotalW + " W", ayuda);
-            StringAssert.Contains("NASA data:", ayuda);
+            // Versión 6: el dato real ya no va en la ayuda; se abre con «+ Dato NASA».
+            StringAssert.DoesNotContain("NASA data:", ayuda);
+            StringAssert.Contains("NASA data:", PresentacionMision.DatoNasa(i));
             Assert.IsNotEmpty(i.datoNasaEs, "Falta el dato NASA en español de " + id);
             Assert.IsNotEmpty(i.fuenteNasa, "Falta la fuente de " + id);
             Assert.IsNotEmpty(i.pistaAsociada, "Falta la evidencia que aporta " + id);

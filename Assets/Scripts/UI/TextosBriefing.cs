@@ -21,13 +21,20 @@ namespace SpaceMission
             Idioma.T("<b><color=#EAB308>Yellow</color></b>: you can launch, but some evidence is missing.\n") +
             Idioma.T("<b><color=#22C55E>Green</color></b>: the configuration covers what the mission requires.");
 
+        /// <summary>
+        /// Los dos requisitos principales numerados y, más pequeño y en gris, el que solo pide la órbita elíptica.
+        /// </summary>
         public static string TextoRequisitos()
         {
-            var texto = "";
-            for (int i = 0; i < Requisitos.Length; i++)
-                texto += (i + 1) + ". " + Requisitos[i] + (i < Requisitos.Length - 1 ? "\n" : "");
-            return texto;
+            var r = Requisitos;
+            return "1. " + r[0] + "\n2. " + r[1] + "\n<size=78%><color=#94A3B8>" + r[2] + "</color></size>";
         }
+
+        /// <summary>Versión 6: una sola línea con lo que cambia el nivel: presupuesto, meses y eventos.</summary>
+        public static string ResumenNivel(MisionDatos m) =>
+            Numero(m.presupuestoCr) + Idioma.T(" credits") + "  ·  " + m.orbitasNavegacion +
+            (m.orbitasNavegacion == 1 ? Idioma.T(" month") : Idioma.T(" months")) + "  ·  " +
+            m.eventosPorMision + Idioma.T(" spacecraft events");
 
         public static string TextoLimites(CatalogoDatos catalogo, MisionDatos nivel = null)
         {

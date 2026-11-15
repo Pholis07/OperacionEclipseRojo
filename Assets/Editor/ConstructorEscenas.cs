@@ -654,17 +654,18 @@ public static partial class ConstructorEscenas
         Anclar(lineaRuta, new Vector2(0.05f, 0.915f), new Vector2(0.95f, 0.915f));
         lineaRuta.offsetMax = new Vector2(0, GrosorLinea);
 
-        var col = Columna(briefing, "Expediente", 18, TextAnchor.UpperLeft);
-        Anclar(col, new Vector2(0.05f, 0.15f), new Vector2(0.51f, 0.885f));
+        // Versión 6: solo lo esencial (objetivo, lo que necesitas y el nivel). Los límites y el semáforo están en
+        // el «?» del Briefing y en las barras de la Configuración; Marte se ve limpio a la derecha.
+        var col = Columna(briefing, "Expediente", 22, TextAnchor.UpperLeft);
+        Anclar(col, new Vector2(0.05f, 0.17f), new Vector2(0.47f, 0.885f));
         col.gameObject.AddComponent<CanvasGroup>();
         Texto(col, "Titulo", "Mission briefing", 64, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
-        Miniatura(col, "Region", ConstructorEstilo.Imagen("Evidencias/Evidencia_region"), 120,
-            SpaceMission.Iconos.Objetivo + "  OBSERVED REGION  ·  NASA/JPL-Caltech/UArizona");
         Encabezado(col, "EtiquetaObjetivo", "OBJECTIVE");
         var objetivo = Texto(col, "Objetivo", "", 34, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        Encabezado(col, "EtiquetaRequisitos", "REQUIREMENTS: THE EVIDENCE YOU MUST OBTAIN");
-        var requisitos = Texto(col, "Requisitos", "", 30, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        requisitos.lineSpacing = 12;
+        objetivo.lineSpacing = 6;
+        Encabezado(col, "EtiquetaRequisitos", "YOU NEED");
+        var requisitos = Texto(col, "Requisitos", "", 32, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        requisitos.lineSpacing = 14;
 
         // Selector de nivel (gameplay aprobado): los textos y colores los pone MisionUI con los datos.
         Encabezado(col, "EtiquetaNivel", "DIFFICULTY LEVEL");
@@ -679,25 +680,9 @@ public static partial class ConstructorEscenas
             var t = botonesNivel[i].GetComponentInChildren<TextMeshProUGUI>();
             t.fontSize = 28; t.enableAutoSizing = true; t.fontSizeMin = 24; t.fontSizeMax = 28;
         }
+        // Una sola línea con lo que cambia el nivel (presupuesto, meses y eventos).
+        var limites = Texto(col, "ResumenNivel", "", 26, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
 
-        var datos = Columna(briefing, "Datos", 28, TextAnchor.UpperLeft);
-        Anclar(datos, new Vector2(0.55f, 0.15f), new Vector2(0.95f, 0.885f));
-        datos.gameObject.AddComponent<CanvasGroup>();
-        var colLimites = Columna(datos, "Limites", 12, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
-        MarcoHud(colLimites);
-        Encabezado(colLimites, "EtiquetaLimites", "LIMITS");
-        var limites = Texto(colLimites, "TextoLimites", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        limites.lineSpacing = 12;
-        var colSemaforo = Columna(datos, "Semaforo", 12, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
-        MarcoHud(colSemaforo);
-        Encabezado(colSemaforo, "EtiquetaSemaforo", "THE STATUS LIGHT");
-        var semaforo = Texto(colSemaforo, "TextoSemaforo", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        semaforo.lineSpacing = 12;
-
-        // Barra inferior: qué hacer ahora y el único botón de la pantalla.
-        var pista = Texto(briefing, "Pista", "Read the objective and the requirements. Then set up your spacecraft.", 26,
-            TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
-        Anclar(pista.rectTransform, new Vector2(0.05f, 0.05f), new Vector2(0.42f, 0.12f));
         var continuar = Boton(briefing, "BotonContinuar", "Continue  " + SpaceMission.Iconos.Siguiente, true);
         Fijar(continuar.GetComponent<RectTransform>(), new Vector2(0.95f, 0.05f), new Vector2(1, 0), new Vector2(520, 88));
         // Versión 5, bloque 4: la Misión 0 (tutorial), a la izquierda de «Continue». MisionUI pone el texto.
@@ -705,7 +690,7 @@ public static partial class ConstructorEscenas
         Fijar(botonTutorial.GetComponent<RectTransform>(), new Vector2(0.667f, 0.05f), new Vector2(1, 0), new Vector2(460, 88));
         var etiquetaTutorial = botonTutorial.GetComponentInChildren<TextMeshProUGUI>();
         etiquetaTutorial.enableAutoSizing = true; etiquetaTutorial.fontSizeMin = 20; etiquetaTutorial.fontSizeMax = 30;
-        Aparecer(briefing, col, datos);
+        Aparecer(briefing, col);
 
         var controlador = new GameObject("MisionUI").AddComponent<MisionUI>();
         AsignarLista(controlador, "botonesNivel", botonesNivel);
@@ -820,11 +805,10 @@ public static partial class ConstructorEscenas
         Asignar(controlador, "textoObjetivo", objetivo);
         Asignar(controlador, "textoRequisitos", requisitos);
         Asignar(controlador, "textoLimites", limites);
-        Asignar(controlador, "textoColores", semaforo);
         Asignar(controlador, "botonContinuar", continuar);
 
         // Versión 6: guía de cada pantalla y botón «?», encima de todas las vistas.
-        ConstruirGuiaPantallas(canvas, controlador, configUI, cargaUI, Object.FindFirstObjectByType<DirectorCinematica>(FindObjectsInactive.Include), pista.gameObject);
+        ConstruirGuiaPantallas(canvas, controlador, configUI, cargaUI, Object.FindFirstObjectByType<DirectorCinematica>(FindObjectsInactive.Include));
 
         // Al abrir la escena solo se ve el Briefing (MisionUI también lo hace al empezar).
         configuracion.gameObject.SetActive(false);
@@ -840,14 +824,14 @@ public static partial class ConstructorEscenas
     /// la pantalla. GuiaPantallasUI la mueve según la pantalla.
     /// </summary>
     static void ConstruirGuiaPantallas(RectTransform canvas, MisionUI mision, ConfiguracionUI configuracion, CargaUI carga,
-        DirectorCinematica cinematica, GameObject pistaBriefing)
+        DirectorCinematica cinematica)
     {
         var raiz = Fila(canvas, "GuiaPantallas", 8);
         var grupo = raiz.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
         grupo.childForceExpandWidth = false;
         grupo.childForceExpandHeight = false;
         grupo.childAlignment = TextAnchor.UpperLeft;
-        Anclar(raiz, new Vector2(0.37f, 0.7f), new Vector2(0.63f, 0.81f));
+        Anclar(raiz, new Vector2(0.37f, 0.8f), new Vector2(0.63f, 0.875f));
 
         var tarjeta = Fila(raiz, "TarjetaGuia", 8);
         var fondo = tarjeta.gameObject.AddComponent<UnityEngine.UI.Image>();
@@ -869,9 +853,9 @@ public static partial class ConstructorEscenas
         var leOcultar = ocultar.GetComponent<UnityEngine.UI.LayoutElement>();
         leOcultar.preferredWidth = 36; leOcultar.minWidth = 36; leOcultar.minHeight = 36; leOcultar.preferredHeight = 36; leOcultar.flexibleWidth = 0;
 
-        var ayuda = Boton(raiz, "BotonAyuda", "?", true);
-        var leAyuda = ayuda.GetComponent<UnityEngine.UI.LayoutElement>();
-        leAyuda.preferredWidth = 52; leAyuda.minWidth = 52; leAyuda.minHeight = 52; leAyuda.preferredHeight = 52; leAyuda.flexibleWidth = 0;
+        // El «?» va aparte, en un sitio fijo de cada pantalla (GuiaPantallasUI.Colocar): nunca tapa texto.
+        var ayuda = Boton(canvas, "BotonAyuda", "?", true);
+        ayuda.GetComponent<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
         ayuda.GetComponentInChildren<TextMeshProUGUI>().fontSize = 32;
 
         // Panel de ayuda: velo que tapa todo y una tarjeta en el centro.
@@ -910,7 +894,7 @@ public static partial class ConstructorEscenas
         Asignar(ui, "textoAyuda", textoAyuda);
         Asignar(ui, "botonAlternarGuia", alternar);
         Asignar(ui, "botonCerrarAyuda", cerrar);
-        Asignar(ui, "pistaBriefing", pistaBriefing);
+        Asignar(ui, "rectAyuda", ayuda.GetComponent<RectTransform>());
         panel.gameObject.SetActive(false);
     }
 
@@ -1533,6 +1517,18 @@ public static partial class ConstructorEscenas
         leTextoAyuda.preferredHeight = 1; leTextoAyuda.flexibleHeight = 1;
         ayuda.enableAutoSizing = true; ayuda.fontSizeMin = 15; ayuda.fontSizeMax = 24;
         ayuda.overflowMode = TextOverflowModes.Truncate;
+        // Versión 6: botón pequeño «+ Dato NASA» abajo a la derecha de la caja; el dato real solo se ve si se pulsa.
+        cajaAyuda.GetComponent<UnityEngine.UI.VerticalLayoutGroup>().padding.bottom = 64;
+        var botonNasa = Boton(cajaAyuda, "BotonNasa", "+ NASA data", false);
+        botonNasa.GetComponent<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
+        var rtNasa = botonNasa.GetComponent<RectTransform>();
+        rtNasa.anchorMin = rtNasa.anchorMax = rtNasa.pivot = new Vector2(1f, 0f);
+        rtNasa.anchoredPosition = new Vector2(-14f, 12f);
+        rtNasa.sizeDelta = new Vector2(230f, 44f);
+        botonNasa.GetComponent<UnityEngine.UI.Image>().color = new Color(Cian.r, Cian.g, Cian.b, 0.18f);
+        var textoNasa = botonNasa.GetComponentInChildren<TextMeshProUGUI>();
+        textoNasa.fontSize = 22; textoNasa.color = Cian; textoNasa.characterSpacing = 1;
+        botonNasa.gameObject.SetActive(false);
 
         var filaNavegacion = Fila(izq, "Navegacion", 12);
         Alto(filaNavegacion, 64);
@@ -1670,6 +1666,7 @@ public static partial class ConstructorEscenas
         Asignar(ui, "listaOpciones", lista);
         Asignar(ui, "plantillaOpcion", plantilla);
         Asignar(ui, "textoAyuda", ayuda);
+        Asignar(ui, "botonNasa", botonNasa);
         AsignarLista(ui, "rellenosBarra", rellenos);
         AsignarLista(ui, "textosBarra", textos);
         Asignar(ui, "luzEstado", luz);

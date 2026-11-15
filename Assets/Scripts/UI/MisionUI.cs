@@ -76,10 +76,10 @@ namespace SpaceMission
             var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
             textoObjetivo.text = nivel.Objetivo;
             textoRequisitos.text = TextosBriefing.TextoRequisitos();
-            textoLimites.text = TextosBriefing.TextoLimites(catalogo, nivel) +
-                                Idioma.T("\nCampaign length: ") + nivel.orbitasNavegacion + (nivel.orbitasNavegacion == 1 ? Idioma.T(" month") : Idioma.T(" months")) +
-                                Idioma.T("\nSpacecraft events: ") + nivel.eventosPorMision;
-            textoColores.text = TextosBriefing.ExplicacionColores;
+            // Versión 6: el Briefing solo muestra una línea del nivel; los límites completos y el semáforo están
+            // en su «?» (GuiaPantallas.AyudaCompleta).
+            if (textoLimites != null) textoLimites.text = TextosBriefing.ResumenNivel(nivel);
+            if (textoColores != null) textoColores.text = TextosBriefing.ExplicacionColores;
             for (int i = 0; i < botonesNivel.Length; i++)
             {
                 botonesNivel[i].GetComponent<UnityEngine.UI.Image>().color =

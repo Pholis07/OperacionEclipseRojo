@@ -25,7 +25,7 @@ namespace SpaceMission
         [SerializeField] TMP_Text textoAyuda;
         [SerializeField] UnityEngine.UI.Button botonAlternarGuia;
         [SerializeField] UnityEngine.UI.Button botonCerrarAyuda;
-        [SerializeField] GameObject pistaBriefing;    // la pista fija del Briefing: la tarjeta ocupa su sitio
+        [SerializeField] RectTransform rectAyuda;     // el «?», en un sitio fijo de cada pantalla
 
         ResaltarGuia resaltado;
         string firma;
@@ -54,7 +54,8 @@ namespace SpaceMission
 
         public void AbrirAyuda()
         {
-            textoAyuda.text = GuiaPantallas.Ayuda(mision.PantallaActual);
+            textoAyuda.text = GuiaPantallas.AyudaCompleta(mision.PantallaActual, mision.Catalogo,
+                mision.Catalogo != null ? mision.Catalogo.Nivel(EstadoJuego.NivelIndice) : null);
             botonAlternarGuia.GetComponentInChildren<TMP_Text>().text =
                 Preferencias.GuiaActiva ? Idioma.T("Hide tips") : Idioma.T("Show tips");
             panelAyuda.SetActive(true);
@@ -67,6 +68,7 @@ namespace SpaceMission
         {
             bool enCine = cinematica != null && cinematica.Reproduciendo;
             if (raiz.gameObject.activeSelf == enCine) raiz.gameObject.SetActive(!enCine);
+            if (rectAyuda != null && rectAyuda.gameObject.activeSelf == enCine) rectAyuda.gameObject.SetActive(!enCine);
             if (enCine) { panelAyuda.SetActive(false); ResaltarGuia.Mover(ref resaltado, null); return; }
 
             var pantalla = mision.PantallaActual;
@@ -79,7 +81,6 @@ namespace SpaceMission
 
             Colocar(pantalla);
             tarjeta.SetActive(conTarjeta);
-            if (pistaBriefing != null) pistaBriefing.SetActive(!conTarjeta);
             texto.text = "<color=#75D6DF>" + Iconos.Pista + "</color>  " + consejo.Texto;
             ResaltarGuia.Mover(ref resaltado, conTarjeta ? Buscar(mision.Vista(pantalla), consejo.Destino) : null);
         }
@@ -97,25 +98,29 @@ namespace SpaceMission
             }
         }
 
-        /// <summary>La tarjeta va donde no tapa nada: abajo a la izquierda del Briefing, bajo el título de la
-        /// Configuración, a la derecha de las tarjetas de Revisión y Carga; en la Operación solo el «?».</summary>
+        /// <summary>
+        /// La tarjeta va donde no tapa nada: abajo a la izquierda del Briefing, bajo el título de la Configuración y
+        /// a la derecha de las tarjetas de Revisión y Carga (en la Operación no hay tarjeta). El «?» tiene su propio
+        /// sitio fijo en cada pantalla, fuera de los textos.
+        /// </summary>
         void Colocar(PantallaMision p)
         {
             switch (p)
             {
-                case PantallaMision.Briefing: Anclar(0.05f, 0.03f, 0.42f, 0.13f); break;
-                case PantallaMision.Configuracion: Anclar(0.37f, 0.7f, 0.63f, 0.81f); break;
-                case PantallaMision.Revision: Anclar(0.765f, 0.42f, 0.985f, 0.62f); break;
-                case PantallaMision.Carga: Anclar(0.79f, 0.42f, 0.99f, 0.62f); break;
-                default: Anclar(0.66f, 0.925f, 0.69f, 0.975f); break;   // Operación: solo el «?», junto a su guía
+                case PantallaMision.Briefing: Anclar(raiz, 0.05f, 0.03f, 0.42f, 0.13f); Anclar(rectAyuda, 0.957f, 0.925f, 0.985f, 0.975f); break;
+                case PantallaMision.Configuracion: Anclar(raiz, 0.37f, 0.8f, 0.63f, 0.875f); Anclar(rectAyuda, 0.362f, 0.928f, 0.39f, 0.975f); break;
+                case PantallaMision.Revision: Anclar(raiz, 0.765f, 0.42f, 0.985f, 0.62f); Anclar(rectAyuda, 0.957f, 0.925f, 0.985f, 0.975f); break;
+                case PantallaMision.Carga: Anclar(raiz, 0.79f, 0.42f, 0.99f, 0.62f); Anclar(rectAyuda, 0.957f, 0.925f, 0.985f, 0.975f); break;
+                default: Anclar(raiz, 0.66f, 0.925f, 0.69f, 0.975f); Anclar(rectAyuda, 0.66f, 0.925f, 0.69f, 0.975f); break;
             }
         }
 
-        void Anclar(float x0, float y0, float x1, float y1)
+        static void Anclar(RectTransform rt, float x0, float y0, float x1, float y1)
         {
-            raiz.anchorMin = new Vector2(x0, y0);
-            raiz.anchorMax = new Vector2(x1, y1);
-            raiz.offsetMin = raiz.offsetMax = Vector2.zero;
+            if (rt == null) return;
+            rt.anchorMin = new Vector2(x0, y0);
+            rt.anchorMax = new Vector2(x1, y1);
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
         }
 
         /// <summary>El objeto activo con ese nombre dentro de la vista (con imagen, para que el contorno se vea).</summary>

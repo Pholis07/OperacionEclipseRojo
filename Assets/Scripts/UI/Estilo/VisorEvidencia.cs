@@ -22,15 +22,24 @@ namespace SpaceMission
 
         string mostrada;
         int recibidas = -1;
+        DirectorCinematica cinematica;
 
         void OnEnable()
         {
             mostrada = null;
             recibidas = -1;
+            cinematica = FindFirstObjectByType<DirectorCinematica>(FindObjectsInactive.Include);
         }
+
+        /// <summary>
+        /// La Operación empieza en el mismo clic que la cinemática del lanzamiento. Mientras dura, la transmisión
+        /// inicial espera: si no, su voz sonaba encima de las frases de control de misión.
+        /// </summary>
+        public bool EnEspera => cinematica != null && cinematica.Reproduciendo;
 
         void Update()
         {
+            if (EnEspera) return;
             var op = operacion != null ? operacion.Op : null;
             if (op == null || op.Recibidas.Count == 0) return;
             if (op.Recibidas.Count == recibidas) return;

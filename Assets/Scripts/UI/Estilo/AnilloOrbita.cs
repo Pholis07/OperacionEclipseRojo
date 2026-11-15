@@ -50,9 +50,11 @@ namespace SpaceMission
 
         void Update()
         {
-            var id = EstadoJuego.Configuracion.OrbitaId;
-            bool todas = configuracion == null || !configuracion.gameObject.activeInHierarchy ||
-                         configuracion.PestanaActual == ConfiguracionUI.Pestana.Orbita;
+            // Versión 6: fuera de la Configuración (Briefing, Operación) no se dibuja ninguna órbita ni etiqueta;
+            // antes se veían todas detrás del texto del Briefing.
+            bool fuera = configuracion != null && !configuracion.gameObject.activeInHierarchy;
+            var id = fuera ? null : EstadoJuego.Configuracion.OrbitaId;
+            bool todas = !fuera && (configuracion == null || configuracion.PestanaActual == ConfiguracionUI.Pestana.Orbita);
             if (id != dibujada || todas != todasVisibles)
             {
                 if (id != dibujada) aparicion = 0f;
