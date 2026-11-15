@@ -20,8 +20,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0db4019b13a9b1819895c5a61d076e8c, type: 2}
   - {fileID: 11400000, guid: 6aa21cf7b0bf8901798e34ee61f31c6b, type: 2}
   lanzadores:
+  - {fileID: 11400000, guid: 9c7f60e229a238c5cb82fbd0d771c091, type: 2}
   - {fileID: 11400000, guid: 7044842f80d7cc1f5b31307183399ca9, type: 2}
+  - {fileID: 11400000, guid: 057910e4bfcc619a688d6fd998b3a490, type: 2}
   - {fileID: 11400000, guid: cfd1e8889d0ff06e7b7b1d43024bccb4, type: 2}
+  - {fileID: 11400000, guid: 64a19cf1c1790d4c1be6ae5d7d17f005, type: 2}
   - {fileID: 11400000, guid: b9c73e14d461fb469b17babf02c14794, type: 2}
   instrumentos:
   - {fileID: 11400000, guid: 818bf3e1725999ccdb34397d69fdff72, type: 2}

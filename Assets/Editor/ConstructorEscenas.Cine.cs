@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using SpaceMission;
 using TMPro;
@@ -46,12 +47,12 @@ public static partial class ConstructorEscenas
         var cohetes = ConstruirCohetes(EscenarioLanzamiento);
         cohetes.resaltadoExplorador.SetActive(false);
         cohetes.resaltadoTitan.SetActive(false);
-        cohetes.resaltadoColoso.SetActive(false);
+        foreach (var c in cohetes.extras) c.resalte.SetActive(false);
         var plataforma = cohetes.explorador.transform.parent;
         plataforma.name = "PlataformaCine";
         Object.DestroyImmediate(cohetes.explorador.GetComponent<GiroLento>());
         Object.DestroyImmediate(cohetes.titan.GetComponent<GiroLento>());
-        Object.DestroyImmediate(cohetes.coloso.GetComponent<GiroLento>());
+        foreach (var c in cohetes.extras) Object.DestroyImmediate(c.cohete.GetComponent<GiroLento>());
         // El disco de la plataforma de Configuración no hace falta: la losa del complejo lo sustituye.
         Object.DestroyImmediate(plataforma.Find("Suelo").gameObject);
         var complejo = ConstruirComplejo(EscenarioLanzamiento);
@@ -62,14 +63,8 @@ public static partial class ConstructorEscenas
         var llamasExplorador = ConstruirLlamas(new[] { (explorador, new Vector3(0f, 0.05f, 0f), 0.2f, 5f) });
         var superiorExplorador = explorador.Find("EtapaSuperior");
         var llamaSupExplorador = ConstruirLlamas(new[] { (superiorExplorador, new Vector3(0f, CorteEtapaAres * AltoExplorador, 0f), 0.15f, 1.8f) });
-        // Coloso (Saturn V): cinco motores F-1 al pie (uno central y cuatro en cruz) y el J-2 de la etapa superior.
-        var coloso = cohetes.coloso.transform;
-        var toberasColoso = new List<(Transform, Vector3, float, float)> { (coloso, new Vector3(0f, 0.05f, 0f), 0.16f, 5.5f) };
-        for (int i = 0; i < 4; i++)
-            toberasColoso.Add((coloso, Quaternion.Euler(0, 45f + 90f * i, 0) * Vector3.forward * 0.3f + Vector3.up * 0.05f, 0.14f, 5f));
-        var llamasColoso = ConstruirLlamas(toberasColoso);
-        var superiorColoso = coloso.Find("EtapaSuperior");
-        var llamaSupColoso = ConstruirLlamas(new[] { (superiorColoso, new Vector3(0f, CorteEtapaColoso * AltoColoso, 0f), 0.16f, 2f) });
+        // Versión 9: llamas de los lanzadores de la tabla CohetesExtra.
+        var llamasExtra = cohetes.extras.Select(c => LlamasExtra(c.cohete, c.id)).ToList();
 
         var titan = cohetes.titan.transform;
         var inferiorTitan = titan.Find("SLS_NASA/EtapaInferior");
@@ -252,11 +247,29 @@ public static partial class ConstructorEscenas
         Asignar(director, "coheteTitan", cohetes.titan.transform);
         Asignar(director, "superiorExplorador", cohetes.explorador.transform.Find("EtapaSuperior"));
         Asignar(director, "superiorTitan", cohetes.titan.transform.Find("SLS_NASA/EtapaSuperior"));
-        Asignar(director, "coheteColoso", coloso);
-        Asignar(director, "superiorColoso", superiorColoso);
-        AsignarLista(director, "llamasColoso", llamasColoso.ToArray());
-        AsignarLista(director, "llamaSuperiorColoso", llamaSupColoso.ToArray());
-        AsignarLista(director, "cofiaColoso", new Object[] { coloso.Find("EtapaSuperior/CofiaFrente"), coloso.Find("EtapaSuperior/CofiaDetras") });
+        {
+            var so = new SerializedObject(director);
+            var lista = so.FindProperty("cohetesExtra");
+            lista.arraySize = cohetes.extras.Count;
+            for (int i = 0; i < cohetes.extras.Count; i++)
+            {
+                var (id, cohete, _) = cohetes.extras[i];
+                var e = lista.GetArrayElementAtIndex(i);
+                e.FindPropertyRelative("id").stringValue = id;
+                e.FindPropertyRelative("cohete").objectReferenceValue = cohete;
+                e.FindPropertyRelative("superior").objectReferenceValue = cohete.Find("EtapaSuperior");
+                void Lista(string campo, Object[] valores)
+                {
+                    var p = e.FindPropertyRelative(campo);
+                    p.arraySize = valores.Length;
+                    for (int k = 0; k < valores.Length; k++) p.GetArrayElementAtIndex(k).objectReferenceValue = valores[k];
+                }
+                Lista("llamas", llamasExtra[i].pie.ToArray());
+                Lista("llamaSuperior", llamasExtra[i].superior.ToArray());
+                Lista("cofia", new Object[] { cohete.Find("EtapaSuperior/CofiaFrente"), cohete.Find("EtapaSuperior/CofiaDetras") });
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
         AsignarLista(director, "soloEnTierra", new Object[] { complejo.raiz });
         Asignar(director, "cielo", complejo.cielo);
         AsignarLista(director, "brazos", complejo.brazos);

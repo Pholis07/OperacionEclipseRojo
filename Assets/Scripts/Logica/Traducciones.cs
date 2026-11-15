@@ -875,6 +875,15 @@ namespace SpaceMission
             { "Unlock everything", "Desbloquear todo" },
             { "Reset progress", "Reiniciar progreso" },
             { "Levels won: {0} of 3. Each win unlocks the next level and new equipment.", "Niveles ganados: {0} de 3. Cada victoria desbloquea el siguiente nivel y equipo nuevo." },
+            { "Pioneer", "Pionero" },
+            { "Horizon", "Horizonte" },
+            { "Goliath", "Goliat" },
+            { "Tiny and cheap: room for only one instrument", "Pequeño y barato: solo cabe un instrumento" },
+            { "Middle ground: three slots at a fair price", "Término medio: tres espacios a buen precio" },
+            { "Heavy: more mass and braking than the Titan", "Pesado: más masa y frenado que el Titán" },
+            { "PIONEER\n<size=24><color=#94A3B8>Look inspired by NASA’s Jupiter-C. ", "PIONERO\n<size=24><color=#94A3B8>Aspecto inspirado en el Jupiter-C de la NASA. " },
+            { "HORIZON\n<size=24><color=#94A3B8>Look inspired by NASA’s Ares I. ", "HORIZONTE\n<size=24><color=#94A3B8>Aspecto inspirado en el Ares I de la NASA. " },
+            { "GOLIATH\n<size=24><color=#94A3B8>Look inspired by NASA’s Saturn V, in dark gray. ", "GOLIAT\n<size=24><color=#94A3B8>Aspecto inspirado en el Saturn V de la NASA, en gris oscuro. " },
         };
     }
 }

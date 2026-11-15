@@ -97,6 +97,9 @@ namespace SpaceMission
                         ? Idioma.T("LAUNCH PAD\n<size=24><color=#94A3B8>The rocket decides how much mass you can carry and how far it can take it.</color></size>")
                         : (PlataformaCohetes.EsTitan(c.LanzadorId) ? Idioma.T("TITAN\n<size=24><color=#94A3B8>Look inspired by NASA’s SLS. ")
                            : PlataformaCohetes.EsColoso(c.LanzadorId) ? Idioma.T("COLOSSUS\n<size=24><color=#94A3B8>Look inspired by NASA’s Saturn V. ")
+                           : c.LanzadorId == "pionero" ? Idioma.T("PIONEER\n<size=24><color=#94A3B8>Look inspired by NASA’s Jupiter-C. ")
+                           : c.LanzadorId == "horizonte" ? Idioma.T("HORIZON\n<size=24><color=#94A3B8>Look inspired by NASA’s Ares I. ")
+                           : c.LanzadorId == "goliat" ? Idioma.T("GOLIATH\n<size=24><color=#94A3B8>Look inspired by NASA’s Saturn V, in dark gray. ")
                                                                    : Idioma.T("EXPLORER\n<size=24><color=#94A3B8>Like the Soyuz-Fregat. "))
                           + Idioma.T("Sends ") + TextosBriefing.Numero(lanzador.masaInyectadaKg) + Idioma.T(" kg toward Mars.</color></size>");
                     break;

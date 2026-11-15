@@ -16,8 +16,10 @@ namespace SpaceMission
         [SerializeField] Transform titan;
         [SerializeField] Transform resalteExplorador;
         [SerializeField] Transform resalteTitan;
-        [SerializeField] Transform coloso;           // versión 9 (Saturn V)
-        [SerializeField] Transform resalteColoso;
+        // Versión 9: Pionero, Horizonte, Goliat y Coloso (ConstructorEscenas.CohetesExtra).
+        [SerializeField] string[] idsExtra = new string[0];
+        [SerializeField] Transform[] cohetesExtra = new Transform[0];
+        [SerializeField] Transform[] resaltesExtra = new Transform[0];
         [SerializeField] float subida = 1.2f;
 
         (string id, Transform cohete, Transform resalte, Vector3 pos, Quaternion rot)[] cohetes;
@@ -27,9 +29,25 @@ namespace SpaceMission
         public static bool EsTitan(string lanzadorId) => lanzadorId == "titan";
         public static bool EsColoso(string lanzadorId) => lanzadorId == "coloso";
 
+        /// <summary>Alto de cada cohete en la escena (plataforma, cinemática y encuadre de la cámara).</summary>
+        public static float Alto(string lanzadorId)
+        {
+            switch (lanzadorId)
+            {
+                case "pionero": return 6f;
+                case "horizonte": return 8.5f;
+                case "titan": return 11f;
+                case "goliat": return 11.5f;
+                case "coloso": return 12.5f;
+                default: return 7.5f;   // Explorador (Ares 1 B)
+            }
+        }
+
         void Awake()
         {
-            cohetes = new[] { ("explorador", explorador, resalteExplorador), ("titan", titan, resalteTitan), ("coloso", coloso, resalteColoso) }
+            var extras = Enumerable.Range(0, Mathf.Min(idsExtra.Length, cohetesExtra.Length))
+                .Select(i => (idsExtra[i], cohetesExtra[i], i < resaltesExtra.Length ? resaltesExtra[i] : null));
+            cohetes = new[] { ("explorador", explorador, resalteExplorador), ("titan", titan, resalteTitan) }.Concat(extras)
                 .Where(c => c.Item2 != null)
                 .Select(c => (c.Item1, c.Item2, c.Item3, c.Item2.localPosition, c.Item2.localRotation)).ToArray();
         }

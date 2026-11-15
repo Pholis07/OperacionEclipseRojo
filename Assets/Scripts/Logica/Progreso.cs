@@ -7,9 +7,9 @@ namespace SpaceMission
     /// <summary>
     /// Versión 9 (Adrian, 2026-11-15): lo que se desbloquea al ganar. Se guarda en el navegador cuántos niveles se han
     /// ganado seguidos desde el primero:
-    /// - Al empezar: nivel 1, Explorador, MRO, cámara térmica, radar y órbitas media y polar (bastan para ganar).
-    /// - Al ganar el nivel 1: nivel 2, Titán, Magellan, Chandra, Aquarius, alta resolución, sensor atmosférico y elíptica.
-    /// - Al ganar el nivel 2: nivel 3, Coloso, LLCD, AztechSat-1, espectrómetro, ecuatorial y areoestacionaria.
+    /// - Al empezar: nivel 1, Pionero, Explorador, MRO, cámara térmica, radar y órbitas media y polar (bastan para ganar).
+    /// - Al ganar el nivel 1: nivel 2, Horizonte, Titán, Magellan, Chandra, Aquarius, alta resolución, sensor atmosférico y elíptica.
+    /// - Al ganar el nivel 2: nivel 3, Goliat, Coloso, LLCD, AztechSat-1, espectrómetro, ecuatorial y areoestacionaria.
     /// Solo cambia lo que se puede elegir en la interfaz: el cálculo, la evaluación y la Operación no lo miran.
     /// </summary>
     public static class Progreso
@@ -19,9 +19,9 @@ namespace SpaceMission
         /// <summary>Niveles que hay que haber ganado para usar cada cosa (lo que no está, desde el principio).</summary>
         static readonly Dictionary<string, int> Requisito = new Dictionary<string, int>
         {
-            { "titan", 1 }, { "magellan", 1 }, { "chandra", 1 }, { "aquarius", 1 },
+            { "horizonte", 1 }, { "titan", 1 }, { "magellan", 1 }, { "chandra", 1 }, { "aquarius", 1 },
             { "alta_res", 1 }, { "atmosferico", 1 }, { "eliptica", 1 },
-            { "coloso", 2 }, { "llcd", 2 }, { "aztechsat", 2 },
+            { "goliat", 2 }, { "coloso", 2 }, { "llcd", 2 }, { "aztechsat", 2 },
             { "espectrometro", 2 }, { "ecuatorial", 2 }, { "areoestacionaria", 2 },
         };
 

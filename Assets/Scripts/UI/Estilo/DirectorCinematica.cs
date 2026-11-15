@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -41,11 +42,17 @@ namespace SpaceMission
         [SerializeField] Transform coheteTitan;
         [SerializeField] Transform superiorExplorador;
         [SerializeField] Transform superiorTitan;
-        [SerializeField] Transform coheteColoso;       // versión 9: Saturn V (cae la primera etapa entera, como el Explorador)
-        [SerializeField] Transform superiorColoso;
-        [SerializeField] Renderer[] llamasColoso;
-        [SerializeField] Renderer[] llamaSuperiorColoso;
-        [SerializeField] Transform[] cofiaColoso;
+        /// <summary>Versión 9: un lanzador más (Pionero, Horizonte, Goliat, Coloso). Cae la primera etapa entera, como el Explorador.</summary>
+        [System.Serializable]
+        public class CoheteCine
+        {
+            public string id;
+            public Transform cohete, superior;
+            public Renderer[] llamas, llamaSuperior;
+            public Transform[] cofia;
+        }
+        [SerializeField] CoheteCine[] cohetesExtra = new CoheteCine[0];
+        CoheteCine extra;   // el elegido, si es uno de los extra
         [SerializeField] GameObject[] soloEnTierra;
         [SerializeField] GameObject espacio;          // Tierra, estrellas: solo en las tomas en órbita terrestre
         [SerializeField] Transform puntoEspacio;
@@ -207,22 +214,22 @@ namespace SpaceMission
         {
             var config = EstadoJuego.Configuracion;
             bool titan = config.LanzadorId == "titan";
-            bool coloso = config.LanzadorId == "coloso" && coheteColoso != null;
-            cohete = titan ? coheteTitan : coloso ? coheteColoso : coheteExplorador;
-            superior = titan ? superiorTitan : coloso ? superiorColoso : superiorExplorador;
-            llamas = titan ? llamasTitan : coloso ? llamasColoso : llamasExplorador;
-            llamaSuperior = titan ? llamaSuperiorTitan : coloso ? llamaSuperiorColoso : llamaSuperiorExplorador;
-            var propulsores = titan ? propulsoresTitan : coloso ? new Transform[0] : propulsoresExplorador;
+            extra = titan ? null : System.Array.Find(cohetesExtra, c => c.id == config.LanzadorId && c.cohete != null);
+            cohete = titan ? coheteTitan : extra != null ? extra.cohete : coheteExplorador;
+            superior = titan ? superiorTitan : extra != null ? extra.superior : superiorExplorador;
+            llamas = titan ? llamasTitan : extra != null ? extra.llamas : llamasExplorador;
+            llamaSuperior = titan ? llamaSuperiorTitan : extra != null ? extra.llamaSuperior : llamaSuperiorExplorador;
+            var propulsores = titan ? propulsoresTitan : extra != null ? new Transform[0] : propulsoresExplorador;
             GuardarPoses(propulsores);
             if (escenario != null && escenario.Satelite != null) escalaSatelite = escenario.Satelite.localScale;
             if (coheteExplorador != null) coheteExplorador.gameObject.SetActive(!titan);
             if (coheteTitan != null) coheteTitan.gameObject.SetActive(titan);
-            if (coheteColoso != null) coheteColoso.gameObject.SetActive(coloso);
-            if (coloso && coheteExplorador != null) coheteExplorador.gameObject.SetActive(false);
+            foreach (var c in cohetesExtra) if (c.cohete != null) c.cohete.gameObject.SetActive(c == extra);
+            if (extra != null && coheteExplorador != null) coheteExplorador.gameObject.SetActive(false);
             // El elegido, en el centro de la plataforma (bajo los brazos de la torre).
             cohete.localPosition = new Vector3(0f, cohete.localPosition.y, 0f);
             posCohete = cohete.position; rotCohete = cohete.rotation; posSuperior = superior.localPosition;
-            float alto = titan ? 11f : coloso ? 12.5f : 7.5f;   // ConstructorEscenas.AltoExplorador y AltoColoso
+            float alto = PlataformaCohetes.Alto(titan ? "titan" : extra != null ? extra.id : "explorador");
             escenario.Preparar(config);
             escenario.MostrarOrbita(false);
             PrepararComplejo(alto);
@@ -398,7 +405,7 @@ namespace SpaceMission
             //    empujan la carga y la etapa superior que se aparta con pulsos de gas frío (en el vacío, sin motor).
             Toma(7, Idioma.T("FAIRING SEPARATION · PAYLOAD RELEASE"));
             EncenderSuperior(false);
-            var cofia = titan ? cofiaTitan : coheteColoso != null && cohete == coheteColoso ? cofiaColoso : cofiaExplorador;
+            var cofia = titan ? cofiaTitan : extra != null ? extra.cofia : cofiaExplorador;
             var sat = escenario.Satelite;
             var escalaSat = sat.localScale;
             var nariz = Vector3.zero;
@@ -623,7 +630,7 @@ namespace SpaceMission
             RenderSettings.fog = tierraFirme;
             LuzDorada(tierraFirme);
             // Sombras del cohete solo sobre la plataforma: en órbita serían manchas enormes sobre la Tierra.
-            foreach (var c in new[] { coheteExplorador, coheteTitan, coheteColoso })
+            foreach (var c in new[] { coheteExplorador, coheteTitan }.Concat(cohetesExtra.Select(x => x.cohete)))
                 if (c != null)
                     foreach (var r in c.GetComponentsInChildren<MeshRenderer>(true))
                         if (!r.name.StartsWith("LlamaMotor") && !r.name.StartsWith("Logo"))
@@ -708,8 +715,7 @@ namespace SpaceMission
             Mostrar(llamasTitan, false);
             Mostrar(llamaSuperiorExplorador, false);
             Mostrar(llamaSuperiorTitan, false);
-            Mostrar(llamasColoso, false);
-            Mostrar(llamaSuperiorColoso, false);
+            foreach (var c in cohetesExtra) { Mostrar(c.llamas, false); Mostrar(c.llamaSuperior, false); }
             if (luzMotores != null) luzMotores.enabled = false;
             if (destello != null) destello.alpha = 0f;
             // Los brazos de la torre, a la altura del cohete elegido y pegados a él.
@@ -731,8 +737,11 @@ namespace SpaceMission
             poses.Clear();
             void Guardar(Transform t) { if (t != null) poses.Add((t, t.localPosition, t.localRotation, t.gameObject.activeSelf)); }
             Guardar(coheteExplorador); Guardar(coheteTitan); Guardar(superiorExplorador); Guardar(superiorTitan);
-            Guardar(coheteColoso); Guardar(superiorColoso);
-            if (cofiaColoso != null) foreach (var c in cofiaColoso) Guardar(c);
+            foreach (var x in cohetesExtra)
+            {
+                Guardar(x.cohete); Guardar(x.superior);
+                if (x.cofia != null) foreach (var c in x.cofia) Guardar(c);
+            }
             if (propulsoresExplorador != null) foreach (var p in propulsoresExplorador) Guardar(p);
             if (propulsoresTitan != null) foreach (var p in propulsoresTitan) Guardar(p);
             if (brazos != null) foreach (var b in brazos) Guardar(b);

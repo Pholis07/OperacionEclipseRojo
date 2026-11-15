@@ -88,8 +88,8 @@ namespace SpaceMission
             if (pestana == ConfiguracionUI.Pestana.Orbita) objetivo = EncajarOrbita(planeta, config.OrbitaId);
             else if (pestana == ConfiguracionUI.Pestana.Lanzador)
                 objetivo = string.IsNullOrEmpty(config.LanzadorId) || plataformaExplorador.campo <= 1f ? plataforma
-                         : PlataformaCohetes.EsTitan(config.LanzadorId) ? plataformaTitan
-                         : PlataformaCohetes.EsColoso(config.LanzadorId) && plataformaColoso.campo > 1f ? plataformaColoso : plataformaExplorador;
+                         : PlataformaCohetes.Alto(config.LanzadorId) > 11.9f && plataformaColoso.campo > 1f ? plataformaColoso
+                         : PlataformaCohetes.Alto(config.LanzadorId) > 9f ? plataformaTitan : plataformaExplorador;
             else if (pestana == ConfiguracionUI.Pestana.Satelite) { objetivo = nave; objetivo.campo = campoSatelite; }
             else if (moduloEnFoco != null && Time.unscaledTime < finFoco) objetivo = EncuadreModulo(moduloEnFoco);
             else moduloEnFoco = null;

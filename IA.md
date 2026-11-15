@@ -567,3 +567,9 @@ Pedido de Adrian: un informe menos saturado y un juego informativo sin ser invas
   - Opciones tiene «Unlock everything» (jurado) y «Reset progress». Las pruebas corren con todo abierto (`ProgresoAbierto`).
 - Pruebas: 373/373 EditMode y 24/24 PlayMode. Build WebGL correcto.
 - Comprobado en el navegador a 1366x768: candados en el Briefing y en la pestaña Lanzador, desbloquear todo desde Opciones y cinemática completa con el Coloso.
+- **Más lanzadores (mismo día):**
+  - Seis en total, del más barato al más caro: Pionero (Jupiter-C, 1 espacio, abierto desde el principio), Explorador, Horizonte (Ares 1 A, 3 espacios, nivel 1), Titán, Goliat (Saturn V en gris, nivel 2) y Coloso.
+  - Los modelos nuevos se convirtieron con Blender sin las texturas con «USA».
+  - `ConstructorEscenas.CohetesExtra` es la tabla de modelo, cortes, tinte y posición. La cinemática usa la lista `DirectorCinematica.cohetesExtra`, y `PlataformaCohetes.Alto` da el alto de cada uno.
+- **Equipo:** el nombre cambió de GangBangers a DualDynamics en el juego, la licencia y el README.
+- Pruebas: 377/377 EditMode y 24/24 PlayMode. Build de 58 MB. Revisado en el navegador: los seis en la plataforma, candados y cinemática completa con el Pionero.

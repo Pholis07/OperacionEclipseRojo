@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d38269f3749e294185c3bd9ede73ef6, type: 3}
+  m_Name: Lanzador_pionero
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.LanzadorDatos
+  id: pionero
+  nombre: Pioneer
+  costoCr: 110
+  capacidadKg: 430
+  espacios: 1
+  masaInyectadaKg: 1020
+  descripcion: 'Tiny and cheap: room for only one instrument'
+  datoNasa: Looks like NASA's Jupiter-C, which launched Explorer 1 (about 14 kg) in 1958. The game uses 1,020 kg toward Mars.
+  datoNasaEs: "Aspecto del Jupiter-C de la NASA, que lanz\xF3 el Explorer 1 (unos 14 kg) en 1958. El juego usa 1,020 kg hacia Marte."
+  fuenteNasa: NASA

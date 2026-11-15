@@ -24,7 +24,7 @@ namespace SpaceMission.Tests
         {
             Assert.IsNotNull(catalogo.mision);
             Assert.AreEqual(5, catalogo.orbitas.Count, "versión 7: las tres originales, ecuatorial baja y areoestacionaria");
-            Assert.AreEqual(3, catalogo.lanzadores.Count);   // versión 9: el Coloso
+            Assert.AreEqual(6, catalogo.lanzadores.Count);   // versión 9: Pionero, Horizonte, Goliat y Coloso
             Assert.AreEqual(5, catalogo.instrumentos.Count);
         }
 
@@ -32,7 +32,7 @@ namespace SpaceMission.Tests
         public void LosIdsSonUnicosYSonLosEsperados()
         {
             CollectionAssert.AreEquivalent(new[] { "polar", "media", "eliptica", "ecuatorial", "areoestacionaria" }, catalogo.orbitas.Select(o => o.id).ToArray());
-            CollectionAssert.AreEquivalent(new[] { "explorador", "titan", "coloso" }, catalogo.lanzadores.Select(l => l.id).ToArray());
+            CollectionAssert.AreEquivalent(new[] { "pionero", "explorador", "horizonte", "titan", "goliat", "coloso" }, catalogo.lanzadores.Select(l => l.id).ToArray());
             CollectionAssert.AreEquivalent(
                 new[] { "termica", "radar", "alta_res", "atmosferico", "espectrometro" },
                 catalogo.instrumentos.Select(i => i.id).ToArray());

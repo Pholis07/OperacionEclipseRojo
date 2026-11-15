@@ -1,3 +1,4 @@
+using SpaceMission;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -21,26 +22,63 @@ public static partial class ConstructorEscenas
     // empieza en 7.6.
     const float CorteEtapaAres = 0.575f, CorteNarizAres = 0.787f;
 
-    /// <summary>Alto del Coloso (Saturn V) en la escena: el más alto de los tres. Igual en DirectorCinematica.</summary>
-    public const float AltoColoso = 12.5f;
-
-    // Saturn V (alto 12.99 en el FBX): el S-II termina en 0.62 (el radio pasa de 0.62 a 0.43) y el adaptador con el
-    // Apollo empieza en 0.79.
-    const float CorteEtapaColoso = 0.62f, CorteNarizColoso = 0.79f;
+    /// <summary>
+    /// Versión 9: los lanzadores que se suman al Explorador y al Titán, todos de NASA 3D Resources sin banderas ni
+    /// «USA» (ver CREDITOS.md). Cortes en fracción del alto, medidos en cada modelo:
+    /// - Jupiter-C: la primera etapa termina en 0.76 y el racimo de etapas superiores en 0.90.
+    /// - Ares 1 (A): mismo perfil que el Ares 1 (B).
+    /// - Saturn V: el S-II termina en 0.62 (el radio pasa de 0.62 a 0.43) y el adaptador con el Apollo empieza en 0.79.
+    /// El alto también está en PlataformaCohetes.Alto (la cinemática y la cámara lo usan).
+    /// </summary>
+    static readonly (string id, string ruta, string prefijo, float etapa, float nariz, Color? tinte, int motores, float x)[] CohetesExtra =
+    {
+        ("pionero", "NASA/jupiterc.fbx", "JupiterC", 0.76f, 0.90f, null, 1, -4.4f),
+        ("horizonte", "NASA/ares1a.fbx", "AresA", 0.575f, 0.787f, new Color(2.1f, 2.05f, 1.9f), 1, -2.2f),   // gris oscuro → claro
+        ("goliat", "NASA/saturnv.fbx", "Goliat", 0.62f, 0.79f, new Color(0.42f, 0.44f, 0.5f), 5, 1.4f),       // Saturn V en gris pizarra
+        ("coloso", "NASA/saturnv.fbx", "SaturnV", 0.62f, 0.79f, null, 5, 3.6f),
+    };
 
     /// <summary>Monta el Ares en «cohete» (base en su origen) y devuelve la etapa superior.</summary>
     static Transform ConstruirAres(Transform cohete) =>
         ConstruirPorEtapas(cohete, "NASA/ares1b.fbx", "Ares", AltoExplorador, CorteEtapaAres, CorteNarizAres);
 
-    /// <summary>Versión 9: el Coloso con el Saturn V de NASA 3D Resources (sin las banderas ni el «USA» del original).</summary>
-    static Transform ConstruirColoso(Transform cohete) =>
-        ConstruirPorEtapas(cohete, "NASA/saturnv.fbx", "SaturnV", AltoColoso, CorteEtapaColoso, CorteNarizColoso);
+    /// <summary>
+    /// Un lanzador de la tabla: el cohete «Cohete_id» en la plataforma, con su logo y su resalte. Lo usan la pestaña
+    /// Lanzador y la cinemática (que le añade las llamas con LlamasExtra).
+    /// </summary>
+    static (string id, Transform cohete, GameObject resalte) ConstruirCoheteExtra(Transform raiz, int i, System.Func<string, Vector3, GameObject> resalte)
+    {
+        var d = CohetesExtra[i];
+        float alto = PlataformaCohetes.Alto(d.id);
+        var cohete = new GameObject("Cohete_" + d.id).transform;
+        cohete.SetParent(raiz, false);
+        cohete.localPosition = new Vector3(d.x, 0, 0);
+        var superior = ConstruirPorEtapas(cohete, d.ruta, d.prefijo, alto, d.etapa, d.nariz, d.tinte);
+        float alturaLogo = alto * Mathf.Lerp(d.etapa, d.nariz, 0.45f);
+        LogoPatrocinio(superior, "Fence", false, RadioNucleo(cohete, alturaLogo) + 0.012f, alturaLogo, alto * 0.044f, cohete);
+        cohete.gameObject.AddComponent<GiroLento>().enabled = false;
+        return (d.id, cohete, resalte("Elegido_" + d.id, cohete.localPosition));
+    }
+
+    /// <summary>Llamas de un lanzador de la tabla: las del pie (1 o 5 motores) y la de la etapa superior.</summary>
+    static (List<Renderer> pie, List<Renderer> superior) LlamasExtra(Transform cohete, string id)
+    {
+        var d = System.Array.Find(CohetesExtra, c => c.id == id);
+        float alto = PlataformaCohetes.Alto(id);
+        var toberas = new List<(Transform, Vector3, float, float)> { (cohete, new Vector3(0f, 0.05f, 0f), alto * 0.013f, alto * 0.44f) };
+        if (d.motores == 5)   // Saturn V: cinco F-1, uno central y cuatro en cruz
+            for (int k = 0; k < 4; k++)
+                toberas.Add((cohete, Quaternion.Euler(0, 45f + 90f * k, 0) * Vector3.forward * alto * 0.024f + Vector3.up * 0.05f, alto * 0.011f, alto * 0.4f));
+        var superior = cohete.Find("EtapaSuperior");
+        return (ConstruirLlamas(toberas), ConstruirLlamas(new[] { (superior, new Vector3(0f, d.etapa * alto, 0f), alto * 0.013f, alto * 0.16f) }));
+    }
 
     /// <summary>
     /// Instancia un modelo de una pieza, lo escala a «alto», lo apoya en el origen de «cohete» y lo parte por altura:
     /// primera etapa (en el cohete), etapa superior y la nariz en dos mitades con bisagra. Devuelve la etapa superior.
     /// </summary>
-    static Transform ConstruirPorEtapas(Transform cohete, string ruta, string prefijo, float alto, float fraccionEtapa, float fraccionNariz)
+    static Transform ConstruirPorEtapas(Transform cohete, string ruta, string prefijo, float alto, float fraccionEtapa, float fraccionNariz,
+        Color? tinte = null)
     {
         var superior = new GameObject("EtapaSuperior").transform;
         superior.SetParent(cohete, false);
@@ -66,7 +104,7 @@ public static partial class ConstructorEscenas
         {
             var malla = mf.sharedMesh;
             var vs = malla.vertices;
-            var mats = System.Array.ConvertAll(mf.GetComponent<MeshRenderer>().sharedMaterials, m => MaterialNasa("Cohete_" + prefijo, m));
+            var mats = System.Array.ConvertAll(mf.GetComponent<MeshRenderer>().sharedMaterials, m => Tenir(MaterialNasa("Cohete_" + prefijo, m), tinte));
             // 0 = primera etapa, 1 = etapa superior, -1/1+1 = mitades de la nariz (por el lado en X).
             var partes = new Dictionary<int, List<int>[]>();
             for (int s = 0; s < malla.subMeshCount; s++)
@@ -119,5 +157,15 @@ public static partial class ConstructorEscenas
             foreach (var h in hijos) h.SetParent(par.Value, true);
         }
         return superior;
+    }
+
+    /// <summary>Multiplica el color del material (recién puesto por CrearMaterial, así que no se acumula).</summary>
+    static Material Tenir(Material m, Color? tinte)
+    {
+        if (m == null || !tinte.HasValue) return m;
+        var c = m.GetColor("_BaseColor") * tinte.Value;
+        m.SetColor("_BaseColor", new Color(Mathf.Min(c.r, 1f), Mathf.Min(c.g, 1f), Mathf.Min(c.b, 1f), 1f));
+        EditorUtility.SetDirty(m);
+        return m;
     }
 }

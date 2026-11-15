@@ -26,9 +26,9 @@ namespace SpaceMission.Tests
         public void AlEmpezarSoloEstaLoBasicoYAlcanzaParaGanar()
         {
             Assert.AreEqual(0, Progreso.NivelesGanados);
-            foreach (var id in new[] { "explorador", "mro", "termica", "radar", "media", "polar" })
+            foreach (var id in new[] { "pionero", "explorador", "mro", "termica", "radar", "media", "polar" })
                 Assert.IsTrue(Progreso.Desbloqueado(id), id);
-            foreach (var id in new[] { "titan", "coloso", "chandra", "llcd", "espectrometro", "eliptica", "areoestacionaria" })
+            foreach (var id in new[] { "horizonte", "titan", "goliat", "coloso", "chandra", "llcd", "espectrometro", "eliptica", "areoestacionaria" })
                 Assert.IsFalse(Progreso.Desbloqueado(id), id);
             Assert.IsTrue(Progreso.NivelDisponible(0));
             Assert.IsFalse(Progreso.NivelDisponible(1));
@@ -40,7 +40,7 @@ namespace SpaceMission.Tests
         [Test]
         public void CadaVictoriaAbreElSiguienteNivelYSuEquipo()
         {
-            CollectionAssert.AreEquivalent(new[] { "titan", "magellan", "chandra", "aquarius", "alta_res", "atmosferico", "eliptica" },
+            CollectionAssert.AreEquivalent(new[] { "horizonte", "titan", "magellan", "chandra", "aquarius", "alta_res", "atmosferico", "eliptica" },
                 Progreso.RegistrarVictoria(0));
             Assert.IsTrue(Progreso.NivelDisponible(1));
             Assert.IsFalse(Progreso.NivelDisponible(2));
@@ -59,8 +59,16 @@ namespace SpaceMission.Tests
         {
             var c = catalogo.Lanzador("coloso");
             Assert.IsNotNull(c);
-            Assert.AreEqual(3, catalogo.lanzadores.Count);
+            Assert.AreEqual(6, catalogo.lanzadores.Count);
             Assert.IsTrue(catalogo.lanzadores.All(l => l == c || (l.capacidadKg < c.capacidadKg && l.costoCr < c.costoCr && l.masaInyectadaKg < c.masaInyectadaKg)));
+            // En la pestaña van del más barato al más caro, y cuanto más caro, más capaz.
+            for (int i = 1; i < catalogo.lanzadores.Count; i++)
+            {
+                var a = catalogo.lanzadores[i - 1]; var b = catalogo.lanzadores[i];
+                Assert.Less(a.costoCr, b.costoCr, b.id);
+                Assert.Less(a.capacidadKg, b.capacidadKg, b.id);
+                Assert.LessOrEqual(a.espacios, b.espacios, b.id);
+            }
             // Con todos los instrumentos cabe en masa y espacios; la potencia (800 de 700 W) sigue mandando.
             var e = Evaluador.Evaluar(new Configuracion("media", "coloso", catalogo.instrumentos.Select(i => i.id)), catalogo);
             Assert.AreEqual(EstadoSemaforo.Rojo, e.Estado);
@@ -79,7 +87,7 @@ namespace SpaceMission.Tests
             ui.MostrarPestana(ConfiguracionUI.Pestana.Lanzador);
             var bloqueados = Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsInactive.Include, FindObjectsSortMode.None)
                 .Where(b => b.name.StartsWith("Bloqueado_")).Select(b => b.name).ToList();
-            CollectionAssert.AreEquivalent(new[] { "Bloqueado_titan", "Bloqueado_coloso" }, bloqueados);
+            CollectionAssert.AreEquivalent(new[] { "Bloqueado_horizonte", "Bloqueado_titan", "Bloqueado_goliat", "Bloqueado_coloso" }, bloqueados);
             var candado = Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsInactive.Include, FindObjectsSortMode.None).First(b => b.name == "Bloqueado_titan");
             StringAssert.Contains("Win level 1", candado.GetComponentInChildren<TMP_Text>().text);
             candado.onClick.Invoke();
@@ -99,27 +107,43 @@ namespace SpaceMission.Tests
             Assert.AreEqual(0, EstadoJuego.NivelIndice);
         }
 
-        [Test]
-        public void ElColosoEstaEnLaPlataformaYEnLaCinematica()
+        [TestCase("pionero", "JupiterC_")]
+        [TestCase("horizonte", "AresA_")]
+        [TestCase("goliat", "Goliat_")]
+        [TestCase("coloso", "SaturnV_")]
+        public void CadaLanzadorNuevoEstaEnLaPlataformaYEnLaCinematica(string id, string prefijo)
         {
             EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
             var cohetes = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-                .Where(t => t.name == "Cohete_coloso").ToArray();
+                .Where(t => t.name == "Cohete_" + id).ToArray();
             Assert.AreEqual(2, cohetes.Length, "pestaña Lanzador y cinemática");
             foreach (var c in cohetes)
             {
-                var cuerpo = c.GetComponentsInChildren<MeshRenderer>(true).Where(r => r.name.StartsWith("SaturnV_")).ToArray();
+                var cuerpo = c.GetComponentsInChildren<MeshRenderer>(true).Where(r => r.name.StartsWith(prefijo)).ToArray();
                 Assert.IsNotEmpty(cuerpo);
                 var b = cuerpo[0].bounds; foreach (var r in cuerpo) b.Encapsulate(r.bounds);
-                Assert.AreEqual(12.5f, b.size.y, 0.6f, "alto del Coloso");
-                Assert.Greater(b.size.y, b.size.x * 6f, "de pie");
+                Assert.AreEqual(PlataformaCohetes.Alto(id), b.size.y, 0.6f, "alto");
+                Assert.Greater(b.size.y, b.size.x * 4f, "de pie");
+                Assert.AreEqual(c.position.y, b.min.y, 0.1f, "apoyado en la plataforma");
                 Assert.IsNotEmpty(c.Find("EtapaSuperior/CofiaFrente").GetComponentsInChildren<MeshRenderer>(true));
-                foreach (var r in cuerpo) foreach (var m in r.sharedMaterials) Assert.IsNull(m.GetTexture("_BaseMap"), "sin las texturas con banderas: " + m.name);
+                foreach (var r in cuerpo) foreach (var m in r.sharedMaterials) Assert.IsNull(m.GetTexture("_BaseMap"), "sin texturas con marcas: " + m.name);
             }
             var director = new SerializedObject(Object.FindObjectsByType<DirectorCinematica>(FindObjectsInactive.Include, FindObjectsSortMode.None).Single());
-            Assert.IsNotNull(director.FindProperty("coheteColoso").objectReferenceValue);
-            Assert.AreEqual(2, director.FindProperty("cofiaColoso").arraySize);
-            Assert.Greater(director.FindProperty("llamasColoso").arraySize, 0);
+            var lista = director.FindProperty("cohetesExtra");
+            SerializedProperty e = null;
+            for (int i = 0; i < lista.arraySize; i++) if (lista.GetArrayElementAtIndex(i).FindPropertyRelative("id").stringValue == id) e = lista.GetArrayElementAtIndex(i);
+            Assert.IsNotNull(e, "la cinemática conoce el cohete");
+            Assert.IsNotNull(e.FindPropertyRelative("cohete").objectReferenceValue);
+            Assert.AreEqual(2, e.FindPropertyRelative("cofia").arraySize);
+            Assert.Greater(e.FindPropertyRelative("llamas").arraySize, 0);
+        }
+
+        [Test]
+        public void ElPioneroLlegaConUnInstrumentoYSoloDaParcial()
+        {
+            var e = Evaluador.Evaluar(new Configuracion("media", "pionero", new[] { "radar" }), catalogo, catalogo.Nivel(0));
+            Assert.IsTrue(e.SePuedeLanzar);
+            Assert.AreEqual(CategoriaResultado.Parcial, e.Categoria, "con un solo espacio no caben térmica y radar");
         }
     }
 }
