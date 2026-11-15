@@ -434,7 +434,7 @@ namespace SpaceMission
             { "NO DATA · SPACECRAFT DISORIENTED", "SIN DATOS · NAVE DESORIENTADA" },
             { "NO TRANSMISSION WENT OUT THIS MONTH", "EL ENVÍO NO SALIÓ ESTE MES" },
             { "New mission", "Nueva misión" },
-            { "New? Play Mission 0 first", "¿Nuevo? Juega antes la Misión 0" },
+            { "New? Play Mission 0 first", "¿Nuevo? Juega la Misión 0" },
             { "Next month gives no readings (orientation)", "El mes siguiente no dará lecturas (orientación)" },
             { "Next month loses ", "El mes siguiente pierde " },
             { "Next month's quality ×", "Calidad del mes siguiente ×" },

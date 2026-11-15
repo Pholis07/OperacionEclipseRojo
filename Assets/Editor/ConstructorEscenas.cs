@@ -1342,9 +1342,9 @@ public static partial class ConstructorEscenas
         Encabezado(izqDetalle, "EtiquetaDetalle", SpaceMission.Iconos.Informe + "  MISSION DETAILS");
         var cajaRecursos = Columna(izqDetalle, "Recursos", 8, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
         Bordes(cajaRecursos, LineaHud);
-        cajaRecursos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var recursos = Texto(cajaRecursos, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        recursos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        // El cuadro mide lo que su texto (antes se estiraba hasta los botones y quedaba medio vacío).
+        Alto(Vacio(izqDetalle, "EspacioDetalle"), 0).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var modificar = Boton(izqDetalle, "BotonModificar", "Modify my mission", true);
         AjustarTexto(modificar); // texto exacto: lo comprueban las pruebas
         var volver = Boton(izqDetalle, "BotonVeredicto", "Back to the verdict", false);
@@ -1995,7 +1995,7 @@ public static partial class ConstructorEscenas
         mat.SetFloat("_FuerzaParche", 1.6f);
         // Versión 6: nubes de hielo de agua (GeneradorCapasMarte), escarcha en los casquetes y crepúsculo azulado.
         mat.SetTexture("_Nubes", ConstructorEstilo.Imagen("Texturas/Marte_Nubes"));
-        mat.SetFloat("_FuerzaNubes", 0.26f);
+        mat.SetFloat("_FuerzaNubes", 0.18f);
         mat.SetFloat("_VelocidadNubes", 0.0015f);
         mat.SetColor("_ColorNubes", new Color(0.93f, 0.95f, 1f));
         mat.SetFloat("_Escarcha", 0.55f);

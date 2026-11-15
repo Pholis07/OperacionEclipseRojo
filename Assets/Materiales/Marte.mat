@@ -128,7 +128,7 @@ Material:
     - _FuerzaCrepusculo: 0.22
     - _FuerzaDetalle: 0.45
     - _FuerzaNormales: 1.8
-    - _FuerzaNubes: 0.26
+    - _FuerzaNubes: 0.18
     - _FuerzaParche: 1.6
     - _Gamma: 1.22
     - _GlossMapScale: 0

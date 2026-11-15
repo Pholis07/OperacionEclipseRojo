@@ -182,7 +182,8 @@ Shader "OperacionEclipseRojo/Planeta"
                 float2 uvNubes = float2(s.uv.x + _Time.y * _VelocidadNubes, s.uv.y);
                 half nube = SAMPLE_TEXTURE2D(_Nubes, sampler_Nubes, uvNubes).a * _FuerzaNubes;
                 half3 colorNube = _ColorNubes.rgb * (principal.color * luzGeo + _Ambiente.rgb);
-                color = lerp(color, colorNube, nube * saturate(luzGeo * 2.0h + 0.15h));
+                // Solo del lado iluminado: en la sombra se veían como vetas grises.
+                color = lerp(color, colorNube, nube * smoothstep(0.1h, 0.5h, luzGeo));
 
                 // Borde de polvo del lado iluminado (la atmósfera fina dispersa la luz en el contorno).
                 half borde = pow(1.0h - saturate(dot(nGeo, vista)), _PotenciaBorde);
