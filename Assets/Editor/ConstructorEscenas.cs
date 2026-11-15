@@ -647,8 +647,8 @@ public static partial class ConstructorEscenas
     static CargaUI ConstruirCarga(RectTransform vista, CatalogoDatos catalogo, MisionUI mision)
     {
         var ui = vista.gameObject.AddComponent<CargaUI>();
-        var tarjeta = Columna(vista, "Tarjeta", 18, TextAnchor.UpperLeft, Tarjeta, 48);
-        Anclar(tarjeta, new Vector2(0.22f, 0.06f), new Vector2(0.78f, 0.94f));
+        var tarjeta = Columna(vista, "Tarjeta", 12, TextAnchor.UpperLeft, Tarjeta, 40);
+        Anclar(tarjeta, new Vector2(0.22f, 0.04f), new Vector2(0.78f, 0.96f));
         tarjeta.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(tarjeta);
         var paso = Texto(tarjeta, "Paso", Paso(3), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
@@ -658,18 +658,19 @@ public static partial class ConstructorEscenas
         var recursos = Texto(tarjeta, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         recursos.lineSpacing = 4;
         var leRecursos = recursos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
-        leRecursos.minHeight = 170; leRecursos.preferredHeight = 170;
+        leRecursos.minHeight = 275; leRecursos.preferredHeight = 275;
         Encabezado(tarjeta, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  HERRAMIENTAS");
         var lista = Columna(tarjeta, "ListaCarga", 8, TextAnchor.UpperLeft);
         lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var plantilla = Boton(lista, "PlantillaCarga", "Herramienta", false);
         Opcion(plantilla, 26);
-        plantilla.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 92;
-        plantilla.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 92;
+        plantilla.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 68;
+        plantilla.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 68;
         plantilla.GetComponentInChildren<TextMeshProUGUI>().lineSpacing = 0;
         var botones = Fila(tarjeta, "Botones", 24);
         Alto(botones, 88);
         var volver = Boton(botones, "BotonVolverCarga", SpaceMission.Iconos.Atras + "  Revisión", false);
+        var usarMro = Boton(botones, "BotonUsarMro", "Usar el MRO", false);
         var lanzar = Boton(botones, "BotonLanzarCarga", SpaceMission.Iconos.Lanzador + "  Lanzar", true);
         Aparecer(vista, tarjeta);
 
@@ -680,6 +681,7 @@ public static partial class ConstructorEscenas
         Asignar(ui, "plantillaHerramienta", plantilla);
         Asignar(ui, "botonVolver", volver);
         Asignar(ui, "botonLanzar", lanzar);
+        Asignar(ui, "botonUsarMro", usarMro);
         return ui;
     }
 

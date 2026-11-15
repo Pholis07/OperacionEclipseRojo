@@ -160,3 +160,21 @@ El informe los muestra cumplidos o no.
 7. PlayMode del recorrido, build y verificación en el navegador.
 
 Cada paso deja el juego funcionando y con todas las pruebas pasando.
+
+---
+
+# Satélites: mecánicas (aprobadas)
+
+Adrian las aprobó tal cual el 2026-11-14. El satélite no entra en el Evaluador ni en el semáforo, así que los 19 casos no cambian. Se paga en la Carga con lo que sobra, antes que las herramientas, y sus efectos solo existen en la Operación. Sin satélite elegido se usa el MRO, que es neutro.
+
+| Satélite | Costo | Masa | Ventaja | Desventaja |
+|---|---|---|---|---|
+| MRO (por defecto) | 0 cr | 0 kg | Equilibrado | — |
+| Magellan | 30 cr | 10 kg | Radar +30 % de alcance; cambiar de altitud cuesta 2 | 1 bloque menos de memoria |
+| Chandra | 30 cr | 40 kg | No le afecta la pérdida de orientación; térmica y alta resolución +20 % de alcance | Muy pesado (−4 de combustible) |
+| Aquarius | 40 cr | 20 kg | +1 bloque de memoria; la tormenta creciendo no le da lecturas falsas | +50 W de consumo en la Operación |
+| LLCD | 50 cr | 10 kg | Transmisor de 50 W; ventana de contacto cada 2 órbitas | Si sigue en una tormenta creciendo, esa órbita no puede enviar |
+
+- Si lo que sobra no alcanza, la Carga bloquea «Lanzar» y ofrece «Usar el MRO».
+- La Revisión sigue mostrando el consumo sin el Aquarius; la Operación lo suma.
+- Diego muestra estos datos en su pestaña Satélite (campos `ventaja` y `desventaja` de `SateliteDatos`).

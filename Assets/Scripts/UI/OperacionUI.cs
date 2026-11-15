@@ -200,7 +200,7 @@ namespace SpaceMission
             if (Op == null) return;
             var nueva = Op.Altitud == Altitud.Normal ? Altitud.Baja : Altitud.Normal;
             if (!Op.CambiarAltitud(nueva))
-                textoLectura.text = "No alcanza el combustible para cambiar de altitud (cuesta " + Reglas.combustiblePorCambioAltitud + ").";
+                textoLectura.text = "No alcanza el combustible para cambiar de altitud (cuesta " + Op.CostoCambioAltitud + ").";
             else
                 textoLectura.text = nueva == Altitud.Baja
                     ? "Bajaste a la órbita baja: las lecturas alcanzan más lejos, pero el arrastre gasta " + Reglas.combustiblePorOrbitaBaja + " de combustible por órbita."
@@ -218,7 +218,7 @@ namespace SpaceMission
                 if (Op.Recibidas.Count > recibidas) MostrarTransmision(Op.Recibidas.Last());
             }
             else if (Op.Apagones > apagones)
-                textoLectura.text = "El transmisor necesita " + Reglas.vatiosTransmisor + " W y no cabían.\n" + MensajeApagon();
+                textoLectura.text = "El transmisor necesita " + Op.VatiosTransmisor + " W y no cabían.\n" + MensajeApagon();
             Refrescar();
         }
 
@@ -264,6 +264,11 @@ namespace SpaceMission
 
         void MostrarEvento(EventoActivo e)
         {
+            if (e.EvitadoPorSatelite)
+            {
+                textoEvento.text = "<b><color=#EAB308>" + e.Datos.nombre + "</color></b>\nAl " + Op.Satelite.nombre + " no le afectó: su apunte es muy preciso.";
+                return;
+            }
             var herramienta = string.IsNullOrEmpty(e.Datos.herramientaId) ? null : Catalogo.Herramienta(e.Datos.herramientaId);
             textoEvento.text = "<b><color=#EAB308>" + e.Datos.nombre + "</color></b>\n" + e.Datos.texto +
                                (herramienta != null && !e.Resuelto ? "\nSe resuelve con: " + herramienta.nombre + "." : "");
@@ -328,21 +333,22 @@ namespace SpaceMission
             if (botonAltitud != null)
             {
                 botonAltitud.gameObject.SetActive(Op.ConMemoria);
-                botonAltitud.interactable = !Op.Terminada && !Op.EsperandoDecision && Op.Combustible >= Reglas.combustiblePorCambioAltitud;
+                botonAltitud.interactable = !Op.Terminada && !Op.EsperandoDecision && Op.Combustible >= Op.CostoCambioAltitud;
                 botonAltitud.GetComponentInChildren<TMP_Text>().text =
                     (Op.Altitud == Altitud.Normal ? "Bajar a órbita baja" : "Subir a órbita normal") +
-                    " (" + Reglas.combustiblePorCambioAltitud + " de combustible)";
+                    " (" + Op.CostoCambioAltitud + " de combustible)";
             }
             if (textoMemoria != null)
                 textoMemoria.text = !Op.ConMemoria ? "" :
                     "Memoria: " + Op.MemoriaUsada + " / " + Op.MemoriaCapacidad + " bloques  ·  " +
-                    (Op.ContactoAbierto ? "<color=#22C55E>contacto con la Tierra ABIERTO</color>"
+                    (Op.EnvioBloqueado ? "<color=#EAB308>el polvo bloquea el láser</color>"
+                    : Op.ContactoAbierto ? "<color=#22C55E>contacto con la Tierra ABIERTO</color>"
                         : "contacto en " + Op.OrbitasParaContacto + (Op.OrbitasParaContacto == 1 ? " órbita" : " órbitas"));
             if (botonEnviar != null)
             {
                 botonEnviar.gameObject.SetActive(Op.ConMemoria);
-                botonEnviar.interactable = !Op.Terminada && !Op.EsperandoDecision && Op.ContactoAbierto && Op.MemoriaUsada > 0;
-                botonEnviar.GetComponentInChildren<TMP_Text>().text = "Enviar (+" + Reglas.vatiosTransmisor + " W)";
+                botonEnviar.interactable = !Op.Terminada && !Op.EsperandoDecision && Op.ContactoAbierto && !Op.EnvioBloqueado && Op.MemoriaUsada > 0;
+                botonEnviar.GetComponentInChildren<TMP_Text>().text = "Enviar (+" + Op.VatiosTransmisor + " W)";
             }
             if (botonEsperar != null)
             {

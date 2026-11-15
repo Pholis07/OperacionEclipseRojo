@@ -75,6 +75,28 @@ public static class DatosVersion3
             Op("Bajar de altitud sin gastar combustible (después el arrastre sí gasta)", EfectoOpcion.BajarAltitud),
             Op("Seguir así (el próximo escaneo puede dar una lectura falsa)", EfectoOpcion.Aguantar));
 
+        // Satélites (mecánicas aprobadas por Adrian el 2026-11-14). El MRO es el neutro.
+        Satelite(catalogo, "mro", 0, 0, "Equilibrado: sin ventajas ni desventajas.", "Ninguna.");
+        var magellan = Satelite(catalogo, "magellan", 30, 10,
+            "El radar de subsuelo lee un 30 % más lejos. Pionero del aerofrenado: cambiar de altitud cuesta 2 de combustible.",
+            "Grabadora antigua: 1 bloque menos de memoria.");
+        magellan.instrumentosConAlcance = new[] { "radar" }; magellan.factorAlcance = 1.3f;
+        magellan.combustiblePorCambioAltitud = 2; magellan.memoriaExtra = -1;
+        var chandra = Satelite(catalogo, "chandra", 30, 40,
+            "Apunte muy preciso: no le afecta la pérdida de orientación, y las cámaras térmica y de alta resolución leen un 20 % más lejos.",
+            "Muy pesado: sus 40 kg restan 4 de combustible.");
+        chandra.instrumentosConAlcance = new[] { "termica", "alta_res" }; chandra.factorAlcance = 1.2f;
+        chandra.inmuneOrientacion = true;
+        var aquarius = Satelite(catalogo, "aquarius", 40, 20,
+            "Radiómetro de microondas: +1 bloque de memoria, y la tormenta creciendo no le da lecturas falsas.",
+            "El radiómetro va siempre encendido: +50 W de consumo en la Operación.");
+        aquarius.memoriaExtra = 1; aquarius.inmuneTormenta = true; aquarius.consumoExtraW = 50;
+        var llcd = Satelite(catalogo, "llcd", 50, 10,
+            "Comunicación láser: el transmisor gasta 50 W y la ventana de contacto se abre cada 2 órbitas.",
+            "El polvo bloquea el láser: si sigues en una tormenta creciendo, esa órbita no puedes enviar.");
+        llcd.vatiosTransmisor = 50; llcd.cicloContacto = 2; llcd.tormentaBloqueaEnvio = true;
+        foreach (var s in catalogo.satelites) EditorUtility.SetDirty(s);
+
         catalogo.objetivos = new List<ObjetivoDatos>
         {
             Objetivo("rapido", "Encontrar todo en 5 escaneos o menos", TipoObjetivo.EscaneosMaximos, 5, 150),
@@ -128,6 +150,17 @@ public static class DatosVersion3
         else EditorUtility.SetDirty(e);
         if (!c.eventos.Contains(e)) c.eventos.Add(e);
         return e;
+    }
+
+    /// <summary>Deja el satélite con sus valores neutros y le pone costo, masa y textos. Los efectos se ponen después.</summary>
+    static SateliteDatos Satelite(CatalogoDatos c, string id, int costo, int masa, string ventaja, string desventaja)
+    {
+        var s = c.Satelite(id);
+        s.costoCr = costo; s.masaKg = masa; s.ventaja = ventaja; s.desventaja = desventaja;
+        s.instrumentosConAlcance = new string[0]; s.factorAlcance = 1f; s.combustiblePorCambioAltitud = -1;
+        s.memoriaExtra = 0; s.inmuneOrientacion = false; s.inmuneTormenta = false; s.consumoExtraW = 0;
+        s.vatiosTransmisor = -1; s.cicloContacto = -1; s.tormentaBloqueaEnvio = false;
+        return s;
     }
 
     static ObjetivoDatos Objetivo(string id, string texto, TipoObjetivo tipo, int valor, int puntos)

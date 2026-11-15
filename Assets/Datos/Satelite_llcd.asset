@@ -17,3 +17,17 @@ MonoBehaviour:
   inspiradoEn: LLCD (2013)
   descripcion: "Demostr\xF3 comunicaciones por l\xE1ser desde la \xF3rbita de la Luna. Plataforma con grandes paneles solares."
   credito: 'Modelo 3D: NASA 3D Resources'
+  costoCr: 50
+  masaKg: 10
+  ventaja: "Comunicaci\xF3n l\xE1ser: el transmisor gasta 50 W y la ventana de contacto se abre cada 2 \xF3rbitas."
+  desventaja: "El polvo bloquea el l\xE1ser: si sigues en una tormenta creciendo, esa \xF3rbita no puedes enviar."
+  instrumentosConAlcance: []
+  factorAlcance: 1
+  combustiblePorCambioAltitud: -1
+  memoriaExtra: 0
+  inmuneOrientacion: 0
+  inmuneTormenta: 0
+  consumoExtraW: 0
+  vatiosTransmisor: 50
+  cicloContacto: 2
+  tormentaBloqueaEnvio: 1

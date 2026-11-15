@@ -17,3 +17,17 @@ MonoBehaviour:
   inspiradoEn: Aquarius / SAC-D (2011)
   descripcion: "Midi\xF3 la salinidad de los oc\xE9anos desde la \xF3rbita de la Tierra, con un gran reflector de antena."
   credito: 'Modelo 3D: NASA 3D Resources'
+  costoCr: 40
+  masaKg: 20
+  ventaja: "Radi\xF3metro de microondas: +1 bloque de memoria, y la tormenta creciendo no le da lecturas falsas."
+  desventaja: "El radi\xF3metro va siempre encendido: +50 W de consumo en la Operaci\xF3n."
+  instrumentosConAlcance: []
+  factorAlcance: 1
+  combustiblePorCambioAltitud: -1
+  memoriaExtra: 1
+  inmuneOrientacion: 0
+  inmuneTormenta: 1
+  consumoExtraW: 50
+  vatiosTransmisor: -1
+  cicloContacto: -1
+  tormentaBloqueaEnvio: 0

@@ -17,3 +17,19 @@ MonoBehaviour:
   inspiradoEn: Chandra (1999)
   descripcion: "Telescopio espacial de rayos X: un tubo \xF3ptico muy largo con dos alas de paneles solares."
   credito: 'Modelo 3D: NASA 3D Resources'
+  costoCr: 30
+  masaKg: 40
+  ventaja: "Apunte muy preciso: no le afecta la p\xE9rdida de orientaci\xF3n, y las c\xE1maras t\xE9rmica y de alta resoluci\xF3n leen un 20 % m\xE1s lejos."
+  desventaja: 'Muy pesado: sus 40 kg restan 4 de combustible.'
+  instrumentosConAlcance:
+  - termica
+  - alta_res
+  factorAlcance: 1.2
+  combustiblePorCambioAltitud: -1
+  memoriaExtra: 0
+  inmuneOrientacion: 1
+  inmuneTormenta: 0
+  consumoExtraW: 0
+  vatiosTransmisor: -1
+  cicloContacto: -1
+  tormentaBloqueaEnvio: 0

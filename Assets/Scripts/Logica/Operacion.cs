@@ -16,6 +16,7 @@ namespace SpaceMission
         public EventoDatos Datos;
         public int OrbitasRestantes;   // solo para los temporales
         public bool Resuelto;
+        public bool EvitadoPorSatelite;   // el satélite no se vio afectado (Chandra y la orientación)
     }
 
     /// <summary>
@@ -53,7 +54,25 @@ namespace SpaceMission
 
         /// <summary>Con Carga (v3) hay memoria y envío a Tierra; sin ella, lo encontrado llega al momento, como antes.</summary>
         public bool ConMemoria => Carga != null;
-        public int MemoriaCapacidad => nivel.memoriaBloques;
+        public int MemoriaCapacidad => nivel.memoriaBloques + (Satelite != null ? Satelite.memoriaExtra : 0);
+
+        // ---------- Satélite (mecánicas aprobadas el 2026-11-14) ----------
+
+        /// <summary>El satélite de la Carga. Sin Carga no hay satélite y nada cambia.</summary>
+        public SateliteDatos Satelite => Carga != null ? Carga.Satelite : null;
+
+        public int CostoCambioAltitud => Satelite != null && Satelite.combustiblePorCambioAltitud >= 0
+            ? Satelite.combustiblePorCambioAltitud : reglas.combustiblePorCambioAltitud;
+        public int VatiosTransmisor => Satelite != null && Satelite.vatiosTransmisor >= 0 ? Satelite.vatiosTransmisor : reglas.vatiosTransmisor;
+        public int CicloContacto => Satelite != null && Satelite.cicloContacto > 0 ? Satelite.cicloContacto : reglas.cicloContacto;
+
+        /// <summary>LLCD en la tormenta: el polvo bloquea el láser en esta órbita.</summary>
+        public bool EnvioBloqueado { get; private set; }
+
+        /// <summary>Cuánto más lejos lee este instrumento con el satélite (1 = igual).</summary>
+        float FactorSatelite(string instrumentoId) =>
+            Satelite != null && Satelite.instrumentosConAlcance != null && System.Array.IndexOf(Satelite.instrumentosConAlcance, instrumentoId) >= 0
+                ? Satelite.factorAlcance : 1f;
         public int MemoriaUsada { get; private set; }
         public bool MemoriaLlena => ConMemoria && MemoriaUsada >= MemoriaCapacidad;
         /// <summary>Transmisiones encontradas que todavía no se enviaron a la Tierra.</summary>
@@ -124,7 +143,8 @@ namespace SpaceMission
                 (e.Datos.efecto == EfectoEvento.ReducirLimite || e.Datos.efecto == EfectoEvento.ReducirLimiteTemporal))
                 .Sum(e => e.Datos.vatios);
 
-        public int ConsumoW => nivel.consumoBaseW + Encendidos.Sum(id => catalogo.Instrumento(id).ConsumoTotalW);
+        public int ConsumoW => nivel.consumoBaseW + (Satelite != null ? Satelite.consumoExtraW : 0)
+                               + Encendidos.Sum(id => catalogo.Instrumento(id).ConsumoTotalW);
 
         readonly HashSet<string> enLaNave;
 
@@ -163,8 +183,8 @@ namespace SpaceMission
         /// <summary>Cambia de altitud pagando combustible. Devuelve false si ya estaba ahí o no alcanza.</summary>
         public bool CambiarAltitud(Altitud nueva)
         {
-            if (Terminada || EsperandoDecision || nueva == Altitud || Combustible < reglas.combustiblePorCambioAltitud) return false;
-            Combustible -= reglas.combustiblePorCambioAltitud;
+            if (Terminada || EsperandoDecision || nueva == Altitud || Combustible < CostoCambioAltitud) return false;
+            Combustible -= CostoCambioAltitud;
             Altitud = nueva;
             return true;
         }
@@ -196,6 +216,7 @@ namespace SpaceMission
                 Orbitas--;
                 OrbitasTranscurridas++;
                 contactoForzado = false;
+                EnvioBloqueado = false;
                 foreach (var e in Eventos.Where(e => !e.Resuelto && e.Datos.efecto == EfectoEvento.ReducirLimiteTemporal))
                     if (--e.OrbitasRestantes <= 0) e.Resuelto = true;
                 foreach (var id in Bloqueados.Keys.ToList())
@@ -219,7 +240,7 @@ namespace SpaceMission
             }
             else
             {
-                float d = Vector2.Distance(punto, Anomalia) / FactorLectura;
+                float d = Vector2.Distance(punto, Anomalia) / (FactorLectura * FactorSatelite(instrumentoId));
                 lectura = d <= reglas.radioDeteccion ? Lectura.Encontrada
                     : d <= reglas.distanciaCaliente ? Lectura.Caliente
                     : d <= reglas.distanciaTibio ? Lectura.Tibio
@@ -229,7 +250,7 @@ namespace SpaceMission
             lecturaRuidosa = false;
 
             if (PeticionAceptada && !PeticionCumplida
-                && Vector2.Distance(punto, PuntoPeticion) / FactorLectura <= reglas.radioDeteccion)
+                && Vector2.Distance(punto, PuntoPeticion) / (FactorLectura * FactorSatelite(instrumentoId)) <= reglas.radioDeteccion)
                 PeticionCumplida = true;
 
             if (lectura == Lectura.Encontrada)
@@ -273,7 +294,7 @@ namespace SpaceMission
         /// «cicloContacto» y, además, siempre en la última órbita, para poder enviar lo que quede en memoria.
         /// </summary>
         public int OrbitasParaContacto => contactoForzado ? 0
-            : System.Math.Min(reglas.cicloContacto - 1 - OrbitasTranscurridas % reglas.cicloContacto, System.Math.Max(0, Orbitas - 1));
+            : System.Math.Min(CicloContacto - 1 - OrbitasTranscurridas % CicloContacto, System.Math.Max(0, Orbitas - 1));
 
         /// <summary>
         /// Deja pasar una órbita sin escanear (por ejemplo, con la memoria llena hasta la próxima ventana).
@@ -295,8 +316,8 @@ namespace SpaceMission
         /// </summary>
         public bool Enviar()
         {
-            if (Terminada || EsperandoDecision || !ConMemoria || !ContactoAbierto || MemoriaUsada == 0) return false;
-            if (ConsumoW + reglas.vatiosTransmisor > LimiteW)
+            if (Terminada || EsperandoDecision || !ConMemoria || !ContactoAbierto || EnvioBloqueado || MemoriaUsada == 0) return false;
+            if (ConsumoW + VatiosTransmisor > LimiteW)
             {
                 Apagon();
                 return false;
@@ -355,6 +376,12 @@ namespace SpaceMission
         {
             var e = new EventoActivo { Datos = datos, OrbitasRestantes = datos.orbitas };
             UltimoEvento = e;
+            if (datos.efecto == EfectoEvento.AnularLectura && Satelite != null && Satelite.inmuneOrientacion)
+            {
+                e.Resuelto = e.EvitadoPorSatelite = true;   // ni pausa ni efecto
+                Eventos.Add(e);
+                return;
+            }
             if (ConMemoria && datos.opciones.Count > 0)
             {
                 Decision = e;
@@ -395,6 +422,7 @@ namespace SpaceMission
                     break;
                 case EfectoOpcion.Aguantar:
                     AplicarEfecto(e, d.orbitas);
+                    if (d.efecto == EfectoEvento.Tormenta && Satelite != null && Satelite.tormentaBloqueaEnvio) EnvioBloqueado = true;
                     break;
                 case EfectoOpcion.GanarOrbitas:
                     Orbitas += o.duracion;
@@ -451,7 +479,7 @@ namespace SpaceMission
                     e.Resuelto = true;
                     break;
                 case EfectoEvento.Tormenta:
-                    lecturaRuidosa = true;
+                    lecturaRuidosa = Satelite == null || !Satelite.inmuneTormenta;
                     e.Resuelto = true;
                     break;
                 default:   // Peticion rechazada

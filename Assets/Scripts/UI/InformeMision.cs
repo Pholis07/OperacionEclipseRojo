@@ -68,6 +68,7 @@ namespace SpaceMission
                          " y los reinicios costaron " + TextosBriefing.Numero(op.CreditosPerdidos) + " créditos.";
             if (op.ConMemoria)
             {
+                if (op.Satelite != null) texto += " Satélite: " + op.Satelite.nombre + ".";
                 if (op.CreditosCarga > 0)
                     texto += " La carga de herramientas costó " + TextosBriefing.Numero(op.CreditosCarga) + " créditos.";
                 texto += " Te quedaron " + op.Combustible + " de combustible.";

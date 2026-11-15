@@ -4,8 +4,8 @@ namespace SpaceMission
 {
     /// <summary>
     /// Tipo de satélite (aspecto de la nave), con un modelo 3D de NASA 3D Resources.
-    /// Por ahora solo cambia el aspecto: no tiene masa, potencia ni costo, y no entra en las reglas ni en el
-    /// semáforo. Las mecánicas de cada tipo las define el equipo de lógica (Adrian) más adelante.
+    /// Mecánicas (PROPUESTA-GAMEPLAY.md, satélites): no entra en las reglas ni en el semáforo. Se paga en la
+    /// Carga con lo que sobra y sus efectos solo existen en la Operación. El MRO es el neutro y el de por defecto.
     /// </summary>
     [CreateAssetMenu(fileName = "Satelite", menuName = "SpaceMission/Satélite")]
     public class SateliteDatos : ScriptableObject
@@ -17,5 +17,27 @@ namespace SpaceMission
         [TextArea] public string descripcion;
         [Tooltip("Crédito del modelo 3D.")]
         public string credito = "Modelo 3D: NASA 3D Resources";
+
+        [Header("Mecánicas: se pagan en la Carga")]
+        public int costoCr;
+        public int masaKg;
+        [TextArea] public string ventaja;
+        [TextArea] public string desventaja;
+
+        [Header("Efectos en la Operación (los valores neutros no cambian nada)")]
+        [Tooltip("Instrumentos que leen más lejos con este satélite.")]
+        public string[] instrumentosConAlcance = new string[0];
+        public float factorAlcance = 1f;
+        [Tooltip("-1 = el de las reglas.")]
+        public int combustiblePorCambioAltitud = -1;
+        public int memoriaExtra;                 // bloques (puede ser negativo)
+        public bool inmuneOrientacion;           // la pérdida de orientación no le afecta
+        public bool inmuneTormenta;              // la tormenta creciendo no le da lecturas falsas
+        public int consumoExtraW;                // consumo propio durante la Operación
+        [Tooltip("-1 = el de las reglas.")]
+        public int vatiosTransmisor = -1;
+        [Tooltip("-1 = el de las reglas.")]
+        public int cicloContacto = -1;
+        public bool tormentaBloqueaEnvio;        // si sigue en la tormenta, no puede enviar esa órbita
     }
 }

@@ -17,3 +17,17 @@ MonoBehaviour:
   inspiradoEn: Mars Reconnaissance Orbiter (2005)
   descripcion: "Estudia Marte desde 2006 con c\xE1maras, radar y espectr\xF3metro. Antena grande y dos paneles solares amplios."
   credito: 'Modelo 3D: NASA 3D Resources'
+  costoCr: 0
+  masaKg: 0
+  ventaja: 'Equilibrado: sin ventajas ni desventajas.'
+  desventaja: Ninguna.
+  instrumentosConAlcance: []
+  factorAlcance: 1
+  combustiblePorCambioAltitud: -1
+  memoriaExtra: 0
+  inmuneOrientacion: 0
+  inmuneTormenta: 0
+  consumoExtraW: 0
+  vatiosTransmisor: -1
+  cicloContacto: -1
+  tormentaBloqueaEnvio: 0

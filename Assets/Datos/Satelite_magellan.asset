@@ -17,3 +17,18 @@ MonoBehaviour:
   inspiradoEn: Magellan (1989)
   descripcion: "Cartografi\xF3 por radar casi toda la superficie de Venus. Su gran antena serv\xEDa tambi\xE9n de radar."
   credito: 'Modelo 3D: NASA 3D Resources'
+  costoCr: 30
+  masaKg: 10
+  ventaja: "El radar de subsuelo lee un 30 % m\xE1s lejos. Pionero del aerofrenado: cambiar de altitud cuesta 2 de combustible."
+  desventaja: 'Grabadora antigua: 1 bloque menos de memoria.'
+  instrumentosConAlcance:
+  - radar
+  factorAlcance: 1.3
+  combustiblePorCambioAltitud: 2
+  memoriaExtra: -1
+  inmuneOrientacion: 0
+  inmuneTormenta: 0
+  consumoExtraW: 0
+  vatiosTransmisor: -1
+  cicloContacto: -1
+  tormentaBloqueaEnvio: 0

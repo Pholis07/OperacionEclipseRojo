@@ -17,6 +17,7 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Button plantillaHerramienta;
         [SerializeField] UnityEngine.UI.Button botonVolver;
         [SerializeField] UnityEngine.UI.Button botonLanzar;
+        [SerializeField] UnityEngine.UI.Button botonUsarMro;
 
         static readonly Color ColorNormal = new Color32(0x2A, 0x2A, 0x31, 0xFF);
         static readonly Color ColorABordo = new Color32(0x14, 0x53, 0x2D, 0xFF);
@@ -36,6 +37,7 @@ namespace SpaceMission
             plantillaHerramienta.gameObject.SetActive(false);
             botonVolver.onClick.AddListener(() => mision.MostrarRevision(EstadoJuego.Resultado));
             botonLanzar.onClick.AddListener(Lanzar);
+            if (botonUsarMro != null) botonUsarMro.onClick.AddListener(UsarMro);
         }
 
         /// <summary>Empieza una carga vacía para la misión evaluada.</summary>
@@ -53,8 +55,16 @@ namespace SpaceMission
             Refrescar();
         }
 
+        /// <summary>Cambia el satélite elegido por el MRO, que no cuesta ni pesa.</summary>
+        public void UsarMro()
+        {
+            Carga.UsarMro();
+            Refrescar();
+        }
+
         void Lanzar()
         {
+            if (!Carga.PuedeLanzar) return;
             EstadoJuego.Carga = Carga;
             mision.MostrarInvestigacion();
         }
@@ -71,6 +81,14 @@ namespace SpaceMission
                 "   <b>Masa libre:</b> " + Carga.MasaLibreKg + " kg" +
                 "   <b>Espacios libres:</b> " + Carga.EspaciosLibres +
                 "\n<b>Combustible al salir:</b> " + Carga.Combustible;
+            var s = Carga.Satelite;
+            if (s != null)
+                textoRecursos.text += "\n<b>Satélite:</b> " + s.nombre + "  ·  " + s.costoCr + " cr  ·  " + s.masaKg + " kg" +
+                                      "\n<size=80%><color=#22C55E>+</color> " + s.ventaja + "  <color=#EF4444>-</color> " + s.desventaja + "</size>";
+            if (!Carga.PuedeLanzar)
+                textoRecursos.text += "\n<color=#EF4444><b>No alcanza lo que sobra.</b></color> Quita herramientas o usa el MRO para lanzar.";
+            botonLanzar.interactable = Carga.PuedeLanzar;
+            if (botonUsarMro != null) botonUsarMro.gameObject.SetActive(s != null && s.id != Carga.IdMro);
 
             foreach (var h in catalogo.herramientas)
             {
