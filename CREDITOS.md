@@ -107,6 +107,7 @@ Hechos para este juego, sin licencias de terceros:
 - **Generados por scripts propios en `Herramientas/`:** las nubes, el pasto, la losa de la plataforma, las bocanadas de humo, las aves y las chispas de la cinemática (`despegue_texturas.py`); la viñeta, el resplandor, el aro de los zócalos y el degradado de la interfaz (`composiciones.py`).
 - **Generados por código en `ConstructorEscenas.Despegue.cs`:** el complejo de lanzamiento (torre de celosía, brazos, pararrayos, torre de agua, edificios, árboles, colinas, mar), las llamas de cada motor y las partículas. Shaders propios `Planeta`, `Cielo`, `Llama` y `Aditivo` en `Assets/Arte/Shaders`.
 - **Generado por código en `ConstructorEscenas.Nasa.cs` (`CuerpoCubeSat`):** el satélite Nanosatélite AztechSat-1, un CubeSat 1U con piezas simples. Está inspirado en la misión AztechSat-1 de la UPAEP (Puebla), pero no es un modelo oficial.
+- **Audios de la versión 7 (ElevenLabs, generados para este juego):** `MUS_Revelacion_Breve`, `AMB_Configuracion_Sistemas`, `SFX_UI_Transition`, `SFX_Orbit_Select`, `SFX_Orbit_Confirm` y `SFX_Spectral_Switch`. Detalle en `AUDIO-ELEVENLABS.md`.
 - **Generados por `Assets/Editor/GeneradorCapasMarte.cs` (versión 6):** las nubes de hielo de agua de Marte (`Marte_Nubes`, ruido propio con la capucha polar y las nubes de Tharsis) y el degradado del Briefing (`Interfaz/Degradado_Izquierda`). La escarcha de los casquetes y el crepúsculo azulado los calcula el shader `Planeta`.
 
 ## Audio

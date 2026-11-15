@@ -385,3 +385,59 @@ Diego probó la versión 5 y pidió: entender el juego sin pasar por la Misión 
   - crepúsculo azulado.
 - El Briefing muestra el mismo Marte 3D en vez de una foto.
 - El mapa de la Operación sigue con el relieve de Gale de la NASA: el mapa global de 8K se vería peor a esa escala.
+
+---
+
+# Versión 7: órbita única visible, dos órbitas nuevas y modos de análisis (2026-11-15)
+
+Sale del paquete de diseño «Operación Eclipse Rojo · entrega unificada» y de lo que Diego vio al jugar la versión 6. Diego aprobó los valores de las dos órbitas nuevas; **Adrian: revísalos, que tocan el balance**.
+
+Donde el paquete y el juego no coinciden, manda el juego: los valores de masa, potencia y capacidad son los de las versiones 5 y 6, no los del plan maestro original.
+
+## Solo se ve la órbita elegida
+
+- En el visor de la Configuración se dibuja una sola trayectoria: la elegida, con su marcador. Sin elección, Marte queda sin trayectorias y dice «Selecciona una órbita».
+- El nombre va en un rótulo fijo bajo el planeta, con la altitud real.
+- La cámara encaja el planeta y la órbita en el hueco entre los dos paneles.
+
+## Dos órbitas nuevas
+
+| | Ecuatorial baja | Areoestacionaria |
+|---|---|---|
+| Altitud | 300 km, circular | 17,031 km, circular (dato real: una vuelta cada 24 h 37 min) |
+| Costo | 100 cr | 160 cr |
+| Frenado | 2,116 m/s | 1,941 m/s |
+| Masa seca máxima (Explorador / Titán) | 478 / 724 kg | 517 / 782 kg (mandan los topes de 500 y 750) |
+| Para ganar | Térmica + radar | No se puede: como mucho, resultado parcial |
+| Revelación que desbloquea | Alta resolución | Sensor atmosférico |
+| Ventaja | Pasa una y otra vez sobre el cráter Gale (unos 5° S) | Vigilancia continua de la tormenta |
+| Límite | No ve los polos | El radar y la cámara de alta resolución no trabajan desde tan lejos |
+
+- La areoestacionaria lleva en sus datos qué instrumentos quedan sin alcance (`instrumentosSinAlcance`). Aunque se instalen, no dan evidencia ni cuentan para el resultado. El semáforo y la ficha lo dicen antes de elegirla.
+- En el visor se dibuja más cerca de lo real, con el aviso «Esquema no a escala».
+- Las tres órbitas originales no cambian de costo, de requisitos ni de resultado. Los 19 casos siguen igual.
+
+## Modos de análisis en el escaneo
+
+Son vistas de instrumentos que ya existen: no hay instrumentos, costos ni evidencias nuevas.
+
+- Espectrómetro: curva de reflectancia por bandas (hiperespectral) y capas Visible / Infrarrojo / Composición (multiespectral).
+- Cámara de alta resolución: destello de captura y una nota prudente.
+- Los textos no afirman agua actual ni vida, y una imagen no muestra el subsuelo.
+
+## Tiempos
+
+- Escaneo completo: 9.6 s (storyboard: 9 a 11).
+- Cinemática del lanzamiento: 29.7 s medidos (storyboard: 24, tolerancia 20–28). No baja más porque las cuatro frases de control suman 14.5 s y no se enciman.
+
+## Interfaz y audio
+
+- Briefing con botón «← Menú». Revisión con scroll.
+- Opciones con pantalla completa; fundido del menú al Briefing; sonido suave al pasar el cursor.
+- Seis audios nuevos (ver `AUDIO-ELEVENLABS.md`).
+
+## Del paquete, lo que no se hizo
+
+- AudioMixer con buses: el juego usa volúmenes por tipo en `Preferencias` y la atenuación de `Atenuacion`.
+- Renombrar los audios a los ids del paquete: se conservan los nombres actuales.
+- Tarjeta «Continuar investigación» por escaneo: el juego usa el resumen del mes.

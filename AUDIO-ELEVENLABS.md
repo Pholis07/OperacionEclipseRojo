@@ -138,3 +138,22 @@ El juego pasó a inglés. Se generaron las 6 transmisiones y las 4 frases de con
   - En la cinemática, cada toma con voz espera a que termine su frase (con tope).
   - Las transmisiones van en fila: no se cortan y se oyen todas.
   - La música, el ambiente y el motor bajan al 35 % mientras habla una voz (`Atenuacion`).
+
+## Versión 7: los audios que faltaban del paquete de diseño (2026-11-15)
+
+Seis audios, una toma de cada uno, en el mismo flow: **253 créditos** (el estimado era 518). Diego aprobó el gasto antes de generar.
+
+| Archivo | Dónde suena | Duración | Créditos |
+|---|---|---|---|
+| `Musica/MUS_Revelacion_Breve` | Al llegar la evidencia de un instrumento | 12 s | 180 |
+| `Efectos/AMB_Configuracion_Sistemas` | Ambiente del Briefing y la Configuración (bucle) | 18 s | 60 |
+| `Efectos/SFX_UI_Transition` | Al cambiar de pantalla y al salir del menú | 1.1 s | 4 |
+| `Efectos/SFX_Orbit_Select` | Al elegir una órbita | 0.9 s | 3 |
+| `Efectos/SFX_Orbit_Confirm` | Al abrir la Revisión con la misión lista | 1.2 s | 4 |
+| `Efectos/SFX_Spectral_Switch` | Cada cambio de capa del espectrómetro | 0.6 s | 2 |
+
+- Los tres primeros usan los prompts del CSV del paquete; los de órbita y espectro son prompts propios, descriptivos y sin referencias a obras existentes.
+- Nivelados con ffmpeg solo con ganancia y limitador, a la altura de sus equivalentes (el ambiente a −24 dB de media, como `AMB_Menu_Control`).
+- `ui_hover` ya existía sin usarse: ahora suena, muy bajo, al pasar el cursor por un botón.
+- **No se escucharon a oído.** Conviene oírlos en el juego antes de entregar.
+- De los 29 audios del paquete, 26 ya tenían equivalente con otro nombre; con estos tres quedan cubiertos los 29.

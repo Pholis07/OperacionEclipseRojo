@@ -478,3 +478,16 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
     - el cuadro de recursos del detalle se estiraba vacío.
 - Pasan las 283 pruebas EditMode y las 23 PlayMode.
 - Lo que no se pudo comprobar: la mezcla de audio a oído (volúmenes, si la voz se entiende sobre el motor).
+
+## Versión 7 (Diego, 2026-11-15)
+
+- Diego reportó tres cosas al jugar (falta un botón para regresar en el Briefing, Marte cortado por los paneles en la pestaña Órbita, la Revisión sin scroll), pidió quitar a Sofía de los créditos y entregó un paquete de diseño para incorporarlo.
+- La IA comparó el paquete con el juego con un agente de solo lectura. Resultado: casi todo ya existía; faltaban la regla de «una sola órbita visible», dos órbitas, los modos del espectrómetro y la cámara, tres audios, pantalla completa y los tiempos de los storyboards.
+- Preguntó a Diego qué entraba (todo), cómo manejar las dos órbitas (jugables con los valores propuestos por la IA) y cómo mostrar Marte (encajado en el centro).
+- Decisiones de la IA que conviene revisar:
+  - Las dos órbitas nuevas y sus valores. El paquete los daba por «pendientes del equipo».
+  - Desde la areoestacionaria el radar y la cámara de alta resolución no dan evidencia.
+  - La cinemática quedó en 29.7 s y no en los 24 s del storyboard, para no encimar voces.
+- ElevenLabs: la IA preparó los seis nodos, pidió el estimado (518 créditos), esperó el visto bueno de Diego y generó (253 créditos reales).
+- Pruebas: 298 EditMode y 23 PlayMode. Nuevas: `OrbitasTests` (una sola trayectoria en las 20 transiciones, reglas de las dos órbitas) y `ModoEscaneoTests`.
+- Un fallo que salió y se corrigió: con el fundido nuevo del menú, la prueba del recorrido esperaba la escena por cuadros y en batch se quedaba corta.
