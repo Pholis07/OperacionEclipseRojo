@@ -242,14 +242,20 @@ public static partial class ConstructorEscenas
                 float metal = 0.2f, suave = 0.45f;
                 Color? emision = null;
                 if (bajo.Contains("titanio") || bajo.Contains("metal")) { metal = 0.85f; suave = 0.6f; }
-                else if (bajo.Contains("oro")) { metal = 0.95f; suave = 0.7f; }
+                else if (bajo.Contains("oro")) { metal = 0.95f; suave = 0.6f; }   // lámina arrugada: menos destello
                 else if (bajo.Contains("cobre")) { metal = 0.9f; suave = 0.55f; }
                 else if (bajo.Contains("panel")) { metal = 0.5f; suave = 0.8f; }
                 else if (bajo.Contains("ceramico") || bajo.Contains("blanco")) { metal = 0.05f; suave = 0.5f; }
                 else if (bajo.Contains("vidriooscuro")) { metal = 0.2f; suave = 0.92f; }
                 if (bajo.Contains("vidriocian") || bajo.Contains("cian")) { metal = 0.1f; suave = 0.95f; emision = color * 2.4f; }
                 else if (bajo.Contains("verde") || bajo.Contains("rojo")) emision = color * 1.2f;   // pilotos
-                mats[k] = CrearMaterial("Instrumento_" + nombre, color, metal, suave, null, Vector2.one, emision);
+                // Versión 5, bloque 6: texturas propias (las UV las pone ImportadorArte por proyección de caja).
+                string textura = bajo.Contains("oro") ? "Lamina_Arrugada" : bajo.Contains("panel") ? "Celdas_Solares"
+                               : bajo.Contains("titanio") || bajo.Contains("metal") ? "Metal_Cepillado" : null;
+                var tinte = textura == "Lamina_Arrugada" || textura == "Celdas_Solares" ? Color.white : color;
+                mats[k] = CrearMaterial("Instrumento_" + nombre, textura != null ? tinte : color, metal, suave,
+                    textura != null ? ConstructorEstilo.Imagen("Texturas/" + textura) : null, textura == "Lamina_Arrugada" ? Vector2.one * 1.5f : textura != null ? Vector2.one * 3f : Vector2.one, emision);
+                Relieve(mats[k], textura == "Lamina_Arrugada" ? "Lamina_Arrugada_Normal" : null, 1f);
             }
             r.sharedMaterials = mats;
         }
@@ -265,8 +271,8 @@ public static partial class ConstructorEscenas
         const float lado = 2.2f;
         var cuerpo = new GameObject(nombre).transform;
         cuerpo.SetParent(padre, false);
-        var aluminio = CrearMaterial("CubeSat_Aluminio", Hex("#A7ADB5"), 0.8f, 0.55f);
-        var celdas = CrearMaterial("CubeSat_Celdas", Hex("#1B2A4A"), 0.55f, 0.8f);
+        var aluminio = CrearMaterial("CubeSat_Aluminio", Hex("#A7ADB5"), 0.8f, 0.55f, ConstructorEstilo.Imagen("Texturas/Metal_Cepillado"), Vector2.one);
+        var celdas = CrearMaterial("CubeSat_Celdas", Color.white, 0.55f, 0.85f, ConstructorEstilo.Imagen("Texturas/Celdas_Solares"), Vector2.one);
         var riel = CrearMaterial("CubeSat_Riel", Hex("#D9DDE2"), 0.85f, 0.6f);
         var antena = CrearMaterial("CubeSat_Antena", Hex("#C8A24A"), 0.85f, 0.6f);
 
@@ -439,7 +445,13 @@ public static partial class ConstructorEscenas
         else if (n.Contains("panel")) { metal = 0.55f; suave = 0.78f; }
         else if (n.Contains("black") || n.Contains("krinkle")) { metal = 0.3f; suave = 0.35f; }
         // SLS: naranja de la espuma aislante (mate), blanco de los propulsores, oscuro de toberas y faldones.
-        if (n == "naranja") { color = Hex("#C8651E"); metal = 0f; suave = 0.25f; }
+        if (n == "naranja")   // espuma aislante con relieve (textura propia; UV por proyección de caja)
+        {
+            var espuma = CrearMaterial("NASA_" + modelo.Replace("_Inferior", "").Replace("_Superior", "") + "_naranja", Color.white, 0f, 0.25f,
+                ConstructorEstilo.Imagen("Texturas/Espuma_Naranja"), Vector2.one * 4f);
+            Relieve(espuma, "Espuma_Naranja_Normal", 0.6f);
+            return espuma;
+        }
         else if (n == "blanco") { color = Hex("#ECEEF0"); metal = 0.05f; suave = 0.5f; }
         else if (n == "oscuro") { color = Hex("#2B2F36"); metal = 0.6f; suave = 0.45f; }
         var nombre = "NASA_" + modelo.Replace("_Inferior", "").Replace("_Superior", "") + "_" + original.name.Replace(" ", "_");

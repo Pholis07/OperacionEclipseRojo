@@ -9,7 +9,7 @@ using UnityEngine;
 public class ImportadorArte : AssetPostprocessor
 {
     // Subir este número fuerza a Unity a reimportar las imágenes con los ajustes nuevos.
-    public override uint GetVersion() => 9;
+    public override uint GetVersion() => 10;
 
     /// <summary>
     /// Audio de Assets/Arte/Audio (ElevenLabs): música comprimida en memoria (Vorbis), efectos cortos en mono y
@@ -62,6 +62,32 @@ public class ImportadorArte : AssetPostprocessor
         mi.importNormals = ModelImporterNormals.Import;
         mi.meshCompression = ModelImporterMeshCompression.Medium;
         mi.globalScale = 1f;
+    }
+
+    /// <summary>
+    /// Versión 5, bloque 6: los OBJ sin coordenadas UV (instrumentos del kit y el SLS) reciben UV por proyección de
+    /// caja (cada vértice se proyecta en el plano del eje al que más mira su normal), en metros de la malla, para que
+    /// la lámina, la espuma y el metal se repitan sin estirarse. Los modelos con UV propias no se tocan.
+    /// </summary>
+    void OnPostprocessModel(GameObject raiz)
+    {
+        if (!assetPath.StartsWith("Assets/Arte/Modelos/") || !assetPath.EndsWith(".obj")) return;
+        foreach (var filtro in raiz.GetComponentsInChildren<MeshFilter>())
+        {
+            var malla = filtro.sharedMesh;
+            if (malla == null || malla.uv.Length == malla.vertexCount) continue;
+            var v = malla.vertices; var n = malla.normals;
+            var uv = new Vector2[v.Length];
+            for (int i = 0; i < v.Length; i++)
+            {
+                var a = n.Length == v.Length ? new Vector3(Mathf.Abs(n[i].x), Mathf.Abs(n[i].y), Mathf.Abs(n[i].z)) : Vector3.up;
+                uv[i] = a.x >= a.y && a.x >= a.z ? new Vector2(v[i].z, v[i].y)
+                      : a.y >= a.z ? new Vector2(v[i].x, v[i].z)
+                      : new Vector2(v[i].x, v[i].y);
+            }
+            malla.uv = uv;
+            malla.RecalculateTangents();   // el mapa de normales las necesita
+        }
     }
 
     void OnPreprocessTexture()
@@ -117,13 +143,15 @@ public class ImportadorArte : AssetPostprocessor
         else if (assetPath.Contains("/Texturas/"))
         {
             bool repetible = nombre == "Lamina_Dorada" || nombre == "Celdas_Solares" || nombre == "Marte_Detalle" ||
-                             nombre == "Nubes" || nombre == "Pasto";
+                             nombre == "Nubes" || nombre == "Pasto" || nombre.StartsWith("Lamina_Arrugada") ||
+                             nombre.StartsWith("Espuma_Naranja") || nombre == "Metal_Cepillado";
             bool mitad = nombre == "Marte_Superficie_Oeste" || nombre == "Marte_Superficie_Este";
             ti.wrapMode = repetible ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
             // Los mapas de planeta se repiten a lo ancho (longitud) para que no se vea la costura.
             // Las dos mitades del mapa 8K no: cada una termina donde empieza la otra (shader Planeta).
             if ((nombre.StartsWith("Marte_") || nombre.StartsWith("Tierra_")) && !mitad) ti.wrapModeU = TextureWrapMode.Repeat;
-            ti.mipmapEnabled = nombre != "Estrellas"; // las estrellas se ven a 1:1, sin mipmaps quedan nítidas
+            // Las estrellas se ven a 1:1: sin mipmaps quedan nítidas (también el cielo de la NASA, en la esfera).
+            ti.mipmapEnabled = nombre != "Estrellas" && nombre != "Cielo_NASA";
             ti.anisoLevel = 4;
             // La superficie de Marte se ve de cerca al elegir la órbita: más resolución. Las mitades 8K y las
             // normales a 4096 van con compresión Crunch para que la descarga en el navegador siga siendo ligera.
@@ -134,7 +162,16 @@ public class ImportadorArte : AssetPostprocessor
                 ti.crunchedCompression = true;
                 ti.compressionQuality = 70;
             }
-            if (nombre == "Marte_Normal" || nombre == "Gale_Normal") ti.textureType = TextureImporterType.NormalMap;
+            if (nombre.EndsWith("_Normal")) ti.textureType = TextureImporterType.NormalMap;
+            if (nombre == "Cielo_NASA")
+            {
+                // Deep Star Map 8k de la NASA: la esfera del cielo da la vuelta entera, así que a 1366 px de ancho
+                // se ve casi 1:1. Crunch para que la descarga no crezca demasiado.
+                ti.wrapModeU = TextureWrapMode.Repeat;
+                ti.maxTextureSize = 8192;
+                ti.crunchedCompression = true;
+                ti.compressionQuality = 70;
+            }
             if (nombre.StartsWith("Gale_")) ti.maxTextureSize = 1024;
             if (nombre == "Marte_Polvo" || nombre == "Nubes") ti.alphaIsTransparency = true;
         }

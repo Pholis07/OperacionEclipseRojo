@@ -91,14 +91,20 @@ Descargadas del repositorio de Google Fonts (github.com/google/fonts).
 - **National Bulwark Services**: sus dos logos («Perimeter Electric Fence» y «Monitored Security Systems») aparecen como patrocinador del equipo en el splash de inicio, la página de carga del navegador, la pantalla de título, el Menú, la pantalla de Resultado y los dos cohetes. Los aportó Diego como logos del patrocinador; la marca es de su dueño y se usa solo para reconocer el patrocinio.
 - Originales en `Herramientas/patrocinio/`. `Herramientas/logos.py` les quita el fondo blanco y crea una versión clara (letras blancas, el toro igual) para fondos oscuros; `Herramientas/composiciones.py` arma la imagen del splash. Resultado en `Assets/Arte/Patrocinio/` y `Assets/WebGLTemplates/PantallaCompleta/TemplateData/patrocinio_*.png`.
 
+## Cielo de estrellas
+
+- **Deep Star Maps 2020**, versión en coordenadas galácticas a 8k (`starmap_2020_8k_gal.exr`), de https://svs.gsfc.nasa.gov/4851. Crédito: NASA/Goddard Space Flight Center Scientific Visualization Studio. Gaia DR2: ESA/Gaia/DPAC. Dominio público: NASA SVS indica que todo su contenido lo es salvo que se diga otra cosa, y esta página no dice otra cosa.
+- `Herramientas/texturas_naves.py` lo pasa de EXR a JPG (×2.5 de exposición): `Texturas/Cielo_NASA.jpg` es el cielo completo de la esfera de las cinemáticas, y `Texturas/Estrellas.png` es un recorte de 2048×1152 (zona del anticentro galáctico) para los fondos planos.
+
 ## Recursos propios
 
 Hechos para este juego, sin licencias de terceros:
-- **Generados por `Herramientas/arte.py`:** el cielo de estrellas (`Texturas/Estrellas.png`), la lámina dorada y las celdas solares de la nave, y los sprites de interfaz (`Interfaz/*`: chaflanes, círculo, halo, segmentos y barrido).
+- **Generados por `Herramientas/arte.py`:** la lámina dorada y las celdas solares de la nave, y los sprites de interfaz (`Interfaz/*`: chaflanes, círculo, halo, segmentos y barrido).
 - **Generado por `Herramientas/favicon.py`:** el icono de la pestaña del navegador (`Assets/WebGLTemplates/PantallaCompleta/TemplateData/favicon.png`), Marte con la sombra de un eclipse. Se genera con `python3 -I Herramientas/favicon.py <ruta de salida>`.
 - **Generados por código en el constructor:** el cohete Explorador (inspirado en el Soyuz), la plataforma y la torre, la llama y el humo del despegue, el mapa de la transferencia, el shader de atmósfera y las mallas de `Assets/Arte/Mallas`.
 - **Marte en alta resolución (`Herramientas/marte_hd.py`):** las dos mitades de 4096×4096 del mapa de 8K de Solar System Scope (CC BY 4.0, ya acreditado arriba), el relieve a 4096 calculado del brillo y la textura de detalle (ruido propio).
-- **Generados por scripts propios en `Herramientas/`:** el cielo de estrellas nuevo (`estrellas.py`); las nubes, el pasto, la losa de la plataforma, las bocanadas de humo, las aves y las chispas de la cinemática (`despegue_texturas.py`); la viñeta, el resplandor, el aro de los zócalos y el degradado de la interfaz (`composiciones.py`).
+- **Generados por `Herramientas/texturas_naves.py` (versión 5, bloque 6):** la lámina dorada arrugada de los instrumentos (`Lamina_Arrugada` y su mapa de normales), la espuma naranja del tanque del SLS (`Espuma_Naranja` y normales) y el metal cepillado del Explorador, del AztechSat-1 y de los instrumentos (`Metal_Cepillado`). Las celdas solares (`Celdas_Solares`, de `arte.py`) ahora se usan en el AztechSat-1 y en los paneles de los instrumentos.
+- **Generados por scripts propios en `Herramientas/`:** las nubes, el pasto, la losa de la plataforma, las bocanadas de humo, las aves y las chispas de la cinemática (`despegue_texturas.py`); la viñeta, el resplandor, el aro de los zócalos y el degradado de la interfaz (`composiciones.py`).
 - **Generados por código en `ConstructorEscenas.Despegue.cs`:** el complejo de lanzamiento (torre de celosía, brazos, pararrayos, torre de agua, edificios, árboles, colinas, mar), las llamas de cada motor y las partículas. Shaders propios `Planeta`, `Cielo`, `Llama` y `Aditivo` en `Assets/Arte/Shaders`.
 - **Generado por código en `ConstructorEscenas.Nasa.cs` (`CuerpoCubeSat`):** el satélite Nanosatélite AztechSat-1, un CubeSat 1U con piezas simples. Está inspirado en la misión AztechSat-1 de la UPAEP (Puebla), pero no es un modelo oficial.
 

@@ -720,6 +720,8 @@ namespace SpaceMission
             { "NASA/JPL-Caltech, MSSS, University of Arizona (HiRISE), Arizona State University (THEMIS), ASI (SHARAD) and JHUAPL (CRISM). Mars and Earth textures: Solar System Scope (CC BY 4.0).", "NASA/JPL-Caltech, MSSS, Universidad de Arizona (HiRISE), Universidad Estatal de Arizona (THEMIS), ASI (SHARAD) y JHUAPL (CRISM). Texturas de Marte y la Tierra: Solar System Scope (CC BY 4.0)." },
             { "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD and Space Launch System. Instruments: the team's own kit.", "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD y Space Launch System. Instrumentos: kit propio del equipo." },
             { "<color=#94A3B8>NASA does not sponsor or endorse this game. Mass, power and cost values are fictional. Full details in CREDITOS.md.</color>", "<color=#94A3B8>La NASA no patrocina ni respalda este juego. Los valores de masa, potencia y costo son ficticios. Detalles completos en CREDITOS.md.</color>" },
+            { "<color=#5EC8E5><b>STARS</b></color>", "<color=#5EC8E5><b>ESTRELLAS</b></color>" },
+            { "Deep Star Maps 2020: NASA/Goddard Space Flight Center Scientific Visualization Studio. Gaia DR2: ESA/Gaia/DPAC.", "Deep Star Maps 2020: NASA/Goddard Space Flight Center Scientific Visualization Studio. Gaia DR2: ESA/Gaia/DPAC." },
         };
     }
 }

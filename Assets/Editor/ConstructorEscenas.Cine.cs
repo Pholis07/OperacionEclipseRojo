@@ -457,10 +457,23 @@ public static partial class ConstructorEscenas
         l.shadowCastingMode = ShadowCastingMode.Off;
     }
 
-    /// <summary>Esfera de estrellas vista desde dentro (escala negativa = caras hacia dentro).</summary>
+    /// <summary>
+    /// Esfera de estrellas vista desde dentro (escala negativa = caras hacia dentro). Versión 5, bloque 6: el cielo
+    /// entero es el Deep Star Map 2020 de la NASA (Goddard SVS) en coordenadas galácticas, a 8k.
+    /// </summary>
     static void CieloEstrellas(Transform padre, Vector3 centro, float diametro)
     {
-        var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materiales/Estrellas.mat");
+        const string ruta = "Assets/Materiales/Cielo_NASA.mat";
+        var mat = AssetDatabase.LoadAssetAtPath<Material>(ruta);
+        if (mat == null)
+        {
+            mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+            AssetDatabase.CreateAsset(mat, ruta);
+        }
+        mat.SetTexture("_BaseMap", ConstructorEstilo.Imagen("Texturas/Cielo_NASA"));
+        mat.SetColor("_BaseColor", Color.white);
+        mat.SetFloat("_Cull", 0f);
+        EditorUtility.SetDirty(mat);
         var cielo = Malla(EsferaUV(), "CieloEstrellas", padre, centro, Vector3.zero, new Vector3(-diametro, diametro, diametro), mat);
         cielo.transform.position = centro;
         cielo.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;

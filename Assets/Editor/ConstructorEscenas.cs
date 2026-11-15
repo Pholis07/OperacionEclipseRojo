@@ -362,6 +362,7 @@ public static partial class ConstructorEscenas
             Seccion("TEAM", "Adrian Robles · Diego Esparza · Sofía Esparza — NASA Space Apps Challenge 2026") + "\n\n" +
             Seccion("MARS IMAGERY", "NASA/JPL-Caltech, MSSS, University of Arizona (HiRISE), Arizona State University (THEMIS), " +
                 "ASI (SHARAD) and JHUAPL (CRISM). Mars and Earth textures: Solar System Scope (CC BY 4.0).") + "\n\n" +
+            Seccion("STARS", "Deep Star Maps 2020: NASA/Goddard Space Flight Center Scientific Visualization Studio. Gaia DR2: ESA/Gaia/DPAC.") + "\n\n" +
             Seccion("3D MODELS", "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD and Space Launch System. " +
                 "Instruments: the team's own kit.") + "\n\n" +
             Seccion("AUDIO", "Music, sound effects and voices generated with ElevenLabs.") + "\n\n" +
@@ -1606,7 +1607,7 @@ public static partial class ConstructorEscenas
     static (GameObject explorador, GameObject titan, GameObject resaltadoExplorador, GameObject resaltadoTitan) ConstruirCohetes(Vector3 plataforma)
     {
         var blanco = CrearMaterial("Cohete_Blanco", Hex("#ECEEF0"), 0.05f, 0.55f);
-        var grisVerde = CrearMaterial("Cohete_GrisSoyuz", Hex("#C9CFC6"), 0.05f, 0.45f);
+        var grisVerde = CrearMaterial("Cohete_GrisSoyuz", Hex("#C9CFC6"), 0.3f, 0.5f, ConstructorEstilo.Imagen("Texturas/Metal_Cepillado"), new Vector2(4f, 8f));
         var oscuro = CrearMaterial("Nave_Oscuro", Hex("#2B2F36"), 0.7f, 0.5f);
         var bandaNaranja = CrearMaterial("Cohete_BandaNaranja", Hex("#E2643A"), 0.05f, 0.5f);
         var llama = CrearMaterial("Nave_Tobera", Hex("#FF8A3D"), 0f, 0.2f, null, Vector2.one, Hex("#FF8A3D") * 3.5f);
@@ -2146,6 +2147,16 @@ public static partial class ConstructorEscenas
         go.GetComponent<MeshFilter>().sharedMesh = malla;
         go.GetComponent<MeshRenderer>().sharedMaterial = material;
         return go;
+    }
+
+    /// <summary>Pone (o quita, con null) el mapa de normales de un material URP Lit.</summary>
+    static void Relieve(Material mat, string normal, float fuerza)
+    {
+        var textura = normal != null ? ConstructorEstilo.Imagen("Texturas/" + normal) : null;
+        mat.SetTexture("_BumpMap", textura);
+        mat.SetFloat("_BumpScale", fuerza);
+        if (textura != null) mat.EnableKeyword("_NORMALMAP"); else mat.DisableKeyword("_NORMALMAP");
+        EditorUtility.SetDirty(mat);
     }
 
     static Material CrearMaterial(string nombre, Color color, float metalico = 0f, float suavidad = 0.5f,

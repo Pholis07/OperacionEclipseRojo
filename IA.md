@@ -410,3 +410,21 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Comprobado en el navegador a 1366x768: título, menú, Cómo jugar, Créditos y Opciones; Briefing, Configuración, Revisión y Carga; cinemática, Operación, resumen del mes, evento con decisión e informe en español; vuelta al inglés desde Opciones. Sin errores en la consola.
 - 9 pruebas nuevas en `IdiomaTests.cs`. Pasan las 245 pruebas EditMode y las 19 PlayMode.
 - Pendiente: las voces siguen en inglés. En pantalla táctil, tocar el selector del título también cierra el título (el filtro solo mira el ratón).
+
+## Versión 5, bloque 6: texturas y cielo
+
+- `Herramientas/texturas_naves.py` (numpy y PIL) genera `Lamina_Arrugada`, `Espuma_Naranja` (cada una con su `_Normal`) y `Metal_Cepillado`, todas repetibles sin costura.
+- Con el EXR de NASA SVS (`starmap_2020_8k_gal.exr`, 160 MB, no se guarda en el repo) genera también `Cielo_NASA.jpg` y el recorte `Estrellas.png`. Usa oiiotool (exposición ×2.5, de lineal a sRGB) y ImageMagick.
+  - Ojo: `arte.py` y `estrellas.py` también escriben `Estrellas.png`. Si se vuelven a correr, hay que correr después `texturas_naves.py`.
+- Licencia: la página 4851 de SVS no indica restricciones, y SVS declara su contenido de dominio público salvo aviso. El crédito incluye Gaia DR2 (ESA/Gaia/DPAC), como pide la página.
+- `ImportadorArte`:
+  - UV por proyección de caja en los OBJ que no traen (instrumentos del kit y SLS). Las mallas del SLS en `Assets/Arte/Mallas` se regeneraron con UV.
+  - Normales para todo lo que termina en `_Normal`.
+  - `Cielo_NASA` a 8192, con Crunch y sin mipmaps.
+- Constructor: `Relieve()` pone el mapa de normales. `CieloEstrellas` usa el material nuevo `Cielo_NASA.mat`. Los materiales del kit eligen su textura por el nombre del MTL (oro, panel, titanio o metal). La sección «Stars» se agregó a Créditos, también en español.
+- Las láminas de los satélites de NASA no se tocaron: sus texturas son rampas que dependen de sus UV, y repetir una textura encima las rompería.
+- Logo: la IA revisó a mano las 10 texturas grandes de los modelos NASA (bisagras, paneles, mantas) y no lleva el logo de la NASA. Las otras son colores planos de menos de 4 KB.
+- Comprobado en el navegador a 1366x768: Titán, Explorador, AztechSat-1, instrumentos de cerca y cinemática hasta la inserción orbital, sin errores en la consola.
+  - La primera lámina parecía empedrado y luego purpurina: se quitaron los contornos oscuros, se agrandaron las facetas y se bajó el brillo.
+- 12 pruebas nuevas en `TexturasTests.cs`. Pasan las 257 pruebas EditMode y las 19 PlayMode.
+- Riesgo: la textura de 8192 necesita una GPU que la acepte. Los equipos de escritorio sí; un móvil viejo podría mostrar el cielo negro.

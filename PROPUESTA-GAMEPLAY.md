@@ -305,3 +305,15 @@ Masa = real × 3 y potencia = real × 5 (redondeo a 5). Los créditos son moneda
 - El cambio se ve al momento, sin recargar la escena.
 - Los ids, los datos guardados y las pruebas siguen en inglés; solo cambia lo que se muestra.
 - Las voces de las transmisiones siguen en inglés (no se generan audios nuevos).
+
+## Bloque 6: texturas y cielo
+
+- Cielo de las cinemáticas: Deep Star Maps 2020 de la NASA (Goddard SVS), en coordenadas galácticas, a 8k. Es de dominio público y queda en Créditos con su crédito («NASA/Goddard Space Flight Center Scientific Visualization Studio. Gaia DR2: ESA/Gaia/DPAC»).
+- Fondos planos (Menu y Operación): un recorte 1:1 del mismo mapa, en la zona donde la Vía Láctea es tenue para no competir con la interfaz.
+- Materiales propios generados por código:
+  - lámina dorada arrugada con relieve en los instrumentos;
+  - celdas solares con rejilla en el AztechSat-1 y en los paneles de los instrumentos;
+  - espuma naranja con relieve en el tanque del Titán (SLS);
+  - metal cepillado en el Explorador, el AztechSat-1 y los instrumentos.
+- Los modelos de NASA 3D conservan sus texturas originales. Se revisaron y no llevan el logo de la NASA.
+- El build crece unos 5 MB (de 48 a 53 MB).
