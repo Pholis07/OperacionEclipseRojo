@@ -358,6 +358,14 @@ namespace SpaceMission
             ManiobraPlaneada = null;
             TransmitirPlaneado = false;
 
+            // 4b. Versión 9: si al cerrar el mes límite no ha llegado ninguna evidencia a la Tierra, Control de Misión
+            //     cancela la misión (fracaso). Se avisa antes en el contador de evidencia de la Operación.
+            if (!Terminada && reglas.mesLimiteSinEvidencia > 0 && MesesResueltos >= reglas.mesLimiteSinEvidencia && !HayEvidenciaEnTierra)
+            {
+                CanceladaSinEvidencia = true;
+                Terminar();
+            }
+
             // 5. Evento de cierre: afecta a lo que viene, nunca a lo ya enviado. No hay eventos tras el final.
             if (!Terminada && momentosEvento.Count > 0 && MesesResueltos >= momentosEvento[0])
             {
@@ -451,6 +459,15 @@ namespace SpaceMission
         }
 
         /// <summary>Fin de la misión (voluntario o por meses). Lo que no se envió no cuenta como evidencia.</summary>
+        /// <summary>¿Llegó a la Tierra al menos una evidencia de un instrumento? (TX-00 es de la misión, no cuenta.)</summary>
+        public bool HayEvidenciaEnTierra => Recibidas.Any(id => !string.IsNullOrEmpty(catalogo.Transmision(id).instrumentoId));
+
+        /// <summary>Control de Misión la canceló por no tener evidencia en la Tierra al cerrar el mes límite.</summary>
+        public bool CanceladaSinEvidencia { get; private set; }
+
+        /// <summary>Mes al final del cual hace falta la primera evidencia en la Tierra (0 = sin límite).</summary>
+        public int MesLimiteSinEvidencia => reglas.mesLimiteSinEvidencia;
+
         public void Terminar()
         {
             if (Terminada) return;

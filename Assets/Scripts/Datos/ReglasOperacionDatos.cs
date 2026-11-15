@@ -24,6 +24,10 @@ namespace SpaceMission
         public float factorCalidadTormenta; // tormenta creciendo, si se sigue
         public float factorCalidadBaja;     // en órbita baja
 
+        [Header("Versión 9: quien no juega pierde")]
+        [Tooltip("Si al cerrar este mes no ha llegado ninguna evidencia a la Tierra, Control de Misión cancela la misión (0 = nunca).")]
+        public int mesLimiteSinEvidencia = 6;
+
         [Header("Observación (distancias en un mapa de 0 a 1)")]
         public float radioDeteccion;   // a esta distancia o menos, el instrumento encuentra la anomalía
         public float distanciaCaliente;

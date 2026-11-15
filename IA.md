@@ -528,3 +528,27 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Pruebas: 4 nuevas en `AresTests.cs`. Pasan las 353 EditMode y las 24 PlayMode. Build WebGL de 57 MB.
 - Comprobado en el navegador a 1366x768: la pestaña Lanzador y la cinemática completa con el Explorador (despegue, separación, apertura de la nariz y satélite liberado) hasta la Operación, sin errores en la consola.
 - Pendiente: la leyenda del Explorador dice «Like the Soyuz-Fregat». Se refiere a la capacidad, que sigue siendo cierta, pero el aspecto ya es del Ares.
+
+## Versión 9: informe menos saturado, consejos opcionales, plazo del mes 6 y feedback (2026-11-15)
+
+Pedido de Adrian: un informe menos saturado y un juego informativo sin ser invasivo. También, que quien no juegue pierda a los 6 meses, y que haya más feedback de cada decisión.
+
+- **Informe:** en los detalles se ven solo las evidencias y el total de puntos. Recursos, fichas, objetivos extra y cada línea de puntos van en «Show breakdown», plegado al entrar (`ResultadoUI.AlternarDesglose`). El récord se calcula una vez por informe.
+- **Consejos opcionales:**
+  - «Show tips» en Opciones.
+  - Apagados, la Operación no muestra el paso a paso ni el resaltado. Los avisos y la Misión 0 se mantienen.
+  - La ayuda «?» de la Operación se abre sola solo la primera vez (`Preferencias.AyudaOperacionVista`).
+- **Plazo:**
+  - Si al cerrar el mes 6 no llegó ninguna evidencia a la Tierra, Control de Misión cancela la misión, que cuenta como fracaso. El límite está en `ReglasOperacionDatos.mesLimiteSinEvidencia = 6`.
+  - El contador de evidencia muestra el plazo desde el mes 1: en ámbar a partir del mes 4 y en rojo en el mes 6.
+  - El resumen del mes y el informe explican la cancelación. `MesesTests` apaga el plazo porque prueba los 12 meses.
+- **Feedback de cada decisión:** encender, apagar, marcar región, maniobrar y enviar dicen qué causan (W, bloques, créditos, combustible, días).
+- El idioma ya arrancaba en inglés y las voces ya estaban en los dos idiomas (PR #1): no se tocó.
+- Pruebas: 366/366 EditMode (6 nuevas en `PlazoEvidenciaTests.cs`, 1 en `GuiaTests`, 1 en `ResultadoTests`) y 24/24 PlayMode. Build WebGL correcto.
+- Comprobado en el navegador a 1366x768:
+  - Opciones con «Show tips».
+  - Detalles plegados y abiertos.
+  - Operación con los consejos apagados.
+  - Ayuda abierta sola la primera vez.
+  - Efecto al encender el radar.
+  - Cancelación al cerrar el mes 6 e informe de la misión cancelada.

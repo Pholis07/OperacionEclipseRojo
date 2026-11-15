@@ -17,11 +17,20 @@ namespace SpaceMission.Tests
 
         CatalogoDatos catalogo;
 
+        int limiteAntes;
+
         [SetUp]
         public void Preparar()
         {
             catalogo = AssetDatabase.LoadAssetAtPath<CatalogoDatos>("Assets/Datos/Catalogo.asset");
+            // Estas pruebas son del sistema de meses: juegan los 12 meses sin enviar. El plazo del mes 6
+            // (versión 9) se prueba aparte, en PlazoEvidenciaTests.
+            limiteAntes = catalogo.reglas.mesLimiteSinEvidencia;
+            catalogo.reglas.mesLimiteSinEvidencia = 0;
         }
+
+        [TearDown]
+        public void Restaurar() => catalogo.reglas.mesLimiteSinEvidencia = limiteAntes;
 
         Operacion Nueva(Configuracion c, MisionDatos nivel, params string[] herramientas)
         {

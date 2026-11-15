@@ -56,7 +56,9 @@ namespace SpaceMission
             var informe = new Informe
             {
                 Titulo = TextosResultado.Titulo(categoria),
-                Texto = categoria == e.Categoria ? TextosResultado.Texto(categoria) : TextosResultado.TextoSinEnviar,
+                Texto = op != null && op.CanceladaSinEvidencia
+                    ? string.Format(Idioma.T("Mission Control cancelled the mission: no evidence had reached Earth by the end of month {0}. Turn on an instrument, find the anomaly and send its data when there is contact."), op.MesLimiteSinEvidencia)
+                    : categoria == e.Categoria ? TextosResultado.Texto(categoria) : TextosResultado.TextoSinEnviar,
                 Recursos = Recursos(e, c, catalogo, nivel) + TextoOperacion(op)
             };
 

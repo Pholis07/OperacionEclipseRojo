@@ -74,6 +74,14 @@ namespace SpaceMission
             if (enCine) { panelAyuda.SetActive(false); ResaltarGuia.Mover(ref resaltado, null); return; }
 
             var pantalla = mision.PantallaActual;
+            // Versión 9: la primera vez que se llega a la Operación (con consejos), la ayuda «?» se abre sola con
+            // cómo jugar. Se cierra con un clic y no vuelve a abrirse sola; el «?» sigue ahí.
+            if (pantalla == PantallaMision.Operacion && Preferencias.GuiaActiva && !EstadoJuego.Tutorial &&
+                !Preferencias.AyudaOperacionVista && mision.Operacion != null && !mision.Operacion.Ocupada)
+            {
+                Preferencias.AyudaOperacionVista = true;
+                AbrirAyuda();
+            }
             var consejo = Calcular(pantalla);
             bool conTarjeta = Preferencias.GuiaActiva && pantalla != PantallaMision.Operacion && !EstadoJuego.Tutorial;
             var nuevaFirma = pantalla + "|" + conTarjeta + "|" + consejo.Texto + "|" + consejo.Destino;

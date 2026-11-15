@@ -95,6 +95,8 @@ namespace SpaceMission
         public static string AyudaCompleta(PantallaMision p, CatalogoDatos catalogo, MisionDatos nivel)
         {
             var texto = Ayuda(p);
+            if (p == PantallaMision.Operacion && catalogo != null && catalogo.reglas != null && catalogo.reglas.mesLimiteSinEvidencia > 0)
+                return texto + string.Format(Idioma.T("\nIf no evidence has reached Earth by the end of month {0}, Mission Control cancels the mission."), catalogo.reglas.mesLimiteSinEvidencia);
             if (p != PantallaMision.Briefing || catalogo == null) return texto;
             return texto + Idioma.T("\n\n<b>LIMITS</b>\n") + TextosBriefing.TextoLimites(catalogo, nivel) +
                    Idioma.T("\n\n<b>THE STATUS LIGHT</b>\n") + TextosBriefing.ExplicacionColores;

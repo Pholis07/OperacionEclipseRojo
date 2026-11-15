@@ -176,15 +176,21 @@ namespace SpaceMission
             // si no, apagar todo antes de aguantar un evento esquivaría su efecto.
             if (Op == null || Op.Terminada || Op.EsperandoDecision || resumenPendiente) return;
             Escaner = id;
-            if (Op.Encendidos.Contains(id)) Op.Apagar(id);
+            var datos = catalogo.Instrumento(id);
+            if (Op.Encendidos.Contains(id))
+            {
+                Op.Apagar(id);
+                aviso = string.Format(Idioma.T("{0} OFF: frees {1} W; it will not observe this month."), Nombre(id), datos.ConsumoTotalW);
+            }
             else if (!Op.Encender(id))
                 aviso = Op.SinAlcance(id)
                     ? Nombre(id) + Idioma.T(" cannot work from this orbit: it gives no evidence here.")
                     : Op.Bloqueados.ContainsKey(id)
                     ? Nombre(id) + Idioma.T(" is locked out by overheating.")
                     : Idioma.T("Not enough power to turn on ") + Nombre(id) + Idioma.T(": turn off another instrument.");
-            else if (!Op.Regiones.ContainsKey(id))
-                aviso = Nombre(id) + Idioma.T(" ON. Click the region on the map it will observe.");
+            else
+                aviso = string.Format(Idioma.T("{0} ON: uses {1} W and {2} memory block(s) per month."), Nombre(id), datos.ConsumoTotalW, datos.bloquesDatos) +
+                        (Op.Regiones.ContainsKey(id) ? "" : Idioma.T(" Now click the region on the map."));
             Refrescar();
         }
 
@@ -200,15 +206,21 @@ namespace SpaceMission
             if (Op == null || Op.Terminada || Op.EsperandoDecision || resumenPendiente || Escaner == null) return;
             Op.FijarRegion(Escaner, punto);
             aviso = Idioma.T("Region set for ") + Nombre(Escaner) + "." +
-                    (Op.Encendidos.Contains(Escaner) ? "" : Idioma.T(" Turn it on so it observes this month."));
+                    (Op.Encendidos.Contains(Escaner) ? Idioma.T(" It will observe there when you resolve the month.") : Idioma.T(" Turn it on so it observes this month."));
             Refrescar();
         }
 
         public void AlternarManiobra()
         {
             if (Op == null) return;
-            if (Op.ManiobraPlaneada.HasValue) Op.CancelarManiobra();
-            else if (!Op.PlanearManiobra(Op.Altitud == Altitud.Normal ? Altitud.Baja : Altitud.Normal))
+            if (Op.ManiobraPlaneada.HasValue) { Op.CancelarManiobra(); aviso = Idioma.T("Maneuver cancelled: nothing was charged."); }
+            else if (Op.PlanearManiobra(Op.Altitud == Altitud.Normal ? Altitud.Baja : Altitud.Normal))
+                aviso = string.Format(Idioma.T("Maneuver planned: {0} cr, {1} fuel and {2} fewer days of observation this month."),
+                            Reglas.creditosPorManiobra, Op.CostoCambioAltitud, Reglas.diasPorManiobra) +
+                        (Op.ManiobraPlaneada == Altitud.Baja
+                            ? string.Format(Idioma.T(" In low orbit quality improves (×{0}), but drag uses {1} fuel every month."), Reglas.factorCalidadBaja, Reglas.combustiblePorOrbitaBaja)
+                            : "");
+            else
                 aviso = Idioma.T("Cannot maneuver: you need ") + Op.CostoCambioAltitud + Idioma.T(" fuel and ") +
                         Reglas.creditosPorManiobra + Idioma.T(" credits. Nothing was charged.");
             Refrescar();
@@ -218,6 +230,9 @@ namespace SpaceMission
         {
             if (Op == null) return;
             Op.TransmitirPlaneado = !Op.TransmitirPlaneado;
+            aviso = !Op.TransmitirPlaneado ? Idioma.T("Will not send: the data stays in memory.")
+                : Op.MotivoSinEnvio == null ? Idioma.T("Will send at month end: data only counts once it reaches Earth.")
+                : string.Format(Idioma.T("Cannot send this month: {0}."), Op.MotivoSinEnvio);
             Refrescar();
         }
 
@@ -326,7 +341,9 @@ namespace SpaceMission
             if (r.CombustibleGastado > 0) gaste.Add(r.CombustibleGastado + Idioma.T(" fuel"));
             if (r.Maniobra) gaste.Add(Reglas.diasPorManiobra + Idioma.T(" days on the maneuver"));
 
-            string sigue = r.Termino ? Idioma.T("The campaign is over. Press “View report”.")
+            string sigue = Op.CanceladaSinEvidencia
+                ? string.Format(Idioma.T("<color=#EF4444>Mission Control cancelled the mission: no evidence reached Earth by the end of month {0}.</color> Press “View report”."), Op.MesLimiteSinEvidencia)
+                : r.Termino ? Idioma.T("The campaign is over. Press “View report”.")
                 : Idioma.T("Month ") + Op.Mes + ". " + (Op.ContactoAbierto ? Idioma.T("Contact with Earth is open.") : Idioma.T("Contact in ") + Meses(Op.MesesParaContacto) + ".") +
                   (r.Evento != null && Op.EsperandoDecision ? Idioma.T(" Mission Control awaits a decision: ") + r.Evento.Datos.Nombre + "." : "") +
                   Idioma.T(" Instruments that are ON stay ON.");
@@ -405,6 +422,21 @@ namespace SpaceMission
         string MensajeApagon() =>
             Idioma.T("<color=#EF4444><b>Safe mode.</b></color> The event pushed power draw above the limit: the spacecraft turned off its instruments, ") +
             Idioma.T("the restart cost ") + Reglas.creditosPorReinicio + Idioma.T(" credits and next month loses ") + Reglas.diasPerdidosPorApagon + Idioma.T(" days.");
+
+        /// <summary>
+        /// Versión 9: mientras no haya llegado ninguna evidencia, el plazo del mes límite; ámbar cuando quedan dos
+        /// meses o menos y rojo en el último (al cerrarlo sin evidencia, Control de Misión cancela la misión).
+        /// </summary>
+        string AvisoPlazo(int recibidas)
+        {
+            int limite = Op.MesLimiteSinEvidencia;
+            if (recibidas > 0 || limite <= 0 || Op.Terminada || EstadoJuego.Tutorial || Op.Mes > limite) return "";
+            int quedan = limite - Op.Mes;   // meses que quedan después de este
+            string color = quedan == 0 ? "#EF4444" : quedan <= 2 ? "#F4C46A" : "#94A3B8";
+            return "\n<size=85%><color=" + color + ">" + (quedan == 0
+                ? string.Format(Idioma.T("Last chance: send evidence this month or the mission is cancelled at the end of month {0}."), limite)
+                : string.Format(Idioma.T("The first evidence must reach Earth by the end of month {0}."), limite)) + "</color></size>";
+        }
 
         static Color ColorLectura(Lectura l)
         {
@@ -508,7 +540,7 @@ namespace SpaceMission
             int recibidas = Op.Recibidas.Count(id => !string.IsNullOrEmpty(catalogo.Transmision(id).instrumentoId));   // TX-00 es de la misión
             int total = recibidas + enMemoria + Op.Pendientes.Count;
             textoProgreso.text = Idioma.T("Evidence received: ") + recibidas + Idioma.T(" of ") + total +
-                                 (enMemoria > 0 ? "  ·  " + enMemoria + Idioma.T(" in memory") : "");
+                                 (enMemoria > 0 ? "  ·  " + enMemoria + Idioma.T(" in memory") : "") + AvisoPlazo(recibidas);
             textoLectura.text = TextoPrevision();
             DibujarGuia(pausa);
             DibujarDecision();

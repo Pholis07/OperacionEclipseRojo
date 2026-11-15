@@ -847,6 +847,21 @@ namespace SpaceMission
             { "too heavy to reach the orbit", "demasiado pesada para llegar a la órbita" },
             { "Show breakdown", "Ver desglose" },
             { "Hide breakdown", "Ocultar desglose" },
+            { "{0} OFF: frees {1} W; it will not observe this month.", "{0} apagado: libera {1} W; este mes no observará." },
+            { "{0} ON: uses {1} W and {2} memory block(s) per month.", "{0} encendido: usa {1} W y {2} bloque(s) de memoria por mes." },
+            { " Now click the region on the map.", " Ahora haz clic en la región del mapa." },
+            { " It will observe there when you resolve the month.", " Observará ahí cuando resuelvas el mes." },
+            { "Maneuver cancelled: nothing was charged.", "Maniobra cancelada: no se cobró nada." },
+            { "Maneuver planned: {0} cr, {1} fuel and {2} fewer days of observation this month.", "Maniobra planeada: {0} cr, {1} de combustible y {2} días menos de observación este mes." },
+            { " In low orbit quality improves (×{0}), but drag uses {1} fuel every month.", " En órbita baja mejora la calidad (×{0}), pero el arrastre gasta {1} de combustible cada mes." },
+            { "Will not send: the data stays in memory.", "No se enviará: los datos se quedan en la memoria." },
+            { "Will send at month end: data only counts once it reaches Earth.", "Se enviará al final del mes: los datos solo cuentan cuando llegan a la Tierra." },
+            { "Cannot send this month: {0}.", "Este mes no se puede enviar: {0}." },
+            { "Last chance: send evidence this month or the mission is cancelled at the end of month {0}.", "Última oportunidad: envía evidencia este mes o la misión se cancela al terminar el mes {0}." },
+            { "The first evidence must reach Earth by the end of month {0}.", "La primera evidencia debe llegar a la Tierra antes de terminar el mes {0}." },
+            { "<color=#EF4444>Mission Control cancelled the mission: no evidence reached Earth by the end of month {0}.</color> Press “View report”.", "<color=#EF4444>Control de Misión canceló la misión: ninguna evidencia llegó a la Tierra antes de terminar el mes {0}.</color> Pulsa «Ver informe»." },
+            { "Mission Control cancelled the mission: no evidence had reached Earth by the end of month {0}. Turn on an instrument, find the anomaly and send its data when there is contact.", "Control de Misión canceló la misión: ninguna evidencia había llegado a la Tierra al terminar el mes {0}. Enciende un instrumento, encuentra la anomalía y envía sus datos cuando haya contacto." },
+            { "\nIf no evidence has reached Earth by the end of month {0}, Mission Control cancels the mission.", "\nSi ninguna evidencia ha llegado a la Tierra al terminar el mes {0}, Control de Misión cancela la misión." },
         };
     }
 }

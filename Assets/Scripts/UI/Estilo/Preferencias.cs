@@ -38,6 +38,13 @@ namespace SpaceMission
             set => Escribir(ClaveGuia, value ? 1f : 0f);
         }
 
+        /// <summary>Versión 9: la ayuda «?» de la Operación ya se abrió sola una vez (no vuelve a abrirse sola).</summary>
+        public static bool AyudaOperacionVista
+        {
+            get => Leer("ayuda_operacion_vista", 0f) > 0.5f;
+            set => Escribir("ayuda_operacion_vista", value ? 1f : 0f);
+        }
+
         /// <summary>
         /// Versión 8 (Eclipse Ink): contornos de tinta en la nave y los instrumentos. Apagarlos es el modo ligero
         /// para equipos lentos. Por defecto, encendidos.
