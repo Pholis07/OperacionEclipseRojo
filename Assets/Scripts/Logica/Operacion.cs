@@ -75,7 +75,7 @@ namespace SpaceMission
         readonly List<int> momentosEvento = new List<int>();   // mes tras cuyo cierre ocurre cada evento
         bool sinLecturaProxima;        // pérdida de orientación: el mes siguiente no da lecturas
         bool calidadReducidaProxima;   // tormenta: la calidad del mes siguiente baja
-        bool contactoForzado;
+        int mesContactoForzado;        // mes con ventana extra (ventana despejada); 0 = ninguno
         int diasPerdidos;              // días que el mes siguiente ya tiene perdidos (apagón, desvío, subida forzada)
 
         public Vector2 Anomalia { get; private set; }
@@ -248,7 +248,7 @@ namespace SpaceMission
         /// Meses que faltan para la próxima ventana (0 = este mes). Regla de juego: se abre un mes de cada
         /// «cicloContacto» (con 2, los meses pares) y siempre en el último mes.
         /// </summary>
-        public int MesesParaContacto => contactoForzado ? 0
+        public int MesesParaContacto => mesContactoForzado == Mes ? 0
             : System.Math.Min(CicloContacto - 1 - MesesResueltos % CicloContacto, System.Math.Max(0, MesesRestantes - 1));
 
         /// <summary>Días útiles que tendrá este mes con el plan actual.</summary>
@@ -416,12 +416,16 @@ namespace SpaceMission
             }
             MesesRestantes--;
             MesesResueltos++;
-            contactoForzado = false;
             EnvioBloqueado = false;
             foreach (var e in Eventos.Where(e => !e.Resuelto && e.Datos.efecto == EfectoEvento.ReducirLimiteTemporal))
                 if (--e.OrbitasRestantes <= 0) e.Resuelto = true;
             foreach (var id in Bloqueados.Keys.ToList())
                 if (--Bloqueados[id] <= 0) Bloqueados.Remove(id);
+            // El efecto ya pasó (el mes sin lecturas o el bloqueo): la herramienta deja de servir y no se gasta en vano.
+            // Va antes del evento de cierre, así que nunca resuelve un evento del mismo mes.
+            foreach (var e in Eventos.Where(e => !e.Resuelto && (e.Datos.efecto == EfectoEvento.AnularLectura
+                         || (e.Datos.efecto == EfectoEvento.BloquearInstrumento && Bloqueados.Count == 0))))
+                e.Resuelto = true;
             if (MesesRestantes <= 0) Terminar();
         }
 
@@ -518,7 +522,8 @@ namespace SpaceMission
                     e.Resuelto = true;
                     break;
                 case EfectoOpcion.AbrirContacto:
-                    contactoForzado = true;
+                    // Abre el primer mes que no tenía contacto (si el siguiente ya lo tenía, no serviría de nada).
+                    mesContactoForzado = ContactoAbierto ? Mes + 1 : Mes;
                     e.Resuelto = true;
                     break;
                 case EfectoOpcion.AceptarObjetivo:

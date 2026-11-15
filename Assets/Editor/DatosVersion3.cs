@@ -108,7 +108,7 @@ public static class DatosVersion3
         chandra.instrumentosConAlcance = new[] { "termica", "alta_res" }; chandra.factorAlcance = 1.2f;
         chandra.inmuneOrientacion = true;
         var aquarius = Satelite(catalogo, "aquarius", 40, 20,
-            "Radiómetro de microondas: +1 bloque de memoria, y la tormenta creciendo no le da lecturas falsas.",
+            "Radiómetro de microondas: +1 bloque de memoria, y la tormenta creciendo no le baja la calidad de los datos.",
             "El radiómetro va siempre encendido: +50 W de consumo en la Operación.");
         aquarius.memoriaExtra = 1; aquarius.inmuneTormenta = true; aquarius.consumoExtraW = 50;
         var llcd = Satelite(catalogo, "llcd", 50, 10,

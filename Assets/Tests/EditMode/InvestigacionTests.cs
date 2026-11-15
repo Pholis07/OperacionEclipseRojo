@@ -113,10 +113,15 @@ namespace SpaceMission.Tests
             ui.Comenzar(e, new Carga(e, EstadoJuego.Configuracion, catalogo), 7);
             ui.Op.ProgramarEventos(new[] { catalogo.eventos.First(x => x.id == "sombra") }, new[] { 1 });
 
+            ui.Op.Encender("termica");
             ui.ResolverMes();
             Assert.IsTrue(ui.ResumenVisible);
             Assert.IsTrue(ui.Op.EsperandoDecision);
+            ui.AlternarInstrumento("termica");
+            CollectionAssert.Contains(ui.Op.Encendidos.ToList(), "termica", "con el resumen abierto no se cambia el plan");
             ui.ContinuarResumen();
+            ui.AlternarInstrumento("termica");
+            CollectionAssert.Contains(ui.Op.Encendidos.ToList(), "termica", "ni con la decisión pendiente: no se esquiva el evento");
             ui.ResolverMes();
             Assert.AreEqual(2, ui.Op.Mes, "con la decisión pendiente no se resuelve");
             StringAssert.Contains("No se puede resolver", ui.UltimoMensaje);

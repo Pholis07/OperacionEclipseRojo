@@ -21,6 +21,10 @@ namespace SpaceMission
         public static string Titulo(CategoriaResultado c) =>
             c == CategoriaResultado.Victoria ? TituloVictoria : c == CategoriaResultado.Parcial ? TituloParcial : TituloFracaso;
 
+        /// <summary>Versión 4: la nave podía conseguir más, pero la evidencia no llegó a la Tierra (no es culpa de la configuración).</summary>
+        public const string TextoSinEnviar =
+            "Tu nave podía conseguir más, pero no toda la evidencia llegó a la Tierra. Observa la anomalía con calidad suficiente y envía los datos antes de terminar la misión.";
+
         public static string Texto(CategoriaResultado c) =>
             c == CategoriaResultado.Victoria ? TextoVictoria : c == CategoriaResultado.Parcial ? TextoParcial : TextoFracaso;
     }

@@ -19,7 +19,7 @@ MonoBehaviour:
   credito: 'Modelo 3D: NASA 3D Resources'
   costoCr: 40
   masaKg: 20
-  ventaja: "Radi\xF3metro de microondas: +1 bloque de memoria, y la tormenta creciendo no le da lecturas falsas."
+  ventaja: "Radi\xF3metro de microondas: +1 bloque de memoria, y la tormenta creciendo no le baja la calidad de los datos."
   desventaja: "El radi\xF3metro va siempre encendido: +50 W de consumo en la Operaci\xF3n."
   instrumentosConAlcance: []
   factorAlcance: 1

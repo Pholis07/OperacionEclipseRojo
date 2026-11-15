@@ -611,6 +611,50 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void SiElMesSiguienteYaTeniaContactoLaVentanaAbreElDeDespues()
+        {
+            var op = Caso2();
+            op.ProgramarEventos(new[] { Evento("ventana") }, new[] { 3 });
+            for (int i = 0; i < 3; i++) Resolver(op);
+            Assert.AreEqual(4, op.Mes);
+            Assert.IsTrue(op.ContactoAbierto, "el mes 4 ya es par");
+            op.Decidir(Con(op, EfectoOpcion.AbrirContacto));
+            Resolver(op);
+            Assert.AreEqual(5, op.Mes);
+            Assert.IsTrue(op.ContactoAbierto, "la ventana extra cae en el mes 5, que no la tenía");
+            Resolver(op);
+            Assert.IsTrue(op.ContactoAbierto, "mes 6, par");
+            Resolver(op);
+            Assert.IsFalse(op.ContactoAbierto, "mes 7: la ventana extra ya pasó");
+        }
+
+        [Test]
+        public void UnaHerramientaDejaDeSerUtilCuandoElEfectoYaPaso()
+        {
+            var op = Caso2("giroscopio");
+            Observar(op, "termica", Lejos);
+            op.AplicarEvento(Evento("orientacion"));
+            op.Decidir(Con(op, EfectoOpcion.Aguantar));
+            CollectionAssert.Contains(op.HerramientasUtiles.ToList(), "giroscopio", "todavía evitaría el mes sin lecturas");
+            Assert.AreEqual(Lectura.SinLectura, Resolver(op).Observaciones[0].Lectura);
+            CollectionAssert.IsEmpty(op.HerramientasUtiles.ToList(), "el mes sin lecturas ya pasó");
+            Assert.IsFalse(op.UsarHerramienta("giroscopio"));
+        }
+
+        [Test]
+        public void ElInformeNoCulpaALaConfiguracionSiFaltoEnviar()
+        {
+            var op = Caso2();
+            Observar(op, "termica", Centro);
+            Observar(op, "radar", Centro);
+            Resolver(op);
+            op.Terminar();
+            var informe = InformeMision.Construir(Evaluador.Evaluar(ConfigCaso2(), catalogo), ConfigCaso2(), catalogo, op, null);
+            Assert.AreEqual(TextosResultado.Titulo(CategoriaResultado.Fracaso), informe.Titulo);
+            Assert.AreEqual(TextosResultado.TextoSinEnviar, informe.Texto);
+        }
+
+        [Test]
         public void LaPeticionDeLaNasaSeCumpleObservandoSuPunto()
         {
             var op = Caso2();

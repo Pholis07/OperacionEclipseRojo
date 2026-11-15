@@ -27,7 +27,7 @@ namespace SpaceMission
             var informe = new Informe
             {
                 Titulo = TextosResultado.Titulo(categoria),
-                Texto = TextosResultado.Texto(categoria),
+                Texto = categoria == e.Categoria ? TextosResultado.Texto(categoria) : TextosResultado.TextoSinEnviar,
                 Recursos = Recursos(e, c, catalogo, nivel) + TextoOperacion(op)
             };
 

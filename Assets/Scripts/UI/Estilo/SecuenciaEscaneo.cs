@@ -188,7 +188,8 @@ namespace SpaceMission
         {
             switch (l)
             {
-                case Lectura.Encontrada: return (nueva ? "DATOS RECIBIDOS · ANOMALÍA OBSERVADA" : "ZONA YA ANALIZADA", new Color32(0x22, 0xC5, 0x5E, 0xFF));
+                case Lectura.Encontrada: return nueva ? ("DATOS RECIBIDOS · ANOMALÍA OBSERVADA", new Color32(0x22, 0xC5, 0x5E, 0xFF))
+                    : ("ANOMALÍA OBSERVADA · SIN EVIDENCIA NUEVA", new Color32(0xF4, 0xC4, 0x6A, 0xFF));   // ya estaba o le faltó calidad
                 case Lectura.Caliente: return ("LECTURA: CALIENTE", new Color32(0xE2, 0x64, 0x3A, 0xFF));
                 case Lectura.Tibio: return ("LECTURA: TIBIO", new Color32(0xEA, 0xB3, 0x08, 0xFF));
                 case Lectura.Frio: return ("LECTURA: FRÍO", new Color32(0x60, 0xA5, 0xFA, 0xFF));

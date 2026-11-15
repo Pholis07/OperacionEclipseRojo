@@ -326,3 +326,19 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - Las 5 pruebas de la v3 que las reglas nuevas invalidan están en `archivo/pruebas-v3` (fuera de `Assets`). Las sustituyen `MesesTests.cs` (con los ids del paquete: MES, ORB, MEM, CIE, EVT) y versiones nuevas de `SatelitesTests`, `InvestigacionTests` y `RecorridoTests`.
 - Fallos de las pruebas nuevas que la IA corrigió sin tocar la lógica: tres expectativas mal calculadas (un instrumento que sigue encendido vuelve a observar el mes siguiente).
 - La IA no puede escuchar: el sonido solo está comprobado por código y por una prueba que cuenta peticiones.
+
+## Revisión independiente de la versión 4 antes de subirla
+
+- Antes de subir la fusión, la IA lanzó una revisión de solo lectura del diff: 4 revisores con ángulos distintos (lógica, interfaz, resultado, audio y datos) y un verificador por hallazgo que intentaba refutarlo. Salieron 13 hallazgos distintos; se verificaron los 6 más graves y los 6 se confirmaron.
+- Arreglados:
+  - **Esquivar un evento (media):** durante la animación del escaneo se podían apagar los instrumentos con la decisión pendiente y así anular el sobrecalentamiento o el modo seguro. Ahora el plan no se puede cambiar con un resumen o una decisión pendientes.
+  - **Informe injusto (media):** la conclusión de «Investigación fallida» o «Señal incompleta» culpaba a la configuración aunque el fallo fuera no enviar los datos. Si la nave podía conseguir más, ahora dice que faltó enviar la evidencia (`TextosResultado.TextoSinEnviar`).
+  - **Ventana despejada inútil (baja):** «Abrir una ventana de contacto» no hacía nada si el mes siguiente ya tenía contacto. Ahora abre el primer mes que no lo tenía.
+  - **Herramienta gastada en vano (baja):** el giroscopio o la refrigeración seguían apareciendo como útiles cuando el efecto ya había pasado. Ahora el evento se da por resuelto al pasar su efecto.
+  - **Contador (baja):** «Evidencias recibidas» contaba TX-00, que es de la misión.
+  - **Vista 3D (baja):** decía «ZONA YA ANALIZADA» cuando la anomalía se observaba por primera vez sin calidad suficiente. Ahora dice «ANOMALÍA OBSERVADA · SIN EVIDENCIA NUEVA», en ámbar.
+- También, sin verificador pero comprobados al leer el código: el texto del Aquarius hablaba de «lecturas falsas», que ya no existen; y el enfriamiento de `ReproductorUI` se reinicia al activarse, porque si el editor no recarga el dominio podía callar todos los sonidos en la segunda sesión de Play.
+- Sin verificar ni arreglar, todos de gravedad baja:
+  - Con una configuración que no puede dar evidencia, dos objetivos extra se cumplen enviando cualquier registro.
+  - Con teclado o mando, el deslizador de efectos no da preescucha.
+- 3 pruebas nuevas. Pasan las 211 pruebas EditMode y las 19 PlayMode.

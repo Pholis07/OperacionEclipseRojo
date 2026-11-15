@@ -146,7 +146,9 @@ namespace SpaceMission
         /// <summary>Clic en un instrumento: lo elige; si ya estaba elegido (o estaba apagado), lo enciende o apaga.</summary>
         public void AlternarInstrumento(string id)
         {
-            if (Op == null || Op.Terminada) return;
+            // Con resumen o decisión pendientes (aunque estén ocultos tras la animación) no se cambia el plan:
+            // si no, apagar todo antes de aguantar un evento esquivaría su efecto.
+            if (Op == null || Op.Terminada || Op.EsperandoDecision || resumenPendiente) return;
             Escaner = id;
             if (Op.Encendidos.Contains(id)) Op.Apagar(id);
             else if (!Op.Encender(id))
@@ -451,8 +453,9 @@ namespace SpaceMission
             textoObjetivos.text = objetivos.Count > 0 ? "<b>Objetivos extra</b>\n" + string.Join("\n", objetivos) : "";
 
             int enMemoria = Op.Memoria.Sum(r => r.Evidencias.Count);
-            int total = Op.Recibidas.Count + enMemoria + Op.Pendientes.Count;
-            textoProgreso.text = "Evidencias recibidas: " + Op.Recibidas.Count + " de " + total +
+            int recibidas = Op.Recibidas.Count(id => !string.IsNullOrEmpty(catalogo.Transmision(id).instrumentoId));   // TX-00 es de la misión
+            int total = recibidas + enMemoria + Op.Pendientes.Count;
+            textoProgreso.text = "Evidencias recibidas: " + recibidas + " de " + total +
                                  (enMemoria > 0 ? "  ·  " + enMemoria + " en memoria" : "");
             textoLectura.text = TextoPrevision();
             DibujarDecision();

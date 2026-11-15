@@ -24,7 +24,11 @@ namespace SpaceMission
             fuente.spatialBlend = 0f;
         }
 
-        void OnEnable() => Actual = this;
+        void OnEnable()
+        {
+            Actual = this;
+            ultimoTiempo = -1f;   // sin recargar el dominio (editor), el reloj vuelve a 0 y el enfriamiento callaría todo
+        }
 
         void OnDisable()
         {
