@@ -342,3 +342,9 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - Con una configuración que no puede dar evidencia, dos objetivos extra se cumplen enviando cualquier registro.
   - Con teclado o mando, el deslizador de efectos no da preescucha.
 - 3 pruebas nuevas. Pasan las 211 pruebas EditMode y las 19 PlayMode.
+
+## Puntos: lo que sobra solo cuenta con evidencia enviada
+
+- La IA jugó en el navegador una campaña parcial (1366x768: «Señal incompleta», 975 puntos) y una fracasada (1280x720: «Investigación fallida», 745 puntos). Vio que fracasar pronto daba casi tantos puntos como ganar a medias: 250 por meses sobrantes y 215 por presupuesto.
+- Adrian aprobó que el presupuesto y los meses sobrantes solo sumen si llegó a la Tierra al menos una evidencia (`Puntuacion.Desglose`). La misma partida fracasada pasa de 745 a 130 puntos (fracaso y combustible sobrante).
+- Prueba nueva en `MesesTests`. Tres pruebas antiguas que miraban la línea del presupuesto en misiones sin evidencia ahora envían una antes de mirar los puntos. Pasan las 212 pruebas EditMode y las 19 PlayMode.

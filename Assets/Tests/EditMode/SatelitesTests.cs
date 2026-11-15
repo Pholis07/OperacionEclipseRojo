@@ -134,6 +134,14 @@ namespace SpaceMission.Tests
             var c = new Configuracion("media", "explorador", new[] { "termica", "radar" }) { SateliteId = "llcd" };
             var e = Evaluador.Evaluar(c, catalogo);
             var op = new Operacion(e, c, catalogo, null, 1, new Carga(e, c, catalogo));
+            // Desde que lo sobrante solo cuenta con evidencia enviada, se envía una antes de mirar los puntos.
+            op.ProgramarEventos(new EventoDatos[0], new int[0]);
+            op.PonerAnomalia(new Vector2(0.5f, 0.5f));
+            op.Encender("termica");
+            op.FijarRegion("termica", new Vector2(0.5f, 0.5f));
+            op.ResolverMes(op.Mes);
+            op.TransmitirPlaneado = true;
+            op.ResolverMes(op.Mes);
             var linea = Puntuacion.Desglose(e, op, catalogo, null).First(l => l.Concepto.StartsWith("Presupuesto"));
             Assert.AreEqual((1250 - 820 - 50) / 2, linea.Puntos);
         }

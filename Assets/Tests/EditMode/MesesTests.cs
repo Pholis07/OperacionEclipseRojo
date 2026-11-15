@@ -726,11 +726,37 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void SinEvidenciaEnviadaNoSumanNiElPresupuestoNiLosMesesSobrantes()
+        {
+            // Abandonar en el mes 2 sin evidencia no debe acercarse a una partida jugada (antes daba 745 puntos).
+            var op = Caso2();
+            Observar(op, "termica", Lejos);
+            Resolver(op);
+            Resolver(op, enviar: true);   // envía datos, pero sin evidencia
+            op.Terminar();
+            var lineas = Puntuacion.Desglose(Evaluador.Evaluar(ConfigCaso2(), catalogo), op, catalogo, null);
+            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Presupuesto")));
+            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Meses")));
+            Assert.AreEqual(100 + 3 * 10, Puntuacion.Total(lineas), "fracaso + combustible sobrante");
+
+            var parcial = Caso2();
+            Observar(parcial, "termica", Centro);
+            Resolver(parcial);
+            Resolver(parcial, enviar: true);   // una evidencia principal
+            parcial.Terminar();
+            var conEvidencia = Puntuacion.Desglose(Evaluador.Evaluar(ConfigCaso2(), catalogo), parcial, catalogo, null);
+            Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Presupuesto")));
+            Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Meses")));
+        }
+
+        [Test]
         public void LasManiobrasSeRestanDelPresupuestoSobrante()
         {
             var op = Titan();
             op.PlanearManiobra(Altitud.Baja);
+            Observar(op, "termica", Centro);
             Resolver(op);
+            Resolver(op, enviar: true);   // lo sobrante solo cuenta con evidencia enviada
             var c = new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico" });
             var linea = Puntuacion.Desglose(Evaluador.Evaluar(c, catalogo, catalogo.Nivel(0)), op, catalogo, catalogo.Nivel(0))
                 .First(l => l.Concepto.StartsWith("Presupuesto"));

@@ -130,6 +130,14 @@ namespace SpaceMission.Tests
             var carga = new Carga(e, c, catalogo);
             carga.Cargar("bateria");
             var op = new Operacion(e, c, catalogo, null, 1, carga);
+            // Desde que lo sobrante solo cuenta con evidencia enviada, se envía una antes de mirar los puntos.
+            op.ProgramarEventos(new EventoDatos[0], new int[0]);
+            op.PonerAnomalia(new Vector2(0.5f, 0.5f));
+            op.Encender("termica");
+            op.FijarRegion("termica", new Vector2(0.5f, 0.5f));
+            op.ResolverMes(op.Mes);
+            op.TransmitirPlaneado = true;
+            op.ResolverMes(op.Mes);
             var linea = Puntuacion.Desglose(e, op, catalogo, null).First(l => l.Concepto.StartsWith("Presupuesto"));
             Assert.AreEqual((1250 - 820 - 40) / 2, linea.Puntos);
             Assert.AreEqual(CategoriaResultado.Victoria, e.Categoria, "la carga no cambia la categoría");
