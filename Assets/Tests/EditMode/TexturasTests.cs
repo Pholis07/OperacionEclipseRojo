@@ -63,7 +63,6 @@ namespace SpaceMission.Tests
             Assert.AreSame(Textura("Metal_Cepillado"), Mapa("CubeSat_Aluminio"));
             Assert.AreSame(Textura("Espuma_Naranja"), Mapa("NASA_Cohete_SLS_naranja"));
             Assert.AreSame(Textura("Espuma_Naranja_Normal"), Mapa("NASA_Cohete_SLS_naranja", "_BumpMap"));
-            Assert.AreSame(Textura("Metal_Cepillado"), Mapa("Cohete_GrisSoyuz"));
             Assert.IsTrue(AssetDatabase.LoadAssetAtPath<Material>("Assets/Materiales/Instrumento_OroTermico.mat").IsKeywordEnabled("_NORMALMAP"));
         }
 

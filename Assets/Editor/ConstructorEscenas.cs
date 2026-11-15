@@ -760,13 +760,13 @@ public static partial class ConstructorEscenas
         AsignarEncuadre(camara, "plataforma", Plataforma + new Vector3(0, 5.3f, -17f), Plataforma + new Vector3(0, 5f, 0), 60f);
         Asignar(camara, "raizNave", nave.transform);
         // Pestaña Lanzador: sin elección los dos cohetes; con elección solo el elegido, en el centro, con un
-        // encuadre a su altura (Explorador 6.1, Titán 11).
+        // encuadre a su altura (Explorador 7.5, Titán 11).
         var plataformaUI = cohetes.explorador.transform.parent.gameObject.AddComponent<PlataformaCohetes>();
         Asignar(plataformaUI, "explorador", cohetes.explorador.transform);
         Asignar(plataformaUI, "titan", cohetes.titan.transform);
         Asignar(plataformaUI, "resalteExplorador", cohetes.resaltadoExplorador.transform);
         Asignar(plataformaUI, "resalteTitan", cohetes.resaltadoTitan.transform);
-        AsignarEncuadre(camara, "plataformaExplorador", Plataforma + new Vector3(2.2f, 3.6f, -10.5f), Plataforma + new Vector3(0, 3.3f, 0), 55f);
+        AsignarEncuadre(camara, "plataformaExplorador", Plataforma + new Vector3(2.7f, 4.4f, -12.9f), Plataforma + new Vector3(0, 4.05f, 0), 55f);
         AsignarEncuadre(camara, "plataformaTitan", Plataforma + new Vector3(3.2f, 6.2f, -17.5f), Plataforma + new Vector3(0, 5.8f, 0), 55f);
         Asignar(camara, "catalogo", catalogo);
         // Etiqueta del módulo instalado: línea guía y punto sobre el módulo (debajo de la etiqueta).
@@ -1840,19 +1840,16 @@ public static partial class ConstructorEscenas
     // ---------- Cohetes ----------
 
     /// <summary>
-    /// Plataforma con los dos lanzadores, a escala aproximada entre ellos (el SLS mide el doble que el Soyuz):
-    /// - Explorador, inspirado en el Soyuz: etapa central gris claro, cuatro propulsores cónicos con faldón,
-    ///   banda naranja, etapa superior y cofia ojival.
+    /// Plataforma con los dos lanzadores:
+    /// - Explorador: el modelo Ares 1 (B) de NASA 3D Resources, partido en primera etapa, etapa superior y nariz
+    ///   en dos mitades (ConstructorEscenas.Ares.cs). Alto 7.5: más bajo que el Titán, aunque el Ares real medía
+    ///   casi lo mismo que el SLS, para que se lea cuál es el pequeño.
     /// - Titán: el modelo 3D del SLS de NASA 3D Resources (pintado por zonas: etapa central naranja, propulsores
     ///   blancos, toberas oscuras), separado en etapa inferior y superior.
     /// Debajo de cada uno, un anillo de acento que se enciende cuando ese lanzador está elegido.
     /// </summary>
     static (GameObject explorador, GameObject titan, GameObject resaltadoExplorador, GameObject resaltadoTitan) ConstruirCohetes(Vector3 plataforma)
     {
-        var blanco = CrearMaterial("Cohete_Blanco", Hex("#ECEEF0"), 0.05f, 0.55f);
-        var grisVerde = CrearMaterial("Cohete_GrisSoyuz", Hex("#C9CFC6"), 0.3f, 0.5f, ConstructorEstilo.Imagen("Texturas/Metal_Cepillado"), new Vector2(4f, 8f));
-        var oscuro = CrearMaterial("Nave_Oscuro", Hex("#2B2F36"), 0.7f, 0.5f);
-        var bandaNaranja = CrearMaterial("Cohete_BandaNaranja", Hex("#E2643A"), 0.05f, 0.5f);
         var llama = CrearMaterial("Nave_Tobera", Hex("#FF8A3D"), 0f, 0.2f, null, Vector2.one, Hex("#FF8A3D") * 3.5f);
         var suelo = CrearMaterial("Plataforma", Hex("#3A3F47"), 0.3f, 0.35f);
         var resalte = CrearMaterial("Plataforma_Resalte", Acento, 0f, 0.5f, null, Vector2.one, Acento * 1.6f);
@@ -1861,54 +1858,15 @@ public static partial class ConstructorEscenas
         raiz.position = plataforma;
         Pieza(PrimitiveType.Cylinder, "Suelo", raiz, new Vector3(0, -0.06f, 0), Vector3.zero, new Vector3(9f, 0.06f, 4.5f), suelo);
 
-        // ----- Explorador (Soyuz) -----
-        var soyuz = new GameObject("Cohete_explorador").transform;
-        soyuz.SetParent(raiz, false);
-        soyuz.localPosition = new Vector3(-2.1f, 0, 0);
-        var mNucleo = GuardarMalla(Torno(new[] { P(0.13f, 0.35f), P(0.17f, 0.5f), P(0.235f, 2.9f), P(0.24f, 3.3f), P(0.2f, 3.45f) }), "Soyuz_Nucleo");
-        var mPropulsor = GuardarMalla(Torno(new[] { P(0.16f, 0.22f), P(0.25f, 0.42f), P(0.235f, 0.7f), P(0.07f, 2.55f), P(0f, 2.75f) }), "Soyuz_Propulsor");
-        var mCofia = GuardarMalla(Torno(new[] { P(0.2f, 0f), P(0.26f, 0.12f), P(0.26f, 0.85f), P(0.22f, 1.1f), P(0.12f, 1.35f), P(0f, 1.5f) }), "Soyuz_Cofia");
-        var mTobera = GuardarMalla(Cono(0.1f, 0.05f, 0.22f), "Tobera_Pequena");
-        Malla(mNucleo, "Nucleo", soyuz, Vector3.zero, Vector3.zero, Vector3.one, grisVerde);
-        for (int i = 0; i < 4; i++)
-        {
-            float a = i * 90f + 45f;
-            var dir = Quaternion.Euler(0, a, 0) * Vector3.forward;
-            // Cada propulsor con su aleta y su tobera en un bloque (en la cinemática se abren en cruz).
-            var bloque = new GameObject("Bloque" + i).transform;
-            bloque.SetParent(soyuz, false);
-            bloque.localPosition = dir * 0.31f;
-            var propulsor = Malla(mPropulsor, "Propulsor" + i, bloque, Vector3.zero, new Vector3(0, a, 0), Vector3.one, grisVerde);
-            propulsor.transform.localRotation = Quaternion.AngleAxis(-3f, Vector3.Cross(Vector3.up, dir)) * propulsor.transform.localRotation;
-            Pieza(PrimitiveType.Cube, "Aleta" + i, bloque, dir * 0.29f + Vector3.up * 0.45f, new Vector3(0, a, 0), new Vector3(0.02f, 0.28f, 0.18f), oscuro);
-            Malla(mTobera, "Tobera" + i, bloque, Vector3.zero, Vector3.zero, Vector3.one, oscuro);
-            Pieza(PrimitiveType.Cylinder, "Llama" + i, bloque, Vector3.zero, Vector3.zero, new Vector3(0.12f, 0.005f, 0.12f), llama);
-        }
-        Malla(mTobera, "ToberaCentral", soyuz, Vector3.up * 0.13f, Vector3.zero, Vector3.one * 1.1f, oscuro);
-        // Etapa superior y cofia juntas: en la cinemática se separan de la etapa inferior.
-        var superiorSoyuz = new GameObject("EtapaSuperior").transform;
-        superiorSoyuz.SetParent(soyuz, false);
-        Pieza(PrimitiveType.Cylinder, "Celosia", superiorSoyuz, Vector3.up * 3.6f, Vector3.zero, new Vector3(0.38f, 0.15f, 0.38f), oscuro);
-        Pieza(PrimitiveType.Cylinder, "BandaNaranja", superiorSoyuz, Vector3.up * 3.82f, Vector3.zero, new Vector3(0.41f, 0.07f, 0.41f), bandaNaranja);
-        Pieza(PrimitiveType.Cylinder, "Etapa", superiorSoyuz, Vector3.up * 4.25f, Vector3.zero, new Vector3(0.4f, 0.36f, 0.4f), blanco);
-        // Cofia en dos mitades (se abren en órbita para liberar el satélite). Cada mitad gira sobre una bisagra
-        // en su borde inferior; material de doble cara para que se vea por dentro al abrirse.
-        var perfilCofia = new[] { P(0.2f, 0f), P(0.26f, 0.12f), P(0.26f, 0.85f), P(0.22f, 1.1f), P(0.12f, 1.35f), P(0f, 1.5f) };
-        var blancoDoble = DobleCara(blanco, "Cohete_Blanco_DobleCara");
-        foreach (var (nombre, desde, lado) in new[] { ("CofiaDetras", 0f, 1f), ("CofiaFrente", Mathf.PI, -1f) })
-        {
-            var malla = GuardarMalla(Torno(perfilCofia, 20, desde, desde + Mathf.PI), "Soyuz_" + nombre);
-            var bisagra = new GameObject(nombre).transform;
-            bisagra.SetParent(superiorSoyuz, false);
-            bisagra.localPosition = new Vector3(0f, 4.6f, lado * 0.2f);
-            Malla(malla, "Mitad", bisagra, new Vector3(0f, 0f, -lado * 0.2f), Vector3.zero, Vector3.one, blancoDoble);
-        }
-        // Logo del patrocinador en la cofia blanca, por delante y por detrás (calcomanía curva).
-        LogoPatrocinio(superiorSoyuz, "Fence", false, 0.266f, 5.08f, 0.52f);
-        // Cada logo va con su mitad de la cofia.
-        superiorSoyuz.Find("LogoFrente").SetParent(superiorSoyuz.Find("CofiaFrente"), true);
-        superiorSoyuz.Find("LogoDetras").SetParent(superiorSoyuz.Find("CofiaDetras"), true);
-        soyuz.gameObject.AddComponent<GiroLento>().enabled = false;
+        // ----- Explorador (Ares 1 B de NASA 3D Resources; ver ConstructorEscenas.Ares.cs) -----
+        var explorador = new GameObject("Cohete_explorador").transform;
+        explorador.SetParent(raiz, false);
+        explorador.localPosition = new Vector3(-2.1f, 0, 0);
+        var superiorExplorador = ConstruirAres(explorador);
+        // Logo del patrocinador en la etapa superior, por delante y por detrás (calcomanía curva).
+        float alturaLogoExp = AltoExplorador * 0.68f;
+        LogoPatrocinio(superiorExplorador, "Fence", false, RadioNucleo(explorador, alturaLogoExp) + 0.012f, alturaLogoExp, 0.5f, explorador);
+        explorador.gameObject.AddComponent<GiroLento>().enabled = false;
 
         // ----- Titán (SLS, modelo de NASA 3D Resources) -----
         var sls = new GameObject("Cohete_titan").transform;
@@ -1934,9 +1892,9 @@ public static partial class ConstructorEscenas
             r.SetActive(false);
             return r;
         }
-        var rExp = Resalte("ElegidoExplorador", soyuz.localPosition);
+        var rExp = Resalte("ElegidoExplorador", explorador.localPosition);
         var rTit = Resalte("ElegidoTitan", sls.localPosition);
-        return (soyuz.gameObject, sls.gameObject, rExp, rTit);
+        return (explorador.gameObject, sls.gameObject, rExp, rTit);
     }
 
     static Vector2 P(float radio, float alto) => new Vector2(radio, alto);

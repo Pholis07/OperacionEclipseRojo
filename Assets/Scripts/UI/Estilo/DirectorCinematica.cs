@@ -12,8 +12,8 @@ namespace SpaceMission
     /// y nunca suenan dos a la vez.
     /// complejo de lanzamiento con árboles, mar y torre; encendido con chispas, una llama por motor, luz, humo,
     /// vapor y aves; despegue con sacudida; ascenso entre nubes hasta el negro del espacio; separación propia de
-    /// cada cohete (Titán: propulsores laterales y después la etapa central; Explorador: los cuatro propulsores se
-    /// abren en cruz) y las tomas de transferencia, inserción y órbita. Se ve encima de todo; la Operación ya está activa debajo desde el mismo cuadro (las pruebas y la
+    /// cada cohete (Titán: propulsores laterales y después la etapa central; Explorador, el Ares 1 B: cae la
+    /// primera etapa entera) y las tomas de transferencia, inserción y órbita. Se ve encima de todo; la Operación ya está activa debajo desde el mismo cuadro (las pruebas y la
     /// lógica no esperan a la cinemática). Usa el lanzador, el satélite, los instrumentos y la órbita elegidos.
     /// «Omitir» (o Escape) lleva exactamente al mismo final: satélite en el ancla de su órbita, audio de la
     /// investigación y la vista de la Operación. El final se avisa una sola vez (AlTerminar).
@@ -214,7 +214,7 @@ namespace SpaceMission
             // El elegido, en el centro de la plataforma (bajo los brazos de la torre).
             cohete.localPosition = new Vector3(0f, cohete.localPosition.y, 0f);
             posCohete = cohete.position; rotCohete = cohete.rotation; posSuperior = superior.localPosition;
-            float alto = titan ? 11f : 6.1f;
+            float alto = titan ? 11f : 7.5f;   // Explorador = Ares 1 B (ConstructorEscenas.AltoExplorador)
             escenario.Preparar(config);
             escenario.MostrarOrbita(false);
             PrepararComplejo(alto);
@@ -395,7 +395,7 @@ namespace SpaceMission
             var escalaSat = sat.localScale;
             var nariz = Vector3.zero;
             foreach (var c in cofia) nariz += CentroVisual(c) / cofia.Length;
-            var radioNariz = alto * (titan ? 0.028f : 0.04f);
+            var radioNariz = alto * 0.028f;   // nariz del SLS y del Ares: misma proporción
             // El satélite viaja dentro de la cofia, a una escala que cabe en ella.
             sat.localScale = escalaSat;
             float tamano = Mathf.Max(0.01f, TamanoVisual(sat));
