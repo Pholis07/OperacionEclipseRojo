@@ -377,3 +377,11 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Comprobado en el navegador a 1366x768: Configuración, Carga y Operación. La ayuda del satélite se reordenó porque con tanto texto se achicaba demasiado.
 - Al volver a correr los scripts de datos, Unity reescribe las comillas del YAML de muchos assets sin cambiar el contenido: la IA lo verificó y solo comiteó el cambio real (el Chandra).
 - 9 pruebas nuevas en `ModificadoresTests.cs`. Pasan las 221 pruebas EditMode y las 19 PlayMode.
+
+## Versión 5, bloque 3: guía en la partida
+
+- `Guia.cs` (lógica, sin interfaz) decide el siguiente paso; `OperacionUI.DibujarGuia` lo muestra con bombilla encima del mapa y mueve `ResaltarGuia` (contorno que late; fijo con «Reducir movimiento») al elemento que toca.
+- `Operacion.Historial` guarda todas las observaciones, para que la guía dé pistas con la última lectura de cada instrumento.
+- Primer intento: la guía pedía enviar aunque en memoria no hubiera evidencia, y el resaltado tocaba un componente ya destruido. Las pruebas lo detectaron y se corrigió.
+- Comprobado en el navegador a 1366x768: la guía y el resaltado al empezar, al encender, tras una lectura fría y en el mes con contacto.
+- 10 pruebas nuevas en `GuiaTests.cs`. Pasan las 231 pruebas EditMode y las 19 PlayMode.

@@ -939,11 +939,12 @@ public static partial class ConstructorEscenas
         Estirar(textoSenal.rectTransform);
         MarcoHud(marcoImagen);
 
-        // Centro: el paso, el mapa cuadrado que se puede pulsar y la última lectura debajo.
-        var paso = Texto(vista, "Paso", Paso(4), 24, TextoSecundario,
-            FontStyles.Normal, TextAlignmentOptions.Center);
-        paso.font = ConstructorEstilo.Mono;
-        Anclar(paso.rectTransform, new Vector2(0.31f, 0.925f), new Vector2(0.69f, 0.97f));
+        // Centro: la guía (siguiente paso), el mapa cuadrado que se puede pulsar y la última lectura debajo.
+        // Versión 5: donde antes decía «STEP 4 OF 4», la guía dice qué hacer ahora (OperacionUI.DibujarGuia).
+        var paso = Texto(vista, "TextoGuia", Paso(4), 22, Cian, FontStyles.Bold, TextAlignmentOptions.Center);
+        paso.enableAutoSizing = true; paso.fontSizeMin = 15; paso.fontSizeMax = 22;
+        paso.overflowMode = TextOverflowModes.Truncate;
+        Anclar(paso.rectTransform, new Vector2(0.31f, 0.92f), new Vector2(0.69f, 0.975f));
         var zonaMapa = Vacio(vista, "ZonaMapa");
         Anclar(zonaMapa, new Vector2(0.31f, 0.2f), new Vector2(0.69f, 0.915f));
         var goMapa = new GameObject("Mapa", typeof(RectTransform), typeof(UnityEngine.UI.RawImage), typeof(UnityEngine.UI.AspectRatioFitter));
@@ -1065,6 +1066,7 @@ public static partial class ConstructorEscenas
         Asignar(ui, "botonEnviar", enviar);
         Asignar(ui, "botonResolver", resolver);
         Asignar(ui, "textoModificadores", modificadores);
+        Asignar(ui, "textoGuia", paso);
         Asignar(ui, "panelResumen", resumen.gameObject);
         Asignar(ui, "textoResumen", textoResumen);
         Asignar(ui, "botonContinuar", continuar);

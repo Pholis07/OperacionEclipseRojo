@@ -269,3 +269,17 @@ Masa = real × 3 y potencia = real × 5 (redondeo a 5). Los créditos son moneda
 - Las órbitas muestran su ventaja y su limitación con las mismas flechas.
 - El resumen del mes desglosa la calidad: «70 base ↓ × 28/30 days ↑ × 1.2 low orbit = 78 (valid evidence needs 60)».
 - El Chandra gana «-1 memory block»: el real solo guardaba 1.8 Gb (el MRO, 160 Gb).
+
+## Bloque 3: guía en la partida
+
+- Arriba del mapa, donde antes decía «STEP 4 OF 4», una línea con bombilla dice el siguiente paso, y un contorno que late señala lo que hay que usar (la fila del instrumento, el mapa, «Send at month end», «Resolve month» o «View report»).
+- `Guia.cs` decide el paso según el estado, en este orden:
+  1. Fin o toda la evidencia recibida: abrir el informe.
+  2. Decisión pendiente.
+  3. Contacto con evidencia en memoria (o con la memoria a punto de llenarse): activar el envío.
+  4. Encender un instrumento que aún busca su evidencia.
+  5. Marcar su región en el mapa.
+  6. Aviso de memoria llena o de evidencia que ya no se podrá enviar (en ámbar).
+  7. Pista según la última lectura: frío, tibio, caliente, sin lectura o calidad insuficiente (con la leyenda de colores del mapa).
+  8. Resolver el mes.
+- El tutorial jugable (Misión 0) es el bloque 4.

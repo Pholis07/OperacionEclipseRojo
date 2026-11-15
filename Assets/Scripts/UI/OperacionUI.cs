@@ -42,6 +42,7 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Button botonResolver;
         [SerializeField] TMP_Text textoObjetivos;
         [SerializeField] TMP_Text textoModificadores;   // versión 5: buffs y debuffs activos
+        [SerializeField] TMP_Text textoGuia;            // versión 5: el siguiente paso (Guia)
 
         [Header("Resumen del mes y decisión del evento")]
         [SerializeField] GameObject panelResumen;
@@ -63,6 +64,10 @@ namespace SpaceMission
         readonly List<Registro> historial = new List<Registro>();   // observaciones ya resueltas, para marcarlas en el mapa
         bool inicializada;
         bool resumenPendiente;
+        ResaltarGuia resaltado;
+
+        /// <summary>El último paso que propuso la guía (para las pruebas).</summary>
+        public PasoGuia PasoActual { get; private set; }
         Evaluacion evaluacion;
         string aviso = "";
 
@@ -489,9 +494,42 @@ namespace SpaceMission
             textoProgreso.text = "Evidence received: " + recibidas + " of " + total +
                                  (enMemoria > 0 ? "  ·  " + enMemoria + " in memory" : "");
             textoLectura.text = TextoPrevision();
+            DibujarGuia(pausa);
             DibujarDecision();
             ActualizarPaneles();
         }
+
+        /// <summary>Línea «siguiente paso» con bombilla y contorno que late en lo que hay que usar.</summary>
+        void DibujarGuia(bool pausa)
+        {
+            if (textoGuia == null) return;
+            var paso = Guia.Siguiente(Op, catalogo);
+            GameObject destino = null;
+            string texto = paso.Texto;
+            switch (paso.Objetivo)
+            {
+                case ObjetivoGuia.Instrumento: destino = Fila(paso.InstrumentoId); break;
+                case ObjetivoGuia.Mapa:
+                    // Si el instrumento no está elegido, primero hay que elegirlo: se señala su fila.
+                    if (Escaner != paso.InstrumentoId)
+                    {
+                        destino = Fila(paso.InstrumentoId);
+                        texto = "Select the " + Nombre(paso.InstrumentoId) + ", then click the map. " + texto;
+                    }
+                    else destino = mapa.gameObject;
+                    break;
+                case ObjetivoGuia.Enviar: destino = botonEnviar.gameObject; break;
+                case ObjetivoGuia.Resolver: destino = botonResolver.gameObject; break;
+                case ObjetivoGuia.Informe: destino = botonTerminar.gameObject; break;
+            }
+            if (resumenPendiente) { destino = null; texto = "Read the month summary and press \u00abContinue\u00bb."; }
+            PasoActual = paso;
+            textoGuia.text = "<color=" + (paso.Aviso ? "#F4C46A" : "#75D6DF") + ">" + Iconos.Pista + "  " + texto + "</color>";
+            ResaltarGuia.Mover(ref resaltado, destino);
+        }
+
+        GameObject Fila(string instrumentoId) =>
+            filas.FirstOrDefault(f => f != null && f.name == "Instrumento_" + instrumentoId);
 
         void DibujarDecision()
         {

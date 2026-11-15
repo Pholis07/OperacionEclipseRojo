@@ -119,6 +119,8 @@ namespace SpaceMission
         public readonly HashSet<string> HerramientasUsadas = new HashSet<string>();
         public readonly List<EventoActivo> Eventos = new List<EventoActivo>();
 
+        /// <summary>Todas las observaciones de la misión, enviadas o no (para la guía y el mapa).</summary>
+        public readonly List<Registro> Historial = new List<Registro>();
         /// <summary>Registros en la memoria de la nave, en el orden en que se tomaron.</summary>
         public readonly List<Registro> Memoria = new List<Registro>();
         /// <summary>Transmisiones recibidas en la Tierra, en el orden en que llegaron (TX-00 primero).</summary>
@@ -324,6 +326,7 @@ namespace SpaceMission
                 if (MemoriaUsada + bloques > MemoriaCapacidad) { r.SinMemoria.Add(id); continue; }   // no pisa datos anteriores
                 var registro = Observar(id, punto, calidad, bloques);
                 Memoria.Add(registro);
+                Historial.Add(registro);
                 r.Observaciones.Add(registro);
             }
             sinLecturaProxima = false;
