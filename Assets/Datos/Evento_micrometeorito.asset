@@ -26,7 +26,7 @@ MonoBehaviour:
     combustible: 0
     orbitas: 0
     duracion: 0
-  - texto: "Desviar la corriente a mano (-1 \xF3rbita)"
+  - texto: "Desviar la corriente a mano (el mes siguiente pierde 10 d\xEDas)"
     efecto: 1
     combustible: 0
     orbitas: 1

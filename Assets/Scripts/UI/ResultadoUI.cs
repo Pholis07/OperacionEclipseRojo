@@ -84,6 +84,7 @@ namespace SpaceMission
         {
             EstadoJuego.Resultado = null;
             EstadoJuego.Operacion = null;
+            EstadoJuego.CategoriaFinal = null;
             EstadoJuego.EntrarEnConfiguracion = true;
             if (Application.isPlaying) SceneManager.LoadScene("Mision");
         }

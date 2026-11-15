@@ -42,6 +42,7 @@ namespace SpaceMission
 
             e.SePuedeLanzar = true;
             e.PistasPrincipales.AddRange(elegidos.Where(id => EsPrincipal(id, catalogo)));
+            e.Requeridos.AddRange(orbita.requisitoDeVictoria);
             e.EvidenciasFaltantes.AddRange(orbita.requisitoDeVictoria.Where(id => !elegidos.Contains(id)));
 
             if (e.EvidenciasFaltantes.Count == 0) e.Categoria = CategoriaResultado.Victoria;

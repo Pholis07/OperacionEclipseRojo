@@ -21,12 +21,12 @@ namespace SpaceMission
             nivel = nivel != null ? nivel : catalogo.mision;
             var lineas = new List<Linea>();
 
-            var categoria = e.Categoria ?? CategoriaResultado.Fracaso;
+            var categoria = ResultadoCientifico.Categoria(e, op, catalogo);
             int puntosResultado = categoria == CategoriaResultado.Victoria ? reglas.puntosVictoria
                 : categoria == CategoriaResultado.Parcial ? reglas.puntosParcial : reglas.puntosFracaso;
             lineas.Add(new Linea { Concepto = TextosResultado.Titulo(categoria), Puntos = puntosResultado });
 
-            int sobrante = nivel.presupuestoCr - e.Calculo.CostoCr - op.CreditosPerdidos - op.CreditosCarga;
+            int sobrante = op.CreditosDisponibles;
             if (sobrante > 0)
                 lineas.Add(new Linea
                 {
@@ -42,8 +42,8 @@ namespace SpaceMission
             if (revelaciones > 0)
                 lineas.Add(new Linea { Concepto = "Revelaciones complementarias (" + revelaciones + ")", Puntos = revelaciones * reglas.puntosPorRevelacion });
 
-            if (op.Orbitas > 0)
-                lineas.Add(new Linea { Concepto = "Órbitas sobrantes (" + op.Orbitas + ")", Puntos = op.Orbitas * reglas.puntosPorOrbitaSobrante });
+            if (op.MesesRestantes > 0)
+                lineas.Add(new Linea { Concepto = "Meses sobrantes (" + op.MesesRestantes + ")", Puntos = op.MesesRestantes * reglas.puntosPorOrbitaSobrante });
 
             foreach (var o in op.Objetivos.Where(o => Objetivos.Cumplido(o, op)))
                 lineas.Add(new Linea { Concepto = "Objetivo: " + o.texto, Puntos = o.puntos });
@@ -53,9 +53,6 @@ namespace SpaceMission
 
             if (op.Combustible > 0)
                 lineas.Add(new Linea { Concepto = "Combustible sobrante (" + op.Combustible + ")", Puntos = op.Combustible * reglas.puntosPorCombustible });
-
-            if (op.BajaCalidad.Count > 0)
-                lineas.Add(new Linea { Concepto = "Datos de baja calidad (" + op.BajaCalidad.Count + ")", Puntos = -op.BajaCalidad.Count * reglas.puntosPorBajaCalidad });
 
             if (op.Apagones > 0)
                 lineas.Add(new Linea { Concepto = "Apagones de la nave (" + op.Apagones + ")", Puntos = -op.Apagones * reglas.puntosPorApagon });

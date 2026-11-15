@@ -18,5 +18,6 @@ MonoBehaviour:
   potenciaNormalW: 130
   extraTormentaW: 130
   costoCr: 220
+  bloquesDatos: 2
   pistaAsociada: "informaci\xF3n sobre la composici\xF3n de la superficie"
   textoAyuda: "Analiza la luz que refleja la superficie y aporta informaci\xF3n sobre su composici\xF3n. Consumo: 260 W: 130 W normal + 130 W por la tormenta."

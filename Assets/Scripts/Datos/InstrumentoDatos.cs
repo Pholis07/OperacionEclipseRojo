@@ -12,6 +12,7 @@ namespace SpaceMission
         public int potenciaNormalW;
         public int extraTormentaW;
         public int costoCr;
+        public int bloquesDatos;   // memoria que ocupa cada registro mensual (versión 4)
 
         /// <summary>La evidencia que aporta, con las palabras de los requisitos del Briefing.</summary>
         [TextArea] public string pistaAsociada;

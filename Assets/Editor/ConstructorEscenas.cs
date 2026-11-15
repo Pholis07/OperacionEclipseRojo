@@ -706,7 +706,7 @@ public static partial class ConstructorEscenas
         izq.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(izq);
         Encabezado(izq, "Etiqueta", SpaceMission.Iconos.Instrumentos + "  INSTRUMENTOS");
-        Texto(izq, "Ayuda", "Pulsa uno para encenderlo y escanear con él; otra vez para apagarlo.", 24,
+        Texto(izq, "Ayuda", "Pulsa uno para elegirlo y encenderlo; después pulsa su región en el mapa.", 24,
             TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         var lista = Columna(izq, "ListaInstrumentos", 8, TextAnchor.UpperLeft);
         lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
@@ -836,12 +836,7 @@ public static partial class ConstructorEscenas
         progreso.font = ConstructorEstilo.Mono;
         // Gameplay v3: memoria y envío a la Tierra.
         var memoria = Texto(der, "TextoMemoria", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        var filaEnvio = Fila(der, "FilaEnvio", 8);
-        Alto(filaEnvio, 52);
-        var enviar = BotonAccion(filaEnvio, "BotonEnviar", "Enviar a la Tierra");
-        enviar.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
-        var esperar = BotonAccion(filaEnvio, "BotonEsperar", "Esperar 1 órbita");
-        esperar.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+        var enviar = BotonAccion(der, "BotonEnviar", "Enviar al final del mes");
         Encabezado(der, "EtiquetaEventos", SpaceMission.Iconos.Amarillo + "  EVENTOS DE LA NAVE");
         var evento = Texto(der, "TextoEvento", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         Encabezado(der, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  HERRAMIENTAS (UN USO)");
@@ -851,9 +846,26 @@ public static partial class ConstructorEscenas
         plantillaH.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 52;
         plantillaH.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 52;
         var objetivos = Texto(der, "TextoObjetivos", "", 22, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        var terminar = Boton(der, "BotonTerminar", "Terminar misión", true);
-        terminar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
+        // Versión 4 (meses): «Resolver mes» es la acción principal; terminar la misión pasa a secundaria.
+        var resolver = Boton(der, "BotonResolver", "Resolver mes", true);
+        resolver.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
+        var terminar = BotonAccion(der, "BotonTerminar", "Terminar misión");
+        terminar.GetComponentInChildren<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
         Aparecer(vista, izq, der);
+
+        // Resumen del mes: qué decidí, qué ocurrió, qué gasté y qué sigue. Va antes que la decisión del evento.
+        var resumen = Panel(vista, "PanelResumen", new Color(0, 0, 0, 0.7f));
+        Estirar(resumen);
+        var tarjetaResumen = Columna(resumen, "Tarjeta", 16, TextAnchor.UpperLeft, Tarjeta, 40);
+        Anclar(tarjetaResumen, new Vector2(0.25f, 0.12f), new Vector2(0.75f, 0.88f));
+        MarcoHud(tarjetaResumen);
+        Encabezado(tarjetaResumen, "Etiqueta", SpaceMission.Iconos.Informe + "  RESUMEN DEL MES");
+        var textoResumen = Texto(tarjetaResumen, "TextoResumen", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        textoResumen.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        textoResumen.enableAutoSizing = true; textoResumen.fontSizeMin = 18; textoResumen.fontSizeMax = 26;
+        textoResumen.overflowMode = TextOverflowModes.Truncate;
+        var continuar = Boton(tarjetaResumen, "BotonContinuarResumen", "Continuar", true);
+        continuar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
 
         // Gameplay v3: ventana de decisión encima de todo cuando ocurre un evento.
         var decision = Panel(vista, "PanelDecision", new Color(0, 0, 0, 0.7f));
@@ -886,7 +898,10 @@ public static partial class ConstructorEscenas
         Asignar(ui, "botonAltitud", altitud);
         Asignar(ui, "textoMemoria", memoria);
         Asignar(ui, "botonEnviar", enviar);
-        Asignar(ui, "botonEsperar", esperar);
+        Asignar(ui, "botonResolver", resolver);
+        Asignar(ui, "panelResumen", resumen.gameObject);
+        Asignar(ui, "textoResumen", textoResumen);
+        Asignar(ui, "botonContinuar", continuar);
         Asignar(ui, "textoObjetivos", objetivos);
         Asignar(ui, "panelDecision", decision.gameObject);
         Asignar(ui, "textoDecision", textoDecision);

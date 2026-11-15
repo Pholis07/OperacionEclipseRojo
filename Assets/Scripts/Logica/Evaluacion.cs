@@ -25,6 +25,9 @@ namespace SpaceMission
         /// <summary>Ids de los instrumentos que pide la órbita para la victoria y faltan.</summary>
         public readonly List<string> EvidenciasFaltantes = new List<string>();
 
+        /// <summary>Ids de los instrumentos que la órbita exige para la victoria (los lleve o no la nave).</summary>
+        public readonly List<string> Requeridos = new List<string>();
+
         /// <summary>Ids de transmisión que se muestran en Investigación, en orden.</summary>
         public readonly List<string> Transmisiones = new List<string>();
 

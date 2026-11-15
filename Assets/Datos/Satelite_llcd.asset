@@ -19,8 +19,8 @@ MonoBehaviour:
   credito: 'Modelo 3D: NASA 3D Resources'
   costoCr: 50
   masaKg: 10
-  ventaja: "Comunicaci\xF3n l\xE1ser: el transmisor gasta 50 W y la ventana de contacto se abre cada 2 \xF3rbitas."
-  desventaja: "El polvo bloquea el l\xE1ser: si sigues en una tormenta creciendo, esa \xF3rbita no puedes enviar."
+  ventaja: "Comunicaci\xF3n l\xE1ser: el transmisor gasta 50 W y hay contacto con la Tierra todos los meses."
+  desventaja: "El polvo bloquea el l\xE1ser: si sigues en una tormenta creciendo, el mes siguiente no puedes enviar."
   instrumentosConAlcance: []
   factorAlcance: 1
   combustiblePorCambioAltitud: -1
@@ -29,8 +29,8 @@ MonoBehaviour:
   inmuneTormenta: 0
   consumoExtraW: 0
   vatiosTransmisor: 50
-  cicloContacto: 2
+  cicloContacto: 1
   tormentaBloqueaEnvio: 1
   limiteExtraW: 0
   envioSinVentana: 0
-  orbitasEnvioSinVentana: 0
+  bloquesEnvioSinVentana: 0

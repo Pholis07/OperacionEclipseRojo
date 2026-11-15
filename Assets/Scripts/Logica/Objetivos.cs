@@ -23,10 +23,10 @@ namespace SpaceMission
         {
             switch (o.tipo)
             {
-                case TipoObjetivo.EscaneosMaximos: return op.BajaCalidad.Count == 0 && op.EscaneosAlCompletar > 0 && op.EscaneosAlCompletar <= o.valor;
+                case TipoObjetivo.EscaneosMaximos: return op.ObservacionesAlCompletar > 0 && op.ObservacionesAlCompletar <= o.valor;
                 case TipoObjetivo.SinApagones: return op.Apagones == 0;
                 case TipoObjetivo.CombustibleMinimo: return op.Combustible >= o.valor;
-                case TipoObjetivo.EnviarAntesDeLaUltima: return op.BajaCalidad.Count == 0 && op.OrbitasAlCompletar > 1;
+                case TipoObjetivo.EnviarAntesDeLaUltima: return op.MesesAlCompletar >= 1;   // no en el último mes
                 case TipoObjetivo.SinHerramientas: return op.HerramientasUsadas.Count == 0;
             }
             return false;

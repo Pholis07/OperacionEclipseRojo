@@ -9,12 +9,22 @@ namespace SpaceMission
     [CreateAssetMenu(fileName = "ReglasOperacion", menuName = "SpaceMission/Reglas de operación")]
     public class ReglasOperacionDatos : ScriptableObject
     {
-        [Header("Apagón (consumo mayor que el límite)")]
-        public int orbitasPerdidasPorApagon;
+        [Header("Modo seguro (un evento deja el consumo por encima del límite)")]
         public int creditosPorReinicio;
+        public int diasPerdidosPorApagon;   // días útiles que pierde el mes siguiente
 
-        [Header("Escaneo (distancias en un mapa de 0 a 1)")]
-        public int orbitasPorEscaneo;
+        [Header("Meses (versión 4)")]
+        public int diasPorMes;
+        public int creditosPorManiobra;     // cambiar de altitud: créditos, combustible y días de ese mes
+        public int diasPorManiobra;
+        public int diasPerdidosPorOpcion;       // por cada «órbita» que costaba una respuesta a un evento
+        public int diasPerdidosSinCombustible;  // la nave sube sola desde la órbita baja
+        public float calidadBase;           // calidad de un registro con el mes completo (0 a 100)
+        public float calidadMinima;         // por debajo, lo observado no es evidencia válida
+        public float factorCalidadTormenta; // tormenta creciendo, si se sigue
+        public float factorCalidadBaja;     // en órbita baja
+
+        [Header("Observación (distancias en un mapa de 0 a 1)")]
         public float radioDeteccion;   // a esta distancia o menos, el instrumento encuentra la anomalía
         public float distanciaCaliente;
         public float distanciaTibio;   // más lejos de esto: frío
@@ -25,8 +35,7 @@ namespace SpaceMission
         public int puntosFracaso;
         public int creditosPorPunto;   // +1 punto por cada N créditos sobrantes
         public int puntosPorRevelacion;
-        public int puntosPorOrbitaSobrante;
-        public int puntosPorBajaCalidad;   // se restan
+        public int puntosPorOrbitaSobrante;   // por cada mes que sobra al terminar
         public int puntosPorApagon;        // se restan
 
         [Header("Carga y objetivos (versión 3)")]
@@ -38,12 +47,11 @@ namespace SpaceMission
         [Header("Combustible y altitud (versión 3)")]
         public int combustiblePorCambioAltitud;
         public float factorAltitudBaja;          // en baja, radio y distancias de lectura se multiplican por esto
-        public int combustiblePorOrbitaBaja;     // arrastre
-        public int orbitasPerdidasSinCombustible;   // la nave sube sola
+        public int combustiblePorOrbitaBaja;     // arrastre, por mes
         public int puntosPorCombustible;
 
         [Header("Memoria y envío a Tierra (versión 3)")]
-        public int cicloContacto;      // la ventana de contacto se abre 1 órbita de cada N
+        public int cicloContacto;      // la ventana de contacto se abre 1 mes de cada N (con 2: los meses pares)
         public int vatiosTransmisor;   // consumo extra mientras se envía
     }
 }

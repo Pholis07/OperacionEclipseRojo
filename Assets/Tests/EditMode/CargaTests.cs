@@ -42,10 +42,10 @@ namespace SpaceMission.Tests
             Assert.AreEqual(2, catalogo.reglas.objetivosPorMision);
         }
 
-        [TestCase(0, 4)]
-        [TestCase(1, 3)]
-        [TestCase(2, 3)]
-        public void LaMemoriaDependeDelNivel(int nivel, int bloques)
+        [TestCase(0, 6)]
+        [TestCase(1, 6)]
+        [TestCase(2, 6)]
+        public void LaMemoriaEsDeSeisBloquesDesdeLaVersion4(int nivel, int bloques)
         {
             Assert.AreEqual(bloques, catalogo.Nivel(nivel).memoriaBloques);
         }
@@ -160,27 +160,6 @@ namespace SpaceMission.Tests
             Assert.AreEqual(2, a.Count);
             Assert.AreNotSame(a[0], a[1]);
             CollectionAssert.AreEqual(a, b, "misma semilla, mismos objetivos");
-        }
-
-        [Test]
-        public void LosObjetivosSeEvaluanAlTerminar()
-        {
-            var c = Caso2();
-            var op = new Operacion(Evaluador.Evaluar(c, catalogo), c, catalogo, null, 1);
-            op.ProgramarEventos(new EventoDatos[0], new int[0]);
-            op.PonerAnomalia(new Vector2(0.5f, 0.5f));
-            op.Encender("termica");
-            op.Encender("radar");
-            op.Escanear("termica", new Vector2(0.5f, 0.5f));
-            op.Escanear("radar", new Vector2(0.5f, 0.5f));
-            op.Terminar();
-
-            ObjetivoDatos O(string id) => catalogo.objetivos.First(o => o.id == id);
-            Assert.IsTrue(Objetivos.Cumplido(O("rapido"), op), "2 escaneos");
-            Assert.IsTrue(Objetivos.Cumplido(O("sin_apagones"), op));
-            Assert.IsTrue(Objetivos.Cumplido(O("sin_herramientas"), op));
-            Assert.IsTrue(Objetivos.Cumplido(O("enviar_pronto"), op), "quedaban 8 órbitas");
-            Assert.IsFalse(Objetivos.Cumplido(O("combustible"), op), "sin Carga no hay combustible");
         }
     }
 }

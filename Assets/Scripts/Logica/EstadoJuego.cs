@@ -21,6 +21,9 @@ namespace SpaceMission
         /// <summary>La operación de la última misión lanzada (para el informe y los puntos).</summary>
         public static Operacion Operacion;
 
+        /// <summary>Resultado final de la misión (ResultadoCientifico). Lo fija la Operación al terminar; null si no se jugó.</summary>
+        public static CategoriaResultado? CategoriaFinal;
+
         /// <summary>«Modificar mi misión» lo pone en true para que Mision abra en Configuración y no en el Briefing.</summary>
         public static bool EntrarEnConfiguracion;
 
@@ -31,6 +34,7 @@ namespace SpaceMission
             Resultado = null;
             Carga = null;
             Operacion = null;
+            CategoriaFinal = null;
             EntrarEnConfiguracion = false;
             NivelIndice = 1;
         }

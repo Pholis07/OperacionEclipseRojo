@@ -100,37 +100,45 @@ namespace SpaceMission.PlayTests
             Pulsar("BotonLanzarCarga");
             yield return null;
 
-            // Fase de Operación: escanear la anomalía con cada instrumento, como un jugador. Responde a los
-            // eventos con la primera opción posible, y envía a la Tierra (o espera la ventana) cuando hace falta.
+            // Fase de Operación por meses, como un jugador: cada mes enciende lo que aún no tiene evidencia, le fija
+            // la región de la anomalía, pide el envío si hay contacto y pulsa «Resolver mes». Lee el resumen y
+            // responde a los eventos con la primera opción posible.
             var ui = Object.FindFirstObjectByType<OperacionUI>();
             Assert.IsNotNull(ui?.Op, "No empezó la Operación en el caso " + caso);
             var op = ui.Op;
-            Assert.IsTrue(op.ConMemoria, "la Operación debe empezar con la Carga");
-            foreach (var id in op.Instrumentos.ToList())
+            Assert.IsNotNull(op.Carga, "la Operación debe empezar con la Carga");
+            for (int vuelta = 0; vuelta < 40 && !op.Terminada && !op.Completa; vuelta++)
             {
-                for (int intento = 0; intento < 12 && !op.Terminada && op.Pendientes.ContainsValue(id); intento++)
+                // El resumen espera a que termine la animación para verse; aquí se cierra sin esperarla.
+                if (ui.ResumenVisible) { ui.ContinuarResumen(); yield return null; continue; }
+                if (op.EsperandoDecision) { Responder(ui); yield return null; continue; }
+                foreach (var h in op.HerramientasUtiles.ToList()) ui.UsarHerramienta(h);
+                foreach (var id in op.Instrumentos.ToList())
                 {
-                    Responder(ui);
-                    if (op.MemoriaLlena || (op.ContactoAbierto && op.MemoriaUsada > 0)) { EnviarOEsperar(ui); continue; }
-                    foreach (var otro in op.Encendidos.ToList()) ui.AlternarInstrumento(otro);
-                    foreach (var h in op.HerramientasUtiles.ToList()) ui.UsarHerramienta(h);
-                    if (!op.Encendidos.Contains(id)) ui.AlternarInstrumento(id);
-                    ui.ElegirEscaner(id);
-                    ui.EscanearEn(op.Anomalia);
-                    yield return null;
+                    bool hacefalta = op.Pendientes.ContainsValue(id);
+                    if (hacefalta != op.Encendidos.Contains(id)) ui.AlternarInstrumento(id);   // enciende o apaga
+                    if (hacefalta) { ui.ElegirEscaner(id); ui.FijarRegionEn(op.Anomalia); }
                 }
+                if (op.Memoria.Count > 0 && op.MotivoSinEnvio == null && !op.TransmitirPlaneado) ui.AlternarEnvio();
+                int mes = op.Mes;
+                Pulsar("BotonResolver");
+                Assert.AreEqual(mes + 1, op.Mes, "«Resolver mes» avanza exactamente un mes en el caso " + caso);
+                yield return null;
             }
-            for (int intento = 0; intento < 6 && !op.Terminada && op.EnMemoria.Count > 0; intento++) EnviarOEsperar(ui);
-            Assert.AreEqual(transmisiones, op.Recibidas.Count + op.BajaCalidad.Count, "transmisiones del caso " + caso);
-            Debug.Log("OPERACION " + caso + " | recibidas: " + string.Join(",", op.Recibidas) +
-                      " | baja calidad: " + string.Join(",", op.BajaCalidad) + " | eventos: " +
-                      string.Join(",", op.Eventos.Select(e => e.Datos.id)) + " | apagones: " + op.Apagones);
+            Debug.Log("OPERACION " + caso + " | meses: " + op.MesesResueltos + " | recibidas: " + string.Join(",", op.Recibidas) +
+                      " | eventos: " + string.Join(",", op.Eventos.Select(e => e.Datos.id)) + " | apagones: " + op.Apagones);
+            Assert.IsTrue(op.Completa, "no llegó toda la evidencia en el caso " + caso);
+            Assert.AreEqual(transmisiones, op.Recibidas.Count, "evidencias recibidas del caso " + caso);
+            if (ui.ResumenVisible) { ui.ContinuarResumen(); yield return null; }
+            if (op.EsperandoDecision) { Responder(ui); yield return null; }
 
             Pulsar("BotonTerminar");
             yield return EsperarEscena("Resultado");
 
+            // Con toda la evidencia enviada, el resultado es el que permitía la configuración.
+            Assert.AreEqual(EstadoJuego.Resultado.Categoria, EstadoJuego.CategoriaFinal, "categoría final del caso " + caso);
             var titulo = GameObject.Find("Titulo").GetComponent<TMP_Text>().text;
-            Assert.AreEqual(TextosResultado.Titulo(EstadoJuego.Resultado.Categoria.Value), titulo, "título del informe del caso " + caso);
+            Assert.AreEqual(TextosResultado.Titulo(EstadoJuego.CategoriaFinal.Value), titulo, "título del informe del caso " + caso);
 
             Pulsar("BotonModificar");
             yield return EsperarEscena("Mision");
@@ -148,19 +156,6 @@ namespace SpaceMission.PlayTests
             if (!op.EsperandoDecision) return;
             var opciones = op.Opciones.ToList();
             ui.Decidir(opciones.FindIndex(op.PuedeElegir));
-        }
-
-        /// <summary>Con la ventana abierta apaga todo y envía; si no, deja pasar una órbita.</summary>
-        static void EnviarOEsperar(OperacionUI ui)
-        {
-            var op = ui.Op;
-            Responder(ui);
-            if (op.ContactoAbierto)
-            {
-                foreach (var otro in op.Encendidos.ToList()) ui.AlternarInstrumento(otro);
-                ui.Enviar();
-            }
-            else ui.Esperar();
         }
 
         static IEnumerator EsperarEscena(string nombre)
