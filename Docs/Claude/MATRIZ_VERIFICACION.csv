@@ -1,0 +1,24 @@
+ID,Area,Prueba,Estado,Evidencia
+F0-01,Auditoria,Confirmar repo y estado Git,PASS,git status y rama en AUDITORIA_INICIAL.md
+F0-02,Auditoria,Confirmar Unity/pipeline/render y paquetes,PASS,"Unity 6000.6.9f1, URP 17.6, WebGL en calidad Mobile (AUDITORIA_INICIAL.md)"
+F1-01,Estilo,Captura A/B toma orbita Marte,PASS,capturas/AB_satelite_orbita.jpg y AB_satelite_cerca.jpg
+F1-02,Estilo,Contorno excluye HUD/planeta/transparencias,PASS,"TintaTests: planetas, órbitas, partículas y vidrios sin contorno; capturas"
+F1-03,WebGL,Validacion de shader en navegador,PASS,"Partida en Chromium 151 (WebGL por software), consola sin errores: capturas/WebGL_Chromium.jpg"
+F2-01,Cinematica,10 fases intactas y en orden,PASS,CinematicaTests: 44.3 s y 43.3 s; las 10 fases no cambian de orden
+F2-02,Cinematica,Eventos de separacion y llegada sincronizados,PENDIENTE,No se revisó cuadro a cuadro en esta fase
+F3-01,Orbitas,Exactamente una trayectoria para seleccion valida,PASS,OrbitasTests (versión 7)
+F3-02,Orbitas,Cero trayectorias sin seleccion,PASS,OrbitasTests (versión 7)
+F3-03,Orbitas,Cambio rapido sin ghost trail,PASS,OrbitasTests: 20 transiciones y cambios rápidos
+F3-04,Instrumentos,Cinco instrumentos siguen reglas originales,PASS,"EvaluadorTests y CalculadorTests sin cambios, en verde"
+F4-01,Investigacion,Scan con instrumento compatible,PASS,InvestigacionTests y ModoEscaneoTests en verde
+F4-02,Investigacion,Sin instrumento no hay evidencia,PASS,Operacion.Encender rechaza lo que no va a bordo (MesesTests)
+F4-03,Investigacion,Retorno camera/satelite sin drift 10 veces,PENDIENTE,Sin prueba de 10 repeticiones; el código recoloca la cámara en cada escaneo
+F5-01,Menu,Navegacion conservada y legibilidad,PASS,RecorridoTests y OpcionesTests; casillas de Opciones arregladas
+F5-02,Audio,Lanzamiento e interfaz sound events correctos,PENDIENTE,Sin cambios de audio en esta fase; falta escucharlo
+F5-03,Audio,Autoplay condicionado por gesto en navegador,PENDIENTE,No comprobado en esta fase
+F5-04,Audio,Licencias y costos audio documentados,PASS,AUDIO-ELEVENLABS.md y CREDITOS.md (versión 7); sin gasto nuevo
+F6-01,Balance,7 casos originales conservados,PASS,EvaluadorTests en verde
+F6-02,Finales,Victoria parcial fracaso conservados,PASS,ResultadoTests e InvestigacionTests en verde
+F6-03,Build,Editor compila sin errores nuevos,PASS,336 EditMode y 24 PlayMode
+F6-04,Build,WebGL compila y opera en navegador,PASS,Build 56.4 MB sin errores; partida en Chromium hasta el informe (solo el fracaso)
+F6-05,Git,Diff acotado rama segura y rollback,PASS,"Rama feat/eclipse-ink, un commit por bloque, sin push"

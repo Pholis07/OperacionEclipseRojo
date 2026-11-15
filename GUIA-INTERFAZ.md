@@ -151,9 +151,21 @@ Todo está en `Assets/Editor/ConstructorEscenas.cs`. Busca el nombre entre comil
 
 **Resultado** (método `ConstruirResultado`)
 
-- Fondo con Marte durante la tormenta.
-- Columna izquierda: título de 80 pt en mayúsculas, conclusión de 32 pt, recursos y «Modificar mi misión» (ese texto exacto lo comprueban las pruebas).
-- Tarjeta derecha: evidencias, lo que faltó, los puntos y una miniatura de Marte.
+Escena 3D detrás: Marte, la nave elegida en primer plano (con el estilo Eclipse Ink) y la Tierra a lo lejos. Dos vistas (versión 8):
+
+- **Veredicto (`VistaVeredicto`)**, tipo póster. Un degradado oscurece solo la izquierda.
+  - Columna izquierda: título en mayúsculas, barra del color del resultado, conclusión, las evidencias de un vistazo (✓ o aviso por instrumento), los puntos con el nivel y «Ver detalles».
+  - Sello del resultado junto al encabezado.
+- **Detalle (`VistaDetalle`)**, tablero.
+  - Izquierda: barras de créditos, masa, potencia y espacios; cuatro fichas (meses, combustible, registros sin enviar, apagones); objetivos extra; «Modificar mi misión» (ese texto exacto lo comprueban las pruebas), «← Menú» y «Volver al veredicto».
+  - Derecha: una fila por evidencia (llegó o faltó, y por qué) y la tabla de puntos.
+- Los datos salen de `InformeMision` (`Barras`, `Filas`, `Fichas`, `ObjetivosExtra`).
+
+**Eclipse Ink** (versión 8)
+
+- Shader `Tinta` (3 bandas y contorno) en el satélite y los instrumentos. La lista de materiales está en `ConstructorEscenas.Tinta.cs`.
+- Para quitarlo: «Herramientas → Eclipse Ink → Quitar». El jugador puede apagar los contornos en Opciones.
+- Detalles y capturas: `Docs/Claude/REPORTE_FASE_1.md`.
 
 **Escena 3D**
 

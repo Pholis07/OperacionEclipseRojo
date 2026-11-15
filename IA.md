@@ -491,3 +491,22 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - ElevenLabs: la IA preparó los seis nodos, pidió el estimado (518 créditos), esperó el visto bueno de Diego y generó (253 créditos reales).
 - Pruebas: 298 EditMode y 23 PlayMode. Nuevas: `OrbitasTests` (una sola trayectoria en las 20 transiciones, reglas de las dos órbitas) y `ModoEscaneoTests`.
 - Un fallo que salió y se corrigió: con el fundido nuevo del menú, la prueba del recorrido esperaba la escena por cuadros y en batch se quedaba corta.
+
+## Versión 8 (Diego, 2026-11-15)
+
+- Diego pidió mejorar las pantallas finales y rediseñar los modelos 3D con el paquete «Fable 5.2» (estilo Eclipse Ink).
+- La IA auditó el proyecto con tres agentes de solo lectura antes de cambiar nada (`Docs/Claude/AUDITORIA_INICIAL.md`) y preguntó a Diego el alcance: solo estilo de tinta sobre los modelos actuales; cinemática a criterio de la IA con las 10 fases; informe con Marte y la nave protagonistas, tablero y botón al menú.
+- Lo que hizo la IA:
+  - Shader `Tinta` (cel shading de 3 bandas y contorno por malla invertida) como piloto en el satélite y los instrumentos.
+  - Informe final rediseñado: veredicto tipo póster y detalles como tablero.
+  - Cinemática de vuelta a sus tiempos originales (44 s medidos).
+- Decisiones de la IA que conviene revisar:
+  - El contorno es de malla invertida porque el WebGL no tiene textura de profundidad.
+  - Tono de la sombra, grosor de la línea (1.2 a 1.5 px a 1080p) y línea azul pizarra en las piezas negras.
+  - En el fracaso la tormenta de Marte se queda al 50 % en vez del 95 %.
+  - La duración de la cinemática: se deshizo el recorte de la versión 7.
+- El paquete pide no activar las dos órbitas nuevas sin acuerdo del equipo. Siguen jugables por la decisión de Diego en la versión 7; falta que Adrian las revise.
+- Un fallo anterior que apareció al probar: las marcas de las casillas de Opciones no se veían nunca.
+- Pruebas: 336 EditMode y 24 PlayMode. Nuevas: `TintaTests`, `ResultadoTests` y `OpcionesTests`.
+- No se gastaron créditos de ElevenLabs.
+- Lo que no se pudo comprobar: los FPS con tarjeta gráfica real.
