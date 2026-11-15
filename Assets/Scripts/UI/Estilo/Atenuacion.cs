@@ -33,6 +33,18 @@ namespace SpaceMission
             }
         }
 
+        /// <summary>Cuántas voces suenan ahora mismo (las pruebas comprueban que nunca son dos a la vez).</summary>
+        public static int VocesSonando
+        {
+            get
+            {
+                voces.RemoveAll(v => v == null);
+                int n = 0;
+                foreach (var v in voces) if (v.isActiveAndEnabled && v.isPlaying) n++;
+                return n;
+            }
+        }
+
         /// <summary>El factor de volumen del fondo, un paso más cerca de su objetivo.</summary>
         public static float Seguir(float actual) =>
             Mathf.MoveTowards(actual, HablaAlguien ? Fondo : 1f, Time.unscaledDeltaTime * Velocidad);

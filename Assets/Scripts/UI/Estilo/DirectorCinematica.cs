@@ -135,7 +135,7 @@ namespace SpaceMission
         /// Control de misión está hablando o tiene una frase en fila. Las tomas con voz duran lo que dure su frase
         /// (en inglés o en español) hasta un tope, para que la voz no siga sonando en la toma siguiente.
         /// </summary>
-        bool Hablando => fuenteVoz != null && (fuenteVoz.isPlaying || colaVoz.Count > 0);
+        public bool Hablando => fuenteVoz != null && (fuenteVoz.isPlaying || colaVoz.Count > 0);
 
         /// <summary>La toma sigue mientras no llegue a su duración, o mientras hable la voz (hasta el tope).</summary>
         bool Sigue(float t, float duracion, float tope) => !omitir && (t < duracion || (Hablando && t < tope));
