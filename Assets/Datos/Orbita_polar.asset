@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Orbita_polar
   m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
   id: polar
-  nombre: Polar baja
-  descripcionBreve: Pasa sobre los polos de Marte y sobrevuela regiones distintas en cada vuelta.
+  nombre: "Low polar"
+  descripcionBreve: "Passes over the poles of Mars and flies over a different region on each orbit."
   costoCr: 120
-  ventaja: "Observaci\xF3n detallada de distintas regiones"
-  limitacion: "Menor continuidad de observaci\xF3n de una regi\xF3n concreta"
+  ventaja: "Detailed observation of different regions"
+  limitacion: "Less continuous observation of any single region"
   requisitoDeVictoria:
   - termica
   - radar

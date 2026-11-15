@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Satelite_mro
   m_EditorClassIdentifier: SpaceMission::SpaceMission.SateliteDatos
   id: mro
-  nombre: Orbitador MRO
+  nombre: MRO Orbiter
   inspiradoEn: Mars Reconnaissance Orbiter (2005)
-  descripcion: "Estudia Marte desde 2006 con c\xE1maras, radar y espectr\xF3metro. Antena grande y dos paneles solares amplios."
-  credito: 'Modelo 3D: NASA 3D Resources'
+  descripcion: Has studied Mars since 2006 with cameras, radar and a spectrometer. Large antenna and two wide solar panels.
+  credito: '3D model: NASA 3D Resources'
   costoCr: 0
   masaKg: 0
-  ventaja: 'Equilibrado: sin ventajas ni desventajas.'
-  desventaja: Ninguna.
+  ventaja: 'Balanced: no advantages or disadvantages.'
+  desventaja: None.
   instrumentosConAlcance: []
   factorAlcance: 1
   combustiblePorCambioAltitud: -1

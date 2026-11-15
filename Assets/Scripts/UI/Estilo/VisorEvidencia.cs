@@ -49,10 +49,10 @@ namespace SpaceMission
             textoCredito.text = evidencia != null ? evidencia.credito : arte.creditoMision;
             textoFuente.text = instrumento != null
                 ? Iconos.DeInstrumento(instrumento.id) + "  " + instrumento.nombre.ToUpperInvariant()
-                : Iconos.Senal + "  CONTROL DE MISIÓN";
+                : Iconos.Senal + "  MISSION CONTROL";
 
             ReproductorUI.Sonar(ArteDatos.Sonido.Senal, 0.7f);
-            ReproductorUI.Hablar(arte.VozDe(t.id));
+            ReproductorUI.Hablar(arte.VozDe(t.id), t.id);
             StopAllCoroutines();
             StartCoroutine(Entrada());
         }

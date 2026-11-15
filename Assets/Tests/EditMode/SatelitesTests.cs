@@ -142,7 +142,7 @@ namespace SpaceMission.Tests
             op.ResolverMes(op.Mes);
             op.TransmitirPlaneado = true;
             op.ResolverMes(op.Mes);
-            var linea = Puntuacion.Desglose(e, op, catalogo, null).First(l => l.Concepto.StartsWith("Presupuesto"));
+            var linea = Puntuacion.Desglose(e, op, catalogo, null).First(l => l.Concepto.StartsWith("Budget"));
             Assert.AreEqual((1250 - 820 - 50) / 2, linea.Puntos);
         }
 
@@ -254,7 +254,7 @@ namespace SpaceMission.Tests
             op.Decidir(op.Opciones.First(o => o.efecto == EfectoOpcion.Aguantar));
             Assert.IsTrue(op.EnvioBloqueado);
             var r = Resolver(op, enviar: true);
-            StringAssert.Contains("láser", r.EnvioFallido);
+            StringAssert.Contains("laser", r.EnvioFallido);
             Assert.AreEqual(1, op.Memoria.Count, "los datos siguen en la memoria");
             Assert.IsFalse(op.EnvioBloqueado);
             Assert.IsNull(Resolver(op, enviar: true).EnvioFallido, "solo un mes");
@@ -287,8 +287,8 @@ namespace SpaceMission.Tests
             var texto = (TMPro.TMP_Text)so.FindProperty("textoRecursos").objectReferenceValue;
             Assert.IsFalse(lanzar.interactable);
             Assert.IsTrue(usarMro.gameObject.activeSelf);
-            StringAssert.Contains("Observatorio Chandra", texto.text);
-            StringAssert.Contains("No alcanza", texto.text);
+            StringAssert.Contains("Chandra Observatory", texto.text);
+            StringAssert.Contains("is not enough", texto.text);
 
             ui.UsarMro();
             Assert.IsTrue(lanzar.interactable);
@@ -303,7 +303,7 @@ namespace SpaceMission.Tests
             var e = Evaluador.Evaluar(c, catalogo);
             var op = new Operacion(e, c, catalogo, null, 1, new Carga(e, c, catalogo));
             op.Terminar();
-            StringAssert.Contains("Satélite: Cartógrafo Magellan.", InformeMision.Construir(e, c, catalogo, op, null).Recursos);
+            StringAssert.Contains("Satellite: Magellan Mapper.", InformeMision.Construir(e, c, catalogo, op, null).Recursos);
         }
 
         // ---------- AztechSat-1 ----------
@@ -312,7 +312,7 @@ namespace SpaceMission.Tests
         public void ElAztechSatTieneLosDatosAprobados()
         {
             var a = S("aztechsat");
-            Assert.AreEqual("Nanosatélite AztechSat-1", a.nombre);
+            Assert.AreEqual("AztechSat-1 Nanosatellite", a.nombre);
             Assert.IsTrue(a.envioSinVentana);
             Assert.AreEqual(2, a.bloquesEnvioSinVentana, "versión 4: sin contacto caben 2 bloques (antes costaba 1 órbita)");
             Assert.AreEqual(-100, a.limiteExtraW);

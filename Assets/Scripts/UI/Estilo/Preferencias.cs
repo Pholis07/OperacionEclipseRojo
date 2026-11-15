@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace SpaceMission
 {
+    /// <summary>Idioma de los subtítulos de las voces (el juego está en inglés).</summary>
+    public enum IdiomaSubtitulos { English, Espanol, Off }
+
     /// <summary>
     /// Opciones del jugador (volúmenes y «Reducir movimiento»), guardadas en PlayerPrefs.
     /// Si PlayerPrefs falla (navegador en modo privado, por ejemplo) se usan los valores por defecto.
@@ -14,6 +17,18 @@ namespace SpaceMission
         const string ClaveMovimiento = "reducir_movimiento";
         const string ClaveAmbiente = "vol_ambiente";
         const string ClaveSilencio = "silencio";
+        const string ClaveSubtitulos = "subtitulos";
+
+        /// <summary>Subtítulos de las voces: English (por defecto), Español u Off. Se guarda como 0, 0.5 o 1.</summary>
+        public static IdiomaSubtitulos Subtitulos
+        {
+            get
+            {
+                float v = Leer(ClaveSubtitulos, 0f);
+                return v < 0.25f ? IdiomaSubtitulos.English : v < 0.75f ? IdiomaSubtitulos.Espanol : IdiomaSubtitulos.Off;
+            }
+            set => Escribir(ClaveSubtitulos, value == IdiomaSubtitulos.English ? 0f : value == IdiomaSubtitulos.Espanol ? 0.5f : 1f);
+        }
 
         public static float VolumenMusica { get => Leer(ClaveMusica, 0.6f); set => Escribir(ClaveMusica, value); }
         public static float VolumenEfectos { get => Leer(ClaveEfectos, 0.8f); set => Escribir(ClaveEfectos, value); }

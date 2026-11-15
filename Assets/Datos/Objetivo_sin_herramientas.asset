@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Objetivo_sin_herramientas
   m_EditorClassIdentifier: SpaceMission::SpaceMission.ObjetivoDatos
   id: sin_herramientas
-  texto: No usar ninguna herramienta
+  texto: "Do not use any tools"
   tipo: 4
   valor: 0
   puntos: 150

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Lanzador_explorador
   m_EditorClassIdentifier: SpaceMission::SpaceMission.LanzadorDatos
   id: explorador
-  nombre: Explorador
+  nombre: "Explorer"
   costoCr: 190
   capacidadKg: 650
   espacios: 2
-  descripcion: "Ligero y econ\xF3mico"
+  descripcion: "Light and affordable"

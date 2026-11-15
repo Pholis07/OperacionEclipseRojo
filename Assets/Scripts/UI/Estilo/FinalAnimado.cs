@@ -181,9 +181,9 @@ namespace SpaceMission
             if (textoSello == null) return;
             switch (categoria)
             {
-                case CategoriaResultado.Victoria: textoSello.text = "MISIÓN\nCUMPLIDA"; break;
-                case CategoriaResultado.Parcial: textoSello.text = "SEÑAL\nINCOMPLETA"; break;
-                default: textoSello.text = "INVESTIGACIÓN\nFALLIDA"; break;
+                case CategoriaResultado.Victoria: textoSello.text = "MISSION\nACCOMPLISHED"; break;
+                case CategoriaResultado.Parcial: textoSello.text = "INCOMPLETE\nSIGNAL"; break;
+                default: textoSello.text = "INVESTIGATION\nFAILED"; break;
             }
             var color = categoria == CategoriaResultado.Victoria ? Verde : categoria == CategoriaResultado.Parcial ? Ambar : Rojo;
             textoSello.color = color;
@@ -227,7 +227,7 @@ namespace SpaceMission
             float pasoSonido = 0f;
             yield return Animar.Durante(1.2f, t =>
             {
-                totalPuntos.text = TextosBriefing.Numero(Mathf.RoundToInt(total * t)) + " <size=45%>PUNTOS</size>";
+                totalPuntos.text = TextosBriefing.Numero(Mathf.RoundToInt(total * t)) + " <size=45%>POINTS</size>";
                 pasoSonido += Time.deltaTime;
                 if (pasoSonido > 0.07f && t < 1f) { pasoSonido = 0f; Sonar(ArteDatos.Efecto.ConteoPuntos, 0.5f); }
             });
@@ -251,7 +251,7 @@ namespace SpaceMission
             if (totalPuntos != null)
             {
                 totalPuntos.alpha = total > 0 ? 1f : 0f;
-                totalPuntos.text = TextosBriefing.Numero(total) + " <size=45%>PUNTOS</size>";
+                totalPuntos.text = TextosBriefing.Numero(total) + " <size=45%>POINTS</size>";
             }
             if (pulsos != null) foreach (var p in pulsos) if (p != null) p.gameObject.SetActive(false);
             if (saltar != null) saltar.gameObject.SetActive(false);

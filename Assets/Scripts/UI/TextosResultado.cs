@@ -6,24 +6,24 @@ namespace SpaceMission
     /// </summary>
     public static class TextosResultado
     {
-        public const string TituloVictoria = "Misión cumplida";
+        public const string TituloVictoria = "Mission accomplished";
         public const string TextoVictoria =
-            "Contra las dificultades de la tormenta marciana, tu nave reunió evidencias decisivas: una anomalía térmica y estructuras subterráneas compatibles con posibles depósitos de hielo. La investigación abre nuevas preguntas sobre Marte.";
+            "Against the challenges of the Martian storm, your spacecraft gathered decisive evidence: a thermal anomaly and underground structures consistent with possible ice deposits. The investigation opens new questions about Mars.";
 
-        public const string TituloParcial = "Señal incompleta";
+        public const string TituloParcial = "Incomplete signal";
         public const string TextoParcial =
-            "La misión recopiló información valiosa, pero faltan pruebas para explicar la anomalía. Una configuración científica distinta podría completar la investigación.";
+            "The mission gathered valuable information, but more evidence is needed to explain the anomaly. A different science configuration could complete the investigation.";
 
-        public const string TituloFracaso = "Investigación fallida";
+        public const string TituloFracaso = "Investigation failed";
         public const string TextoFracaso =
-            "La nave ejecutó la misión, pero ninguno de sus instrumentos observó la anomalía principal. Los datos complementarios no bastan para explicarla. Revisa el equipo científico antes de volver a intentarlo.";
+            "The spacecraft carried out the mission, but none of its instruments observed the main anomaly. The supporting data is not enough to explain it. Review the science payload before trying again.";
 
         public static string Titulo(CategoriaResultado c) =>
             c == CategoriaResultado.Victoria ? TituloVictoria : c == CategoriaResultado.Parcial ? TituloParcial : TituloFracaso;
 
         /// <summary>Versión 4: la nave podía conseguir más, pero la evidencia no llegó a la Tierra (no es culpa de la configuración).</summary>
         public const string TextoSinEnviar =
-            "Tu nave podía conseguir más, pero no toda la evidencia llegó a la Tierra. Observa la anomalía con calidad suficiente y envía los datos antes de terminar la misión.";
+            "Your spacecraft could have achieved more, but not all the evidence reached Earth. Observe the anomaly with enough quality and send the data before ending the mission.";
 
         public static string Texto(CategoriaResultado c) =>
             c == CategoriaResultado.Victoria ? TextoVictoria : c == CategoriaResultado.Parcial ? TextoParcial : TextoFracaso;

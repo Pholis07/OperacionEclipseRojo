@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: alta_res
   orden: 4
   tipo: 1
-  texto: "La c\xE1mara de alta resoluci\xF3n consigue im\xE1genes n\xEDtidas entre los remolinos de polvo. Sobre la zona de la anomal\xEDa se distinguen texturas y fracturas del terreno que podr\xEDan relacionarse con lo detectado, aunque una imagen por s\xED sola no basta para afirmarlo."
+  texto: "The high-resolution camera captures sharp images between the dust swirls. Over the anomaly area, terrain textures and fractures can be seen that may be related to the detection, although a single image is not enough to confirm it."

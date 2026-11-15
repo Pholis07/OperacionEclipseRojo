@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Lanzador_titan
   m_EditorClassIdentifier: SpaceMission::SpaceMission.LanzadorDatos
   id: titan
-  nombre: "Tit\xE1n"
+  nombre: "Titan"
   costoCr: 360
   capacidadKg: 750
   espacios: 4
-  descripcion: "Mayor carga \xFAtil y mayor costo"
+  descripcion: "Larger payload and higher cost"

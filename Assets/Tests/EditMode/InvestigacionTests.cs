@@ -13,8 +13,8 @@ namespace SpaceMission.Tests
     {
         // Texto de fracaso de la decisión 6 (F1), con el punto final de la frase.
         const string TextoFracasoF1 =
-            "La nave ejecutó la misión, pero ninguno de sus instrumentos observó la anomalía principal. " +
-            "Los datos complementarios no bastan para explicarla. Revisa el equipo científico antes de volver a intentarlo.";
+            "The spacecraft carried out the mission, but none of its instruments observed the main anomaly. " +
+            "The supporting data is not enough to explain it. Review the science payload before trying again.";
 
         CatalogoDatos catalogo;
 
@@ -124,7 +124,7 @@ namespace SpaceMission.Tests
             CollectionAssert.Contains(ui.Op.Encendidos.ToList(), "termica", "ni con la decisión pendiente: no se esquiva el evento");
             ui.ResolverMes();
             Assert.AreEqual(2, ui.Op.Mes, "con la decisión pendiente no se resuelve");
-            StringAssert.Contains("No se puede resolver", ui.UltimoMensaje);
+            StringAssert.Contains("Cannot resolve", ui.UltimoMensaje);
 
             ui.Decidir(ui.Op.Opciones.Count() - 1);   // aguantar
             Assert.IsFalse(ui.Op.EsperandoDecision);
@@ -139,10 +139,10 @@ namespace SpaceMission.Tests
             var c = Config("titan", "polar", "alta_res+atmosferico");
             var informe = InformeMision.Construir(Evaluador.Evaluar(c, catalogo), c, catalogo, Jugada(c));
 
-            Assert.AreEqual("Investigación fallida", informe.Titulo);
+            Assert.AreEqual("Investigation failed", informe.Titulo);
             Assert.AreEqual(TextoFracasoF1, informe.Texto);
             Assert.AreEqual(1, informe.Revelaciones.Count);
-            StringAssert.StartsWith("Cámara de alta resolución", informe.Revelaciones[0]);
+            StringAssert.StartsWith("High-resolution camera", informe.Revelaciones[0]);
             CollectionAssert.IsEmpty(informe.Evidencias);
             CollectionAssert.AreEqual(
                 new[] { "TX-A1", "TX-A2", "TX-A5" }.Select(id => catalogo.Transmision(id).texto).ToArray(), informe.Faltantes);
@@ -154,13 +154,13 @@ namespace SpaceMission.Tests
             var c = Config("explorador", "media", "termica+radar");
             var informe = InformeMision.Construir(Evaluador.Evaluar(c, catalogo), c, catalogo, Jugada(c));
 
-            Assert.AreEqual("Misión cumplida", informe.Titulo);
-            StringAssert.StartsWith("Usaste 820 de 1,250 créditos, 620 de 650 kg, 430 de 700 W y 2 de 2 espacios.", informe.Recursos);
+            Assert.AreEqual("Mission accomplished", informe.Titulo);
+            StringAssert.StartsWith("You used 820 of 1,250 credits, 620 of 650 kg, 430 of 700 W and 2 of 2 slots.", informe.Recursos);
             CollectionAssert.IsEmpty(informe.Faltantes);
             CollectionAssert.AreEqual(new[]
             {
-                "Cámara térmica infrarroja: " + catalogo.Instrumento("termica").pistaAsociada + ".",
-                "Radar de subsuelo: " + catalogo.Instrumento("radar").pistaAsociada + "."
+                "Infrared thermal camera: " + catalogo.Instrumento("termica").pistaAsociada + ".",
+                "Subsurface radar: " + catalogo.Instrumento("radar").pistaAsociada + "."
             }, informe.Evidencias);
         }
 
@@ -169,7 +169,7 @@ namespace SpaceMission.Tests
         {
             var c = Config("explorador", "media", "termica+radar");
             var informe = InformeMision.Construir(Evaluador.Evaluar(c, catalogo), c, catalogo);
-            Assert.AreEqual("Investigación fallida", informe.Titulo);
+            Assert.AreEqual("Investigation failed", informe.Titulo);
             CollectionAssert.IsEmpty(informe.Evidencias);
             Assert.AreEqual(2, informe.Faltantes.Count, "ninguna evidencia llegó a la Tierra");
         }
@@ -185,9 +185,9 @@ namespace SpaceMission.Tests
             ui.Mostrar(Evaluador.Evaluar(c, catalogo), c);
             var textos = Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsInactive.Include, FindObjectsSortMode.None)
                 .Select(t => t.text).ToList();
-            Assert.IsTrue(textos.Contains("Investigación fallida"));
-            Assert.IsTrue(textos.Contains("Modificar mi misión"));
-            Assert.IsFalse(textos.Any(t => t.Contains("Nueva misión")));
+            Assert.IsTrue(textos.Contains("Investigation failed"));
+            Assert.IsTrue(textos.Contains("Modify my mission"));
+            Assert.IsFalse(textos.Any(t => t.Contains("New mission")));
         }
 
         [Test]

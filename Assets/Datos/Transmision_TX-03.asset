@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: atmosferico
   orden: 4
   tipo: 1
-  texto: "El sensor atmosf\xE9rico mide la tormenta: la cantidad de polvo y la temperatura del aire sobre la regi\xF3n. Estos datos permiten separar mejor el efecto de la tormenta de la se\xF1al que se est\xE1 estudiando."
+  texto: "The atmospheric sensor measures the storm: the amount of dust and the air temperature over the region. This data helps separate the effect of the storm from the signal being studied."

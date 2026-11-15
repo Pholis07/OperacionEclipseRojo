@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Orbita_eliptica
   m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
   id: eliptica
-  nombre: "El\xEDptica"
-  descripcionBreve: "\xD3rbita alargada que da una vista panor\xE1mica y mide las condiciones ambientales."
+  nombre: "Elliptical"
+  descripcionBreve: "Elongated orbit that gives a panoramic view and measures environmental conditions."
   costoCr: 140
-  ventaja: "Contexto panor\xE1mico y condiciones ambientales"
-  limitacion: "Para la victoria completa exige adem\xE1s el sensor atmosf\xE9rico"
+  ventaja: "Panoramic context and environmental conditions"
+  limitacion: "Full victory also requires the atmospheric sensor"
   requisitoDeVictoria:
   - termica
   - radar

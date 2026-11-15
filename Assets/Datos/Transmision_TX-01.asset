@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: termica
   orden: 2
   tipo: 0
-  texto: "La c\xE1mara t\xE9rmica infrarroja detecta una anomal\xEDa de temperatura bajo el polvo: una zona m\xE1s c\xE1lida que su entorno que se mantiene estable durante varias pasadas. El patr\xF3n es dif\xEDcil de atribuir solo a la luz del Sol. Todav\xEDa no se sabe qu\xE9 lo origina."
+  texto: "The infrared thermal camera detects a temperature anomaly beneath the dust: an area warmer than its surroundings that stays stable over several passes. The pattern is hard to attribute to sunlight alone. Its source is still unknown."

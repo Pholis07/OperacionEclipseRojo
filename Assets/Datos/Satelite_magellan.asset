@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Satelite_magellan
   m_EditorClassIdentifier: SpaceMission::SpaceMission.SateliteDatos
   id: magellan
-  nombre: "Cart\xF3grafo Magellan"
+  nombre: Magellan Mapper
   inspiradoEn: Magellan (1989)
-  descripcion: "Cartografi\xF3 por radar casi toda la superficie de Venus. Su gran antena serv\xEDa tambi\xE9n de radar."
-  credito: 'Modelo 3D: NASA 3D Resources'
+  descripcion: Mapped almost the entire surface of Venus by radar. Its large antenna also served as the radar.
+  credito: '3D model: NASA 3D Resources'
   costoCr: 30
   masaKg: 10
-  ventaja: "El radar de subsuelo lee un 30 % m\xE1s lejos. Pionero del aerofrenado: cambiar de altitud cuesta 2 de combustible."
-  desventaja: 'Grabadora antigua: 1 bloque menos de memoria.'
+  ventaja: 'The subsurface radar reads 30% farther. Aerobraking pioneer: changing altitude costs 2 fuel.'
+  desventaja: 'Old recorder: 1 fewer memory block.'
   instrumentosConAlcance:
   - radar
   factorAlcance: 1.3

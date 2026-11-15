@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Herramienta_reconfiguracion
   m_EditorClassIdentifier: SpaceMission::SpaceMission.HerramientaDatos
   id: reconfiguracion
-  nombre: "Reconfiguraci\xF3n de energ\xEDa"
-  descripcion: "Desv\xEDa la energ\xEDa por un circuito sano de los paneles."
+  nombre: "Power reconfiguration"
+  descripcion: "Reroutes power through a healthy panel circuit."
   costoCr: 30
   masaKg: 10

@@ -51,7 +51,7 @@ namespace SpaceMission
 
             e.Estado = e.Categoria == CategoriaResultado.Victoria ? EstadoSemaforo.Verde : EstadoSemaforo.Amarillo;
             e.Mensaje = e.Estado == EstadoSemaforo.Verde
-                ? "Configuración lista: cubre todas las evidencias que pide la órbita."
+                ? "Setup ready: it covers all the evidence the orbit requires."
                 : MensajeAmarillo(e, catalogo);
 
             ElegirTransmisiones(e, config, orbita, catalogo);
@@ -109,10 +109,10 @@ namespace SpaceMission
         static string MensajeGris(ResultadoCalculo r)
         {
             var partes = new List<string>();
-            if (r.Faltantes.Contains(Faltante.Orbita)) partes.Add("una órbita");
-            if (r.Faltantes.Contains(Faltante.Lanzador)) partes.Add("un lanzador");
-            if (r.Faltantes.Contains(Faltante.Instrumentos)) partes.Add("al menos un instrumento");
-            return "Configuración incompleta: falta elegir " + Unir(partes) + ".";
+            if (r.Faltantes.Contains(Faltante.Orbita)) partes.Add("an orbit");
+            if (r.Faltantes.Contains(Faltante.Lanzador)) partes.Add("a launcher");
+            if (r.Faltantes.Contains(Faltante.Instrumentos)) partes.Add("at least one instrument");
+            return "Incomplete setup: you still need to choose " + Unir(partes) + ".";
         }
 
         static string MensajeRojo(ResultadoCalculo r, Configuracion config, CatalogoDatos catalogo, MisionDatos mision)
@@ -120,29 +120,29 @@ namespace SpaceMission
             var lanzador = catalogo.Lanzador(config.LanzadorId);
             var partes = new List<string>();
             if (r.LimitesSuperados.Contains(Limite.Masa))
-                partes.Add("la masa (" + r.MasaKg + " de " + lanzador.capacidadKg + " kg)");
+                partes.Add("the mass (" + r.MasaKg + " of " + lanzador.capacidadKg + " kg)");
             if (r.LimitesSuperados.Contains(Limite.Potencia))
-                partes.Add("la potencia (" + r.PotenciaW + " de " + mision.potenciaDisponibleW + " W)");
+                partes.Add("the power (" + r.PotenciaW + " of " + mision.potenciaDisponibleW + " W)");
             if (r.LimitesSuperados.Contains(Limite.Costo))
-                partes.Add("el presupuesto (" + r.CostoCr + " de " + mision.presupuestoCr + " créditos)");
+                partes.Add("the budget (" + r.CostoCr + " of " + mision.presupuestoCr + " credits)");
             if (r.LimitesSuperados.Contains(Limite.Espacios))
-                partes.Add("los espacios (" + r.EspaciosUsados + " de " + lanzador.espacios + ")");
-            return "No se puede lanzar: se supera " + Unir(partes) + ".";
+                partes.Add("the slots (" + r.EspaciosUsados + " of " + lanzador.espacios + ")");
+            return "Cannot launch: " + Unir(partes) + (partes.Count > 1 ? " exceed the limit." : " exceeds the limit.");
         }
 
         static string MensajeAmarillo(Evaluacion e, CatalogoDatos catalogo)
         {
             var faltan = e.EvidenciasFaltantes.Select(id => catalogo.Instrumento(id).pistaAsociada).ToList();
-            var mensaje = "Falta " + Unir(faltan) + ".";
+            var mensaje = "Missing " + Unir(faltan) + ".";
             if (e.PistasPrincipales.Count == 0)
-                mensaje += " Aviso de fracaso seguro: ningún instrumento elegido puede observar la anomalía principal.";
+                mensaje += " Warning: certain failure, none of the chosen instruments can observe the main anomaly.";
             return mensaje;
         }
 
         static string Unir(List<string> partes)
         {
             if (partes.Count <= 1) return string.Join("", partes);
-            return string.Join(", ", partes.Take(partes.Count - 1)) + " y " + partes[partes.Count - 1];
+            return string.Join(", ", partes.Take(partes.Count - 1)) + " and " + partes[partes.Count - 1];
         }
     }
 }

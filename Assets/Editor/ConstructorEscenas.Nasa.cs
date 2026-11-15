@@ -46,18 +46,18 @@ public static partial class ConstructorEscenas
         if (catalogo == null) return;
         var textos = new Dictionary<string, (string nombre, string inspirado, string descripcion)>
         {
-            ["mro"] = ("Orbitador MRO", "Mars Reconnaissance Orbiter (2005)",
-                "Estudia Marte desde 2006 con cámaras, radar y espectrómetro. Antena grande y dos paneles solares amplios."),
-            ["magellan"] = ("Cartógrafo Magellan", "Magellan (1989)",
-                "Cartografió por radar casi toda la superficie de Venus. Su gran antena servía también de radar."),
-            ["chandra"] = ("Observatorio Chandra", "Chandra (1999)",
-                "Telescopio espacial de rayos X: un tubo óptico muy largo con dos alas de paneles solares."),
-            ["aquarius"] = ("Plataforma Aquarius", "Aquarius / SAC-D (2011)",
-                "Midió la salinidad de los océanos desde la órbita de la Tierra, con un gran reflector de antena."),
-            ["llcd"] = ("Relé láser LLCD", "LLCD (2013)",
-                "Demostró comunicaciones por láser desde la órbita de la Luna. Plataforma con grandes paneles solares."),
-            ["aztechsat"] = ("Nanosatélite AztechSat-1", "AztechSat-1 (UPAEP, 2019)",
-                "CubeSat 1U de la UPAEP (Puebla). Liberado desde la Estación Espacial en 2020, probó a comunicarse a través de la constelación Globalstar."),
+            ["mro"] = ("MRO Orbiter", "Mars Reconnaissance Orbiter (2005)",
+                "Has studied Mars since 2006 with cameras, radar and a spectrometer. Large antenna and two wide solar panels."),
+            ["magellan"] = ("Magellan Mapper", "Magellan (1989)",
+                "Mapped almost the entire surface of Venus by radar. Its large antenna also served as the radar."),
+            ["chandra"] = ("Chandra Observatory", "Chandra (1999)",
+                "X-ray space telescope: a very long optical tube with two wings of solar panels."),
+            ["aquarius"] = ("Aquarius Platform", "Aquarius / SAC-D (2011)",
+                "Measured ocean salinity from Earth orbit, with a large antenna reflector."),
+            ["llcd"] = ("LLCD Laser Relay", "LLCD (2013)",
+                "Demonstrated laser communications from lunar orbit. Platform with large solar panels."),
+            ["aztechsat"] = ("AztechSat-1 Nanosatellite", "AztechSat-1 (UPAEP, 2019)",
+                "1U CubeSat from UPAEP (Puebla, Mexico). Released from the Space Station in 2020, it tested communicating through the Globalstar constellation."),
         };
         var lista = new List<SateliteDatos>();
         foreach (var s in Satelites)
@@ -74,7 +74,7 @@ public static partial class ConstructorEscenas
             datos.nombre = t.nombre;
             datos.inspiradoEn = t.inspirado;
             datos.descripcion = t.descripcion;
-            datos.credito = s.modelo != null ? "Modelo 3D: NASA 3D Resources" : "Modelo 3D: propio del equipo (hecho por código)";
+            datos.credito = s.modelo != null ? "3D model: NASA 3D Resources" : "3D model: made by the team (built in code)";
             EditorUtility.SetDirty(datos);
             lista.Add(datos);
         }

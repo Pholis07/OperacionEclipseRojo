@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Herramienta_bateria
   m_EditorClassIdentifier: SpaceMission::SpaceMission.HerramientaDatos
   id: bateria
-  nombre: "Bater\xEDa de respaldo"
-  descripcion: "Alimenta la nave mientras est\xE1 en la sombra de Marte."
+  nombre: "Backup battery"
+  descripcion: "Powers the spacecraft while it is in Mars' shadow."
   costoCr: 40
   masaKg: 20

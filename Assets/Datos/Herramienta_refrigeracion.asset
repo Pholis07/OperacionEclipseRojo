@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Herramienta_refrigeracion
   m_EditorClassIdentifier: SpaceMission::SpaceMission.HerramientaDatos
   id: refrigeracion
-  nombre: "Refrigeraci\xF3n de emergencia"
-  descripcion: "Enfr\xEDa un instrumento sobrecalentado para volver a encenderlo."
+  nombre: "Emergency cooling"
+  descripcion: "Cools an overheated instrument so it can be turned back on."
   costoCr: 30
   masaKg: 15

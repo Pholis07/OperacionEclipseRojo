@@ -665,7 +665,7 @@ namespace SpaceMission.Tests
             Resolver(op);
             Assert.IsTrue(op.PeticionCumplida);
             var e = Evaluador.Evaluar(ConfigCaso2(), catalogo);
-            Assert.AreEqual(150, Puntuacion.Desglose(e, op, catalogo, null).First(l => l.Concepto.StartsWith("Petición")).Puntos);
+            Assert.AreEqual(150, Puntuacion.Desglose(e, op, catalogo, null).First(l => l.Concepto.StartsWith("NASA request")).Puntos);
         }
 
         [Test]
@@ -713,7 +713,7 @@ namespace SpaceMission.Tests
             var lineas = Puntuacion.Desglose(e, op, catalogo, null);
             // 1,000 de victoria + 430 / 2 + 10 meses × 25 + 3 de combustible × 10
             Assert.AreEqual(1000 + 215 + 250 + 30, Puntuacion.Total(lineas));
-            Assert.IsFalse(lineas.Any(l => l.Concepto.Contains("baja calidad")));
+            Assert.IsFalse(lineas.Any(l => l.Concepto.Contains("low quality")));
         }
 
         [Test]
@@ -735,9 +735,9 @@ namespace SpaceMission.Tests
             Resolver(op, enviar: true);   // envía datos, pero sin evidencia
             op.Terminar();
             var lineas = Puntuacion.Desglose(Evaluador.Evaluar(ConfigCaso2(), catalogo), op, catalogo, null);
-            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Presupuesto")));
-            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Meses")));
-            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Combustible")));
+            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Budget")));
+            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Months")));
+            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Fuel")));
             Assert.AreEqual(100, Puntuacion.Total(lineas), "solo los puntos del fracaso");
 
             var parcial = Caso2();
@@ -746,9 +746,9 @@ namespace SpaceMission.Tests
             Resolver(parcial, enviar: true);   // una evidencia principal
             parcial.Terminar();
             var conEvidencia = Puntuacion.Desglose(Evaluador.Evaluar(ConfigCaso2(), catalogo), parcial, catalogo, null);
-            Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Presupuesto")));
-            Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Meses")));
-            Assert.AreEqual(30, conEvidencia.First(l => l.Concepto.StartsWith("Combustible")).Puntos, "3 de combustible × 10");
+            Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Budget")));
+            Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Months")));
+            Assert.AreEqual(30, conEvidencia.First(l => l.Concepto.StartsWith("Fuel")).Puntos, "3 de combustible × 10");
         }
 
         [Test]
@@ -761,7 +761,7 @@ namespace SpaceMission.Tests
             Resolver(op, enviar: true);   // lo sobrante solo cuenta con evidencia enviada
             var c = new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico" });
             var linea = Puntuacion.Desglose(Evaluador.Evaluar(c, catalogo, catalogo.Nivel(0)), op, catalogo, catalogo.Nivel(0))
-                .First(l => l.Concepto.StartsWith("Presupuesto"));
+                .First(l => l.Concepto.StartsWith("Budget"));
             Assert.AreEqual((370 - 40) / 2, linea.Puntos);
         }
 
@@ -803,7 +803,7 @@ namespace SpaceMission.Tests
             var ganada = InformeMision.Construir(Evaluador.Evaluar(ConfigCaso2(), catalogo), ConfigCaso2(), catalogo, Ganada(), null);
             Assert.AreEqual(TextosResultado.Titulo(CategoriaResultado.Victoria), ganada.Titulo);
             Assert.AreEqual(2, ganada.Evidencias.Count);
-            StringAssert.Contains("La misión duró 2 meses y sobraron 10.", ganada.Recursos);
+            StringAssert.Contains("The mission lasted 2 months, with 10 left over.", ganada.Recursos);
 
             var op = Caso2();
             Observar(op, "termica", Centro);
@@ -814,7 +814,7 @@ namespace SpaceMission.Tests
             var parcial = InformeMision.Construir(Evaluador.Evaluar(ConfigCaso2(), catalogo), ConfigCaso2(), catalogo, op, null);
             Assert.AreEqual(TextosResultado.Titulo(CategoriaResultado.Parcial), parcial.Titulo);
             Assert.AreEqual(1, parcial.Evidencias.Count);
-            Assert.IsTrue(parcial.Faltantes.Any(f => f.StartsWith("Radar de subsuelo")), "el radar no encontró nada");
+            Assert.IsTrue(parcial.Faltantes.Any(f => f.StartsWith("Subsurface radar")), "el radar no encontró nada");
         }
     }
 }

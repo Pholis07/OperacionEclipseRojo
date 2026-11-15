@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: alta_res
   orden: 0
   tipo: 1
-  texto: "Sin c\xE1mara de alta resoluci\xF3n no se obtuvieron im\xE1genes de detalle de la superficie de la regi\xF3n."
+  texto: "Without the high-resolution camera, no detail images of the region's surface were obtained."

@@ -15,7 +15,7 @@ namespace SpaceMission.Tests
     public class InterfazTests
     {
         static readonly string[] NombresDeInstrumentos =
-            { "cámara", "térmica infrarroja", "radar", "espectrómetro", "sensor atmosférico", "alta resolución" };
+            { "camera", "infrared thermal", "radar", "spectrometer", "atmospheric sensor", "high-resolution" };
 
         CatalogoDatos catalogo;
 
@@ -32,22 +32,22 @@ namespace SpaceMission.Tests
             var texto = TextosBriefing.TextoRequisitos().ToLowerInvariant();
             foreach (var nombre in NombresDeInstrumentos)
                 StringAssert.DoesNotContain(nombre, texto);
-            StringAssert.Contains("evidencia de la anomalía térmica", texto);
-            StringAssert.Contains("evidencia de lo que hay bajo la superficie", texto);
-            StringAssert.Contains("ambiente de la tormenta", texto);
+            StringAssert.Contains("evidence of the thermal anomaly", texto);
+            StringAssert.Contains("evidence of what lies beneath the surface", texto);
+            StringAssert.Contains("storm environment", texto);
         }
 
         [Test]
         public void PM1_LosLimitesSalenDeLosDatos()
         {
             var texto = TextosBriefing.TextoLimites(catalogo);
-            StringAssert.Contains("1,250 créditos", texto);
+            StringAssert.Contains("1,250 credits", texto);
             StringAssert.Contains("700 W", texto);
-            StringAssert.Contains("Explorador 650 kg", texto);
-            StringAssert.Contains("Titán 750 kg", texto);
+            StringAssert.Contains("Explorer 650 kg", texto);
+            StringAssert.Contains("Titan 750 kg", texto);
             StringAssert.DoesNotContain("1,100", texto);
-            StringAssert.Contains("2 con Explorador", texto);
-            StringAssert.Contains("4 con Titán", texto);
+            StringAssert.Contains("2 with Explorer", texto);
+            StringAssert.Contains("4 with Titan", texto);
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace SpaceMission.Tests
             ui.LlenarBriefing();
             var textos = Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             Assert.IsTrue(textos.Any(t => t.text == catalogo.mision.objetivo), "El objetivo no aparece en el Briefing");
-            Assert.IsTrue(textos.Any(t => t.text.Contains("Titán 750 kg")), "Los límites no aparecen en el Briefing");
+            Assert.IsTrue(textos.Any(t => t.text.Contains("Titan 750 kg")), "Los límites no aparecen en el Briefing");
         }
 
         [TestCase("Assets/Escenas/Menu.unity")]

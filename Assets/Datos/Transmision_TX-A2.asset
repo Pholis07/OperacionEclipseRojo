@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: radar
   orden: 0
   tipo: 0
-  texto: "Sin radar de subsuelo, no hubo evidencia de lo que ocurre bajo la superficie. La anomal\xEDa t\xE9rmica, si se detect\xF3, queda sin explicaci\xF3n estructural."
+  texto: "Without the subsurface radar, there was no evidence of what happens beneath the surface. The thermal anomaly, if it was detected, is left without a structural explanation."

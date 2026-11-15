@@ -184,3 +184,22 @@ Solo `OperacionUI.cs`: el evento `AlResolverMes(ResultadoMes)` (se lanza al fina
 2. Probar en el navegador: página de carga, splash, FPS de la cinemática en un portátil y que el título no deje pasar Enter a «Iniciar misión».
 3. Si el peso de 46 MB pesa en la carga, bajar las mitades de Marte a 2048 (`ImportadorArte`, `Marte_Superficie_*`).
 4. Revisión del equipo antes de fusionar a `main` (Adrian: el evento nuevo en `OperacionUI`).
+
+---
+
+# Inglés, cráter Gale y separación de la carga (2026-11-15)
+
+**Rama:** `feat/ingles-y-marte` (desde `feat/pulido-presentacion`). Pedido de Diego tras probar la build en el navegador.
+
+| Tema | Qué se hizo | Archivos principales |
+|---|---|---|
+| Marte | Shader con contraste y gamma (menos lavado), polvo más tenue (0.22), relieve del cráter Gale (modelo de NASA) en su sitio del globo | `Planeta.shader`, `MaterialPlaneta()` |
+| Mapa de la investigación | El cráter Gale (relieve «Curiosity Landing Site» de NASA 3D Resources convertido en imagen), con retícula, rótulos, escala, polvo que se mueve y marcas redondas. `MapaMarteUI.RectGlobo` dice dónde está en el planeta: la vista 3D del escaneo y la llegada apuntan a Gale | `Herramientas/gale.py`, `MapaMarteUI.cs`, `CapasMapa()`, `SecuenciaEscaneo`, `DirectorCinematica` |
+| Separación de la carga | Toma 7 nueva (5.4 s): la cofia (Explorador) o la nariz del SLS (Titán) se parte en dos mitades que se abren sobre su bisagra y se alejan girando; el satélite, que viajaba dentro, sale empujado por resortes; la etapa se aparta con pulsos de gas frío; «PAYLOAD RELEASED» | `DirectorCinematica.cs`, `Torno` con rango de ángulo, `DividirNarizSls`, `DobleCara` |
+| Inglés | Todo el juego: constructores, scripts, datos (48 assets y `TraduccionIngles.cs`), página de carga, nombre del producto («Operation Red Eclipse») y pruebas | Ver los informes de traducción en esta sección |
+| Voces y subtítulos | 10 voces nuevas en inglés (1,531 créditos). Subtítulos English / Español / Off en Opciones, franja abajo encima de todo | `Subtitulos.cs`, `BarraSubtitulos.cs`, `Preferencias.Subtitulos`, `OpcionesUI` |
+| Textos encimados | Ayuda de Configuración que se salía, botones con etiquetas largas, textos de Operación, Carga y decisiones que se achican en vez de pisarse, nombre del instrumento y «Click to skip» separados | `ConstructorEscenas.cs` (`Encoger`, `AjustarTexto`) |
+
+Cambios en código de Adrian (revisar): textos de `OperacionUI`, `Evaluador`, `Operacion`, `Puntuacion`, `Objetivos`, los datos y unas 30 comprobaciones de las pruebas que buscaban frases en español; `MapaMarteUI` gana la imagen de la región y `RectGlobo`. La lógica no cambia.
+
+Comprobado: EditMode 212/212 y PlayMode 19/19; capturas en batch de todas las pantallas en inglés y fotogramas de la toma 7 con Explorador y con Titán (cofia abriéndose, satélite saliendo). Falta escuchar las voces en inglés y probar la build en un navegador real.

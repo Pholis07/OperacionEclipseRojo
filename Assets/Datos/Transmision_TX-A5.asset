@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: espectrometro
   orden: 0
   tipo: 1
-  texto: "Sin espectr\xF3metro mineral\xF3gico no se analiz\xF3 la composici\xF3n de la superficie de la regi\xF3n."
+  texto: "Without the mineralogical spectrometer, the composition of the region's surface was not analyzed."

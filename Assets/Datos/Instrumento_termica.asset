@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Instrumento_termica
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: termica
-  nombre: "C\xE1mara t\xE9rmica infrarroja"
+  nombre: "Infrared thermal camera"
   masaKg: 100
   potenciaNormalW: 100
   extraTormentaW: 30
   costoCr: 180
   bloquesDatos: 1
-  pistaAsociada: "evidencia de la anomal\xEDa t\xE9rmica"
-  textoAyuda: "Mide la temperatura del terreno y aporta evidencia de la anomal\xEDa t\xE9rmica. Consumo: 130 W: 100 W normal + 30 W por la tormenta."
+  pistaAsociada: "evidence of the thermal anomaly"
+  textoAyuda: "Measures the ground temperature and provides evidence of the thermal anomaly. Power: 130 W: 100 W normal + 30 W due to the storm."

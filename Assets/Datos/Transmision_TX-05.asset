@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: espectrometro
   orden: 4
   tipo: 1
-  texto: "El espectr\xF3metro mineral\xF3gico analiza la luz que refleja la superficie. Aparecen minerales que pudieron formarse en presencia de agua en el pasado, un dato coherente con la hip\xF3tesis del hielo pero que no la demuestra. La composici\xF3n exacta sigue abierta."
+  texto: "The mineralogical spectrometer analyzes the light reflected by the surface. Minerals appear that may have formed in the presence of water in the past, which is consistent with the ice hypothesis but does not prove it. The exact composition remains an open question."

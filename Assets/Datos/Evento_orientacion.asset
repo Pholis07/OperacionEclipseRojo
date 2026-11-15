@@ -13,25 +13,25 @@ MonoBehaviour:
   m_Name: Evento_orientacion
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: orientacion
-  nombre: "P\xE9rdida de orientaci\xF3n"
-  texto: "La nave pierde la orientaci\xF3n: si no se corrige, el mes siguiente no dar\xE1 lecturas."
+  nombre: "Loss of orientation"
+  texto: "The spacecraft loses its orientation: if it is not corrected, next month will give no readings."
   efecto: 3
   vatios: 0
   orbitas: 0
   herramientaId: giroscopio
   puntos: 0
   opciones:
-  - texto: Usar el giroscopio de respaldo
+  - texto: "Use the backup gyroscope"
     efecto: 0
     combustible: 0
     orbitas: 0
     duracion: 0
-  - texto: Corregir con los propulsores (-3 de combustible)
+  - texto: "Correct with the thrusters (-3 fuel)"
     efecto: 1
     combustible: 3
     orbitas: 0
     duracion: 0
-  - texto: "Seguir as\xED (el mes siguiente no dar\xE1 lecturas)"
+  - texto: "Carry on (next month will give no readings)"
     efecto: 3
     combustible: 0
     orbitas: 0

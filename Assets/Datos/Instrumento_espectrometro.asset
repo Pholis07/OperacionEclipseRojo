@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Instrumento_espectrometro
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: espectrometro
-  nombre: "Espectr\xF3metro mineral\xF3gico"
+  nombre: "Mineralogical spectrometer"
   masaKg: 110
   potenciaNormalW: 130
   extraTormentaW: 130
   costoCr: 220
   bloquesDatos: 2
-  pistaAsociada: "informaci\xF3n sobre la composici\xF3n de la superficie"
-  textoAyuda: "Analiza la luz que refleja la superficie y aporta informaci\xF3n sobre su composici\xF3n. Consumo: 260 W: 130 W normal + 130 W por la tormenta."
+  pistaAsociada: "information about the surface composition"
+  textoAyuda: "Analyzes the light reflected by the surface and provides information about its composition. Power: 260 W: 130 W normal + 130 W due to the storm."

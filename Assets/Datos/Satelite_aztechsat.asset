@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Satelite_aztechsat
   m_EditorClassIdentifier: SpaceMission::SpaceMission.SateliteDatos
   id: aztechsat
-  nombre: "Nanosat\xE9lite AztechSat-1"
+  nombre: AztechSat-1 Nanosatellite
   inspiradoEn: AztechSat-1 (UPAEP, 2019)
-  descripcion: "CubeSat 1U de la UPAEP (Puebla). Liberado desde la Estaci\xF3n Espacial en 2020, prob\xF3 a comunicarse a trav\xE9s de la constelaci\xF3n Globalstar."
-  credito: "Modelo 3D: propio del equipo (hecho por c\xF3digo)"
+  descripcion: 1U CubeSat from UPAEP (Puebla, Mexico). Released from the Space Station in 2020, it tested communicating through the Globalstar constellation.
+  credito: '3D model: made by the team (built in code)'
   costoCr: 15
   masaKg: 0
-  ventaja: "Enlace por la constelaci\xF3n Globalstar: puede enviar cualquier mes, aunque no haya contacto (sin contacto solo caben 2 bloques)."
-  desventaja: "Plataforma diminuta (CubeSat 1U): 100 W menos de l\xEDmite de energ\xEDa y 1 bloque menos de memoria."
+  ventaja: 'Link through the Globalstar constellation: it can send in any month, even without contact (without contact only 2 blocks fit).'
+  desventaja: 'Tiny platform (1U CubeSat): 100 W lower power limit and 1 fewer memory block.'
   instrumentosConAlcance: []
   factorAlcance: 1
   combustiblePorCambioAltitud: -1

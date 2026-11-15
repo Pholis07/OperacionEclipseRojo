@@ -73,10 +73,10 @@ namespace SpaceMission
             saltando = false;
             var op = operacion.Op;
             int total = op.MesesResueltos + op.MesesRestantes;
-            textoMesAnterior.text = "MES " + r.Mes;
-            textoMesNuevo.text = r.Termino ? "FIN" : "MES " + (r.Mes + 1);
+            textoMesAnterior.text = "MONTH " + r.Mes;
+            textoMesNuevo.text = r.Termino ? "END" : "MONTH " + (r.Mes + 1);
             textoSuceso.text = Suceso(r, op);
-            textoDias.text = "DÍA 0";
+            textoDias.text = "DAY 0";
             PintarSegmentos(total, r.Mes - 1, -1f);
             PrepararCamara();
             escenario.Preparar(EstadoJuego.Configuracion);
@@ -109,7 +109,7 @@ namespace SpaceMission
                 textoMesAnterior.alpha = 1f - cambio;
                 nuevo.anchoredPosition = new Vector2(0f, -salto * (1f - cambio));
                 textoMesNuevo.alpha = cambio;
-                textoDias.text = "DÍA " + Mathf.RoundToInt(Mathf.Clamp01(k / 0.8f) * Mathf.Max(0, r.DiasUtiles));
+                textoDias.text = "DAY " + Mathf.RoundToInt(Mathf.Clamp01(k / 0.8f) * Mathf.Max(0, r.DiasUtiles));
                 PintarSegmentos(total, r.Mes - 1, Mathf.Clamp01((k - 0.2f) / 0.5f));
                 if (tarjeta != null) tarjeta.localScale = Vector3.one * (1f + 0.04f * Mathf.Sin(Mathf.Clamp01(k / 0.3f) * Mathf.PI));
                 textoSuceso.alpha = Mathf.Clamp01((k - 0.45f) / 0.2f);
@@ -121,16 +121,16 @@ namespace SpaceMission
         /// <summary>La línea más importante del mes (solo de lo que ya calculó la lógica).</summary>
         static string Suceso(ResultadoMes r, Operacion op)
         {
-            if (r.Termino) return "FIN DE LA CAMPAÑA · PREPARA EL INFORME";
+            if (r.Termino) return "END OF CAMPAIGN · PREPARING THE REPORT";
             if (r.Evento != null && r.Evento.Datos != null)
             {
-                if (r.Evento.Datos.efecto == EfectoEvento.Tormenta) return "LA TORMENTA DE POLVO CRECE";
-                return "EVENTO A BORDO · " + r.Evento.Datos.nombre.ToUpperInvariant();
+                if (r.Evento.Datos.efecto == EfectoEvento.Tormenta) return "THE DUST STORM IS GROWING";
+                return "ONBOARD EVENT · " + r.Evento.Datos.nombre.ToUpperInvariant();
             }
-            if (r.Enviadas.Count > 0) return "DATOS RECIBIDOS EN LA TIERRA";
-            if (!string.IsNullOrEmpty(r.EnvioFallido)) return "EL ENVÍO NO SALIÓ ESTE MES";
-            if (r.Observaciones.Count > 0) return "NUEVAS OBSERVACIONES EN MEMORIA";
-            return op.ContactoAbierto ? "PRÓXIMO MES · CONTACTO CON LA TIERRA" : "PRÓXIMO MES · SIN CONTACTO CON LA TIERRA";
+            if (r.Enviadas.Count > 0) return "DATA RECEIVED ON EARTH";
+            if (!string.IsNullOrEmpty(r.EnvioFallido)) return "NO TRANSMISSION WENT OUT THIS MONTH";
+            if (r.Observaciones.Count > 0) return "NEW OBSERVATIONS IN MEMORY";
+            return op.ContactoAbierto ? "NEXT MONTH · CONTACT WITH EARTH" : "NEXT MONTH · NO CONTACT WITH EARTH";
         }
 
         void PintarSegmentos(int total, int llenos, float avance)

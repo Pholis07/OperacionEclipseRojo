@@ -13,25 +13,25 @@ MonoBehaviour:
   m_Name: Evento_micrometeorito
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: micrometeorito
-  nombre: Impacto de micrometeorito
-  texto: "Un micrometeorito da\xF1a el circuito de un panel solar. La nave produce menos energ\xEDa hasta desviar la corriente."
+  nombre: "Micrometeorite impact"
+  texto: "A micrometeorite damages a solar panel circuit. The spacecraft produces less power until the current is rerouted."
   efecto: 1
   vatios: 200
   orbitas: 0
   herramientaId: reconfiguracion
   puntos: 0
   opciones:
-  - texto: "Usar la reconfiguraci\xF3n de energ\xEDa"
+  - texto: "Use the power reconfiguration"
     efecto: 0
     combustible: 0
     orbitas: 0
     duracion: 0
-  - texto: "Desviar la corriente a mano (el mes siguiente pierde 10 d\xEDas)"
+  - texto: "Reroute the current by hand (next month loses 10 days)"
     efecto: 1
     combustible: 0
     orbitas: 1
     duracion: 0
-  - texto: "Seguir con menos energ\xEDa hasta el final"
+  - texto: "Carry on with less power until the end"
     efecto: 3
     combustible: 0
     orbitas: 0

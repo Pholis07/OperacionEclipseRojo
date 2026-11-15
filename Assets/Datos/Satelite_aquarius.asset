@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Satelite_aquarius
   m_EditorClassIdentifier: SpaceMission::SpaceMission.SateliteDatos
   id: aquarius
-  nombre: Plataforma Aquarius
+  nombre: Aquarius Platform
   inspiradoEn: Aquarius / SAC-D (2011)
-  descripcion: "Midi\xF3 la salinidad de los oc\xE9anos desde la \xF3rbita de la Tierra, con un gran reflector de antena."
-  credito: 'Modelo 3D: NASA 3D Resources'
+  descripcion: Measured ocean salinity from Earth orbit, with a large antenna reflector.
+  credito: '3D model: NASA 3D Resources'
   costoCr: 40
   masaKg: 20
-  ventaja: "Radi\xF3metro de microondas: +1 bloque de memoria, y la tormenta creciendo no le baja la calidad de los datos."
-  desventaja: "El radi\xF3metro va siempre encendido: +50 W de consumo en la Operaci\xF3n."
+  ventaja: 'Microwave radiometer: +1 memory block, and the growing storm does not lower its data quality.'
+  desventaja: 'The radiometer is always on: +50 W of power draw during the Operation.'
   instrumentosConAlcance: []
   factorAlcance: 1
   combustiblePorCambioAltitud: -1

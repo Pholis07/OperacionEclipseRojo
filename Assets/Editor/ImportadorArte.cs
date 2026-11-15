@@ -9,7 +9,7 @@ using UnityEngine;
 public class ImportadorArte : AssetPostprocessor
 {
     // Subir este número fuerza a Unity a reimportar las imágenes con los ajustes nuevos.
-    public override uint GetVersion() => 8;
+    public override uint GetVersion() => 9;
 
     /// <summary>
     /// Audio de Assets/Arte/Audio (ElevenLabs): música comprimida en memoria (Vorbis), efectos cortos en mono y
@@ -74,7 +74,7 @@ public class ImportadorArte : AssetPostprocessor
 
         if (assetPath.Contains("/Interfaz/"))
         {
-            bool repetible = nombre == "Segmentos" || nombre == "Barrido";
+            bool repetible = nombre == "Segmentos" || nombre == "Barrido" || nombre == "Reticula";
             ti.textureType = repetible ? TextureImporterType.Default : TextureImporterType.Sprite;
             ti.spriteImportMode = SpriteImportMode.Single;
             ti.alphaIsTransparency = true;
@@ -134,7 +134,8 @@ public class ImportadorArte : AssetPostprocessor
                 ti.crunchedCompression = true;
                 ti.compressionQuality = 70;
             }
-            if (nombre == "Marte_Normal") ti.textureType = TextureImporterType.NormalMap;
+            if (nombre == "Marte_Normal" || nombre == "Gale_Normal") ti.textureType = TextureImporterType.NormalMap;
+            if (nombre.StartsWith("Gale_")) ti.maxTextureSize = 1024;
             if (nombre == "Marte_Polvo" || nombre == "Nubes") ti.alphaIsTransparency = true;
         }
     }

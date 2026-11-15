@@ -113,6 +113,12 @@ Frases de las voces (español neutro): «Secuencia de encendido iniciada. Motore
 
 **No se escucharon a oído.**
 
+## Voces en inglés (2026-11-15)
+
+El juego pasó a inglés. Se generaron las 6 transmisiones y las 4 frases de control en inglés con «Udem – Calm & Clear Educational Narrator» (voz de biblioteca, inglés americano, serena) y el mismo filtro «Bright Phone»: **1,531 créditos** (solo se ejecutaron los nodos del filtro, que generan la voz una vez). Normalizadas a −16 LUFS. Archivos con sufijo `_en`; las voces en español siguen en el proyecto pero no se enlazan. Los textos exactos están en `Assets/Scripts/UI/Estilo/Subtitulos.cs`, que también da los subtítulos en inglés o en español (Opciones).
+
+**No se escucharon a oído.**
+
 ## Dónde está el código
 
 - **`Assets/Scripts/UI/Estilo/MusicaEscena.cs`:** música y ambiente de cada escena, con entrada suave. En Resultado elige el tema según el resultado.

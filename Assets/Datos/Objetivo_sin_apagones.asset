@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Objetivo_sin_apagones
   m_EditorClassIdentifier: SpaceMission::SpaceMission.ObjetivoDatos
   id: sin_apagones
-  texto: "Ning\xFAn apag\xF3n"
+  texto: "No blackouts"
   tipo: 1
   valor: 0
   puntos: 100

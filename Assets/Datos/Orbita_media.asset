@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Orbita_media
   m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
   id: media
-  nombre: Media inclinada
-  descripcionBreve: "\xD3rbita inclinada de altitud intermedia que vuelve a pasar sobre la anomal\xEDa."
+  nombre: "Mid inclined"
+  descripcionBreve: "Inclined orbit at intermediate altitude that keeps passing over the anomaly."
   costoCr: 90
-  ventaja: "Seguimiento repetido de la anomal\xEDa"
-  limitacion: "Menos detalle de superficie en la simplificaci\xF3n del juego"
+  ventaja: "Repeated tracking of the anomaly"
+  limitacion: "Less surface detail in the game's simplified model"
   requisitoDeVictoria:
   - termica
   - radar

@@ -39,7 +39,7 @@ namespace SpaceMission
                 if (op == null || !op.Recibidas.Contains(id))
                 {
                     // Lo que no se observó con calidad suficiente o no se envió no cuenta como evidencia.
-                    informe.Faltantes.Add(instrumento.nombre + ": no llegó evidencia válida a la Tierra.");
+                    informe.Faltantes.Add(instrumento.nombre + ": no valid evidence reached Earth.");
                     continue;
                 }
                 var linea = instrumento.nombre + ": " + instrumento.pistaAsociada + ".";
@@ -58,29 +58,29 @@ namespace SpaceMission
             var r = e.Calculo;
             var m = nivel != null ? nivel : catalogo.mision;
             var lanzador = catalogo.Lanzador(c.LanzadorId);
-            return "Usaste " + TextosBriefing.Numero(r.CostoCr) + " de " + TextosBriefing.Numero(m.presupuestoCr) + " créditos, " +
-                   TextosBriefing.Numero(r.MasaKg) + " de " + TextosBriefing.Numero(lanzador.capacidadKg) + " kg, " +
-                   TextosBriefing.Numero(r.PotenciaW) + " de " + TextosBriefing.Numero(m.potenciaDisponibleW) + " W y " +
-                   r.EspaciosUsados + " de " + lanzador.espacios + " espacios.";
+            return "You used " + TextosBriefing.Numero(r.CostoCr) + " of " + TextosBriefing.Numero(m.presupuestoCr) + " credits, " +
+                   TextosBriefing.Numero(r.MasaKg) + " of " + TextosBriefing.Numero(lanzador.capacidadKg) + " kg, " +
+                   TextosBriefing.Numero(r.PotenciaW) + " of " + TextosBriefing.Numero(m.potenciaDisponibleW) + " W and " +
+                   r.EspaciosUsados + " of " + lanzador.espacios + " slots.";
         }
 
         static string TextoOperacion(Operacion op)
         {
             if (op == null) return "";
-            var texto = " La misión duró " + op.MesesResueltos + (op.MesesResueltos == 1 ? " mes" : " meses") + " y sobraron " + op.MesesRestantes + ".";
+            var texto = " The mission lasted " + op.MesesResueltos + (op.MesesResueltos == 1 ? " month" : " months") + ", with " + op.MesesRestantes + " left over.";
             if (op.Apagones > 0)
-                texto += " La nave se apagó " + op.Apagones + (op.Apagones == 1 ? " vez" : " veces") +
-                         " y los reinicios costaron " + TextosBriefing.Numero(op.CreditosPerdidos) + " créditos.";
-            if (op.Satelite != null) texto += " Satélite: " + op.Satelite.nombre + ".";
+                texto += " The spacecraft shut down " + (op.Apagones == 1 ? "once" : op.Apagones + " times") +
+                         " and the restarts cost " + TextosBriefing.Numero(op.CreditosPerdidos) + " credits.";
+            if (op.Satelite != null) texto += " Satellite: " + op.Satelite.nombre + ".";
             if (op.CreditosCarga > 0)
-                texto += " La carga costó " + TextosBriefing.Numero(op.CreditosCarga) + " créditos.";
+                texto += " The cargo cost " + TextosBriefing.Numero(op.CreditosCarga) + " credits.";
             if (op.CreditosManiobras > 0)
-                texto += " Las maniobras costaron " + TextosBriefing.Numero(op.CreditosManiobras) + " créditos.";
-            texto += " Te quedaron " + op.Combustible + " de combustible.";
+                texto += " The maneuvers cost " + TextosBriefing.Numero(op.CreditosManiobras) + " credits.";
+            texto += " You had " + op.Combustible + " fuel left.";
             if (op.Memoria.Count > 0)
-                texto += " Quedaron " + op.Memoria.Count + (op.Memoria.Count == 1 ? " registro" : " registros") + " sin enviar en la memoria.";
+                texto += " " + op.Memoria.Count + (op.Memoria.Count == 1 ? " record was" : " records were") + " left unsent in memory.";
             if (op.PeticionAceptada)
-                texto += op.PeticionCumplida ? " Cumpliste la petición de la NASA." : " No llegaste a cumplir la petición de la NASA.";
+                texto += op.PeticionCumplida ? " You fulfilled the NASA request." : " You did not fulfill the NASA request.";
             var objetivos = Objetivos.Resumen(op);
             if (objetivos.Length > 0) texto += " " + objetivos;
             return texto;
@@ -90,8 +90,8 @@ namespace SpaceMission
         public static string Encabezado(string transmisionId, int indice, int total, CatalogoDatos catalogo)
         {
             var t = catalogo.Transmision(transmisionId);
-            var origen = string.IsNullOrEmpty(t.instrumentoId) ? "Inicio de la observación" : catalogo.Instrumento(t.instrumentoId).nombre;
-            return "Transmisión " + (indice + 1) + " de " + total + "  ·  " + origen;
+            var origen = string.IsNullOrEmpty(t.instrumentoId) ? "Start of observation" : catalogo.Instrumento(t.instrumentoId).nombre;
+            return "Transmission " + (indice + 1) + " of " + total + "  ·  " + origen;
         }
     }
 }

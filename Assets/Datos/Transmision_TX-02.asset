@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: radar
   orden: 3
   tipo: 0
-  texto: "El radar de subsuelo atraviesa el polvo y la superficie. Bajo la anomal\xEDa aparecen reflexiones compatibles con estructuras subterr\xE1neas y con posibles dep\xF3sitos de hielo. Son indicios, no una confirmaci\xF3n: interpretarlos exige m\xE1s observaciones."
+  texto: "The subsurface radar penetrates the dust and the surface. Beneath the anomaly, reflections appear that are consistent with underground structures and possible ice deposits. These are clues, not confirmation: interpreting them requires more observations."

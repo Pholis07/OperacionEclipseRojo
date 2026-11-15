@@ -15,8 +15,8 @@ namespace SpaceMission
         /// <summary>«Objetivos extra: Ningún apagón (cumplido), … (no cumplido).» Vacío si la misión no tiene objetivos.</summary>
         public static string Resumen(Operacion op) =>
             op.Objetivos.Count == 0 ? ""
-                : "Objetivos extra: " + string.Join(", ", op.Objetivos.Select(o =>
-                    o.texto + (Cumplido(o, op) ? " (cumplido)" : " (no cumplido)"))) + ".";
+                : "Bonus objectives: " + string.Join(", ", op.Objetivos.Select(o =>
+                    o.texto + (Cumplido(o, op) ? " (done)" : " (not done)"))) + ".";
 
         /// <summary>Se evalúa al terminar la misión.</summary>
         public static bool Cumplido(ObjetivoDatos o, Operacion op)

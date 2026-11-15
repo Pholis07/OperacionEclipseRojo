@@ -260,9 +260,9 @@ namespace SpaceMission
 
         /// <summary>Por qué no se podría enviar este mes, o null si se puede.</summary>
         public string MotivoSinEnvio =>
-            EnvioBloqueado ? "el polvo bloquea el láser"
-            : !ContactoAbierto && !PuedeEnviarSinVentana ? "no hay contacto con la Tierra este mes"
-            : ConsumoBaseW + VatiosTransmisor > LimiteW ? "no hay potencia para el transmisor"
+            EnvioBloqueado ? "dust is blocking the laser"
+            : !ContactoAbierto && !PuedeEnviarSinVentana ? "there is no contact with Earth this month"
+            : ConsumoBaseW + VatiosTransmisor > LimiteW ? "there is not enough power for the transmitter"
             : null;
 
         // ---------- Resolver el mes ----------
@@ -272,9 +272,9 @@ namespace SpaceMission
 
         /// <summary>Por qué el plan actual no se puede resolver, o null si es válido.</summary>
         public string MotivoPlanInvalido =>
-            Terminada ? "la misión ya terminó"
-            : EsperandoDecision ? "hay una decisión pendiente"
-            : ConsumoW > LimiteW ? "el consumo (" + ConsumoW + " W) supera el límite (" + LimiteW + " W): apaga algún instrumento"
+            Terminada ? "the mission has already ended"
+            : EsperandoDecision ? "a decision is pending"
+            : ConsumoW > LimiteW ? "power draw (" + ConsumoW + " W) exceeds the limit (" + LimiteW + " W): turn off an instrument"
             : null;
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace SpaceMission
         public ResultadoMes ResolverMes(int mes)
         {
             var r = new ResultadoMes { Mes = mes };
-            r.Motivo = mes != Mes ? "ese mes ya se resolvió" : MotivoPlanInvalido;
+            r.Motivo = mes != Mes ? "that month has already been resolved" : MotivoPlanInvalido;
             if (r.Motivo != null) return r;
             r.Valido = true;
 
@@ -325,7 +325,7 @@ namespace SpaceMission
             if (TransmitirPlaneado)
             {
                 r.EnvioPedido = true;
-                r.EnvioFallido = Memoria.Count == 0 ? "no hay datos en la memoria" : MotivoSinEnvio;
+                r.EnvioFallido = Memoria.Count == 0 ? "there is no data in memory" : MotivoSinEnvio;
                 if (r.EnvioFallido == null) Transmitir(r);
             }
 
@@ -394,7 +394,7 @@ namespace SpaceMission
                 Recibidas.AddRange(registro.Evidencias);
                 Memoria.Remove(registro);
             }
-            if (r.BloquesEnviados == 0) r.EnvioFallido = "el registro no cabe en el enlace de la constelación";
+            if (r.BloquesEnviados == 0) r.EnvioFallido = "the data does not fit through the constellation link";
             if (Completa && ObservacionesAlCompletar == 0)
             {
                 ObservacionesAlCompletar = Observaciones;

@@ -19,6 +19,11 @@ Shader "OperacionEclipseRojo/Planeta"
         _Brillo ("Brillo", Range(0.5, 2)) = 1.08
         _Ambiente ("Luz ambiente", Color) = (0.05, 0.055, 0.075, 1)
         _Saturacion ("Saturación", Range(0.5, 2)) = 1.15
+        _Contraste ("Contraste", Range(0.5, 2)) = 1.15
+        _Gamma ("Gamma del color", Range(0.6, 1.6)) = 1.12
+        [Normal] _ParcheNormal ("Relieve de la región (Gale)", 2D) = "bump" {}
+        _RectParche ("Región en el mapa (x, y, ancho, alto)", Vector) = (0.8728, 0.452, 0.0205, 0.041)
+        _FuerzaParche ("Fuerza del relieve de la región", Range(0, 3)) = 1.5
     }
     SubShader
     {
@@ -40,6 +45,7 @@ Shader "OperacionEclipseRojo/Planeta"
             TEXTURE2D(_MapaEste); SAMPLER(sampler_MapaEste);
             TEXTURE2D(_Normales); SAMPLER(sampler_Normales);
             TEXTURE2D(_Detalle); SAMPLER(sampler_Detalle);
+            TEXTURE2D(_ParcheNormal); SAMPLER(sampler_ParcheNormal);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _MapaOeste_ST;
@@ -55,6 +61,11 @@ Shader "OperacionEclipseRojo/Planeta"
                 half _Brillo;
                 half4 _Ambiente;
                 half _Saturacion;
+                half _Contraste;
+                half _Gamma;
+                float4 _ParcheNormal_ST;
+                float4 _RectParche;
+                half _FuerzaParche;
             CBUFFER_END
 
             struct Entrada
@@ -104,8 +115,17 @@ Shader "OperacionEclipseRojo/Planeta"
                 albedo *= lerp(1.0h, detalle * 2.0h, _FuerzaDetalle);
                 half gris = dot(albedo, half3(0.299h, 0.587h, 0.114h));
                 albedo = max(0.0h, lerp(gris.xxx, albedo, _Saturacion));
+                // Menos lavado: gamma (tonos medios más profundos) y contraste alrededor del gris medio.
+                albedo = pow(albedo, _Gamma);
+                albedo = saturate((albedo - 0.18h) * _Contraste + 0.18h);
 
                 half3 nt = UnpackNormalScale(SAMPLE_TEXTURE2D(_Normales, sampler_Normales, s.uv), _FuerzaNormales);
+                // Relieve del cráter Gale (modelo de NASA) en su sitio, con el borde fundido.
+                float2 uvParche = (s.uv - _RectParche.xy) / _RectParche.zw;
+                half3 np = UnpackNormalScale(SAMPLE_TEXTURE2D(_ParcheNormal, sampler_ParcheNormal, saturate(uvParche)), _FuerzaParche);
+                float2 bordeParche = smoothstep(0.0, 0.12, uvParche) * smoothstep(0.0, 0.12, 1.0 - uvParche);
+                half pesoParche = bordeParche.x * bordeParche.y;
+                nt = normalize(lerp(nt, half3(nt.xy + np.xy, nt.z), pesoParche));
                 half3 nGeo = normalize(s.normal);
                 half3 t = normalize(s.tangente.xyz);
                 half3 b = cross(nGeo, t) * s.tangente.w;

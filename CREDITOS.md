@@ -59,6 +59,12 @@ Descargados de [science.nasa.gov/3d-resources](https://science.nasa.gov/3d-resou
 
 También se revisaron «Space Launch System (SLS) Block 1» (no se usa: trae la base de impresión pegada).
 
+### Cráter Gale (sitio de aterrizaje de Curiosity)
+
+- «Curiosity Landing Site», NASA 3D Resources (https://science.nasa.gov/3d-resources/curiosity-landing-site/), STL de relieve.
+- `Herramientas/gale.py` lo convierte en `Texturas/Gale_Altura.png`, `Gale_Normal.png` y `Gale_Color.png` (color propio con tonos de Marte y sombreado; detalle fino y cráteres pequeños añadidos por código) y en `Modelos/NASA/Terreno_Gale.obj`.
+- Se usa en el mapa de la investigación y como relieve del cráter en el globo de Marte.
+
 ## Modelos de instrumentos
 
 `Assets/Arte/Modelos/Instrumentos/*.obj`: los cinco modelos del kit del equipo (`Operacion_Eclipse_Rojo_Kit_Unity`, «activos originales generados para el proyecto, para su uso y modificación dentro del videojuego del equipo»). Se montan sobre el casco de cada satélite.
@@ -110,7 +116,8 @@ Todo el audio de `Assets/Arte/Audio` (música, efectos, ambiente y voces) se gen
 | `Efectos/SFX_*.mp3` (13 efectos de la cinemática y del escaneo orbital) y `Efectos/AMB_*.mp3` (ambiente de la sala de control y de la nave en órbita, 20 s en bucle) | Sound Effects v2. Generados el 2026-11-14 con las indicaciones de `02_AUDIO_ELEVENLABS/01_PROMPTS_LISTOS_ELEVENLABS.csv` del paquete del equipo; volumen normalizado con ffmpeg |
 
 | `Efectos/SFX_Title_Confirm`, `SFX_Ignition_Sparks`, `SFX_Engine_Ignition`, `SFX_Engine_Roar_Close`, `SFX_Tower_Arms_Release`, `SFX_Booster_Separation`, `AMB_Launch_Coast`, `SFX_Month_Pass`, `SFX_Stamp`, `SFX_Outcome_*`, `SFX_Signal_Lost`, `SFX_Score_Tick` (tercera tanda: título, despegue, meses y final) | Sound Effects v2, generados el 2026-11-14 |
-| `Voces/Control/VOZ_*.mp3` (4 frases de control en la cinemática) | Multilingual v2 con «César Augusto — Spanish (Neutral)» y el filtro «Bright Phone», como las transmisiones |
+| `Voces/voz_TX-0*_en.mp3` y `Voces/Control/VOZ_*_en.mp3` (voces en inglés, 2026-11-15) | Multilingual v2 con la voz de biblioteca «Udem – Calm & Clear Educational Narrator» y el filtro «Bright Phone» |
+| `Voces/Control/VOZ_*.mp3` (4 frases de control en la cinemática, en español; ya no se usan) | Multilingual v2 con «César Augusto — Spanish (Neutral)» y el filtro «Bright Phone», como las transmisiones |
 
 Las indicaciones usadas están en `AUDIO-ELEVENLABS.md`.
 

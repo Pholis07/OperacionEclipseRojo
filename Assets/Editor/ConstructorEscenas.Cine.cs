@@ -209,7 +209,7 @@ public static partial class ConstructorEscenas
         var grupoDestello = destello.gameObject.AddComponent<CanvasGroup>();
         grupoDestello.alpha = 0f;
         grupoDestello.blocksRaycasts = false;
-        var omitir = Boton(velo, "BotonOmitir", "Omitir  " + SpaceMission.Iconos.Omitir, false);
+        var omitir = Boton(velo, "BotonOmitir", "Skip  " + SpaceMission.Iconos.Omitir, false);
         Fijar(omitir.GetComponent<RectTransform>(), new Vector2(0.98f, 0.015f), new Vector2(1, 0), new Vector2(260, 64));
         var tOmitir = omitir.GetComponentInChildren<TextMeshProUGUI>();
         tOmitir.fontSize = 28;
@@ -261,6 +261,36 @@ public static partial class ConstructorEscenas
         AsignarLista(director, "propulsoresTitan", new Object[] { izqTitan, derTitan });
         Asignar(director, "fuenteBucle", fuenteBucle);
         Asignar(director, "destello", grupoDestello);
+        AsignarLista(director, "cofiaExplorador", new Object[] { soyuz.Find("EtapaSuperior/CofiaFrente"), soyuz.Find("EtapaSuperior/CofiaDetras") });
+        AsignarLista(director, "cofiaTitan", new Object[] { superiorTitan.Find("NarizIzq"), superiorTitan.Find("NarizDer") });
+        var matChispaCine = MaterialAditivo("Particula_Chispa", ConstructorEstilo.Sprite("Chispa").texture, Color.white);
+        var matGas = MaterialParticulas("Particula_Nube", ConstructorEstilo.Sprite("Nube").texture, false);
+        var piros = Particulas("PirotecniaCofia", raizDirector.transform, Vector3.zero, Quaternion.identity, matChispaCine, 60, ps =>
+        {
+            var m = ps.main; m.loop = false; m.duration = 0.3f;
+            m.startLifetime = new ParticleSystem.MinMaxCurve(0.2f, 0.5f);
+            m.startSpeed = new ParticleSystem.MinMaxCurve(1.5f, 4f);
+            m.startSize = new ParticleSystem.MinMaxCurve(0.03f, 0.07f);
+            m.startColor = new Color(4f, 3f, 1.6f);
+            var e = ps.emission; e.rateOverTime = 0f; e.SetBursts(new[] { new ParticleSystem.Burst(0f, 50) });
+            var f = ps.shape; f.shapeType = ParticleSystemShapeType.Sphere; f.radius = 0.25f;
+            var r = ps.GetComponent<ParticleSystemRenderer>(); r.renderMode = ParticleSystemRenderMode.Stretch; r.velocityScale = 0.05f;
+        });
+        var gas = Particulas("GasFrio", raizDirector.transform, Vector3.zero, Quaternion.identity, matGas, 40, ps =>
+        {
+            var m = ps.main; m.loop = false; m.duration = 0.6f;
+            m.startLifetime = new ParticleSystem.MinMaxCurve(0.5f, 1.1f);
+            m.startSpeed = new ParticleSystem.MinMaxCurve(0.6f, 1.6f);
+            m.startSize = new ParticleSystem.MinMaxCurve(0.08f, 0.22f);
+            m.startColor = new Color(1f, 1f, 1f, 0.55f);
+            var e = ps.emission; e.rateOverTime = 0f;
+            e.SetBursts(new[] { new ParticleSystem.Burst(0f, 8), new ParticleSystem.Burst(0.25f, 8), new ParticleSystem.Burst(0.5f, 8) });
+            var f = ps.shape; f.shapeType = ParticleSystemShapeType.Sphere; f.radius = 0.15f;
+            var tam = ps.sizeOverLifetime; tam.enabled = true; tam.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, 0.6f, 1f, 2f));
+            var col = ps.colorOverLifetime; col.enabled = true; col.color = Degradado(Color.white, Color.white, 0.55f);
+        });
+        Asignar(director, "pirotecnia", piros);
+        Asignar(director, "gasFrio", gas);
         Asignar(director, "espacio", espacio);
         Asignar(director, "puntoEspacio", puntoEspacio);
         Asignar(director, "mapaTransferencia", mapa);
@@ -290,7 +320,10 @@ public static partial class ConstructorEscenas
         veloSuperior.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
         var textoInstrumento = Texto(vista, "Instrumento", "", 24, CianOrbita, FontStyles.Bold, TextAlignmentOptions.Left);
         textoInstrumento.characterSpacing = 4;
-        Anclar(textoInstrumento.rectTransform, new Vector2(0.03f, 0.9f), new Vector2(0.97f, 1f));
+        // El nombre a la izquierda y «Click to skip» a la derecha, sin pisarse.
+        Anclar(textoInstrumento.rectTransform, new Vector2(0.03f, 0.9f), new Vector2(0.66f, 1f));
+        textoInstrumento.enableAutoSizing = true; textoInstrumento.fontSizeMin = 14; textoInstrumento.fontSizeMax = textoInstrumento.fontSize;
+        textoInstrumento.textWrappingMode = TextWrappingModes.NoWrap;
         var veloInferior = Panel(vista, "VeloInferior", new Color(0, 0, 0, 0.6f));
         Anclar(veloInferior, Vector2.zero, new Vector2(1, 0.12f));
         veloInferior.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
@@ -298,8 +331,9 @@ public static partial class ConstructorEscenas
         textoEstado.font = ConstructorEstilo.Mono;
         textoEstado.characterSpacing = 4;
         Anclar(textoEstado.rectTransform, new Vector2(0.02f, 0f), new Vector2(0.98f, 0.12f));
-        var pista = Texto(vista, "Pista", "Clic para saltar", 20, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Right);
-        Anclar(pista.rectTransform, new Vector2(0.5f, 0.9f), new Vector2(0.97f, 1f));
+        var pista = Texto(vista, "Pista", "Click to skip", 20, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Right);
+        Anclar(pista.rectTransform, new Vector2(0.68f, 0.9f), new Vector2(0.97f, 1f));
+        pista.textWrappingMode = TextWrappingModes.NoWrap;
         MarcoHud(vista);
         // El panel entero es el botón «saltar»: tapa el mapa y evita escaneos dobles mientras se ve.
         var saltar = vista.gameObject.AddComponent<UnityEngine.UI.Button>();
@@ -347,7 +381,7 @@ public static partial class ConstructorEscenas
         Anclar(tarjeta, new Vector2(0.32f, 0.27f), new Vector2(0.68f, 0.73f));
         tarjeta.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
         MarcoHud(tarjeta);
-        var etiquetaPaso = Texto(tarjeta, "Etiqueta", "PASA EL TIEMPO", 24, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
+        var etiquetaPaso = Texto(tarjeta, "Etiqueta", "TIME PASSES", 24, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
         etiquetaPaso.font = ConstructorEstilo.Mono;
         etiquetaPaso.characterSpacing = 10;
         var ventana = Vacio(tarjeta, "Ventana");
@@ -355,7 +389,7 @@ public static partial class ConstructorEscenas
         ventana.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
         TextMeshProUGUI Mes(string nombre)
         {
-            var m = Texto(ventana, nombre, "MES 1", 120, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Center);
+            var m = Texto(ventana, nombre, "MONTH 1", 120, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Center);
             m.characterSpacing = 8;
             m.textWrappingMode = TextWrappingModes.NoWrap;
             Estirar(m.rectTransform);
@@ -373,12 +407,12 @@ public static partial class ConstructorEscenas
             seg.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
             segmentos[i] = seg.GetComponent<UnityEngine.UI.Image>();
         }
-        var dias = Texto(tarjeta, "Dias", "DÍA 0", 30, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
+        var dias = Texto(tarjeta, "Dias", "DAY 0", 30, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
         dias.font = ConstructorEstilo.Mono;
         dias.characterSpacing = 6;
         var suceso = Texto(tarjeta, "Suceso", "", 30, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
         suceso.characterSpacing = 4;
-        var pistaPaso = Texto(paso, "Pista", "Clic para saltar", 20, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Right);
+        var pistaPaso = Texto(paso, "Pista", "Click to skip", 20, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Right);
         Anclar(pistaPaso.rectTransform, new Vector2(0.6f, 0.03f), new Vector2(0.97f, 0.08f));
         var saltarPaso = paso.gameObject.AddComponent<UnityEngine.UI.Button>();
         saltarPaso.transition = UnityEngine.UI.Selectable.Transition.None;

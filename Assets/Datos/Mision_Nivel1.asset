@@ -17,9 +17,9 @@ MonoBehaviour:
   masaBaseKg: 350
   costoBaseCr: 100
   consumoBaseW: 100
-  nombreNivel: 1. Entrenamiento
+  nombreNivel: "1. Training"
   orbitasNavegacion: 12
   eventosPorMision: 0
   memoriaBloques: 6
-  objetivo: "Explicar la anomal\xEDa t\xE9rmica que apareci\xF3 en una regi\xF3n de Marte mientras una tormenta de polvo dificulta la observaci\xF3n."
-  narrativa: "Una se\xF1al t\xE9rmica rara aparece en una regi\xF3n de Marte y una tormenta de polvo dificulta la investigaci\xF3n. Los indicios del juego no son prueba de agua l\xEDquida actual ni de vida."
+  objetivo: "Explain the thermal anomaly that appeared in a region of Mars while a dust storm hampers observation."
+  narrativa: "A strange thermal signal appears in a region of Mars, and a dust storm hampers the investigation. The clues in the game are not proof of present-day liquid water or of life."

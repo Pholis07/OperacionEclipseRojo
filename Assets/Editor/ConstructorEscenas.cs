@@ -42,7 +42,7 @@ public static partial class ConstructorEscenas
     const float LargoEsquina = 48f;
     const float GrosorEsquina = 4f;
 
-    static readonly string[] NombresPasos = { "Briefing", "Configuración", "Revisión", "Operación" };
+    static readonly string[] NombresPasos = { "Briefing", "Setup", "Review", "Operation" };
 
     const string RutaCatalogo = "Assets/Datos/Catalogo.asset";
 
@@ -114,11 +114,11 @@ public static partial class ConstructorEscenas
         var contenido = Columna(canvas, "Contenido", 32, TextAnchor.MiddleCenter);
         Anclar(contenido, new Vector2(0.2f, 0.15f), new Vector2(0.8f, 0.85f));
 
-        Texto(contenido, "Titulo", "Operación Eclipse Rojo", 96, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Center);
-        Texto(contenido, "Premisa", "Una señal rara aparece en Marte y una tormenta de polvo dificulta la investigación.",
+        Texto(contenido, "Titulo", "Operation Red Eclipse", 96, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Center);
+        Texto(contenido, "Premisa", "A strange signal appears on Mars and a dust storm makes the investigation harder.",
             40, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
-        var iniciar = Boton(contenido, "BotonIniciar", "Iniciar misión", true);
-        var comoJugar = Boton(contenido, "BotonComoJugar", "Cómo jugar", false);
+        var iniciar = Boton(contenido, "BotonIniciar", "Start mission", true);
+        var comoJugar = Boton(contenido, "BotonComoJugar", "How to play", false);
 
         var (panel, cerrar) = ConstruirComoJugar(canvas);
 
@@ -243,24 +243,24 @@ public static partial class ConstructorEscenas
 
         var contenido = Columna(canvas, "Contenido", 22, TextAnchor.UpperLeft);
         Anclar(contenido, new Vector2(0.05f, 0.16f), new Vector2(0.41f, 0.9f));
-        var kicker = Texto(contenido, "Etiqueta", "MISIÓN ESPACIAL  /  01", 26, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
+        var kicker = Texto(contenido, "Etiqueta", "SPACE MISSION  /  01", 26, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
         kicker.characterSpacing = 8;
         kicker.font = ConstructorEstilo.Mono;
-        var titulo = Texto(contenido, "Titulo", "Operación\nEclipse <color=#" + ColorUtility.ToHtmlStringRGB(Acento) + ">Rojo</color>",
+        var titulo = Texto(contenido, "Titulo", "Operation\n<color=#" + ColorUtility.ToHtmlStringRGB(Acento) + ">Red</color> Eclipse",
             92, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         titulo.fontStyle = FontStyles.UpperCase;
         titulo.lineSpacing = -8;
         titulo.characterSpacing = 3;
-        Texto(contenido, "Lema", "La señal no debería estar ahí.", 40, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        Texto(contenido, "Premisa", "Una anomalía aparece bajo la tormenta marciana. Diseña una misión orbital y descubre qué oculta el subsuelo.",
+        Texto(contenido, "Lema", "The signal shouldn't be there.", 40, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        Texto(contenido, "Premisa", "An anomaly appears beneath the Martian storm. Design an orbital mission and find out what lies under the surface.",
             30, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         Alto(Vacio(contenido, "Espacio"), 12);
-        var iniciar = Boton(contenido, "BotonIniciar", SpaceMission.Iconos.Lanzador + "   Iniciar misión  " + SpaceMission.Iconos.Siguiente, true);
+        var iniciar = Boton(contenido, "BotonIniciar", SpaceMission.Iconos.Lanzador + "   Start mission  " + SpaceMission.Iconos.Siguiente, true);
         var secundarios = Fila(contenido, "Secundarios", 12);
         Alto(secundarios, 72);
-        var comoJugar = Boton(secundarios, "BotonComoJugar", SpaceMission.Iconos.Informe + "  Cómo jugar", false);
-        var opciones = Boton(secundarios, "BotonOpciones", SpaceMission.Iconos.Ajustes + "  Opciones", false);
-        var creditos = Boton(secundarios, "BotonCreditos", SpaceMission.Iconos.Satelite + "  Créditos", false);
+        var comoJugar = Boton(secundarios, "BotonComoJugar", SpaceMission.Iconos.Informe + "  How to play", false);
+        var opciones = Boton(secundarios, "BotonOpciones", SpaceMission.Iconos.Ajustes + "  Options", false);
+        var creditos = Boton(secundarios, "BotonCreditos", SpaceMission.Iconos.Satelite + "  Credits", false);
         foreach (var b in new[] { comoJugar, opciones, creditos })
         {
             var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
@@ -295,7 +295,7 @@ public static partial class ConstructorEscenas
         Asignar(pulsoUI, "anilloUI", latido);
         Asignar(pulsoUI, "periodo", 2f);
         Asignar(pulsoUI, "duracion", 1.2f);
-        var textoAviso = Texto(aviso, "Texto", "SEÑAL ANÓMALA DETECTADA", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        var textoAviso = Texto(aviso, "Texto", "ANOMALOUS SIGNAL DETECTED", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         textoAviso.font = ConstructorEstilo.Mono;
         textoAviso.characterSpacing = 4;
 
@@ -303,21 +303,21 @@ public static partial class ConstructorEscenas
         var objetivo = Columna(canvas, "Objetivo", 2, TextAnchor.MiddleLeft, new Color(0.031f, 0.051f, 0.09f, 0.75f), 16);
         Anclar(objetivo, new Vector2(0.56f, 0.035f), new Vector2(0.76f, 0.125f));
         Bordes(objetivo, LineaHud);
-        var etObjetivo = Texto(objetivo, "Etiqueta", "OBJETIVO", 22, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
+        var etObjetivo = Texto(objetivo, "Etiqueta", "TARGET", 22, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
         etObjetivo.characterSpacing = 6;
-        Texto(objetivo, "Valor", "MARTE · MISIÓN ORBITAL", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        Texto(objetivo, "Valor", "MARS · ORBITAL MISSION", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
 
         // Abajo a la izquierda: el patrocinador y, debajo, el aviso de valores ficticios (más corto: el detalle
         // está en Créditos).
-        var patrocinioMenu = FranjaPatrocinio(canvas, "Patrocinio", "PATROCINADO POR", 84);
+        var patrocinioMenu = FranjaPatrocinio(canvas, "Patrocinio", "SPONSORED BY", 84);
         var grupoPatrocinio = patrocinioMenu.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
         grupoPatrocinio.childAlignment = TextAnchor.MiddleLeft;
         Anclar(patrocinioMenu, new Vector2(0.05f, 0.055f), new Vector2(0.41f, 0.14f));
-        var pie = Texto(canvas, "Pie", "Valores ficticios, no oficiales de NASA. NASA no patrocina este juego. Fuentes de imágenes y modelos en Créditos.",
+        var pie = Texto(canvas, "Pie", "Fictional values, not official NASA data. NASA does not sponsor this game. Image and model sources in Credits.",
             18, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         Anclar(pie.rectTransform, new Vector2(0.05f, 0.012f), new Vector2(0.43f, 0.05f));
         pie.enableAutoSizing = true; pie.fontSizeMin = 14; pie.fontSizeMax = 18;
-        var teclas = Texto(canvas, "Teclas", Tecla("ENTER") + " Seleccionar     " + Tecla("↑ ↓ ← →") + " Moverse",
+        var teclas = Texto(canvas, "Teclas", Tecla("ENTER") + " Select     " + Tecla("↑ ↓ ← →") + " Move",
             22, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Right);
         Anclar(teclas.rectTransform, new Vector2(0.765f, 0.035f), new Vector2(0.97f, 0.125f));
         teclas.enableAutoSizing = true; teclas.fontSizeMin = 18; teclas.fontSizeMax = 22;
@@ -350,23 +350,23 @@ public static partial class ConstructorEscenas
         var tarjeta = Columna(panel, "Tarjeta", 20, TextAnchor.UpperLeft, Tarjeta, 48);
         Anclar(tarjeta, new Vector2(0.16f, 0.1f), new Vector2(0.84f, 0.9f));
         MarcoHud(tarjeta);
-        Texto(tarjeta, "TituloCreditos", "Créditos", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(tarjeta, "TituloCreditos", "Credits", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(tarjeta);
         string Seccion(string titulo, string texto) =>
             "<color=#" + ColorUtility.ToHtmlStringRGB(Cian) + "><b>" + titulo + "</b></color>\n" + texto;
         var lista = Texto(tarjeta, "Lista",
-            Seccion("EQUIPO", "Adrian Robles · Diego Esparza · Sofía Esparza — NASA Space Apps Challenge 2026") + "\n\n" +
-            Seccion("IMÁGENES DE MARTE", "NASA/JPL-Caltech, MSSS, University of Arizona (HiRISE), Arizona State University (THEMIS), " +
-                "ASI (SHARAD) y JHUAPL (CRISM). Texturas de Marte y la Tierra: Solar System Scope (CC BY 4.0).") + "\n\n" +
-            Seccion("MODELOS 3D", "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD y Space Launch System. " +
-                "Instrumentos: kit propio del equipo.") + "\n\n" +
-            Seccion("AUDIO", "Música, efectos y voces generados con ElevenLabs.") + "\n\n" +
-            Seccion("FUENTES E ICONOS", "Rajdhani, Barlow e IBM Plex Mono (SIL OFL 1.1). Iconos Lucide (ISC).") + "\n\n" +
-            "<color=#" + ColorUtility.ToHtmlStringRGB(TextoSecundario) + ">NASA no patrocina ni respalda este juego. " +
-            "Los valores de masa, potencia y costo son ficticios. Detalle completo en CREDITOS.md.</color>",
+            Seccion("TEAM", "Adrian Robles · Diego Esparza · Sofía Esparza — NASA Space Apps Challenge 2026") + "\n\n" +
+            Seccion("MARS IMAGERY", "NASA/JPL-Caltech, MSSS, University of Arizona (HiRISE), Arizona State University (THEMIS), " +
+                "ASI (SHARAD) and JHUAPL (CRISM). Mars and Earth textures: Solar System Scope (CC BY 4.0).") + "\n\n" +
+            Seccion("3D MODELS", "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD and Space Launch System. " +
+                "Instruments: the team's own kit.") + "\n\n" +
+            Seccion("AUDIO", "Music, sound effects and voices generated with ElevenLabs.") + "\n\n" +
+            Seccion("FONTS AND ICONS", "Rajdhani, Barlow and IBM Plex Mono (SIL OFL 1.1). Lucide icons (ISC).") + "\n\n" +
+            "<color=#" + ColorUtility.ToHtmlStringRGB(TextoSecundario) + ">NASA does not sponsor or endorse this game. " +
+            "Mass, power and cost values are fictional. Full details in CREDITOS.md.</color>",
             28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var cerrar = Boton(tarjeta, "BotonCerrarCreditos", "Cerrar", true);
+        var cerrar = Boton(tarjeta, "BotonCerrarCreditos", "Close", true);
         panel.gameObject.SetActive(false);
         var control = panel.parent.gameObject.AddComponent<AbrirPanel>();
         Asignar(control, "abrir", abrir);
@@ -393,19 +393,19 @@ public static partial class ConstructorEscenas
         var tarjeta = Columna(panel, "Tarjeta", 24, TextAnchor.UpperLeft, Tarjeta, 48);
         Anclar(tarjeta, new Vector2(0.2f, 0.18f), new Vector2(0.8f, 0.82f));
         MarcoHud(tarjeta);
-        Texto(tarjeta, "TituloComoJugar", "Cómo jugar", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(tarjeta, "TituloComoJugar", "How to play", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(tarjeta);
         string PasoJuego(string icono, string texto) =>
             "<color=#" + ColorUtility.ToHtmlStringRGB(Cian) + ">" + icono + "</color>  " + texto;
         var pasos = Texto(tarjeta, "Pasos",
-            PasoJuego(SpaceMission.Iconos.Orbita, "Elige una órbita, un lanzador y los instrumentos científicos.") + "\n" +
-            PasoJuego(SpaceMission.Iconos.Masa, "No te pases de los límites de masa, potencia, presupuesto y espacios.") + "\n" +
-            PasoJuego(SpaceMission.Iconos.Verde, "El semáforo te avisa si puedes lanzar y si te falta alguna evidencia.") + "\n" +
-            PasoJuego(SpaceMission.Iconos.Senal, "Al lanzar, sigue las transmisiones de la nave y recibe un informe que explica el resultado."),
+            PasoJuego(SpaceMission.Iconos.Orbita, "Choose an orbit, a launcher and the science instruments.") + "\n" +
+            PasoJuego(SpaceMission.Iconos.Masa, "Stay within the mass, power, budget and slot limits.") + "\n" +
+            PasoJuego(SpaceMission.Iconos.Verde, "The STATUS light tells you whether you can launch and whether any evidence is missing.") + "\n" +
+            PasoJuego(SpaceMission.Iconos.Senal, "After launch, follow the spacecraft's transmissions and get a report that explains the outcome."),
             34, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         pasos.lineSpacing = 30;
         pasos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var cerrar = Boton(tarjeta, "BotonCerrar", "Entendido", true);
+        var cerrar = Boton(tarjeta, "BotonCerrar", "Got it", true);
         panel.gameObject.SetActive(false);
         return (panel, cerrar);
     }
@@ -418,16 +418,31 @@ public static partial class ConstructorEscenas
         Anclar(tarjeta, new Vector2(0.3f, 0.06f), new Vector2(0.7f, 0.94f));
         tarjeta.GetComponent<UnityEngine.UI.VerticalLayoutGroup>().spacing = 14;
         MarcoHud(tarjeta);
-        Texto(tarjeta, "TituloOpciones", "Opciones", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(tarjeta, "TituloOpciones", "Options", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(tarjeta);
-        var musica = Deslizador(tarjeta, "Musica", SpaceMission.Iconos.Volumen + "  Música");
-        var ambiente = Deslizador(tarjeta, "Ambiente", SpaceMission.Iconos.Volumen + "  Ambiente");
-        var efectos = Deslizador(tarjeta, "Efectos", SpaceMission.Iconos.Volumen + "  Efectos de la interfaz");
-        var voz = Deslizador(tarjeta, "Voz", SpaceMission.Iconos.Senal + "  Voz de las transmisiones");
-        var silencio = Casilla(tarjeta, "Silencio", "Silenciar todo el sonido");
-        var movimiento = Casilla(tarjeta, "ReducirMovimiento", "Reducir movimiento (sin sacudidas ni cinemáticas)");
+        var musica = Deslizador(tarjeta, "Musica", SpaceMission.Iconos.Volumen + "  Music");
+        var ambiente = Deslizador(tarjeta, "Ambiente", SpaceMission.Iconos.Volumen + "  Ambience");
+        var efectos = Deslizador(tarjeta, "Efectos", SpaceMission.Iconos.Volumen + "  Interface effects");
+        var voz = Deslizador(tarjeta, "Voz", SpaceMission.Iconos.Senal + "  Transmission voice");
+        var silencio = Casilla(tarjeta, "Silencio", "Mute all sound");
+        var movimiento = Casilla(tarjeta, "ReducirMovimiento", "Reduce motion (no shaking or cinematics)");
+        // Subtítulos de las voces: English, Español u Off (lo único que existe en dos idiomas).
+        Texto(tarjeta, "EtiquetaSubtitulos", SpaceMission.Iconos.Senal + "  Subtitles", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        var filaSubtitulos = Fila(tarjeta, "Subtitulos", 10);
+        Alto(filaSubtitulos, 56);
+        var botonesSubtitulos = new Object[3];
+        string[] idiomas = { "English", "Español", "Off" };
+        for (int i = 0; i < 3; i++)
+        {
+            var b = Boton(filaSubtitulos, "BotonSubtitulos" + i, idiomas[i], false);
+            var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.preferredWidth = -1; le.flexibleWidth = 1; le.minHeight = 56; le.preferredHeight = 56;
+            var t = b.GetComponentInChildren<TextMeshProUGUI>();
+            t.fontSize = 24; t.enableAutoSizing = true; t.fontSizeMin = 18; t.fontSizeMax = 24;
+            botonesSubtitulos[i] = b;
+        }
         Alto(Vacio(tarjeta, "Espacio"), 8).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var cerrar = Boton(tarjeta, "BotonCerrarOpciones", "Listo", true);
+        var cerrar = Boton(tarjeta, "BotonCerrarOpciones", "Done", true);
         panel.gameObject.SetActive(false);
 
         // OpcionesUI conecta los botones en Awake: vive en un objeto siempre activo, no en el panel (que empieza oculto).
@@ -443,6 +458,7 @@ public static partial class ConstructorEscenas
         Asignar(ui, "reducirMovimiento", movimiento);
         Asignar(ui, "ambiente", ambiente);
         Asignar(ui, "silencio", silencio);
+        AsignarLista(ui, "botonesSubtitulos", botonesSubtitulos);
         return ui;
     }
 
@@ -507,11 +523,11 @@ public static partial class ConstructorEscenas
 
         var col = Columna(velo, "Contenido", 14, TextAnchor.MiddleCenter);
         Anclar(col, new Vector2(0.06f, 0.3f), new Vector2(0.94f, 0.8f));
-        var etiqueta = Texto(col, "Etiqueta", "NASA SPACE APPS CHALLENGE 2026  ·  EQUIPO GANGBANGERS", 26, Cian,
+        var etiqueta = Texto(col, "Etiqueta", "NASA SPACE APPS CHALLENGE 2026  ·  TEAM GANGBANGERS", 26, Cian,
             FontStyles.Normal, TextAlignmentOptions.Center);
         etiqueta.font = ConstructorEstilo.Mono;
         etiqueta.characterSpacing = 6;
-        var titulo = Texto(col, "TituloJuego", "Operación Eclipse <color=#" + ColorUtility.ToHtmlStringRGB(Acento) + ">Rojo</color>",
+        var titulo = Texto(col, "TituloJuego", "Operation <color=#" + ColorUtility.ToHtmlStringRGB(Acento) + ">Red</color> Eclipse",
             136, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Center);
         titulo.fontStyle = FontStyles.UpperCase;
         titulo.characterSpacing = 6;
@@ -523,13 +539,13 @@ public static partial class ConstructorEscenas
         var leLinea = linea.GetComponent<UnityEngine.UI.LayoutElement>();
         leLinea.preferredWidth = 620; leLinea.flexibleWidth = 0;
         col.GetComponent<UnityEngine.UI.VerticalLayoutGroup>().childForceExpandWidth = false;
-        var lema = Texto(col, "Lema", "La señal no debería estar ahí.", 38, TextoSecundario, FontStyles.Italic, TextAlignmentOptions.Center);
+        var lema = Texto(col, "Lema", "The signal shouldn't be there.", 38, TextoSecundario, FontStyles.Italic, TextAlignmentOptions.Center);
 
-        var aviso = Texto(velo, "Aviso", "PULSA CUALQUIER TECLA PARA COMENZAR", 30, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
+        var aviso = Texto(velo, "Aviso", "PRESS ANY KEY TO START", 30, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
         aviso.characterSpacing = 8;
         Anclar(aviso.rectTransform, new Vector2(0.1f, 0.2f), new Vector2(0.9f, 0.27f));
 
-        var patrocinio = FranjaPatrocinio(velo, "Patrocinio", "PATROCINADO POR", 110);
+        var patrocinio = FranjaPatrocinio(velo, "Patrocinio", "SPONSORED BY", 110);
         Anclar(patrocinio, new Vector2(0.3f, 0.03f), new Vector2(0.7f, 0.17f));
 
         // Destello al cerrar (blanco, transparente al empezar).
@@ -616,23 +632,23 @@ public static partial class ConstructorEscenas
         var col = Columna(briefing, "Expediente", 18, TextAnchor.UpperLeft);
         Anclar(col, new Vector2(0.05f, 0.15f), new Vector2(0.51f, 0.885f));
         col.gameObject.AddComponent<CanvasGroup>();
-        Texto(col, "Titulo", "Briefing de la misión", 64, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(col, "Titulo", "Mission briefing", 64, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Miniatura(col, "Region", ConstructorEstilo.Imagen("Evidencias/Evidencia_region"), 120,
-            SpaceMission.Iconos.Objetivo + "  REGIÓN OBSERVADA  ·  NASA/JPL-Caltech/UArizona");
-        Encabezado(col, "EtiquetaObjetivo", "OBJETIVO");
+            SpaceMission.Iconos.Objetivo + "  OBSERVED REGION  ·  NASA/JPL-Caltech/UArizona");
+        Encabezado(col, "EtiquetaObjetivo", "OBJECTIVE");
         var objetivo = Texto(col, "Objetivo", "", 34, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        Encabezado(col, "EtiquetaRequisitos", "REQUISITOS: LAS EVIDENCIAS QUE DEBES CONSEGUIR");
+        Encabezado(col, "EtiquetaRequisitos", "REQUIREMENTS: THE EVIDENCE YOU MUST OBTAIN");
         var requisitos = Texto(col, "Requisitos", "", 30, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         requisitos.lineSpacing = 12;
 
         // Selector de nivel (gameplay aprobado): los textos y colores los pone MisionUI con los datos.
-        Encabezado(col, "EtiquetaNivel", "NIVEL DE DIFICULTAD");
+        Encabezado(col, "EtiquetaNivel", "DIFFICULTY LEVEL");
         var filaNivel = Fila(col, "Niveles", 16);
         Alto(filaNivel, 64);
         var botonesNivel = new UnityEngine.UI.Button[3];
         for (int i = 0; i < 3; i++)
         {
-            botonesNivel[i] = Boton(filaNivel, "BotonNivel" + (i + 1), "Nivel " + (i + 1), false);
+            botonesNivel[i] = Boton(filaNivel, "BotonNivel" + (i + 1), "Level " + (i + 1), false);
             var le = botonesNivel[i].GetComponent<UnityEngine.UI.LayoutElement>();
             le.preferredWidth = -1; le.flexibleWidth = 1; le.minHeight = 64; le.preferredHeight = 64;
             var t = botonesNivel[i].GetComponentInChildren<TextMeshProUGUI>();
@@ -644,20 +660,20 @@ public static partial class ConstructorEscenas
         datos.gameObject.AddComponent<CanvasGroup>();
         var colLimites = Columna(datos, "Limites", 12, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
         MarcoHud(colLimites);
-        Encabezado(colLimites, "EtiquetaLimites", "LÍMITES");
+        Encabezado(colLimites, "EtiquetaLimites", "LIMITS");
         var limites = Texto(colLimites, "TextoLimites", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         limites.lineSpacing = 12;
         var colSemaforo = Columna(datos, "Semaforo", 12, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
         MarcoHud(colSemaforo);
-        Encabezado(colSemaforo, "EtiquetaSemaforo", "EL SEMÁFORO");
+        Encabezado(colSemaforo, "EtiquetaSemaforo", "THE STATUS LIGHT");
         var semaforo = Texto(colSemaforo, "TextoSemaforo", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         semaforo.lineSpacing = 12;
 
         // Barra inferior: qué hacer ahora y el único botón de la pantalla.
-        var pista = Texto(briefing, "Pista", "Lee el objetivo y los requisitos. Después, configura tu nave.", 26,
+        var pista = Texto(briefing, "Pista", "Read the objective and the requirements. Then set up your spacecraft.", 26,
             TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         Anclar(pista.rectTransform, new Vector2(0.05f, 0.05f), new Vector2(0.6f, 0.12f));
-        var continuar = Boton(briefing, "BotonContinuar", "Continuar  " + SpaceMission.Iconos.Siguiente, true);
+        var continuar = Boton(briefing, "BotonContinuar", "Continue  " + SpaceMission.Iconos.Siguiente, true);
         Fijar(continuar.GetComponent<RectTransform>(), new Vector2(0.95f, 0.05f), new Vector2(1, 0), new Vector2(520, 88));
         Aparecer(briefing, col, datos);
 
@@ -706,6 +722,7 @@ public static partial class ConstructorEscenas
         // Cinemática Tierra → Marte al lanzar y vista orbital en cada escaneo (ConstructorEscenas.Cine.cs).
         // Con la Carga (gameplay v3) la cinemática empieza en su «Lanzar», no en el de la Revisión.
         ConstruirCinematica(canvas, cargaUI.BotonLanzar, musica, operacionUI, catalogo);
+        ConstruirSubtitulos(canvas);   // encima de todo, también de la cinemática
 
         // Navegación de Configuración y cámara que se acerca a lo que se está eligiendo.
         Asignar(configuracion.GetComponent<GuiaConfiguracion>(), "vistaRevision", revision.gameObject);
@@ -790,25 +807,29 @@ public static partial class ConstructorEscenas
         MarcoHud(tarjeta);
         var paso = Texto(tarjeta, "Paso", Paso(3), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         paso.font = ConstructorEstilo.Mono;
-        Texto(tarjeta, "Titulo", "Carga de la nave", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(tarjeta, "Titulo", "Spacecraft cargo", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(tarjeta);
         var recursos = Texto(tarjeta, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         recursos.lineSpacing = 4;
         var leRecursos = recursos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
-        leRecursos.minHeight = 275; leRecursos.preferredHeight = 275;
-        Encabezado(tarjeta, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  HERRAMIENTAS");
+        leRecursos.minHeight = 240; leRecursos.preferredHeight = 300;
+        Encoger(recursos, 17f);
+        Encabezado(tarjeta, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  TOOLS");
         var lista = Columna(tarjeta, "ListaCarga", 8, TextAnchor.UpperLeft);
         lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var plantilla = Boton(lista, "PlantillaCarga", "Herramienta", false);
+        var plantilla = Boton(lista, "PlantillaCarga", "Tool", false);
         Opcion(plantilla, 26);
         plantilla.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 68;
         plantilla.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 68;
         plantilla.GetComponentInChildren<TextMeshProUGUI>().lineSpacing = 0;
         var botones = Fila(tarjeta, "Botones", 24);
         Alto(botones, 88);
-        var volver = Boton(botones, "BotonVolverCarga", SpaceMission.Iconos.Atras + "  Revisión", false);
-        var usarMro = Boton(botones, "BotonUsarMro", "Usar el MRO", false);
-        var lanzar = Boton(botones, "BotonLanzarCarga", SpaceMission.Iconos.Lanzador + "  Lanzar", true);
+        var volver = Boton(botones, "BotonVolverCarga", SpaceMission.Iconos.Atras + "  Review", false);
+        AjustarTexto(volver);
+        var usarMro = Boton(botones, "BotonUsarMro", "Use the MRO", false);
+        AjustarTexto(usarMro);
+        var lanzar = Boton(botones, "BotonLanzarCarga", SpaceMission.Iconos.Lanzador + "  Launch", true);
+        AjustarTexto(lanzar);
         Aparecer(vista, tarjeta);
 
         Asignar(ui, "catalogo", catalogo);
@@ -842,12 +863,12 @@ public static partial class ConstructorEscenas
         Anclar(izq, new Vector2(0.012f, 0.03f), new Vector2(0.30f, 0.97f));
         izq.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(izq);
-        Encabezado(izq, "Etiqueta", SpaceMission.Iconos.Instrumentos + "  INSTRUMENTOS");
-        Texto(izq, "Ayuda", "Pulsa uno para elegirlo y encenderlo; después pulsa su región en el mapa.", 24,
+        Encabezado(izq, "Etiqueta", SpaceMission.Iconos.Instrumentos + "  INSTRUMENTS");
+        Texto(izq, "Ayuda", "Click one to select it and turn it on; then click its region on the map.", 24,
             TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         var lista = Columna(izq, "ListaInstrumentos", 8, TextAnchor.UpperLeft);
         lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var plantilla = Boton(lista, "PlantillaInstrumento", "Instrumento", false);
+        var plantilla = Boton(lista, "PlantillaInstrumento", "Instrument", false);
         Opcion(plantilla, 24);
 
         var filaEnergia = Fila(izq, "FilaEnergia", 10);
@@ -855,7 +876,7 @@ public static partial class ConstructorEscenas
         filaEnergia.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
         var iconoEnergia = Texto(filaEnergia, "Icono", SpaceMission.Iconos.Potencia, 30, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
         iconoEnergia.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 36;
-        var energia = Texto(filaEnergia, "TextoEnergia", "Energía", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        var energia = Texto(filaEnergia, "TextoEnergia", "Energy", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         energia.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
         var fondoBarra = Panel(izq, "BarraEnergia", FondoBarra);
         Alto(fondoBarra, 22);
@@ -878,15 +899,15 @@ public static partial class ConstructorEscenas
         filaOrbitas.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
         var iconoOrbitas = Texto(filaOrbitas, "Icono", SpaceMission.Iconos.Orbita, 30, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
         iconoOrbitas.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 36;
-        var orbitas = Texto(filaOrbitas, "TextoOrbitas", "Órbitas", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        var orbitas = Texto(filaOrbitas, "TextoOrbitas", "Orbits", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
         orbitas.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
 
         // Gameplay v3: altitud y combustible.
         var combustible = Texto(izq, "TextoCombustible", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        var altitud = BotonAccion(izq, "BotonAltitud", "Bajar a órbita baja");
+        var altitud = BotonAccion(izq, "BotonAltitud", "Descend to low orbit");
 
         // Imagen real (NASA) del instrumento que envió la última transmisión.
-        Encabezado(izq, "EtiquetaSenal", SpaceMission.Iconos.Senal + "  ÚLTIMA SEÑAL");
+        Encabezado(izq, "EtiquetaSenal", SpaceMission.Iconos.Senal + "  LATEST SIGNAL");
         var marcoImagen = Vacio(izq, "MarcoImagen");
         Alto(marcoImagen, 170);
         var imagen = new GameObject("Imagen", typeof(RectTransform), typeof(UnityEngine.UI.RawImage)).GetComponent<UnityEngine.UI.RawImage>();
@@ -919,7 +940,7 @@ public static partial class ConstructorEscenas
         var grupoSenal = senal.gameObject.AddComponent<CanvasGroup>();
         grupoSenal.alpha = 0f;
         grupoSenal.blocksRaycasts = false;
-        var textoSenal = Texto(senal, "Texto", SpaceMission.Iconos.Senal + "   SEÑAL RECIBIDA", 32, Fondo, FontStyles.Bold,
+        var textoSenal = Texto(senal, "Texto", SpaceMission.Iconos.Senal + "   SIGNAL RECEIVED", 32, Fondo, FontStyles.Bold,
             TextAlignmentOptions.Center);
         textoSenal.characterSpacing = 8;
         Estirar(textoSenal.rectTransform);
@@ -948,18 +969,25 @@ public static partial class ConstructorEscenas
         var soMapa = new SerializedObject(mapa);
         soMapa.FindProperty("tamanoZona").floatValue = 0.18f;   // ~740x740 píxeles del mapa de 4096x2048: casi 1:1 en pantalla
         soMapa.ApplyModifiedPropertiesWithoutUndo();
+        // Región de la misión: el cráter Gale (relieve de NASA 3D Resources) y marcas redondas.
+        Asignar(mapa, "texturaRegion", ConstructorEstilo.Imagen("Texturas/Gale_Color"));
+        Asignar(mapa, "spriteMarca", sCirculo);
+        CapasMapa((RectTransform)goMapa.transform, capaMarcas);
 
         var cajaLectura = Columna(vista, "CajaLectura", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 20);
         Anclar(cajaLectura, new Vector2(0.31f, 0.03f), new Vector2(0.69f, 0.185f));
         Bordes(cajaLectura, LineaHud);
         var lectura = Texto(cajaLectura, "TextoLectura", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        var leLectura = lectura.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        leLectura.preferredHeight = 1; leLectura.flexibleHeight = 1;
+        Encoger(lectura, 15f);
 
         // Derecha: transmisión, eventos, herramientas y fin.
         var der = Columna(vista, "PanelDerecho", 12, TextAnchor.UpperLeft, TarjetaTranslucida, 24);
         Anclar(der, new Vector2(0.70f, 0.03f), new Vector2(0.988f, 0.97f));
         der.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(der);
-        Encabezado(der, "EtiquetaTransmision", SpaceMission.Iconos.Senal + "  TRANSMISIÓN");
+        Encabezado(der, "EtiquetaTransmision", SpaceMission.Iconos.Senal + "  TRANSMISSION");
         var transmision = Texto(der, "TextoTransmision", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         transmision.lineSpacing = 4;
         transmision.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
@@ -973,20 +1001,24 @@ public static partial class ConstructorEscenas
         progreso.font = ConstructorEstilo.Mono;
         // Gameplay v3: memoria y envío a la Tierra.
         var memoria = Texto(der, "TextoMemoria", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        var enviar = BotonAccion(der, "BotonEnviar", "Enviar al final del mes");
-        Encabezado(der, "EtiquetaEventos", SpaceMission.Iconos.Amarillo + "  EVENTOS DE LA NAVE");
+        Encoger(progreso, 16f);
+        Encoger(memoria, 16f);
+        var enviar = BotonAccion(der, "BotonEnviar", "Send at month end");
+        Encabezado(der, "EtiquetaEventos", SpaceMission.Iconos.Amarillo + "  SPACECRAFT EVENTS");
         var evento = Texto(der, "TextoEvento", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        Encabezado(der, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  HERRAMIENTAS (UN USO)");
+        Encoger(evento, 16f);
+        Encabezado(der, "EtiquetaHerramientas", SpaceMission.Iconos.Ajustes + "  TOOLS (SINGLE USE)");
         var herramientas = Columna(der, "ListaHerramientas", 6, TextAnchor.UpperLeft);
-        var plantillaH = Boton(herramientas, "PlantillaHerramienta", "Herramienta", false);
+        var plantillaH = Boton(herramientas, "PlantillaHerramienta", "Tool", false);
         Opcion(plantillaH, 24);
         plantillaH.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 52;
         plantillaH.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 52;
         var objetivos = Texto(der, "TextoObjetivos", "", 22, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        Encoger(objetivos, 15f);
         // Versión 4 (meses): «Resolver mes» es la acción principal; terminar la misión pasa a secundaria.
-        var resolver = Boton(der, "BotonResolver", "Resolver mes", true);
+        var resolver = Boton(der, "BotonResolver", "Resolve month", true);
         resolver.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
-        var terminar = BotonAccion(der, "BotonTerminar", "Terminar misión");
+        var terminar = BotonAccion(der, "BotonTerminar", "End mission");
         terminar.GetComponentInChildren<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
         Aparecer(vista, izq, der);
 
@@ -996,12 +1028,13 @@ public static partial class ConstructorEscenas
         var tarjetaResumen = Columna(resumen, "Tarjeta", 16, TextAnchor.UpperLeft, Tarjeta, 40);
         Anclar(tarjetaResumen, new Vector2(0.25f, 0.12f), new Vector2(0.75f, 0.88f));
         MarcoHud(tarjetaResumen);
-        Encabezado(tarjetaResumen, "Etiqueta", SpaceMission.Iconos.Informe + "  RESUMEN DEL MES");
+        Encabezado(tarjetaResumen, "Etiqueta", SpaceMission.Iconos.Informe + "  MONTH SUMMARY");
         var textoResumen = Texto(tarjetaResumen, "TextoResumen", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         textoResumen.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         textoResumen.enableAutoSizing = true; textoResumen.fontSizeMin = 18; textoResumen.fontSizeMax = 26;
         textoResumen.overflowMode = TextOverflowModes.Truncate;
-        var continuar = Boton(tarjetaResumen, "BotonContinuarResumen", "Continuar", true);
+        var continuar = Boton(tarjetaResumen, "BotonContinuarResumen", "Continue", true);
+        AjustarTexto(continuar);
         continuar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
 
         // Gameplay v3: ventana de decisión encima de todo cuando ocurre un evento.
@@ -1010,12 +1043,14 @@ public static partial class ConstructorEscenas
         var tarjetaDecision = Columna(decision, "Tarjeta", 16, TextAnchor.UpperLeft, Tarjeta, 40);
         Anclar(tarjetaDecision, new Vector2(0.28f, 0.22f), new Vector2(0.72f, 0.78f));
         MarcoHud(tarjetaDecision);
-        Encabezado(tarjetaDecision, "Etiqueta", SpaceMission.Iconos.Amarillo + "  EVENTO DE LA NAVE");
+        Encabezado(tarjetaDecision, "Etiqueta", SpaceMission.Iconos.Amarillo + "  SPACECRAFT EVENT");
         var textoDecision = Texto(tarjetaDecision, "TextoDecision", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        Encoger(textoDecision, 18f);
         textoDecision.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var opciones = Columna(tarjetaDecision, "ListaRespuestas", 8, TextAnchor.UpperLeft);
-        var plantillaOpcion = Boton(opciones, "PlantillaRespuesta", "Respuesta", false);
+        var plantillaOpcion = Boton(opciones, "PlantillaRespuesta", "Response", false);
         Opcion(plantillaOpcion, 24);
+        Encoger(plantillaOpcion.GetComponentInChildren<TextMeshProUGUI>(), 16f);
 
         Asignar(ui, "catalogo", catalogo);
         Asignar(ui, "mapa", mapa);
@@ -1136,7 +1171,7 @@ public static partial class ConstructorEscenas
         // Izquierda: conclusión, recursos y botón.
         var izq = Columna(canvas, "Conclusion", 26, TextAnchor.UpperLeft);
         Anclar(izq, new Vector2(0.05f, 0.06f), new Vector2(0.48f, 0.94f));
-        Encabezado(izq, "Etiqueta", SpaceMission.Iconos.Informe + "  INFORME DE LA MISIÓN");
+        Encabezado(izq, "Etiqueta", SpaceMission.Iconos.Informe + "  MISSION REPORT");
         var titulo = Texto(izq, "Titulo", "", 80, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         titulo.fontStyle = FontStyles.UpperCase;
         var conclusion = Texto(izq, "TextoConclusion", "", 32, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
@@ -1145,7 +1180,8 @@ public static partial class ConstructorEscenas
         var cajaRecursos = Columna(izq, "Recursos", 8, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
         Bordes(cajaRecursos, LineaHud);
         var recursos = Texto(cajaRecursos, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        var modificar = Boton(izq, "BotonModificar", "Modificar mi misión", true); // texto exacto: lo comprueban las pruebas
+        var modificar = Boton(izq, "BotonModificar", "Modify my mission", true);
+        AjustarTexto(modificar); // texto exacto: lo comprueban las pruebas
 
         // Derecha: evidencias, revelación y lo que faltó.
         var der = Columna(canvas, "Detalle", 28, TextAnchor.UpperLeft, TarjetaTranslucida, 40);
@@ -1166,7 +1202,7 @@ public static partial class ConstructorEscenas
             t.overflowMode = TextOverflowModes.Truncate;
         }
         Alto(Vacio(der, "Espacio"), 0).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        Miniatura(der, "Mision", arte.imagenMision, 150, SpaceMission.Iconos.Senal + "  MARTE DURANTE LA TORMENTA  ·  NASA/JPL-Caltech/MSSS");
+        Miniatura(der, "Mision", arte.imagenMision, 150, SpaceMission.Iconos.Senal + "  MARS DURING THE STORM  ·  NASA/JPL-Caltech/MSSS");
 
         // Arriba a la derecha: total de puntos (cuenta hacia arriba) y el sello del resultado.
         var cabecera = Vacio(canvas, "Cabecera");
@@ -1192,7 +1228,7 @@ public static partial class ConstructorEscenas
         sello.localRotation = Quaternion.Euler(0, 0, -8f);
 
         // Abajo a la derecha: agradecimiento al patrocinador.
-        var franja = FranjaPatrocinio(canvas, "Patrocinio", "GRACIAS A NUESTRO PATROCINADOR", 72);
+        var franja = FranjaPatrocinio(canvas, "Patrocinio", "THANKS TO OUR SPONSOR", 72);
         Anclar(franja, new Vector2(0.52f, 0.015f), new Vector2(0.95f, 0.115f));
 
         // Clic en cualquier parte durante la entrada: la salta (apagado fuera de la entrada).
@@ -1251,7 +1287,7 @@ public static partial class ConstructorEscenas
         Anclar(izq, new Vector2(0.015f, 0.03f), new Vector2(0.36f, 0.97f));
         izq.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(izq);
-        Texto(izq, "Titulo", "Configura tu misión", 48, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(izq, "Titulo", "Set up your mission", 48, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(izq);
         // Cuatro pestañas en dos filas, en el orden de los pasos: Órbita, Lanzador / Satélite, Instrumentos.
         var pestanas = Columna(izq, "Pestanas", 8, TextAnchor.UpperLeft);
@@ -1260,11 +1296,11 @@ public static partial class ConstructorEscenas
         Alto(fila1, 60);
         var fila2 = Fila(pestanas, "Fila2", 10);
         Alto(fila2, 60);
-        var pOrbita = Boton(fila1, "PestanaOrbita", SpaceMission.Iconos.Orbita + " Órbita", false);
+        var pOrbita = Boton(fila1, "PestanaOrbita", SpaceMission.Iconos.Orbita + " Orbit", false);
         // GuiaConfiguracion añade a cada pestaña el ✓ cuando esa parte está elegida.
-        var pLanzador = Boton(fila1, "PestanaLanzador", SpaceMission.Iconos.Lanzador + " Lanzador", false);
-        var pSatelite = Boton(fila2, "PestanaSatelite", SpaceMission.Iconos.Satelite + " Satélite", false);
-        var pInstrumentos = Boton(fila2, "PestanaInstrumentos", SpaceMission.Iconos.Microscopio + " Instrumentos", false);
+        var pLanzador = Boton(fila1, "PestanaLanzador", SpaceMission.Iconos.Lanzador + " Launcher", false);
+        var pSatelite = Boton(fila2, "PestanaSatelite", SpaceMission.Iconos.Satelite + " Satellite", false);
+        var pInstrumentos = Boton(fila2, "PestanaInstrumentos", SpaceMission.Iconos.Microscopio + " Instruments", false);
         foreach (var p in new[] { pOrbita, pLanzador, pSatelite, pInstrumentos })
         {
             var le = p.GetComponent<UnityEngine.UI.LayoutElement>();
@@ -1284,14 +1320,14 @@ public static partial class ConstructorEscenas
 
         var lista = Columna(izq, "ListaOpciones", 10, TextAnchor.UpperLeft);
         // Hasta 6 opciones (los satélites, con el AztechSat-1).
-        Alto(lista, 6 * 70 + 5 * 6);
+        Alto(lista, 6 * 62 + 5 * 6);   // opciones de 62: deja sitio a la ayuda de abajo
         lista.GetComponent<UnityEngine.UI.VerticalLayoutGroup>().spacing = 6;
-        var plantilla = Boton(lista, "PlantillaOpcion", "Opción", false);
+        var plantilla = Boton(lista, "PlantillaOpcion", "Option", false);
         var lePlantilla = plantilla.GetComponent<UnityEngine.UI.LayoutElement>();
-        lePlantilla.preferredWidth = -1; lePlantilla.minHeight = 70; lePlantilla.preferredHeight = 70;
+        lePlantilla.preferredWidth = -1; lePlantilla.minHeight = 62; lePlantilla.preferredHeight = 62;
         var etiqueta = plantilla.GetComponentInChildren<TextMeshProUGUI>();
         etiqueta.font = ConstructorEstilo.Texto;
-        etiqueta.fontSize = 27;
+        etiqueta.fontSize = 26;
         etiqueta.fontStyle = FontStyles.Normal;
         etiqueta.characterSpacing = 0;
         etiqueta.alignment = TextAlignmentOptions.Left;
@@ -1305,11 +1341,16 @@ public static partial class ConstructorEscenas
         leAyuda.flexibleHeight = 1;
         var ayuda = Texto(cajaAyuda, "TextoAyuda", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         ayuda.lineSpacing = 0;
+        // La ayuda ocupa lo que queda de la caja y el texto se achica para caber (nunca se sale de la caja).
+        var leTextoAyuda = ayuda.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        leTextoAyuda.preferredHeight = 1; leTextoAyuda.flexibleHeight = 1;
+        ayuda.enableAutoSizing = true; ayuda.fontSizeMin = 15; ayuda.fontSizeMax = 24;
+        ayuda.overflowMode = TextOverflowModes.Truncate;
 
         var filaNavegacion = Fila(izq, "Navegacion", 12);
         Alto(filaNavegacion, 64);
         var verBriefing = Boton(filaNavegacion, "BotonBriefing", SpaceMission.Iconos.Atras + "  Briefing", false);
-        var siguiente = Boton(filaNavegacion, "BotonSiguiente", "Lanzador  " + SpaceMission.Iconos.Siguiente, true);
+        var siguiente = Boton(filaNavegacion, "BotonSiguiente", "Launcher  " + SpaceMission.Iconos.Siguiente, true);
         foreach (var b in new[] { verBriefing, siguiente })
         {
             var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
@@ -1323,11 +1364,12 @@ public static partial class ConstructorEscenas
         Anclar(der, new Vector2(0.655f, 0.03f), new Vector2(0.985f, 0.97f));
         der.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(der);
-        Encabezado(der, "EtiquetaRecursos", "RECURSOS");
+        Encabezado(der, "EtiquetaRecursos", "RESOURCES");
 
         var rellenos = new RectTransform[4];
         var textos = new TMP_Text[4];
-        string[] nombres = { "Masa", "Potencia", "Costo", "Espacios" };
+        string[] nombres = { "Masa", "Potencia", "Costo", "Espacios" };   // nombres de los objetos: no cambiar
+        string[] etiquetasRecursos = { "Mass", "Power", "Cost", "Slots" };
         string[] iconos = { SpaceMission.Iconos.Masa, SpaceMission.Iconos.Potencia, SpaceMission.Iconos.Costo, SpaceMission.Iconos.Espacios };
         for (int i = 0; i < 4; i++)
         {
@@ -1337,7 +1379,7 @@ public static partial class ConstructorEscenas
             grupoFila.childForceExpandWidth = false;
             var icono = Texto(fila, "Icono" + nombres[i], iconos[i], 30, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
             icono.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 40;
-            textos[i] = Texto(fila, "Texto" + nombres[i], nombres[i], 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+            textos[i] = Texto(fila, "Texto" + nombres[i], etiquetasRecursos[i], 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
             textos[i].gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
 
             var fondoBarra = Panel(der, "Barra" + nombres[i], FondoBarra);
@@ -1360,7 +1402,7 @@ public static partial class ConstructorEscenas
         }
 
         Alto(Vacio(der, "Espacio"), 6);
-        Encabezado(der, "EtiquetaSemaforo", "SEMÁFORO");
+        Encabezado(der, "EtiquetaSemaforo", "STATUS");
         var filaLuz = Fila(der, "FilaSemaforo", 20);
         Alto(filaLuz, 72);
         filaLuz.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
@@ -1382,12 +1424,13 @@ public static partial class ConstructorEscenas
         Estirar(luz.rectTransform);
         var iconoLuz = Texto(luz.transform, "Icono", SpaceMission.Iconos.Gris, 34, Fondo, FontStyles.Normal, TextAlignmentOptions.Center);
         Estirar(iconoLuz.rectTransform);
-        var estado = Texto(filaLuz, "TextoEstado", "GRIS", 48, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        var estado = Texto(filaLuz, "TextoEstado", "GREY", 48, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         estado.characterSpacing = 4;
         var mensaje = Texto(der, "TextoMensaje", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         mensaje.lineSpacing = 6;
         mensaje.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var revisar = Boton(der, "BotonRevisar", "Revisar misión  " + SpaceMission.Iconos.Siguiente, true);
+        var revisar = Boton(der, "BotonRevisar", "Review mission  " + SpaceMission.Iconos.Siguiente, true);
+        AjustarTexto(revisar);
         revisar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;
 
         var luzAnimada = luz.gameObject.AddComponent<LuzAnimada>();
@@ -1402,8 +1445,8 @@ public static partial class ConstructorEscenas
         var instruccion = Texto(vista, "Instruccion", "", 30, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
         instruccion.characterSpacing = 3;
         Anclar(instruccion.rectTransform, new Vector2(0.37f, 0.875f), new Vector2(0.645f, 0.93f));
-        var leyenda = Texto(vista, "LeyendaNave", "VISTA DE LA NAVE\n<size=24><color=#" + ColorUtility.ToHtmlStringRGB(TextoSecundario) +
-            ">Al elegir un instrumento verás dónde se instala.</color></size>",
+        var leyenda = Texto(vista, "LeyendaNave", "SPACECRAFT VIEW\n<size=24><color=#" + ColorUtility.ToHtmlStringRGB(TextoSecundario) +
+            ">Select an instrument to see where it is mounted.</color></size>",
             26, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
         leyenda.margin = new Vector4(20, 0, 20, 0);   // que la segunda línea no se salga del fondo
         leyenda.fontSizeMax = 26; leyenda.fontSizeMin = 18; leyenda.enableAutoSizing = true;
@@ -1455,15 +1498,17 @@ public static partial class ConstructorEscenas
         MarcoHud(tarjeta);
         var paso = Texto(tarjeta, "Paso", Paso(3), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         paso.font = ConstructorEstilo.Mono;
-        Texto(tarjeta, "Titulo", "Revisión de la misión", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(tarjeta, "Titulo", "Mission review", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(tarjeta);
         var resumen = Texto(tarjeta, "TextoResumen", "", 30, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         resumen.lineSpacing = 6;
         resumen.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var botones = Fila(tarjeta, "Botones", 24);
         Alto(botones, 88);
-        var corregir = Boton(botones, "BotonCorregir", SpaceMission.Iconos.Atras + "  Corregir", false);
-        var lanzar = Boton(botones, "BotonLanzar", "Cargar la nave  " + SpaceMission.Iconos.Siguiente, true);
+        var corregir = Boton(botones, "BotonCorregir", SpaceMission.Iconos.Atras + "  Fix", false);
+        AjustarTexto(corregir);
+        var lanzar = Boton(botones, "BotonLanzar", "Load the spacecraft  " + SpaceMission.Iconos.Siguiente, true);
+        AjustarTexto(lanzar);
         Aparecer(vista, tarjeta);
 
         Asignar(ui, "catalogo", catalogo);
@@ -1532,9 +1577,23 @@ public static partial class ConstructorEscenas
         Pieza(PrimitiveType.Cylinder, "Celosia", superiorSoyuz, Vector3.up * 3.6f, Vector3.zero, new Vector3(0.38f, 0.15f, 0.38f), oscuro);
         Pieza(PrimitiveType.Cylinder, "BandaNaranja", superiorSoyuz, Vector3.up * 3.82f, Vector3.zero, new Vector3(0.41f, 0.07f, 0.41f), bandaNaranja);
         Pieza(PrimitiveType.Cylinder, "Etapa", superiorSoyuz, Vector3.up * 4.25f, Vector3.zero, new Vector3(0.4f, 0.36f, 0.4f), blanco);
-        Malla(mCofia, "Cofia", superiorSoyuz, Vector3.up * 4.6f, Vector3.zero, Vector3.one, blanco);
+        // Cofia en dos mitades (se abren en órbita para liberar el satélite). Cada mitad gira sobre una bisagra
+        // en su borde inferior; material de doble cara para que se vea por dentro al abrirse.
+        var perfilCofia = new[] { P(0.2f, 0f), P(0.26f, 0.12f), P(0.26f, 0.85f), P(0.22f, 1.1f), P(0.12f, 1.35f), P(0f, 1.5f) };
+        var blancoDoble = DobleCara(blanco, "Cohete_Blanco_DobleCara");
+        foreach (var (nombre, desde, lado) in new[] { ("CofiaDetras", 0f, 1f), ("CofiaFrente", Mathf.PI, -1f) })
+        {
+            var malla = GuardarMalla(Torno(perfilCofia, 20, desde, desde + Mathf.PI), "Soyuz_" + nombre);
+            var bisagra = new GameObject(nombre).transform;
+            bisagra.SetParent(superiorSoyuz, false);
+            bisagra.localPosition = new Vector3(0f, 4.6f, lado * 0.2f);
+            Malla(malla, "Mitad", bisagra, new Vector3(0f, 0f, -lado * 0.2f), Vector3.zero, Vector3.one, blancoDoble);
+        }
         // Logo del patrocinador en la cofia blanca, por delante y por detrás (calcomanía curva).
         LogoPatrocinio(superiorSoyuz, "Fence", false, 0.266f, 5.08f, 0.52f);
+        // Cada logo va con su mitad de la cofia.
+        superiorSoyuz.Find("LogoFrente").SetParent(superiorSoyuz.Find("CofiaFrente"), true);
+        superiorSoyuz.Find("LogoDetras").SetParent(superiorSoyuz.Find("CofiaDetras"), true);
         soyuz.gameObject.AddComponent<GiroLento>().enabled = false;
 
         // ----- Titán (SLS, modelo de NASA 3D Resources) -----
@@ -1543,6 +1602,7 @@ public static partial class ConstructorEscenas
         sls.localPosition = new Vector3(2.1f, 0, 0);
         var slsModelo = ConstruirSls(sls, 11f);
         DividirSls(slsModelo.inferior);   // propulsores laterales aparte (se sueltan en la cinemática)
+        DividirNarizSls(slsModelo.superior);   // la nariz en dos mitades (se abren para liberar el satélite)
         // Logo del patrocinador en el núcleo naranja (versión clara: letras blancas), por delante y por detrás.
         // El radio del núcleo se mide en la malla a esa altura (entre los dos propulsores laterales).
         float alturaLogo = 5.6f;
@@ -1641,14 +1701,14 @@ public static partial class ConstructorEscenas
     }
 
     /// <summary>Malla de revolución: gira un perfil (radio, alto) de abajo arriba alrededor del eje Y.</summary>
-    static Mesh Torno(Vector2[] perfil, int segmentos = 40)
+    static Mesh Torno(Vector2[] perfil, int segmentos = 40, float desde = 0f, float hasta = Mathf.PI * 2f)
     {
         var v = new List<Vector3>(); var uv = new List<Vector2>(); var t = new List<int>();
         int fila = segmentos + 1;
         for (int i = 0; i < perfil.Length; i++)
             for (int s = 0; s <= segmentos; s++)
             {
-                float a = s * Mathf.PI * 2f / segmentos;
+                float a = desde + s * (hasta - desde) / segmentos;   // por defecto la vuelta entera
                 v.Add(new Vector3(Mathf.Cos(a) * perfil[i].x, perfil[i].y, Mathf.Sin(a) * perfil[i].x));
                 uv.Add(new Vector2((float)s / segmentos, (float)i / (perfil.Length - 1)));
             }
@@ -1738,7 +1798,13 @@ public static partial class ConstructorEscenas
         mat.SetFloat("_PotenciaBorde", 3.5f);
         mat.SetFloat("_Brillo", 0.9f);
         mat.SetColor("_Ambiente", new Color(0.05f, 0.055f, 0.075f));
-        mat.SetFloat("_Saturacion", 1.18f);
+        mat.SetFloat("_Saturacion", 1.12f);
+        mat.SetFloat("_Contraste", 1.18f);
+        mat.SetFloat("_Gamma", 1.15f);
+        // Relieve del cráter Gale (NASA 3D Resources, Curiosity Landing Site) en su sitio del planeta.
+        mat.SetTexture("_ParcheNormal", ConstructorEstilo.Imagen("Texturas/Gale_Normal"));
+        mat.SetVector("_RectParche", new Vector4(0.8728f, 0.452f, 0.0205f, 0.041f));
+        mat.SetFloat("_FuerzaParche", 1.6f);
         EditorUtility.SetDirty(mat);
         return mat;
     }
@@ -1757,7 +1823,7 @@ public static partial class ConstructorEscenas
             AssetDatabase.CreateAsset(matPolvo, "Assets/Materiales/Marte_Polvo.mat");
         }
         matPolvo.SetTexture("_BaseMap", ConstructorEstilo.Imagen("Texturas/Marte_Polvo"));
-        matPolvo.SetFloat("_Opacidad", 0.38f);   // se adivina el relieve bajo la tormenta
+        matPolvo.SetFloat("_Opacidad", 0.22f);   // se ve el relieve bajo la tormenta
         EditorUtility.SetDirty(matPolvo);
         var polvo = Malla(EsferaUV(), "TormentaPolvo", null, posicion, new Vector3(0, 40, -12), Vector3.one * diametro * 1.008f, matPolvo);
         polvo.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
@@ -1831,8 +1897,8 @@ public static partial class ConstructorEscenas
         }
         AsignarLista(anillo, "lineas", lineas);
         AsignarLista(anillo, "etiquetas", etiquetas);
-        var cerca = TextoMundo(go.transform, "Periapsis", "· más cerca ·", 0.8f / escala, Trayectoria.Color("eliptica"));
-        var lejos = TextoMundo(go.transform, "Apoapsis", "· más lejos ·", 0.8f / escala, Trayectoria.Color("eliptica"));
+        var cerca = TextoMundo(go.transform, "Periapsis", "· closest ·", 0.8f / escala, Trayectoria.Color("eliptica"));
+        var lejos = TextoMundo(go.transform, "Apoapsis", "· farthest ·", 0.8f / escala, Trayectoria.Color("eliptica"));
         cerca.gameObject.SetActive(false);
         lejos.gameObject.SetActive(false);
         AsignarLista(anillo, "extremos", new Object[] { cerca.transform, lejos.transform });
@@ -1885,6 +1951,7 @@ public static partial class ConstructorEscenas
         }
         mat.SetTexture("_BaseMap", ConstructorEstilo.Imagen("Texturas/Estrellas"));
         mat.SetColor("_BaseColor", Color.white);
+        mat.SetFloat("_Cull", 0f);   // también la esfera de estrellas vista desde dentro
         EditorUtility.SetDirty(mat);
         var cielo = Pieza(PrimitiveType.Quad, "Estrellas", null, centro, Vector3.zero, new Vector3(128f, 72f, 1f), mat);
         cielo.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
@@ -1904,6 +1971,7 @@ public static partial class ConstructorEscenas
         sol.intensity = 2.1f;
         sol.shadows = LightShadows.Soft;
         sol.transform.rotation = Quaternion.Euler(24, 38, 0); // de frente y algo de lado: el planeta se ve casi todo iluminado
+        RenderSettings.sun = sol;
 
         var contra = new GameObject("LuzContorno").AddComponent<Light>();
         contra.type = LightType.Directional;
@@ -2036,6 +2104,89 @@ public static partial class ConstructorEscenas
             mat.DisableKeyword("_EMISSION");
             mat.SetColor("_EmissionColor", Color.black);
         }
+        EditorUtility.SetDirty(mat);
+        return mat;
+    }
+
+    /// <summary>Franja de subtítulos de las voces (BarraSubtitulos), abajo y encima de todo. No bloquea clics.</summary>
+    static void ConstruirSubtitulos(RectTransform canvas)
+    {
+        var barra = Panel(canvas, "Subtitulos", new Color(0f, 0f, 0f, 0.72f));
+        Anclar(barra, new Vector2(0.18f, 0.095f), new Vector2(0.82f, 0.19f));
+        barra.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        barra.SetAsLastSibling();
+        var grupo = barra.gameObject.AddComponent<CanvasGroup>();
+        grupo.alpha = 0f;
+        grupo.blocksRaycasts = false;
+        grupo.interactable = false;
+        var texto = Texto(barra, "Texto", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Center);
+        Estirar(texto.rectTransform);
+        texto.margin = new Vector4(24, 8, 24, 8);
+        texto.enableAutoSizing = true; texto.fontSizeMin = 18; texto.fontSizeMax = 28;
+        var ui = barra.gameObject.AddComponent<BarraSubtitulos>();
+        Asignar(ui, "grupo", grupo);
+        Asignar(ui, "texto", texto);
+    }
+
+    /// <summary>
+    /// Capas finas sobre el mapa de la región (debajo de las marcas): polvo de la tormenta que se mueve despacio,
+    /// retícula de coordenadas, viñeta, rótulos del cráter Gale y escala.
+    /// </summary>
+    static void CapasMapa(RectTransform mapa, RectTransform marcas)
+    {
+        var polvo = new GameObject("Tormenta", typeof(RectTransform), typeof(UnityEngine.UI.RawImage)).GetComponent<UnityEngine.UI.RawImage>();
+        polvo.transform.SetParent(mapa, false);
+        Estirar(polvo.rectTransform);
+        polvo.texture = ConstructorEstilo.Imagen("Texturas/Marte_Polvo");
+        polvo.uvRect = new Rect(0.3f, 0.35f, 0.25f, 0.5f);
+        polvo.color = new Color(1f, 0.85f, 0.7f, 0.14f);
+        polvo.raycastTarget = false;
+        var mover = polvo.gameObject.AddComponent<DesplazarUV>();
+        Asignar(mover, "velocidad", new Vector2(0.006f, 0f));
+        var reticula = new GameObject("Reticula", typeof(RectTransform), typeof(UnityEngine.UI.RawImage)).GetComponent<UnityEngine.UI.RawImage>();
+        reticula.transform.SetParent(mapa, false);
+        Estirar(reticula.rectTransform);
+        reticula.texture = ConstructorEstilo.Imagen("Interfaz/Reticula");
+        reticula.uvRect = new Rect(0, 0, 4, 4);
+        reticula.color = new Color(Cian.r, Cian.g, Cian.b, 0.22f);
+        reticula.raycastTarget = false;
+        var vineta = new GameObject("Vineta", typeof(RectTransform), typeof(UnityEngine.UI.Image)).GetComponent<UnityEngine.UI.Image>();
+        vineta.transform.SetParent(mapa, false);
+        Estirar(vineta.rectTransform);
+        vineta.sprite = ConstructorEstilo.Sprite("Vineta");
+        vineta.color = new Color(1, 1, 1, 0.35f);
+        vineta.raycastTarget = false;
+        TextMeshProUGUI Rotulo(string nombre, string texto, Vector2 min, Vector2 max, TextAlignmentOptions alineacion, float tamano)
+        {
+            var t = Texto(mapa, nombre, texto, tamano, TextoClaro, FontStyles.Normal, alineacion);
+            t.font = ConstructorEstilo.Mono;
+            t.characterSpacing = 4;
+            t.color = new Color(1f, 1f, 1f, 0.75f);
+            t.textWrappingMode = TextWrappingModes.NoWrap;
+            Anclar(t.rectTransform, min, max);
+            return t;
+        }
+        Rotulo("RotuloCrater", "GALE CRATER", new Vector2(0.03f, 0.92f), new Vector2(0.6f, 0.98f), TextAlignmentOptions.Left, 20);
+        Rotulo("RotuloMonte", "AEOLIS MONS", new Vector2(0.38f, 0.43f), new Vector2(0.62f, 0.47f), TextAlignmentOptions.Center, 15);
+        Rotulo("Coordenadas", "5.4°S  137.8°E", new Vector2(0.6f, 0.92f), new Vector2(0.97f, 0.98f), TextAlignmentOptions.Right, 16);
+        Rotulo("Escala", "|——— 50 km ———|", new Vector2(0.03f, 0.02f), new Vector2(0.4f, 0.07f), TextAlignmentOptions.Left, 15);
+        Rotulo("Fuente", "RELIEF: NASA 3D RESOURCES", new Vector2(0.5f, 0.02f), new Vector2(0.97f, 0.07f), TextAlignmentOptions.Right, 13);
+        marcas.SetAsLastSibling();
+    }
+
+    /// <summary>Copia de un material URP Lit que se dibuja por las dos caras (piezas abiertas: cofias).</summary>
+    static Material DobleCara(Material original, string nombre)
+    {
+        var ruta = "Assets/Materiales/" + nombre + ".mat";
+        var mat = AssetDatabase.LoadAssetAtPath<Material>(ruta);
+        if (mat == null)
+        {
+            mat = new Material(original);
+            AssetDatabase.CreateAsset(mat, ruta);
+        }
+        mat.CopyPropertiesFromMaterial(original);
+        mat.SetFloat("_Cull", 0f);
+        mat.doubleSidedGI = true;
         EditorUtility.SetDirty(mat);
         return mat;
     }
@@ -2350,6 +2501,27 @@ public static partial class ConstructorEscenas
         return tmp;
     }
 
+    /// <summary>El texto se achica hasta «minimo» si no cabe en su caja y nunca se sale de ella.</summary>
+    static void Encoger(TMP_Text t, float minimo)
+    {
+        t.enableAutoSizing = true;
+        t.fontSizeMax = t.fontSize;
+        t.fontSizeMin = minimo;
+        t.overflowMode = TextOverflowModes.Truncate;
+    }
+
+    /// <summary>El texto del botón se achica si no cabe (etiquetas largas en inglés).</summary>
+    static void AjustarTexto(UnityEngine.UI.Button boton, float minimo = 18f)
+    {
+        var t = boton.GetComponentInChildren<TextMeshProUGUI>();
+        if (t == null) return;
+        t.enableAutoSizing = true;
+        t.fontSizeMax = t.fontSize;
+        t.fontSizeMin = minimo;
+        t.textWrappingMode = TextWrappingModes.NoWrap;
+        t.margin = new Vector4(14, 0, 14, 0);
+    }
+
     static UnityEngine.UI.Button Boton(Transform padre, string nombre, string texto, bool principal)
     {
         var go = new GameObject(nombre, typeof(RectTransform), typeof(UnityEngine.UI.Image),
@@ -2476,7 +2648,7 @@ public static partial class ConstructorEscenas
     }
 
     static string Paso(int pasoActual) =>
-        "PASO " + pasoActual + " DE " + NombresPasos.Length + "  ·  " + NombresPasos[pasoActual - 1].ToUpperInvariant();
+        "STEP " + pasoActual + " OF " + NombresPasos.Length + "  ·  " + NombresPasos[pasoActual - 1].ToUpperInvariant();
 
     /// <summary>Coloca un elemento suelto (fuera de un layout) con tamaño fijo.</summary>
     static void Fijar(RectTransform rt, Vector2 ancla, Vector2 pivote, Vector2 tamano)

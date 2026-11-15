@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Objetivo_combustible
   m_EditorClassIdentifier: SpaceMission::SpaceMission.ObjetivoDatos
   id: combustible
-  texto: "Terminar con 5 de combustible o m\xE1s"
+  texto: "Finish with 5 fuel or more"
   tipo: 2
   valor: 5
   puntos: 100

@@ -63,77 +63,77 @@ public static class DatosVersion3
         Memoria(catalogo.Nivel(2), 6);
 
         Opciones(catalogo, "sombra",
-            Op("Usar la batería de respaldo", EfectoOpcion.UsarHerramienta),
-            Op("Maniobrar para salir antes de la sombra (-4 de combustible, dura 1 mes)", EfectoOpcion.Acortar, combustible: 4, duracion: 1),
-            Op("Esperar a que pase (dura 3 meses)", EfectoOpcion.Aguantar));
+            Op("Use the backup battery", EfectoOpcion.UsarHerramienta),
+            Op("Maneuver out of the shadow early (-4 fuel, lasts 1 month)", EfectoOpcion.Acortar, combustible: 4, duracion: 1),
+            Op("Wait for it to pass (lasts 3 months)", EfectoOpcion.Aguantar));
         Opciones(catalogo, "micrometeorito",
-            Op("Usar la reconfiguración de energía", EfectoOpcion.UsarHerramienta),
-            Op("Desviar la corriente a mano (el mes siguiente pierde 10 días)", EfectoOpcion.Resolver, orbitas: 1),
-            Op("Seguir con menos energía hasta el final", EfectoOpcion.Aguantar));
+            Op("Use the power reconfiguration", EfectoOpcion.UsarHerramienta),
+            Op("Reroute the current by hand (next month loses 10 days)", EfectoOpcion.Resolver, orbitas: 1),
+            Op("Carry on with less power until the end", EfectoOpcion.Aguantar));
         Opciones(catalogo, "sobrecalentamiento",
-            Op("Usar la refrigeración de emergencia", EfectoOpcion.UsarHerramienta),
-            Op("Girar la nave hacia la sombra (-2 de combustible, bloqueo de 1 mes)", EfectoOpcion.Acortar, combustible: 2, duracion: 1),
-            Op("Esperar a que se enfríe (bloqueo de 2 meses)", EfectoOpcion.Aguantar));
+            Op("Use the emergency cooling", EfectoOpcion.UsarHerramienta),
+            Op("Turn the spacecraft toward the shade (-2 fuel, 1-month lockout)", EfectoOpcion.Acortar, combustible: 2, duracion: 1),
+            Op("Wait for it to cool down (2-month lockout)", EfectoOpcion.Aguantar));
         Opciones(catalogo, "orientacion",
-            Op("Usar el giroscopio de respaldo", EfectoOpcion.UsarHerramienta),
-            Op("Corregir con los propulsores (-3 de combustible)", EfectoOpcion.Resolver, combustible: 3),
-            Op("Seguir así (el mes siguiente no dará lecturas)", EfectoOpcion.Aguantar));
+            Op("Use the backup gyroscope", EfectoOpcion.UsarHerramienta),
+            Op("Correct with the thrusters (-3 fuel)", EfectoOpcion.Resolver, combustible: 3),
+            Op("Carry on (next month will give no readings)", EfectoOpcion.Aguantar));
         Opciones(catalogo, "ventana",
-            Op("Aprovechar para observar (+1 mes de campaña)", EfectoOpcion.GanarOrbitas, duracion: 1),
-            Op("Abrir una ventana de contacto con la Tierra el mes siguiente", EfectoOpcion.AbrirContacto));
+            Op("Use it to observe (+1 campaign month)", EfectoOpcion.GanarOrbitas, duracion: 1),
+            Op("Open a contact window with Earth next month", EfectoOpcion.AbrirContacto));
 
-        var peticion = Evento(catalogo, "peticion", "Petición de la NASA",
-            "El equipo de un rover pide observar un punto cercano para planear su ruta. Si lo escaneas, la NASA te lo agradece.",
+        var peticion = Evento(catalogo, "peticion", "NASA request",
+            "A rover team asks you to observe a nearby spot to plan its route. If you scan it, NASA will thank you.",
             EfectoEvento.Peticion, 150);
-        var tormenta = Evento(catalogo, "tormenta", "Tormenta creciendo",
-            "La tormenta de polvo crece. Desde la altitud normal las lecturas se vuelven confusas.",
+        var tormenta = Evento(catalogo, "tormenta", "Growing storm",
+            "The dust storm is growing. From normal altitude the readings become confusing.",
             EfectoEvento.Tormenta, 0);
         Opciones(catalogo, "peticion",
-            Op("Aceptar: observar el punto marcado en el mapa (+150 puntos)", EfectoOpcion.AceptarObjetivo),
-            Op("Rechazar y seguir con la misión", EfectoOpcion.Aguantar));
+            Op("Accept: observe the spot marked on the map (+150 points)", EfectoOpcion.AceptarObjetivo),
+            Op("Decline and carry on with the mission", EfectoOpcion.Aguantar));
         Opciones(catalogo, "tormenta",
-            Op("Bajar de altitud sin gastar combustible (después el arrastre sí gasta)", EfectoOpcion.BajarAltitud),
-            Op("Seguir así (el mes siguiente la calidad de los datos baja)", EfectoOpcion.Aguantar));
+            Op("Descend without spending fuel (afterwards, drag does use fuel)", EfectoOpcion.BajarAltitud),
+            Op("Carry on (next month's data quality drops)", EfectoOpcion.Aguantar));
 
         // Satélites (mecánicas aprobadas por Adrian el 2026-11-14). El MRO es el neutro.
-        Satelite(catalogo, "mro", 0, 0, "Equilibrado: sin ventajas ni desventajas.", "Ninguna.");
+        Satelite(catalogo, "mro", 0, 0, "Balanced: no advantages or disadvantages.", "None.");
         var magellan = Satelite(catalogo, "magellan", 30, 10,
-            "El radar de subsuelo lee un 30 % más lejos. Pionero del aerofrenado: cambiar de altitud cuesta 2 de combustible.",
-            "Grabadora antigua: 1 bloque menos de memoria.");
+            "The subsurface radar reads 30% farther. Aerobraking pioneer: changing altitude costs 2 fuel.",
+            "Old recorder: 1 fewer memory block.");
         magellan.instrumentosConAlcance = new[] { "radar" }; magellan.factorAlcance = 1.3f;
         magellan.combustiblePorCambioAltitud = 2; magellan.memoriaExtra = -1;
         var chandra = Satelite(catalogo, "chandra", 30, 40,
-            "Apunte muy preciso: no le afecta la pérdida de orientación, y las cámaras térmica y de alta resolución leen un 20 % más lejos.",
-            "Muy pesado: sus 40 kg restan 4 de combustible.");
+            "Very precise pointing: loss of orientation does not affect it, and the thermal and high-resolution cameras read 20% farther.",
+            "Very heavy: its 40 kg cost 4 fuel.");
         chandra.instrumentosConAlcance = new[] { "termica", "alta_res" }; chandra.factorAlcance = 1.2f;
         chandra.inmuneOrientacion = true;
         var aquarius = Satelite(catalogo, "aquarius", 40, 20,
-            "Radiómetro de microondas: +1 bloque de memoria, y la tormenta creciendo no le baja la calidad de los datos.",
-            "El radiómetro va siempre encendido: +50 W de consumo en la Operación.");
+            "Microwave radiometer: +1 memory block, and the growing storm does not lower its data quality.",
+            "The radiometer is always on: +50 W of power draw during the Operation.");
         aquarius.memoriaExtra = 1; aquarius.inmuneTormenta = true; aquarius.consumoExtraW = 50;
         var llcd = Satelite(catalogo, "llcd", 50, 10,
-            "Comunicación láser: el transmisor gasta 50 W y hay contacto con la Tierra todos los meses.",
-            "El polvo bloquea el láser: si sigues en una tormenta creciendo, el mes siguiente no puedes enviar.");
+            "Laser communication: the transmitter uses 50 W and there is contact with Earth every month.",
+            "Dust blocks the laser: if you stay in a growing storm, you cannot send the next month.");
         llcd.vatiosTransmisor = 50; llcd.cicloContacto = 1; llcd.tormentaBloqueaEnvio = true;
         var aztech = Satelite(catalogo, "aztechsat", 15, 0,
-            "Enlace por la constelación Globalstar: puede enviar cualquier mes, aunque no haya contacto (sin contacto solo caben 2 bloques).",
-            "Plataforma diminuta (CubeSat 1U): 100 W menos de límite de energía y 1 bloque menos de memoria.");
+            "Link through the Globalstar constellation: it can send in any month, even without contact (without contact only 2 blocks fit).",
+            "Tiny platform (1U CubeSat): 100 W lower power limit and 1 fewer memory block.");
         aztech.envioSinVentana = true; aztech.bloquesEnvioSinVentana = 2; aztech.limiteExtraW = -100; aztech.memoriaExtra = -1;
         foreach (var s in catalogo.satelites) EditorUtility.SetDirty(s);
 
-        TextoEvento(catalogo, "sombra", "La nave entra en la sombra del planeta y los paneles dejan de recibir luz. Hay menos potencia durante unos meses.");
-        TextoEvento(catalogo, "orientacion", "La nave pierde la orientación: si no se corrige, el mes siguiente no dará lecturas.");
-        TextoEvento(catalogo, "ventana", "La tormenta se abre sobre la región y deja un claro que se puede aprovechar.");
-        TextoEvento(catalogo, "tormenta", "La tormenta de polvo crece. Desde la altitud normal, los datos del mes siguiente tendrán peor calidad.");
-        TextoEvento(catalogo, "peticion", "El equipo de un rover pide observar un punto cercano para planear su ruta. Si lo observas, la NASA te lo agradece.");
+        TextoEvento(catalogo, "sombra", "The spacecraft enters the planet's shadow and the panels stop receiving light. There is less power for a few months.");
+        TextoEvento(catalogo, "orientacion", "The spacecraft loses its orientation: if it is not corrected, next month will give no readings.");
+        TextoEvento(catalogo, "ventana", "The storm opens up over the region, leaving a clearing you can take advantage of.");
+        TextoEvento(catalogo, "tormenta", "The dust storm is growing. From normal altitude, next month's data will be lower quality.");
+        TextoEvento(catalogo, "peticion", "A rover team asks you to observe a nearby spot to plan its route. If you observe it, NASA will thank you.");
 
         catalogo.objetivos = new List<ObjetivoDatos>
         {
-            Objetivo("rapido", "Conseguir toda la evidencia en 5 observaciones o menos", TipoObjetivo.EscaneosMaximos, 5, 150),
-            Objetivo("sin_apagones", "Ningún apagón", TipoObjetivo.SinApagones, 0, 100),
-            Objetivo("combustible", "Terminar con 5 de combustible o más", TipoObjetivo.CombustibleMinimo, 5, 100),
-            Objetivo("enviar_pronto", "Enviar toda la evidencia antes del último mes", TipoObjetivo.EnviarAntesDeLaUltima, 0, 100),
-            Objetivo("sin_herramientas", "No usar ninguna herramienta", TipoObjetivo.SinHerramientas, 0, 150),
+            Objetivo("rapido", "Get all the evidence in 5 observations or fewer", TipoObjetivo.EscaneosMaximos, 5, 150),
+            Objetivo("sin_apagones", "No blackouts", TipoObjetivo.SinApagones, 0, 100),
+            Objetivo("combustible", "Finish with 5 fuel or more", TipoObjetivo.CombustibleMinimo, 5, 100),
+            Objetivo("enviar_pronto", "Send all the evidence before the last month", TipoObjetivo.EnviarAntesDeLaUltima, 0, 100),
+            Objetivo("sin_herramientas", "Do not use any tools", TipoObjetivo.SinHerramientas, 0, 150),
         };
         EditorUtility.SetDirty(catalogo);
         AssetDatabase.SaveAssets();

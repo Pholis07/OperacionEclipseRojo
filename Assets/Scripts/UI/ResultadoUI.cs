@@ -29,8 +29,8 @@ namespace SpaceMission
         {
             if (e == null || !e.SePuedeLanzar)
             {
-                textoTitulo.text = "Sin misión lanzada";
-                textoConclusion.text = "Vuelve al constructor para preparar y lanzar una misión.";
+                textoTitulo.text = "No mission launched";
+                textoConclusion.text = "Go back to the builder to prepare and launch a mission.";
                 textoEvidencias.text = textoFaltantes.text = textoRecursos.text = textoPuntos.text = "";
                 return;
             }
@@ -41,16 +41,16 @@ namespace SpaceMission
             textoTitulo.text = informe.Titulo;
             textoConclusion.text = informe.Texto;
 
-            var evidencias = "<b>Evidencias obtenidas</b>\n" +
-                             (informe.Evidencias.Count > 0 ? "• " + string.Join("\n• ", informe.Evidencias) : "Ninguna pista principal.");
+            var evidencias = "<b>Evidence obtained</b>\n" +
+                             (informe.Evidencias.Count > 0 ? "• " + string.Join("\n• ", informe.Evidencias) : "No main clue.");
             if (informe.Revelaciones.Count > 0)
-                evidencias += "\n\n<b>Revelación complementaria</b>\n• " + string.Join("\n• ", informe.Revelaciones);
+                evidencias += "\n\n<b>Supporting revelation</b>\n• " + string.Join("\n• ", informe.Revelaciones);
             textoEvidencias.text = evidencias;
 
             textoFaltantes.text = informe.Faltantes.Count > 0
-                ? "<b>Lo que faltó</b>\n• " + string.Join("\n• ", informe.Faltantes)
-                : "<b>Lo que faltó</b>\nNada: la misión cubrió todo lo que pedía su órbita.";
-            textoRecursos.text = "<b>Recursos usados</b>\n" + informe.Recursos;
+                ? "<b>What was missing</b>\n• " + string.Join("\n• ", informe.Faltantes)
+                : "<b>What was missing</b>\nNothing: the mission covered everything its orbit required.";
+            textoRecursos.text = "<b>Resources used</b>\n" + informe.Recursos;
             textoPuntos.text = op != null ? TextoPuntos(e, op, nivel) : "";
         }
 
@@ -58,7 +58,7 @@ namespace SpaceMission
         {
             var lineas = Puntuacion.Desglose(e, op, catalogo, nivel);
             int total = Puntuacion.Total(lineas);
-            var texto = "<b>Puntos: " + TextosBriefing.Numero(total) + "</b>  (" + nivel.nombreNivel + ")\n";
+            var texto = "<b>Points: " + TextosBriefing.Numero(total) + "</b>  (" + nivel.nombreNivel + ")\n";
             foreach (var l in lineas)
                 texto += l.Concepto + ": " + (l.Puntos >= 0 ? "+" : "") + TextosBriefing.Numero(l.Puntos) + "\n";
             texto += MejorPuntaje(total);
@@ -70,14 +70,14 @@ namespace SpaceMission
         {
             var clave = "mejor_puntaje_nivel_" + EstadoJuego.NivelIndice;
             int mejor = PlayerPrefs.GetInt(clave, 0);
-            if (!Application.isPlaying) return "Mejor puntaje en este nivel: " + TextosBriefing.Numero(System.Math.Max(mejor, total));
+            if (!Application.isPlaying) return "Best score on this level: " + TextosBriefing.Numero(System.Math.Max(mejor, total));
             if (total > mejor)
             {
                 PlayerPrefs.SetInt(clave, total);
                 PlayerPrefs.Save();
-                return "<color=#22C55E>¡Nuevo mejor puntaje en este nivel!</color>";
+                return "<color=#22C55E>New best score on this level!</color>";
             }
-            return "Mejor puntaje en este nivel: " + TextosBriefing.Numero(mejor);
+            return "Best score on this level: " + TextosBriefing.Numero(mejor);
         }
 
         public void ModificarMision()

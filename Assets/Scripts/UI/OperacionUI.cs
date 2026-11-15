@@ -143,9 +143,9 @@ namespace SpaceMission
             UltimoResultado = null;
             mapa.Generar(s);
             Escaner = Op.Instrumentos.FirstOrDefault();
-            aviso = "Elige un instrumento, enciéndelo y pulsa en el mapa la región que observará. " +
-                    "Cuando el plan esté listo, pulsa «Resolver mes». Preparar el plan no gasta nada.";
-            textoEvento.text = "Sin incidencias.";
+            aviso = "Choose an instrument, turn it on and click the region on the map it will observe. " +
+                    "When the plan is ready, press “Resolve month”. Preparing the plan costs nothing.";
+            textoEvento.text = "No incidents.";
             MostrarTransmision(Op.Recibidas.Last());
             Refrescar();
         }
@@ -162,10 +162,10 @@ namespace SpaceMission
             if (Op.Encendidos.Contains(id)) Op.Apagar(id);
             else if (!Op.Encender(id))
                 aviso = Op.Bloqueados.ContainsKey(id)
-                    ? Nombre(id) + " está bloqueado por el sobrecalentamiento."
-                    : "No hay potencia para encender " + Nombre(id) + ": apaga otro instrumento.";
+                    ? Nombre(id) + " is locked out by overheating."
+                    : "Not enough power to turn on " + Nombre(id) + ": turn off another instrument.";
             else if (!Op.Regiones.ContainsKey(id))
-                aviso = Nombre(id) + " encendido. Pulsa en el mapa la región que observará.";
+                aviso = Nombre(id) + " ON. Click the region on the map it will observe.";
             Refrescar();
         }
 
@@ -180,8 +180,8 @@ namespace SpaceMission
         {
             if (Op == null || Op.Terminada || Op.EsperandoDecision || resumenPendiente || Escaner == null) return;
             Op.FijarRegion(Escaner, punto);
-            aviso = "Región fijada para " + Nombre(Escaner) + "." +
-                    (Op.Encendidos.Contains(Escaner) ? "" : " Enciéndelo para que observe este mes.");
+            aviso = "Region set for " + Nombre(Escaner) + "." +
+                    (Op.Encendidos.Contains(Escaner) ? "" : " Turn it on so it observes this month.");
             Refrescar();
         }
 
@@ -190,8 +190,8 @@ namespace SpaceMission
             if (Op == null) return;
             if (Op.ManiobraPlaneada.HasValue) Op.CancelarManiobra();
             else if (!Op.PlanearManiobra(Op.Altitud == Altitud.Normal ? Altitud.Baja : Altitud.Normal))
-                aviso = "No se puede maniobrar: hacen falta " + Op.CostoCambioAltitud + " de combustible y " +
-                        Reglas.creditosPorManiobra + " créditos. No se cobró nada.";
+                aviso = "Cannot maneuver: you need " + Op.CostoCambioAltitud + " fuel and " +
+                        Reglas.creditosPorManiobra + " credits. Nothing was charged.";
             Refrescar();
         }
 
@@ -212,7 +212,7 @@ namespace SpaceMission
             var r = Op.ResolverMes(Op.Mes);
             if (!r.Valido)
             {
-                aviso = "<color=#F4C46A><b>No se puede resolver:</b></color> " + r.Motivo + ".";
+                aviso = "<color=#F4C46A><b>Cannot resolve:</b></color> " + r.Motivo + ".";
                 Refrescar();
                 return;
             }
@@ -248,9 +248,9 @@ namespace SpaceMission
             var evento = Op.Decision;
             int apagones = Op.Apagones;
             if (opcion == null || !Op.Decidir(opcion)) return;
-            textoEvento.text = "<b><color=#F4C46A>" + evento.Datos.nombre + "</color></b>\nDecidiste: " + opcion.texto + ".";
+            textoEvento.text = "<b><color=#F4C46A>" + evento.Datos.nombre + "</color></b>\nYou decided: " + opcion.texto + ".";
             if (Op.PeticionAceptada && opcion.efecto == EfectoOpcion.AceptarObjetivo)
-                aviso = "La NASA marcó un punto morado en el mapa: obsérvalo con cualquier instrumento para cumplir la petición.";
+                aviso = "NASA marked a purple point on the map: observe it with any instrument to fulfill the request.";
             if (Op.Apagones > apagones) aviso = MensajeApagon();
             Refrescar();
         }
@@ -259,7 +259,7 @@ namespace SpaceMission
         {
             if (Op == null) return;
             if (Op.UsarHerramienta(id))
-                textoEvento.text = "<b>" + catalogo.Herramienta(id).nombre + "</b>: problema resuelto.";
+                textoEvento.text = "<b>" + catalogo.Herramienta(id).nombre + "</b>: problem solved.";
             Refrescar();
         }
 
@@ -278,59 +278,59 @@ namespace SpaceMission
         {
             var decidi = new List<string>();
             if (r.Observaciones.Count + r.SinMemoria.Count + r.SinRegion.Count > 0)
-                decidi.Add("observar con " + string.Join(", ", r.Observaciones.Select(o => o.Instrumento)
+                decidi.Add("observe with " + string.Join(", ", r.Observaciones.Select(o => o.Instrumento)
                     .Concat(r.SinMemoria).Concat(r.SinRegion).Select(Nombre)));
-            else decidi.Add("no observar");
-            if (r.Maniobra) decidi.Add("maniobrar a la órbita " + (r.Altitud == Altitud.Baja ? "baja" : "normal"));
-            if (r.EnvioPedido) decidi.Add("enviar a la Tierra");
+            else decidi.Add("not observe");
+            if (r.Maniobra) decidi.Add("maneuver to " + (r.Altitud == Altitud.Baja ? "low" : "normal") + " orbit");
+            if (r.EnvioPedido) decidi.Add("send to Earth");
 
             var ocurrio = new List<string>();
             foreach (var o in r.Observaciones)
                 ocurrio.Add("• " + Nombre(o.Instrumento) + ": " + TextoLectura(o) + (o.Evidencias.Count > 0
-                    ? " <color=#22C55E>Evidencia válida, en memoria.</color>" : ""));
-            foreach (var id in r.SinMemoria) ocurrio.Add("• " + Nombre(id) + ": <color=#F4C46A>sin memoria</color>, no se registró nada.");
-            foreach (var id in r.SinRegion) ocurrio.Add("• " + Nombre(id) + ": encendido sin región, no observó.");
-            if (r.DiasUtiles == 0) ocurrio.Add("• El mes no tuvo días útiles: no se observó.");
+                    ? " <color=#22C55E>Valid evidence, in memory.</color>" : ""));
+            foreach (var id in r.SinMemoria) ocurrio.Add("• " + Nombre(id) + ": <color=#F4C46A>no memory</color>, nothing was recorded.");
+            foreach (var id in r.SinRegion) ocurrio.Add("• " + Nombre(id) + ": ON with no region, did not observe.");
+            if (r.DiasUtiles == 0) ocurrio.Add("• The month had no useful days: nothing was observed.");
             if (r.Observaciones.Count == 0 && r.SinMemoria.Count == 0 && r.SinRegion.Count == 0 && r.DiasUtiles > 0)
-                ocurrio.Add("• Ningún instrumento observó este mes.");
+                ocurrio.Add("• No instrument observed this month.");
             if (r.EnvioPedido)
                 ocurrio.Add(r.EnvioFallido != null
-                    ? "• <color=#F4C46A>No se envió:</color> " + r.EnvioFallido + ". Los datos siguen en la memoria."
-                    : "• Envío: " + r.BloquesEnviados + " bloques a la Tierra" +
-                      (r.Enviadas.Count > 0 ? ", con <color=#22C55E>" + r.Enviadas.Count + " evidencia(s) recibida(s)</color>." : ", sin evidencias nuevas."));
-            if (r.SubidaForzada) ocurrio.Add("• Sin combustible para el arrastre: la nave subió sola a la órbita normal.");
+                    ? "• <color=#F4C46A>Not sent:</color> " + r.EnvioFallido + ". The data is still in memory."
+                    : "• Transmission: " + r.BloquesEnviados + (r.BloquesEnviados == 1 ? " block" : " blocks") + " to Earth" +
+                      (r.Enviadas.Count > 0 ? ", with <color=#22C55E>" + r.Enviadas.Count + (r.Enviadas.Count == 1 ? " piece" : " pieces") + " of evidence received</color>." : ", no new evidence."));
+            if (r.SubidaForzada) ocurrio.Add("• Not enough fuel to counter drag: the spacecraft climbed back to normal orbit on its own.");
 
             var gaste = new List<string>();
-            if (r.CreditosGastados > 0) gaste.Add(r.CreditosGastados + " créditos");
-            if (r.CombustibleGastado > 0) gaste.Add(r.CombustibleGastado + " de combustible");
-            if (r.Maniobra) gaste.Add(Reglas.diasPorManiobra + " días por la maniobra");
+            if (r.CreditosGastados > 0) gaste.Add(r.CreditosGastados + " credits");
+            if (r.CombustibleGastado > 0) gaste.Add(r.CombustibleGastado + " fuel");
+            if (r.Maniobra) gaste.Add(Reglas.diasPorManiobra + " days on the maneuver");
 
-            string sigue = r.Termino ? "La campaña terminó. Pulsa «Ver informe»."
-                : "Mes " + Op.Mes + ". " + (Op.ContactoAbierto ? "Hay contacto con la Tierra." : "Contacto en " + Meses(Op.MesesParaContacto) + ".") +
-                  (r.Evento != null && Op.EsperandoDecision ? " Control de Misión espera una decisión: " + r.Evento.Datos.nombre + "." : "") +
-                  " Los instrumentos encendidos siguen encendidos.";
+            string sigue = r.Termino ? "The campaign is over. Press “View report”."
+                : "Month " + Op.Mes + ". " + (Op.ContactoAbierto ? "Contact with Earth is open." : "Contact in " + Meses(Op.MesesParaContacto) + ".") +
+                  (r.Evento != null && Op.EsperandoDecision ? " Mission Control awaits a decision: " + r.Evento.Datos.nombre + "." : "") +
+                  " Instruments that are ON stay ON.";
 
-            return "<b>Mes " + r.Mes + " resuelto</b>  ·  " + r.DiasUtiles + " días útiles\n\n" +
-                   "<b>Decidiste:</b> " + string.Join(", ", decidi) + ".\n\n" +
-                   "<b>Ocurrió:</b>\n" + string.Join("\n", ocurrio) + "\n\n" +
-                   "<b>Gastaste:</b> " + (gaste.Count > 0 ? string.Join(", ", gaste) : "nada") + ".\n\n" +
-                   "<b>Sigue:</b> " + sigue;
+            return "<b>Month " + r.Mes + " resolved</b>  ·  " + r.DiasUtiles + (r.DiasUtiles == 1 ? " useful day" : " useful days") + "\n\n" +
+                   "<b>You decided:</b> " + string.Join(", ", decidi) + ".\n\n" +
+                   "<b>What happened:</b>\n" + string.Join("\n", ocurrio) + "\n\n" +
+                   "<b>You spent:</b> " + (gaste.Count > 0 ? string.Join(", ", gaste) : "nothing") + ".\n\n" +
+                   "<b>Next:</b> " + sigue;
         }
 
-        static string Meses(int n) => n + (n == 1 ? " mes" : " meses");
+        static string Meses(int n) => n + (n == 1 ? " month" : " months");
 
         string TextoLectura(Registro o)
         {
-            string calidad = " (calidad " + Mathf.RoundToInt(o.Calidad) + ")";
+            string calidad = " (quality " + Mathf.RoundToInt(o.Calidad) + ")";
             switch (o.Lectura)
             {
                 case Lectura.Encontrada:
-                    return "<color=#22C55E><b>anomalía observada</b></color>" + calidad + "." +
-                           (o.Calidad < Reglas.calidadMinima ? " <color=#F4C46A>Calidad insuficiente: no vale como evidencia.</color>" : "");
-                case Lectura.Caliente: return "<color=#E2643A><b>caliente</b></color>, muy cerca" + calidad + ".";
-                case Lectura.Tibio: return "<color=#EAB308><b>tibio</b></color>, te acercas" + calidad + ".";
-                case Lectura.Frio: return "<color=#60A5FA><b>frío</b></color>, lejos de la anomalía" + calidad + ".";
-                default: return "<b>sin lectura</b>: la nave estaba desorientada.";
+                    return "<color=#22C55E><b>anomaly observed</b></color>" + calidad + "." +
+                           (o.Calidad < Reglas.calidadMinima ? " <color=#F4C46A>Quality too low: does not count as evidence.</color>" : "");
+                case Lectura.Caliente: return "<color=#E2643A><b>hot</b></color>, very close" + calidad + ".";
+                case Lectura.Tibio: return "<color=#EAB308><b>warm</b></color>, getting closer" + calidad + ".";
+                case Lectura.Frio: return "<color=#60A5FA><b>cold</b></color>, far from the anomaly" + calidad + ".";
+                default: return "<b>no reading</b>: the spacecraft was disoriented.";
             }
         }
 
@@ -338,37 +338,37 @@ namespace SpaceMission
         {
             string motivo = Op.MotivoPlanInvalido;
             int prevista = Op.MemoriaUsada + Op.BloquesPrevistos;
-            var t = "<b>Previsión del mes " + Op.Mes + ":</b> " + Op.DiasPrevistos + " días útiles  ·  consumo " + Op.ConsumoW + " / " + Op.LimiteW + " W" +
-                    "  ·  memoria " + prevista + " / " + Op.MemoriaCapacidad + " bloques" +
-                    (prevista > Op.MemoriaCapacidad ? " <color=#F4C46A>(no cabrá todo)</color>" : "");
+            var t = "<b>Month " + Op.Mes + " forecast:</b> " + Op.DiasPrevistos + (Op.DiasPrevistos == 1 ? " useful day" : " useful days") + "  ·  power draw " + Op.ConsumoW + " / " + Op.LimiteW + " W" +
+                    "  ·  memory " + prevista + " / " + Op.MemoriaCapacidad + " blocks" +
+                    (prevista > Op.MemoriaCapacidad ? " <color=#F4C46A>(not everything will fit)</color>" : "");
             if (Op.ManiobraPlaneada.HasValue)
-                t += "\nManiobra: " + Reglas.creditosPorManiobra + " cr, " + Op.CostoCambioAltitud + " de combustible y " + Reglas.diasPorManiobra + " días.";
+                t += "\nManeuver: " + Reglas.creditosPorManiobra + " cr, " + Op.CostoCambioAltitud + " fuel and " + Reglas.diasPorManiobra + " days.";
             if (Op.TransmitirPlaneado)
-                t += "\nEnvío al final del mes: " + (Op.MotivoSinEnvio == null
-                    ? "sí (los instrumentos se apagan solos durante la ventana)."
-                    : "<color=#F4C46A>no se podrá, " + Op.MotivoSinEnvio + "</color>.");
+                t += "\nSend at month end: " + (Op.MotivoSinEnvio == null
+                    ? "yes (instruments turn off automatically during the window)."
+                    : "<color=#F4C46A>not possible, " + Op.MotivoSinEnvio + "</color>.");
             if (motivo != null && !Op.Terminada && !Op.EsperandoDecision) t += "\n<color=#F4C46A>" + motivo + ".</color>";
-            if (Op.Terminada) t = "La campaña terminó. Lo que no se envió no cuenta como evidencia.";
+            if (Op.Terminada) t = "The campaign is over. Anything not sent does not count as evidence.";
             return t + (aviso.Length > 0 ? "\n" + aviso : "");
         }
 
         void MostrarTransmision(string id)
         {
             var t = catalogo.Transmision(id);
-            string encabezado = string.IsNullOrEmpty(t.instrumentoId) ? "Inicio de la observación" : "Transmisión: " + Nombre(t.instrumentoId);
+            string encabezado = string.IsNullOrEmpty(t.instrumentoId) ? "Start of observation" : "Transmission: " + Nombre(t.instrumentoId);
             textoTransmision.text = "<b>" + encabezado + "</b>\n" + t.texto;
         }
 
         void MostrarEvento(EventoActivo e)
         {
             textoEvento.text = "<b><color=#F4C46A>" + e.Datos.nombre + "</color></b>\n" + (e.EvitadoPorSatelite
-                ? "Al " + Op.Satelite.nombre + " no le afectó: su apunte es muy preciso."
-                : "Control de Misión espera tu decisión.");
+                ? "It did not affect the " + Op.Satelite.nombre + ": its pointing is very precise."
+                : "Mission Control awaits your decision.");
         }
 
         string MensajeApagon() =>
-            "<color=#EF4444><b>Modo seguro.</b></color> El evento dejó el consumo por encima del límite: la nave apagó los instrumentos, " +
-            "el reinicio costó " + Reglas.creditosPorReinicio + " créditos y el mes siguiente pierde " + Reglas.diasPerdidosPorApagon + " días.";
+            "<color=#EF4444><b>Safe mode.</b></color> The event pushed power draw above the limit: the spacecraft turned off its instruments, " +
+            "the restart cost " + Reglas.creditosPorReinicio + " credits and next month loses " + Reglas.diasPerdidosPorApagon + " days.";
 
         static Color ColorLectura(Lectura l)
         {
@@ -397,16 +397,16 @@ namespace SpaceMission
                 var i = catalogo.Instrumento(id);
                 bool encendido = Op.Encendidos.Contains(id);
                 bool bloqueado = Op.Bloqueados.TryGetValue(id, out int resta);
-                string estado = bloqueado ? "BLOQUEADO (" + Meses(resta) + ")"
-                    : !encendido ? "apagado"
-                    : Op.Regiones.ContainsKey(id) ? "OBSERVANDO" : "ENCENDIDO, SIN REGIÓN";
+                string estado = bloqueado ? "LOCKED (" + Meses(resta) + ")"
+                    : !encendido ? "OFF"
+                    : Op.Regiones.ContainsKey(id) ? "OBSERVING" : "ON, NO REGION";
                 var fila = Instantiate(plantillaInstrumento, listaInstrumentos);
                 fila.gameObject.SetActive(true);
                 fila.name = "Instrumento_" + id;
                 fila.GetComponent<UnityEngine.UI.Image>().color =
                     bloqueado ? ColorBloqueado : Escaner == id ? ColorElegido : encendido ? ColorEncendido : ColorNormal;
                 fila.GetComponentInChildren<TMP_Text>().text =
-                    (Escaner == id ? "» " : "") + i.nombre + "  ·  " + i.ConsumoTotalW + " W  ·  " + i.bloquesDatos + " bl.  ·  " + estado;
+                    (Escaner == id ? "→ " : "") + i.nombre + "  ·  " + i.ConsumoTotalW + " W  ·  " + i.bloquesDatos + " bl.  ·  " + estado;
                 fila.onClick.AddListener(() => { if (Escaner == id || !Op.Encendidos.Contains(id)) AlternarInstrumento(id); else ElegirEscaner(id); });
                 filas.Add(fila.gameObject);
             }
@@ -417,7 +417,7 @@ namespace SpaceMission
                 boton.gameObject.SetActive(true);
                 boton.name = "Herramienta_" + h.id;
                 boton.interactable = Op.HerramientasUtiles.Contains(h.id) && !pausa;
-                boton.GetComponentInChildren<TMP_Text>().text = h.nombre + (Op.HerramientasUsadas.Contains(h.id) ? " (usada)" : "");
+                boton.GetComponentInChildren<TMP_Text>().text = h.nombre + (Op.HerramientasUsadas.Contains(h.id) ? " (used)" : "");
                 boton.onClick.AddListener(() => UsarHerramienta(h.id));
                 filas.Add(boton.gameObject);
             }
@@ -432,41 +432,41 @@ namespace SpaceMission
             rellenoEnergia.anchorMax = new Vector2(Mathf.Clamp01((float)Op.ConsumoW / limite), 1);
             rellenoEnergia.GetComponent<UnityEngine.UI.Image>().color =
                 Op.ConsumoW > Op.LimiteW * 0.9f ? new Color32(0xEF, 0x44, 0x44, 0xFF) : new Color32(0x22, 0xC5, 0x5E, 0xFF);
-            textoEnergia.text = "Potencia: " + Op.ConsumoW + " / " + Op.LimiteW + " W";
-            textoOrbitas.text = Op.Terminada ? "Campaña terminada"
-                : "Mes " + Op.Mes + " de " + (Op.MesesResueltos + Op.MesesRestantes);
+            textoEnergia.text = "Power: " + Op.ConsumoW + " / " + Op.LimiteW + " W";
+            textoOrbitas.text = Op.Terminada ? "Campaign over"
+                : "Month " + Op.Mes + " of " + (Op.MesesResueltos + Op.MesesRestantes);
 
-            textoCombustible.text = "Altitud: " + (Op.Altitud == Altitud.Baja ? "baja" : "normal") + "  ·  Combustible: " + Op.Combustible +
-                                    "  ·  Créditos: " + TextosBriefing.Numero(Op.CreditosDisponibles);
+            textoCombustible.text = "Altitude: " + (Op.Altitud == Altitud.Baja ? "low" : "normal") + "  ·  Fuel: " + Op.Combustible +
+                                    "  ·  Credits: " + TextosBriefing.Numero(Op.CreditosDisponibles);
             botonAltitud.interactable = !pausa;
             botonAltitud.GetComponentInChildren<TMP_Text>().text = Op.ManiobraPlaneada.HasValue
-                ? "Maniobra planeada: cancelar"
-                : (Op.Altitud == Altitud.Normal ? "Bajar a órbita baja" : "Subir a órbita normal") +
-                  " (" + Reglas.creditosPorManiobra + " cr, " + Op.CostoCambioAltitud + " comb., " + Reglas.diasPorManiobra + " días)";
+                ? "Maneuver planned: cancel"
+                : (Op.Altitud == Altitud.Normal ? "Descend to low orbit" : "Climb to normal orbit") +
+                  " (" + Reglas.creditosPorManiobra + " cr, " + Op.CostoCambioAltitud + " fuel, " + Reglas.diasPorManiobra + " days)";
 
-            textoMemoria.text = "Memoria: " + Op.MemoriaUsada + " / " + Op.MemoriaCapacidad + " bloques  ·  " +
-                (Op.EnvioBloqueado ? "<color=#F4C46A>el polvo bloquea el láser</color>"
-                : Op.ContactoAbierto ? "<color=#22C55E>contacto con la Tierra este mes</color>"
-                : "contacto en " + Meses(Op.MesesParaContacto) + (Op.PuedeEnviarSinVentana ? " (Globalstar: " + Op.Satelite.bloquesEnvioSinVentana + " bloques)" : ""));
+            textoMemoria.text = "Memory: " + Op.MemoriaUsada + " / " + Op.MemoriaCapacidad + " blocks  ·  " +
+                (Op.EnvioBloqueado ? "<color=#F4C46A>dust is blocking the laser</color>"
+                : Op.ContactoAbierto ? "<color=#22C55E>contact with Earth this month</color>"
+                : "contact in " + Meses(Op.MesesParaContacto) + (Op.PuedeEnviarSinVentana ? " (Globalstar: " + Op.Satelite.bloquesEnvioSinVentana + " blocks)" : ""));
             botonEnviar.interactable = !pausa;
-            botonEnviar.GetComponentInChildren<TMP_Text>().text = "Enviar al final del mes: " + (Op.TransmitirPlaneado ? "SÍ" : "no");
+            botonEnviar.GetComponentInChildren<TMP_Text>().text = "Send at month end: " + (Op.TransmitirPlaneado ? "YES" : "no");
             botonEnviar.GetComponent<UnityEngine.UI.Image>().color = Op.TransmitirPlaneado ? ColorEncendido : ColorNormal;
 
             botonResolver.interactable = !pausa;
-            botonResolver.GetComponentInChildren<TMP_Text>().text = "Resolver mes " + (Op.Terminada ? "" : Op.Mes.ToString());
-            botonTerminar.GetComponentInChildren<TMP_Text>().text = Op.Completa || Op.Terminada ? "Ver informe" : "Terminar misión";
+            botonResolver.GetComponentInChildren<TMP_Text>().text = "Resolve month " + (Op.Terminada ? "" : Op.Mes.ToString());
+            botonTerminar.GetComponentInChildren<TMP_Text>().text = Op.Completa || Op.Terminada ? "View report" : "End mission";
 
             var objetivos = Op.Objetivos.Select(o => "• " + o.texto + " (+" + o.puntos + ")").ToList();
             if (Op.PeticionAceptada)
-                objetivos.Add("• <color=#A855F7>Petición de la NASA</color>: observar el punto morado (+" + Op.PuntosPeticion + ")" +
-                              (Op.PeticionCumplida ? " <color=#22C55E>cumplida</color>" : ""));
-            textoObjetivos.text = objetivos.Count > 0 ? "<b>Objetivos extra</b>\n" + string.Join("\n", objetivos) : "";
+                objetivos.Add("• <color=#A855F7>NASA request</color>: observe the purple point (+" + Op.PuntosPeticion + ")" +
+                              (Op.PeticionCumplida ? " <color=#22C55E>fulfilled</color>" : ""));
+            textoObjetivos.text = objetivos.Count > 0 ? "<b>Bonus objectives</b>\n" + string.Join("\n", objetivos) : "";
 
             int enMemoria = Op.Memoria.Sum(r => r.Evidencias.Count);
             int recibidas = Op.Recibidas.Count(id => !string.IsNullOrEmpty(catalogo.Transmision(id).instrumentoId));   // TX-00 es de la misión
             int total = recibidas + enMemoria + Op.Pendientes.Count;
-            textoProgreso.text = "Evidencias recibidas: " + recibidas + " de " + total +
-                                 (enMemoria > 0 ? "  ·  " + enMemoria + " en memoria" : "");
+            textoProgreso.text = "Evidence received: " + recibidas + " of " + total +
+                                 (enMemoria > 0 ? "  ·  " + enMemoria + " in memory" : "");
             textoLectura.text = TextoPrevision();
             DibujarDecision();
             ActualizarPaneles();
@@ -476,7 +476,7 @@ namespace SpaceMission
         {
             if (!Op.EsperandoDecision) return;
             textoDecision.text = "<b><color=#F4C46A>" + Op.Decision.Datos.nombre + "</color></b>\n" + Op.Decision.Datos.texto +
-                                 "\n\n<b>Control de Misión:</b> ¿qué hacemos?";
+                                 "\n\n<b>Mission Control:</b> what do we do?";
             int i = 0;
             foreach (var o in Op.Opciones.ToList())
             {
@@ -486,7 +486,7 @@ namespace SpaceMission
                 boton.gameObject.SetActive(true);
                 boton.name = "Respuesta_" + indice;
                 boton.interactable = puede;
-                boton.GetComponentInChildren<TMP_Text>().text = o.texto + (puede ? "" : "  (no alcanza el combustible)");
+                boton.GetComponentInChildren<TMP_Text>().text = o.texto + (puede ? "" : "  (not enough fuel)");
                 boton.onClick.AddListener(() => Decidir(indice));
                 filas.Add(boton.gameObject);
             }

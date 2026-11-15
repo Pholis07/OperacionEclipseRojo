@@ -54,7 +54,7 @@ namespace SpaceMission.Tests
                 Assert.AreEqual(resultado, e.Categoria.ToString(), "resultado del caso " + caso);
             CollectionAssert.AreEqual(Lista(transmisiones), e.Transmisiones, "transmisiones del caso " + caso);
             CollectionAssert.AreEqual(Lista(ausentes), e.Ausentes, "ausentes del caso " + caso);
-            Assert.AreEqual(fracasoSeguro, e.Mensaje.Contains("fracaso seguro"), "aviso del caso " + caso + ": " + e.Mensaje);
+            Assert.AreEqual(fracasoSeguro, e.Mensaje.Contains("certain failure"), "aviso del caso " + caso + ": " + e.Mensaje);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace SpaceMission.Tests
         {
             var e = Evaluar("titan", "polar", "alta_res+atmosferico");
             Assert.AreEqual(CategoriaResultado.Fracaso, e.Categoria);
-            StringAssert.Contains("fracaso seguro", e.Mensaje);
+            StringAssert.Contains("certain failure", e.Mensaje);
             CollectionAssert.Contains(e.Transmisiones, "TX-04");
             CollectionAssert.IsEmpty(e.PistasPrincipales);
         }
@@ -81,19 +81,19 @@ namespace SpaceMission.Tests
         public void ElMensajeRojoDiceCadaLimiteSuperado()
         {
             var e = Evaluar("titan", "media", "termica+radar+espectrometro+atmosferico");
-            StringAssert.Contains("masa", e.Mensaje);
-            StringAssert.Contains("potencia", e.Mensaje);
-            StringAssert.Contains("presupuesto", e.Mensaje);
-            StringAssert.DoesNotContain("espacios", e.Mensaje);
+            StringAssert.Contains("mass", e.Mensaje);
+            StringAssert.Contains("power", e.Mensaje);
+            StringAssert.Contains("budget", e.Mensaje);
+            StringAssert.DoesNotContain("slots", e.Mensaje);
         }
 
         [Test]
         public void ElMensajeGrisDiceQueFalta()
         {
             var e = Evaluar("titan", null, "");
-            StringAssert.Contains("órbita", e.Mensaje);
-            StringAssert.Contains("instrumento", e.Mensaje);
-            StringAssert.DoesNotContain("lanzador", e.Mensaje);
+            StringAssert.Contains("orbit", e.Mensaje);
+            StringAssert.Contains("instrument", e.Mensaje);
+            StringAssert.DoesNotContain("launcher", e.Mensaje);
         }
 
         [Test]

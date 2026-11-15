@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Instrumento_alta_res
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: alta_res
-  nombre: "C\xE1mara de alta resoluci\xF3n"
+  nombre: "High-resolution camera"
   masaKg: 85
   potenciaNormalW: 90
   extraTormentaW: 60
   costoCr: 130
   bloquesDatos: 1
-  pistaAsociada: "im\xE1genes de detalle de la superficie"
-  textoAyuda: "Toma im\xE1genes n\xEDtidas entre el polvo y aporta im\xE1genes de detalle de la superficie. Consumo: 150 W: 90 W normal + 60 W por la tormenta."
+  pistaAsociada: "detail images of the surface"
+  textoAyuda: "Takes sharp images through the dust and provides detail images of the surface. Power: 150 W: 90 W normal + 60 W due to the storm."

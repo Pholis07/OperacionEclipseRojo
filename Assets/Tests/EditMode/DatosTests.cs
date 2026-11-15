@@ -84,7 +84,7 @@ namespace SpaceMission.Tests
         public void LaAyudaDeCadaInstrumentoMuestraElDesgloseDelConsumo(string id)
         {
             var i = catalogo.Instrumento(id);
-            var desglose = i.ConsumoTotalW + " W: " + i.potenciaNormalW + " W normal + " + i.extraTormentaW + " W por la tormenta";
+            var desglose = i.ConsumoTotalW + " W: " + i.potenciaNormalW + " W normal + " + i.extraTormentaW + " W due to the storm";
             StringAssert.Contains(desglose, i.textoAyuda);
             Assert.IsNotEmpty(i.pistaAsociada, "Falta la evidencia que aporta " + id);
         }

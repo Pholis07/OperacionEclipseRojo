@@ -13,25 +13,25 @@ MonoBehaviour:
   m_Name: Evento_sobrecalentamiento
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: sobrecalentamiento
-  nombre: Sobrecalentamiento
-  texto: "El instrumento encendido que m\xE1s consume se calienta demasiado y se apaga para protegerse."
+  nombre: "Overheating"
+  texto: "The active instrument that uses the most power gets too hot and shuts down to protect itself."
   efecto: 2
   vatios: 0
   orbitas: 2
   herramientaId: refrigeracion
   puntos: 0
   opciones:
-  - texto: "Usar la refrigeraci\xF3n de emergencia"
+  - texto: "Use the emergency cooling"
     efecto: 0
     combustible: 0
     orbitas: 0
     duracion: 0
-  - texto: Girar la nave hacia la sombra (-2 de combustible, bloqueo de 1 mes)
+  - texto: "Turn the spacecraft toward the shade (-2 fuel, 1-month lockout)"
     efecto: 2
     combustible: 2
     orbitas: 0
     duracion: 1
-  - texto: "Esperar a que se enfr\xEDe (bloqueo de 2 meses)"
+  - texto: "Wait for it to cool down (2-month lockout)"
     efecto: 3
     combustible: 0
     orbitas: 0

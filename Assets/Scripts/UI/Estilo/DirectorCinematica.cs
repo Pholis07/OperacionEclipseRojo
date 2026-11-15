@@ -58,6 +58,10 @@ namespace SpaceMission
         [SerializeField] Transform[] propulsoresExplorador;    // los cuatro bloques laterales (se abren en cruz)
         [SerializeField] Transform[] propulsoresTitan;         // los dos propulsores laterales del SLS
         [SerializeField] AudioSource fuenteBucle;              // ambiente de la costa y rugido del motor (en bucle)
+        [SerializeField] Transform[] cofiaExplorador;          // dos mitades con bisagra (se abren en órbita)
+        [SerializeField] Transform[] cofiaTitan;
+        [SerializeField] ParticleSystem pirotecnia;             // destello de los pernos al soltar la cofia
+        [SerializeField] ParticleSystem gasFrio;                // pulsos de los propulsores de control (sin sonido)
         [SerializeField] CanvasGroup destello;                  // destello blanco al encender
         [SerializeField] Color colorNiebla = new Color(0.72f, 0.79f, 0.86f);
 
@@ -88,6 +92,7 @@ namespace SpaceMission
         Quaternion rotCohete;
         Renderer[] llamas, llamaSuperior;
         float sacudida, potencia;
+        Vector3 escalaSatelite = Vector3.zero;   // la toma 7 lo encoge para que quepa en la cofia
         MaterialPropertyBlock bloque;
         readonly System.Collections.Generic.List<(Transform t, Vector3 p, Quaternion r, bool activo)> poses =
             new System.Collections.Generic.List<(Transform, Vector3, Quaternion, bool)>();
@@ -153,6 +158,7 @@ namespace SpaceMission
             llamaSuperior = titan ? llamaSuperiorTitan : llamaSuperiorExplorador;
             var propulsores = titan ? propulsoresTitan : propulsoresExplorador;
             GuardarPoses(propulsores);
+            if (escenario != null && escenario.Satelite != null) escalaSatelite = escenario.Satelite.localScale;
             if (coheteExplorador != null) coheteExplorador.gameObject.SetActive(!titan);
             if (coheteTitan != null) coheteTitan.gameObject.SetActive(titan);
             // El elegido, en el centro de la plataforma (bajo los brazos de la torre).
@@ -174,13 +180,13 @@ namespace SpaceMission
             var basePos = posCohete;
 
             // 1) Plano general del complejo: árboles delante, el mar detrás, cuenta atrás.
-            Toma(1, "COMPLEJO DE LANZAMIENTO");
+            Toma(1, "LAUNCH COMPLEX");
             Sonar(ArteDatos.Efecto.CuentaAtras);
             yield return Cortar(false);
             for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
             {
                 float k = t / 3.6f;
-                textoCuenta.text = t < 1.2f ? "T−05" : t < 2.4f ? "T−04" : "T−03";
+                textoCuenta.text = t < 1.2f ? "T-05" : t < 2.4f ? "T-04" : "T-03";
                 var cam = basePos + Vector3.Lerp(new Vector3(-58f, 13f, -80f), new Vector3(-50f, 11.5f, -70f), k);
                 Mirar(cam, basePos + Vector3.up * alto * 0.5f, 30f);
                 yield return null;
@@ -188,12 +194,12 @@ namespace SpaceMission
 
             // 2) Los motores de cerca: chispas, voz de control y encendido.
             yield return Cortar(true);
-            Toma(2, "SECUENCIA DE ENCENDIDO");
+            Toma(2, "IGNITION SEQUENCE");
             Sonar(ArteDatos.Efecto.VozEncendido);
             bool chispazo = false, encendido = false;
             for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
             {
-                textoCuenta.text = t < 1.2f ? "T−02" : t < 2.4f ? "T−01" : "";
+                textoCuenta.text = t < 1.2f ? "T-02" : t < 2.4f ? "T-01" : "";
                 if (!chispazo && t > 0.5f)
                 {
                     chispazo = true;
@@ -221,7 +227,7 @@ namespace SpaceMission
 
             // 3) Los brazos de la torre se retiran y el cohete despega, visto desde abajo.
             yield return Cortar(false);
-            Toma(3, "¡DESPEGUE!");
+            Toma(3, "LIFTOFF!");
             Sonar(ArteDatos.Efecto.BrazosTorre);
             bool voz = false;
             float subida = 0f;
@@ -243,7 +249,7 @@ namespace SpaceMission
 
             // 4) Desde detrás de los árboles: sube dejando su columna de humo.
             yield return Cortar(true);
-            Toma(4, "ASCENSO");
+            Toma(4, "ASCENT");
             if (estela != null) estela.Play();
             var camArboles = basePos + new Vector3(31f, 4.2f, -52f);
             float inicio4 = subida;
@@ -257,7 +263,7 @@ namespace SpaceMission
 
             // 5) Entre las nubes: el cielo pasa de azul al negro del espacio; el cohete empieza a inclinarse.
             yield return Cortar(true);
-            Toma(5, "ATRAVESANDO LAS NUBES");
+            Toma(5, "THROUGH THE CLOUDS");
             for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
             {
                 float k = t / 3.6f;
@@ -271,7 +277,7 @@ namespace SpaceMission
 
             // 6) En órbita terrestre: separación propia de cada cohete (en el vacío no suena el motor).
             yield return Cortar(true);
-            Toma(6, "SEPARACIÓN DE ETAPAS");
+            Toma(6, "STAGE SEPARATION");
             Encender(false);
             DetenerBucle();
             Activar(false, true, false);
@@ -327,33 +333,102 @@ namespace SpaceMission
                 yield return null;
             }
 
-            // 7) Se libera la carga científica (el satélite elegido, con sus instrumentos).
-            Toma(7, "CARGA CIENTÍFICA LIBERADA");
+            // 7) La cofia se abre y el satélite se separa: pernos, mitades que se alejan girando, resortes que
+            //    empujan la carga y la etapa superior que se aparta con pulsos de gas frío (en el vacío, sin motor).
+            Toma(7, "FAIRING SEPARATION · PAYLOAD RELEASE");
             EncenderSuperior(false);
-            Sonar(ArteDatos.Efecto.Despliegue);
+            var cofia = titan ? cofiaTitan : cofiaExplorador;
             var sat = escenario.Satelite;
             var escalaSat = sat.localScale;
-            var inicioSat = CentroVisual(superior) + adelante * alto * 0.25f;
-            for (float t = 0f; t < 2f && !omitir; t += Time.deltaTime)
+            var nariz = Vector3.zero;
+            foreach (var c in cofia) nariz += CentroVisual(c) / cofia.Length;
+            var radioNariz = alto * (titan ? 0.028f : 0.04f);
+            // El satélite viaja dentro de la cofia, a una escala que cabe en ella.
+            sat.localScale = escalaSat;
+            float tamano = Mathf.Max(0.01f, TamanoVisual(sat));
+            sat.localScale = escalaSat * (radioNariz * 1.5f / tamano);
+            var poseSuperior = superior.position;
+            var giroSuperior = superior.rotation;
+            var desfaseNariz = nariz - poseSuperior;
+            var giroBisagra = new Quaternion[cofia.Length];
+            for (int i = 0; i < cofia.Length; i++) giroBisagra[i] = cofia[i].rotation;
+            var ejes = new Vector3[cofia.Length];
+            var haciaFuera = new Vector3[cofia.Length];
+            for (int i = 0; i < cofia.Length; i++)
             {
-                sat.position = inicioSat + adelante * (t * alto * 0.12f);
-                // Los instrumentos (cara −Z de la nave) hacia la cámara, girando despacio.
-                sat.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up) * Quaternion.Euler(0f, 25f + t * 10f, 0f);
-                superior.position -= adelante * Time.deltaTime * alto * 0.05f;
-                Mirar(sat.position + Vector3.up * 1.2f + Vector3.back * 5.5f - adelante * 1.5f, sat.position, 42f);
+                haciaFuera[i] = Vector3.ProjectOnPlane(CentroVisual(cofia[i]) - nariz, adelante).normalized;
+                if (haciaFuera[i].sqrMagnitude < 0.01f) haciaFuera[i] = i == 0 ? lado : -lado;
+                ejes[i] = Vector3.Cross(adelante, haciaFuera[i]);
+            }
+            var bisagras = new Vector3[cofia.Length];
+            for (int i = 0; i < cofia.Length; i++) bisagras[i] = cofia[i].position;
+            bool pernos = false, resortes = false, gas = false, estable = false;
+            // Cámara del lado iluminado por el Sol (si no, la nariz se ve azul, solo con la luz de contorno).
+            var haciaSol = RenderSettings.sun != null ? -RenderSettings.sun.transform.forward : Vector3.back;
+            var lateral = Vector3.ProjectOnPlane(haciaSol, adelante).normalized;
+            if (lateral.sqrMagnitude < 0.01f) lateral = Vector3.Cross(adelante, Vector3.up).normalized;
+            for (float t = 0f; t < 5.4f && !omitir; t += Time.deltaTime)
+            {
+                // La etapa (con el satélite dentro) sigue avanzando despacio por inercia.
+                var avance = adelante * t * alto * 0.05f;
+                float frena = resortes ? (t - 2.1f) : 0f;
+                superior.position = poseSuperior + avance - adelante * frena * frena * alto * 0.035f;
+                superior.rotation = Quaternion.AngleAxis(frena * 7f, lateral) * giroSuperior;
+                var centroNariz = poseSuperior + avance + desfaseNariz;
+
+                if (!pernos && t > 0.7f)
+                {
+                    pernos = true;
+                    Sonar(ArteDatos.Efecto.Separacion, 0.6f);
+                    if (pirotecnia != null) { pirotecnia.transform.position = centroNariz; pirotecnia.Play(); }
+                }
+                // Mitades de la cofia: giran sobre su bisagra y, ya abiertas, se alejan dando vueltas.
+                float abre = pernos ? Mathf.Clamp01((t - 0.7f) / 1.1f) : 0f;
+                float suelta = pernos ? Mathf.Max(0f, t - 1.5f) : 0f;
+                for (int i = 0; i < cofia.Length; i++)
+                {
+                    var c = cofia[i];
+                    if (c == null) continue;
+                    var posMitad = bisagras[i] + avance + haciaFuera[i] * suelta * alto * 0.09f - adelante * suelta * suelta * alto * 0.01f;
+                    c.position = posMitad;
+                    c.rotation = Quaternion.AngleAxis(Animar.SalidaCubica(abre) * 38f + suelta * 30f, ejes[i]) * giroBisagra[i];
+                }
+                // El satélite: dentro, quieto respecto a la etapa; luego los resortes lo empujan hacia delante.
+                if (!resortes && t > 2.1f) { resortes = true; Sonar(ArteDatos.Efecto.Servo, 0.5f); }
+                float empuje = resortes ? t - 2.1f : 0f;
+                sat.position = centroNariz + adelante * (empuje * alto * 0.11f);
+                sat.rotation = Quaternion.LookRotation(adelante, Vector3.up) * Quaternion.Euler(0f, 0f, empuje * 9f);
+                if (!gas && t > 2.7f)
+                {
+                    gas = true;   // la etapa se aparta con pulsos de gas frío
+                    if (gasFrio != null) { gasFrio.transform.position = centroNariz - adelante * alto * 0.15f; gasFrio.Play(); }
+                }
+                if (!estable && t > 3.8f)
+                {
+                    estable = true;   // el satélite se estabiliza con sus propios propulsores
+                    Sonar(ArteDatos.Efecto.Despliegue);
+                    textoHud.text = "PAYLOAD RELEASED";
+                    if (gasFrio != null) { gasFrio.transform.position = sat.position; gasFrio.Play(); }
+                }
+                // Cámara de lado, acercándose a la nariz y siguiendo luego al satélite.
+                var mira = Vector3.Lerp(centroNariz, sat.position, Mathf.Clamp01((t - 2f) / 2.5f));
+                // Cerca, a la escala de la nariz: el satélite (pequeño, cabía en la cofia) llena buena parte del cuadro.
+                var dist = radioNariz * Mathf.Lerp(10f, 4.2f, Mathf.Clamp01(t / 5.4f));
+                Mirar(mira + lateral * dist + Vector3.up * dist * 0.35f - adelante * dist * 0.4f, mira, 40f);
                 yield return null;
             }
+            sat.localScale = escalaSat;
 
             // 8) Transferencia Tierra → Marte en un mapa (tiempo acelerado, sin cifras).
             yield return Cortar(true);
-            Toma(8, "TRANSFERENCIA INTERPLANETARIA · TIEMPO ACELERADO");
+            Toma(8, "INTERPLANETARY TRANSFER · TIME LAPSE");
             Activar(false, false, true);
             Sonar(ArteDatos.Efecto.Transferencia);
             yield return Transferencia(4.5f);
 
             // 9) Aproximación a Marte e inserción orbital.
             yield return Cortar(true);
-            Toma(9, "INSERCIÓN ORBITAL");
+            Toma(9, "ORBIT INSERTION");
             Activar(false, false, false);
             sat.localScale = escalaSat;
             float fFinal = escenario.FaseAncla;
@@ -374,7 +449,7 @@ namespace SpaceMission
             }
 
             // 10) Plano héroe en la órbita elegida; la cámara llega al encuadre de la investigación.
-            Toma(10, "ÓRBITA ESTABLECIDA · ANOMALÍA LOCALIZADA");
+            Toma(10, "ORBIT ESTABLISHED · ANOMALY LOCATED");
             escenario.MostrarOrbita(true, 0.85f);
             Sonar(ArteDatos.Efecto.DatosRecibidos, 0.8f);
             Sonar(ArteDatos.Efecto.VozOrbita);
@@ -429,6 +504,16 @@ namespace SpaceMission
 
         // ---------- Piezas ----------
 
+        /// <summary>Lado mayor de lo que se ve del objeto (en el mundo).</summary>
+        static float TamanoVisual(Transform t)
+        {
+            var rs = t.GetComponentsInChildren<Renderer>();
+            if (rs.Length == 0) return 1f;
+            var b = rs[0].bounds;
+            foreach (var r in rs) b.Encapsulate(r.bounds);
+            return Mathf.Max(b.size.x, Mathf.Max(b.size.y, b.size.z));
+        }
+
         static Vector3 CentroVisual(Transform t)
         {
             var rs = t.GetComponentsInChildren<Renderer>();
@@ -440,7 +525,7 @@ namespace SpaceMission
 
         void Toma(int numero, string hud)
         {
-            textoFase.text = "FASE DE MISIÓN  " + numero + " / " + Tomas;
+            textoFase.text = "MISSION PHASE  " + numero + " / " + Tomas;
             textoHud.text = hud;
         }
 
@@ -585,6 +670,8 @@ namespace SpaceMission
             if (propulsoresExplorador != null) foreach (var p in propulsoresExplorador) Guardar(p);
             if (propulsoresTitan != null) foreach (var p in propulsoresTitan) Guardar(p);
             if (brazos != null) foreach (var b in brazos) Guardar(b);
+            if (cofiaExplorador != null) foreach (var c in cofiaExplorador) Guardar(c);
+            if (cofiaTitan != null) foreach (var c in cofiaTitan) Guardar(c);
         }
 
         void RestaurarPoses()
@@ -621,7 +708,8 @@ namespace SpaceMission
             pulsoZona.gameObject.SetActive(visible);
             if (!visible) return;
             // Centro de la zona del mapa de la Operación (la región, no el punto exacto de la anomalía).
-            var r = mapaOperacion != null ? mapaOperacion.uvRect : new Rect(0.4f, 0.4f, 0.2f, 0.2f);
+            var region = mapaOperacion != null ? mapaOperacion.GetComponent<MapaMarteUI>() : null;
+            var r = region != null ? region.RectGlobo : mapaOperacion != null ? mapaOperacion.uvRect : new Rect(0.4f, 0.4f, 0.2f, 0.2f);
             var punto = escenario.AlinearRegion(r.center, escenario.FaseAncla + 0.35f);
             var normal = (punto - escenario.Centro).normalized;
             pulsoZona.transform.position = punto + normal * 0.05f;
@@ -647,7 +735,10 @@ namespace SpaceMission
         {
             if (fuente == null || ReproductorUI.Actual == null || ReproductorUI.Actual.Arte == null) return;
             var clip = ReproductorUI.Actual.Arte.Clip(efecto);
-            if (clip != null) fuente.PlayOneShot(clip, volumen * Preferencias.VolumenEfectos);
+            if (clip == null) return;
+            bool esVoz = Subtitulos.Existe(efecto.ToString());
+            fuente.PlayOneShot(clip, volumen * (esVoz ? Preferencias.VolumenVoz : Preferencias.VolumenEfectos));
+            if (esVoz) Subtitulos.Mostrar(efecto.ToString(), clip.length);   // frases de control de misión
         }
 
         /// <summary>El mismo final al terminar o al omitir: satélite en su órbita, audio y vista de la Operación.</summary>
@@ -665,6 +756,8 @@ namespace SpaceMission
             if (humoLados != null) foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             RestaurarPoses();
             if (cielo != null) Noche(0f);
+            if (escalaSatelite != Vector3.zero && escenario != null && escenario.Satelite != null)
+                escenario.Satelite.localScale = escalaSatelite;
             MostrarZona(false);
             if (escenario != null)
             {

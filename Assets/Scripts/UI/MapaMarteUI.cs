@@ -6,8 +6,10 @@ using UnityEngine.EventSystems;
 namespace SpaceMission
 {
     /// <summary>
-    /// Mapa de la región para la fase de Operación: una textura generada por código (suelo marciano con
-    /// manchas de polvo) que avisa dónde pulsó el jugador, en coordenadas de 0 a 1, y dibuja las marcas.
+    /// Mapa de la región para la fase de Operación. Con «texturaRegion» muestra el cráter Gale (relieve del modelo
+    /// «Curiosity Landing Site» de NASA 3D Resources) y «rectGlobo» dice dónde está esa región en el mapa global
+    /// de Marte (lo usan la vista 3D del escaneo y la llegada). Si no, una zona de la foto global o un terreno
+    /// generado. Avisa dónde pulsó el jugador en coordenadas de 0 a 1 y dibuja las marcas (redondas).
     /// </summary>
     public class MapaMarteUI : MonoBehaviour, IPointerClickHandler
     {
@@ -17,6 +19,14 @@ namespace SpaceMission
         [SerializeField] Texture2D texturaBase;
         [Tooltip("Ancho de la zona visible, como fracción del ancho de la foto. El alto se calcula para que la zona sea cuadrada en píxeles.")]
         [SerializeField, Range(0.1f, 0.5f)] float tamanoZona = 0.25f;
+        [Tooltip("Imagen de la región de la misión (cráter Gale). Tiene prioridad sobre la foto global.")]
+        [SerializeField] Texture2D texturaRegion;
+        [Tooltip("Dónde está la región en el mapa global de Marte (UV: x, y, ancho, alto).")]
+        [SerializeField] Rect rectGlobo = new Rect(0.8728f, 0.452f, 0.0205f, 0.041f);
+        [SerializeField] Sprite spriteMarca;
+
+        /// <summary>Rectángulo del mapa global de Marte que se ve en el mapa (para alinear el planeta 3D).</summary>
+        public Rect RectGlobo => texturaRegion != null ? rectGlobo : imagen != null ? imagen.uvRect : new Rect(0, 0, 1, 1);
 
         public event Action<Vector2> AlPulsar;
         readonly List<GameObject> marcas = new List<GameObject>();
@@ -25,6 +35,12 @@ namespace SpaceMission
         /// <summary>Muestra una zona distinta de la foto de Marte (o genera un terreno) según la semilla.</summary>
         public void Generar(int semilla)
         {
+            if (texturaRegion != null)
+            {
+                imagen.texture = texturaRegion;
+                imagen.uvRect = new Rect(0f, 0f, 1f, 1f);
+                return;
+            }
             if (texturaBase != null)
             {
                 // Solo se elige qué parte de la foto se ve: la imagen no se modifica.
@@ -80,6 +96,7 @@ namespace SpaceMission
             rt.anchorMin = rt.anchorMax = punto;
             rt.sizeDelta = new Vector2(28, 28);
             var img = go.GetComponent<UnityEngine.UI.Image>();
+            img.sprite = spriteMarca;
             img.color = color;
             img.raycastTarget = false;
             marcas.Add(go);

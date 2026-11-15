@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: 
   orden: 1
   tipo: 1
-  texto: "La nave entra en \xF3rbita sobre la regi\xF3n de la anomal\xEDa. La tormenta de polvo cubre buena parte del terreno, pero los instrumentos empiezan a recibir datos. Comienza la observaci\xF3n."
+  texto: "The spacecraft enters orbit above the anomaly region. The dust storm covers much of the terrain, but the instruments are starting to receive data. Observation begins."

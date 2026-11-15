@@ -63,8 +63,8 @@ namespace SpaceMission
             textoObjetivo.text = nivel.objetivo;
             textoRequisitos.text = TextosBriefing.TextoRequisitos();
             textoLimites.text = TextosBriefing.TextoLimites(catalogo, nivel) +
-                                "\nDuración de la campaña: " + nivel.orbitasNavegacion + " meses" +
-                                "\nEventos de la nave: " + nivel.eventosPorMision;
+                                "\nCampaign length: " + nivel.orbitasNavegacion + (nivel.orbitasNavegacion == 1 ? " month" : " months") +
+                                "\nSpacecraft events: " + nivel.eventosPorMision;
             textoColores.text = TextosBriefing.ExplicacionColores;
             for (int i = 0; i < botonesNivel.Length; i++)
             {

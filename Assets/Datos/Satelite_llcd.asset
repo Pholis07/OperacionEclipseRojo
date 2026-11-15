@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Satelite_llcd
   m_EditorClassIdentifier: SpaceMission::SpaceMission.SateliteDatos
   id: llcd
-  nombre: "Rel\xE9 l\xE1ser LLCD"
+  nombre: LLCD Laser Relay
   inspiradoEn: LLCD (2013)
-  descripcion: "Demostr\xF3 comunicaciones por l\xE1ser desde la \xF3rbita de la Luna. Plataforma con grandes paneles solares."
-  credito: 'Modelo 3D: NASA 3D Resources'
+  descripcion: Demonstrated laser communications from lunar orbit. Platform with large solar panels.
+  credito: '3D model: NASA 3D Resources'
   costoCr: 50
   masaKg: 10
-  ventaja: "Comunicaci\xF3n l\xE1ser: el transmisor gasta 50 W y hay contacto con la Tierra todos los meses."
-  desventaja: "El polvo bloquea el l\xE1ser: si sigues en una tormenta creciendo, el mes siguiente no puedes enviar."
+  ventaja: 'Laser communication: the transmitter uses 50 W and there is contact with Earth every month.'
+  desventaja: 'Dust blocks the laser: if you stay in a growing storm, you cannot send the next month.'
   instrumentosConAlcance: []
   factorAlcance: 1
   combustiblePorCambioAltitud: -1

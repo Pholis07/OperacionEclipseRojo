@@ -180,7 +180,7 @@ namespace SpaceMission
             finFoco = Time.unscaledTime + duracionModulo;
             if (textoFoco != null && catalogo != null)
                 textoFoco.text = Iconos.DeInstrumento(nuevo) + "  " + catalogo.Instrumento(nuevo).nombre.ToUpperInvariant() +
-                                 "\n<size=75%><color=#94A3B8>INSTALADO AQUÍ</color></size>";
+                                 "\n<size=75%><color=#94A3B8>INSTALLED HERE</color></size>";
         }
 
         Encuadre EncuadreModulo(Transform modulo)

@@ -116,14 +116,14 @@ public static class ConstructorEstilo
 
         arte.evidencias = new List<ArteDatos.Evidencia>
         {
-            Evidencia("termica", "Evidencia_termica", "NASA/JPL/Arizona State University (THEMIS, Mars Odyssey). Infrarrojo nocturno; colores añadidos."),
+            Evidencia("termica", "Evidencia_termica", "NASA/JPL/Arizona State University (THEMIS, Mars Odyssey). Nighttime infrared; colors added."),
             Evidencia("radar", "Evidencia_radar", "NASA/JPL-Caltech/ASI/University of Rome/PSI/Smithsonian Institution (SHARAD, MRO)."),
             Evidencia("alta_res", "Evidencia_alta_res", "NASA/JPL-Caltech/Univ. of Arizona (HiRISE, MRO)."),
-            Evidencia("espectrometro", "Evidencia_espectrometro", "NASA/JPL-Caltech/UA/JHUAPL (CRISM y HiRISE, MRO)."),
+            Evidencia("espectrometro", "Evidencia_espectrometro", "NASA/JPL-Caltech/UA/JHUAPL (CRISM and HiRISE, MRO)."),
             Evidencia("atmosferico", "Evidencia_atmosferico", "NASA/JPL-Caltech/MSSS (MARCI, MRO)."),
         };
         arte.imagenMision = Imagen("Evidencias/Evidencia_mision");
-        arte.creditoMision = "NASA/JPL-Caltech/MSSS (MARCI, MRO). Tormenta global de 2018.";
+        arte.creditoMision = "NASA/JPL-Caltech/MSSS (MARCI, MRO). 2018 global dust storm.";
 
         // Audio por nombre de archivo en Assets/Arte/Audio (puede faltar: el juego queda en silencio).
         arte.musicaMenu = Audio("Musica/musica_menu");
@@ -168,10 +168,10 @@ public static class ConstructorEstilo
         arte.brazosTorre = Audio("Efectos/SFX_Tower_Arms_Release");
         arte.separacionPropulsores = Audio("Efectos/SFX_Booster_Separation");
         arte.ambienteCosta = Audio("Efectos/AMB_Launch_Coast");
-        arte.vozEncendido = Audio("Voces/Control/VOZ_Encendido");
-        arte.vozDespegue = Audio("Voces/Control/VOZ_Despegue");
-        arte.vozSeparacion = Audio("Voces/Control/VOZ_Separacion");
-        arte.vozOrbita = Audio("Voces/Control/VOZ_Orbita");
+        arte.vozEncendido = Audio("Voces/Control/VOZ_Encendido_en");
+        arte.vozDespegue = Audio("Voces/Control/VOZ_Despegue_en");
+        arte.vozSeparacion = Audio("Voces/Control/VOZ_Separacion_en");
+        arte.vozOrbita = Audio("Voces/Control/VOZ_Orbita_en");
         arte.pasoMes = Audio("Efectos/SFX_Month_Pass");
         arte.sello = Audio("Efectos/SFX_Stamp");
         arte.remateVictoria = Audio("Efectos/SFX_Outcome_Victory");
@@ -183,10 +183,12 @@ public static class ConstructorEstilo
         foreach (var guid in AssetDatabase.FindAssets("t:AudioClip", new[] { "Assets/Arte/Audio/Voces" }))
         {
             var ruta = AssetDatabase.GUIDToAssetPath(guid);
-            if (!Path.GetFileName(ruta).StartsWith("voz_")) continue; // Voces/Control son las de la cinemática
+            // Solo las voces en inglés (voz_TX-00_en…); las de español se quedan en el proyecto sin usarse.
+            var nombre = Path.GetFileNameWithoutExtension(ruta);
+            if (!nombre.StartsWith("voz_") || !nombre.EndsWith("_en")) continue;
             arte.voces.Add(new ArteDatos.Voz
             {
-                transmisionId = Path.GetFileNameWithoutExtension(ruta).Replace("voz_", ""),
+                transmisionId = nombre.Replace("voz_", "").Replace("_en", ""),
                 clip = AssetDatabase.LoadAssetAtPath<AudioClip>(ruta)
             });
         }

@@ -16,4 +16,4 @@ MonoBehaviour:
   instrumentoId: termica
   orden: 0
   tipo: 0
-  texto: "Sin c\xE1mara t\xE9rmica, la misi\xF3n no registr\xF3 la anomal\xEDa que origin\xF3 la investigaci\xF3n. Sin esa evidencia no es posible delimitar la zona de inter\xE9s."
+  texto: "Without the thermal camera, the mission did not record the anomaly that started the investigation. Without that evidence, the area of interest cannot be pinpointed."

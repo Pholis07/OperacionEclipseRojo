@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Satelite_chandra
   m_EditorClassIdentifier: SpaceMission::SpaceMission.SateliteDatos
   id: chandra
-  nombre: Observatorio Chandra
+  nombre: Chandra Observatory
   inspiradoEn: Chandra (1999)
-  descripcion: "Telescopio espacial de rayos X: un tubo \xF3ptico muy largo con dos alas de paneles solares."
-  credito: 'Modelo 3D: NASA 3D Resources'
+  descripcion: 'X-ray space telescope: a very long optical tube with two wings of solar panels.'
+  credito: '3D model: NASA 3D Resources'
   costoCr: 30
   masaKg: 40
-  ventaja: "Apunte muy preciso: no le afecta la p\xE9rdida de orientaci\xF3n, y las c\xE1maras t\xE9rmica y de alta resoluci\xF3n leen un 20 % m\xE1s lejos."
-  desventaja: 'Muy pesado: sus 40 kg restan 4 de combustible.'
+  ventaja: 'Very precise pointing: loss of orientation does not affect it, and the thermal and high-resolution cameras read 20% farther.'
+  desventaja: 'Very heavy: its 40 kg cost 4 fuel.'
   instrumentosConAlcance:
   - termica
   - alta_res

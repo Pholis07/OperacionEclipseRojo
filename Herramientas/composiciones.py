@@ -6,6 +6,7 @@ Uso: python3 -I composiciones.py <carpeta Assets/Arte>
 - Interfaz/Degradado.png: degradado vertical de alfa (abajo opaco, arriba transparente).
 - Interfaz/Resplandor.png: brillo radial que llega a 0 en el borde (para materiales aditivos).
 - Interfaz/Anillo.png: aro con cuatro marcas para los zócalos de instrumentos.
+- Interfaz/Reticula.png: cuadro de la retícula del mapa de la región (se repite).
 """
 import math
 import sys
@@ -76,4 +77,16 @@ for y in range(N):
         v = min(1.0, aro + brillo + marca)
         pa[x, y] = (255, 255, 255, round(255 * v))
 anillo.save(ARTE / "Interfaz/Anillo.png", optimize=True)
+
+# Retícula del mapa: un cuadro con borde fino y marcas en las esquinas (se repite 4×4 sobre el mapa).
+R = 256
+ret = Image.new("RGBA", (R, R), (0, 0, 0, 0))
+pr2 = ret.load()
+for i in range(R):
+    for (x, y) in ((i, 0), (0, i)):
+        pr2[x, y] = (255, 255, 255, 200 if i % 8 < 4 else 90)
+for k in range(-6, 7):   # cruz pequeña en el centro del cuadro
+    pr2[R // 2 + k, R // 2] = (255, 255, 255, 150)
+    pr2[R // 2, R // 2 + k] = (255, 255, 255, 150)
+ret.save(ARTE / "Interfaz/Reticula.png", optimize=True)
 print("listo")

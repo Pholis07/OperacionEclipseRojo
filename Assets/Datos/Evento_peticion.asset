@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: Evento_peticion
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: peticion
-  nombre: "Petici\xF3n de la NASA"
-  texto: El equipo de un rover pide observar un punto cercano para planear su ruta. Si lo observas, la NASA te lo agradece.
+  nombre: "NASA request"
+  texto: "A rover team asks you to observe a nearby spot to plan its route. If you observe it, NASA will thank you."
   efecto: 5
   vatios: 0
   orbitas: 0
   herramientaId: 
   puntos: 150
   opciones:
-  - texto: 'Aceptar: observar el punto marcado en el mapa (+150 puntos)'
+  - texto: "Accept: observe the spot marked on the map (+150 points)"
     efecto: 6
     combustible: 0
     orbitas: 0
     duracion: 0
-  - texto: "Rechazar y seguir con la misi\xF3n"
+  - texto: "Decline and carry on with the mission"
     efecto: 3
     combustible: 0
     orbitas: 0

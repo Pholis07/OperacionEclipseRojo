@@ -619,6 +619,117 @@ public static partial class ConstructorEscenas
         return (izq, der);
     }
 
+    /// <summary>
+    /// Nariz del SLS (de la sección del módulo de servicio hacia arriba, y ≥ 0.60 del OBJ) partida en dos mitades por
+    /// el signo de X, cada una con su bisagra en el borde inferior y material de doble cara. Lo de abajo queda como
+    /// etapa superior. La cinemática abre las mitades para liberar el satélite.
+    /// </summary>
+    static void DividirNarizSls(GameObject superior)
+    {
+        const float corte = 0.60f;   // en el espacio del OBJ (lado mayor = 2, centrado)
+        var mitades = new Dictionary<int, Transform>();
+        foreach (int lado in new[] { -1, 1 })
+        {
+            var t = new GameObject(lado < 0 ? "NarizIzq" : "NarizDer").transform;
+            t.SetParent(superior.transform, false);
+            mitades[lado] = t;
+        }
+        var bordes = new Dictionary<int, Bounds>();
+        var nuevas = new List<(int lado, Mesh malla, Material[] mats, Transform origen)>();
+        foreach (var mf in superior.GetComponentsInChildren<MeshFilter>(true))
+        {
+            if (mf.transform.IsChildOf(mitades[-1]) || mf.transform.IsChildOf(mitades[1])) continue;
+            var malla = mf.sharedMesh;
+            var vs = malla.vertices;
+            var partes = new Dictionary<int, List<int>[]>();
+            for (int s = 0; s < malla.subMeshCount; s++)
+            {
+                var tri = malla.GetTriangles(s);
+                for (int k = 0; k < tri.Length; k += 3)
+                {
+                    var c = (vs[tri[k]] + vs[tri[k + 1]] + vs[tri[k + 2]]) / 3f;
+                    var cs = superior.transform.InverseTransformPoint(mf.transform.TransformPoint(c));
+                    int lado = cs.y < corte ? 0 : cs.x < 0f ? -1 : 1;
+                    if (!partes.TryGetValue(lado, out var listas))
+                    {
+                        listas = new List<int>[malla.subMeshCount];
+                        for (int q = 0; q < listas.Length; q++) listas[q] = new List<int>();
+                        partes[lado] = listas;
+                    }
+                    listas[s].Add(tri[k]); listas[s].Add(tri[k + 1]); listas[s].Add(tri[k + 2]);
+                }
+            }
+            if (!partes.ContainsKey(-1) && !partes.ContainsKey(1)) continue;
+            var mats = mf.GetComponent<MeshRenderer>().sharedMaterials;
+            foreach (var par in partes)
+            {
+                var m = Compactar(malla, par.Value);
+                var nombre = "SLS_Superior_" + mf.name + "_" + (par.Key < 0 ? "NarizIzq" : par.Key > 0 ? "NarizDer" : "Etapa");
+                var guardada = GuardarMalla(m, nombre);
+                var matsUsar = par.Key == 0 ? mats : System.Array.ConvertAll(mats, x => DobleCara(x, x.name + "_DobleCara"));
+                nuevas.Add((par.Key, guardada, matsUsar, mf.transform));
+            }
+            Object.DestroyImmediate(mf.GetComponent<MeshRenderer>());
+            Object.DestroyImmediate(mf);
+        }
+        foreach (var (lado, malla, mats, origen) in nuevas)
+        {
+            var go = new GameObject(malla.name, typeof(MeshFilter), typeof(MeshRenderer));
+            go.transform.SetParent(lado == 0 ? origen : mitades[lado], false);
+            go.transform.SetPositionAndRotation(origen.position, origen.rotation);
+            go.transform.localScale = Vector3.one;
+            var l = go.transform.lossyScale; var o = origen.lossyScale;
+            go.transform.localScale = new Vector3(o.x / l.x, o.y / l.y, o.z / l.z);
+            go.GetComponent<MeshFilter>().sharedMesh = malla;
+            go.GetComponent<MeshRenderer>().sharedMaterials = mats;
+        }
+        // Bisagra de cada mitad en su borde inferior exterior (el pivote se mueve sin mover la malla).
+        foreach (var par in mitades)
+        {
+            var hijos = new List<Transform>();
+            foreach (Transform h in par.Value) hijos.Add(h);
+            if (hijos.Count == 0) continue;
+            var b = Limites(par.Value.gameObject);
+            var bisagra = new Vector3(par.Key < 0 ? b.min.x : b.max.x, b.min.y, b.center.z);
+            foreach (var h in hijos) h.SetParent(null, true);
+            par.Value.position = bisagra;
+            foreach (var h in hijos) h.SetParent(par.Value, true);
+        }
+    }
+
+    /// <summary>Malla con solo los vértices que usan los triángulos dados (por submalla).</summary>
+    static Mesh Compactar(Mesh malla, List<int>[] triangulos)
+    {
+        var vs = malla.vertices; var normales = malla.normals; var uvs = malla.uv;
+        var mapa = new Dictionary<int, int>();
+        var nv = new List<Vector3>(); var nn = new List<Vector3>(); var nu = new List<Vector2>();
+        var listas = new List<int>[triangulos.Length];
+        for (int s = 0; s < triangulos.Length; s++)
+        {
+            listas[s] = new List<int>(triangulos[s].Count);
+            foreach (var idx in triangulos[s])
+            {
+                if (!mapa.TryGetValue(idx, out var nuevo))
+                {
+                    nuevo = nv.Count;
+                    mapa[idx] = nuevo;
+                    nv.Add(vs[idx]);
+                    if (normales.Length > 0) nn.Add(normales[idx]);
+                    if (uvs.Length > 0) nu.Add(uvs[idx]);
+                }
+                listas[s].Add(nuevo);
+            }
+        }
+        var m = new Mesh { indexFormat = nv.Count > 65000 ? IndexFormat.UInt32 : IndexFormat.UInt16 };
+        m.SetVertices(nv);
+        if (nn.Count == nv.Count) m.SetNormals(nn);
+        if (nu.Count == nv.Count) m.SetUVs(0, nu);
+        m.subMeshCount = triangulos.Length;
+        for (int s = 0; s < triangulos.Length; s++) m.SetTriangles(listas[s], s);
+        m.RecalculateBounds();
+        return m;
+    }
+
     /// <summary>Toberas (boca abajo) del SLS: piezas oscuras que llegan al pie del cohete, en el espacio de «pieza».</summary>
     static List<(Transform pieza, Vector3 posicion, float radio, float largo)> ToberasSls(Transform cohete, Transform nucleo, Transform izq, Transform der, float alto)
     {

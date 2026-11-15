@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: Evento_tormenta
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: tormenta
-  nombre: Tormenta creciendo
-  texto: "La tormenta de polvo crece. Desde la altitud normal, los datos del mes siguiente tendr\xE1n peor calidad."
+  nombre: "Growing storm"
+  texto: "The dust storm is growing. From normal altitude, next month's data will be lower quality."
   efecto: 6
   vatios: 0
   orbitas: 0
   herramientaId: 
   puntos: 0
   opciones:
-  - texto: "Bajar de altitud sin gastar combustible (despu\xE9s el arrastre s\xED gasta)"
+  - texto: "Descend without spending fuel (afterwards, drag does use fuel)"
     efecto: 7
     combustible: 0
     orbitas: 0
     duracion: 0
-  - texto: "Seguir as\xED (el mes siguiente la calidad de los datos baja)"
+  - texto: "Carry on (next month's data quality drops)"
     efecto: 3
     combustible: 0
     orbitas: 0

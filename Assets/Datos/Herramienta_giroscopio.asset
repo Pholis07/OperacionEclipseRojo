@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Herramienta_giroscopio
   m_EditorClassIdentifier: SpaceMission::SpaceMission.HerramientaDatos
   id: giroscopio
-  nombre: Giroscopio de respaldo
-  descripcion: "Recupera la orientaci\xF3n de la nave."
+  nombre: "Backup gyroscope"
+  descripcion: "Restores the spacecraft's orientation."
   costoCr: 40
   masaKg: 15

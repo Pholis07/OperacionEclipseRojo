@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
@@ -46,12 +46,12 @@
     <div id="carga">
       <div id="marte"></div>
       <div class="kicker">NASA SPACE APPS CHALLENGE 2026</div>
-      <div class="titulo">OPERACIÓN ECLIPSE <span>ROJO</span></div>
+      <div class="titulo">OPERATION <span>RED</span> ECLIPSE</div>
       <div id="barra"><div id="relleno"></div></div>
-      <div id="estado"><span>CARGANDO MISIÓN</span><span id="porcentaje">0 %</span></div>
+      <div id="estado"><span>LOADING MISSION</span><span id="porcentaje">0 %</span></div>
       <div id="error"></div>
       <div id="patrocinio">
-        <div class="etiqueta">PATROCINADO<br>POR</div>
+        <div class="etiqueta">SPONSORED<br>BY</div>
         <img src="TemplateData/patrocinio_fence.png" alt="National Bulwark Services · Perimeter Electric Fence">
         <img src="TemplateData/patrocinio_security.png" alt="National Bulwark Services · Monitored Security Systems">
       </div>
@@ -88,7 +88,7 @@
         lienzo.focus();
       }).catch(function (mensaje) {
         var error = document.querySelector("#error");
-        error.textContent = "No se pudo cargar el juego: " + mensaje;
+        error.textContent = "Could not load the game: " + mensaje;
         error.style.display = "block";
       });
     </script>

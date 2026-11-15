@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Instrumento_radar
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: radar
-  nombre: Radar de subsuelo
+  nombre: "Subsurface radar"
   masaKg: 170
   potenciaNormalW: 180
   extraTormentaW: 20
   costoCr: 260
   bloquesDatos: 2
-  pistaAsociada: evidencia de lo que hay bajo la superficie
-  textoAyuda: 'Atraviesa el polvo y la superficie y aporta evidencia de lo que hay bajo la superficie. Consumo: 200 W: 180 W normal + 20 W por la tormenta.'
+  pistaAsociada: "evidence of what lies beneath the surface"
+  textoAyuda: "Penetrates the dust and the surface and provides evidence of what lies beneath the surface. Power: 200 W: 180 W normal + 20 W due to the storm."

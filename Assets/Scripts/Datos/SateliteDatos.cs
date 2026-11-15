@@ -16,7 +16,7 @@ namespace SpaceMission
         public string inspiradoEn;
         [TextArea] public string descripcion;
         [Tooltip("Crédito del modelo 3D.")]
-        public string credito = "Modelo 3D: NASA 3D Resources";
+        public string credito = "3D model: NASA 3D Resources";
 
         [Header("Mecánicas: se pagan en la Carga")]
         public int costoCr;

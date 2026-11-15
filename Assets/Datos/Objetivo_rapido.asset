@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Objetivo_rapido
   m_EditorClassIdentifier: SpaceMission::SpaceMission.ObjetivoDatos
   id: rapido
-  texto: Conseguir toda la evidencia en 5 observaciones o menos
+  texto: "Get all the evidence in 5 observations or fewer"
   tipo: 0
   valor: 5
   puntos: 150

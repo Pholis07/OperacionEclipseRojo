@@ -64,10 +64,10 @@ namespace SpaceMission
             if (nuevaFirma == firma) return;
             firma = nuevaFirma;
 
-            textoPestanaOrbita.text = Pestana(Iconos.Orbita, "Órbita", !string.IsNullOrEmpty(c.OrbitaId));
-            textoPestanaLanzador.text = Pestana(Iconos.Lanzador, "Lanzador", !string.IsNullOrEmpty(c.LanzadorId));
-            textoPestanaInstrumentos.text = Pestana(ConSatelite ? Iconos.Microscopio : Iconos.Instrumentos, "Instrumentos", c.InstrumentoIds.Count > 0);
-            if (ConSatelite) textoPestanaSatelite.text = Pestana(Iconos.Satelite, "Satélite", !string.IsNullOrEmpty(c.SateliteId));
+            textoPestanaOrbita.text = Pestana(Iconos.Orbita, "Orbit", !string.IsNullOrEmpty(c.OrbitaId));
+            textoPestanaLanzador.text = Pestana(Iconos.Lanzador, "Launcher", !string.IsNullOrEmpty(c.LanzadorId));
+            textoPestanaInstrumentos.text = Pestana(ConSatelite ? Iconos.Microscopio : Iconos.Instrumentos, "Instruments", c.InstrumentoIds.Count > 0);
+            if (ConSatelite) textoPestanaSatelite.text = Pestana(Iconos.Satelite, "Satellite", !string.IsNullOrEmpty(c.SateliteId));
 
             var despues = Despues(pestana);
             botonSiguiente.gameObject.SetActive(despues != null);
@@ -78,31 +78,31 @@ namespace SpaceMission
             switch (pestana)
             {
                 case ConfiguracionUI.Pestana.Orbita:
-                    textoInstruccion.text = "1 · ELIGE LA ÓRBITA";
-                    textoLeyenda.text = "MARTE\n<size=24><color=#94A3B8>Cada color es una órbita: la elegida brilla y la recorre tu nave.</color></size>";
+                    textoInstruccion.text = "1 · CHOOSE THE ORBIT";
+                    textoLeyenda.text = "MARS\n<size=24><color=#94A3B8>Each color is an orbit: the chosen one glows and your spacecraft travels along it.</color></size>";
                     break;
                 case ConfiguracionUI.Pestana.Lanzador:
-                    textoInstruccion.text = "2 · ELIGE EL COHETE";
+                    textoInstruccion.text = "2 · CHOOSE THE ROCKET";
                     textoLeyenda.text = string.IsNullOrEmpty(c.LanzadorId)
-                        ? "PLATAFORMA DE LANZAMIENTO\n<size=24><color=#94A3B8>Explorador: aspecto inspirado en el Soyuz · Titán: aspecto inspirado en el SLS. Capacidades ficticias.</color></size>"
+                        ? "LAUNCH PAD\n<size=24><color=#94A3B8>Explorer: look inspired by the Soyuz · Titan: look inspired by the SLS. Fictional capabilities.</color></size>"
                         : PlataformaCohetes.EsTitan(c.LanzadorId)
-                            ? "TITÁN\n<size=24><color=#94A3B8>Aspecto inspirado en el SLS de NASA. Capacidades ficticias.</color></size>"
-                            : "EXPLORADOR\n<size=24><color=#94A3B8>Aspecto inspirado en el Soyuz. Capacidades ficticias.</color></size>";
+                            ? "TITAN\n<size=24><color=#94A3B8>Look inspired by NASA’s SLS. Fictional capabilities.</color></size>"
+                            : "EXPLORER\n<size=24><color=#94A3B8>Look inspired by the Soyuz. Fictional capabilities.</color></size>";
                     break;
                 case ConfiguracionUI.Pestana.Satelite:
-                    textoInstruccion.text = "3 · ELIGE EL SATÉLITE";
-                    textoLeyenda.text = "TU SATÉLITE\n<size=24><color=#94A3B8>Inspirados en misiones reales. Cada uno tiene ventaja y desventaja: las ves en la Carga.</color></size>";
+                    textoInstruccion.text = "3 · CHOOSE THE SATELLITE";
+                    textoLeyenda.text = "YOUR SATELLITE\n<size=24><color=#94A3B8>Inspired by real missions. Each one has an advantage and a drawback: you will see them in Cargo.</color></size>";
                     break;
                 default:
-                    textoInstruccion.text = n + " · INSTALA LOS INSTRUMENTOS";
-                    textoLeyenda.text = "VISTA DE LA NAVE\n<size=24><color=#94A3B8>Al elegir un instrumento verás dónde se instala.</color></size>";
+                    textoInstruccion.text = n + " · INSTALL THE INSTRUMENTS";
+                    textoLeyenda.text = "SPACECRAFT VIEW\n<size=24><color=#94A3B8>When you choose an instrument you will see where it is installed.</color></size>";
                     break;
             }
         }
 
         static string NombrePestana(ConfiguracionUI.Pestana p) =>
-            p == ConfiguracionUI.Pestana.Lanzador ? "Lanzador" : p == ConfiguracionUI.Pestana.Satelite ? "Satélite" :
-            p == ConfiguracionUI.Pestana.Instrumentos ? "Instrumentos" : "Órbita";
+            p == ConfiguracionUI.Pestana.Lanzador ? "Launcher" : p == ConfiguracionUI.Pestana.Satelite ? "Satellite" :
+            p == ConfiguracionUI.Pestana.Instrumentos ? "Instruments" : "Orbit";
 
         static string Pestana(string icono, string nombre, bool lista) =>
             icono + " " + nombre + (lista ? " <color=" + Verde + ">" + Iconos.Verde + "</color>" : "");

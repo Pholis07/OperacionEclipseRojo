@@ -138,7 +138,7 @@ namespace SpaceMission.Tests
             op.ResolverMes(op.Mes);
             op.TransmitirPlaneado = true;
             op.ResolverMes(op.Mes);
-            var linea = Puntuacion.Desglose(e, op, catalogo, null).First(l => l.Concepto.StartsWith("Presupuesto"));
+            var linea = Puntuacion.Desglose(e, op, catalogo, null).First(l => l.Concepto.StartsWith("Budget"));
             Assert.AreEqual((1250 - 820 - 40) / 2, linea.Puntos);
             Assert.AreEqual(CategoriaResultado.Victoria, e.Categoria, "la carga no cambia la categoría");
         }

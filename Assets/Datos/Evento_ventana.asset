@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: Evento_ventana
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: ventana
-  nombre: Ventana despejada
-  texto: "La tormenta se abre sobre la regi\xF3n y deja un claro que se puede aprovechar."
+  nombre: "Clear window"
+  texto: "The storm opens up over the region, leaving a clearing you can take advantage of."
   efecto: 4
   vatios: 0
   orbitas: 1
   herramientaId: 
   puntos: 0
   opciones:
-  - texto: "Aprovechar para observar (+1 mes de campa\xF1a)"
+  - texto: "Use it to observe (+1 campaign month)"
     efecto: 4
     combustible: 0
     orbitas: 0
     duracion: 1
-  - texto: Abrir una ventana de contacto con la Tierra el mes siguiente
+  - texto: "Open a contact window with Earth next month"
     efecto: 5
     combustible: 0
     orbitas: 0

@@ -80,7 +80,7 @@ namespace SpaceMission.Tests
             foreach (var id in new[] { "termica", "radar", "espectrometro", "atmosferico" }) ui.AlternarInstrumento(id);
             ui.ElegirLanzador("titan");
             Assert.AreEqual(EstadoSemaforo.Rojo, ui.Ultima.Estado);
-            Assert.AreEqual("Masa: 780 / 750 kg", ui.TextosBarra[0].text);
+            Assert.AreEqual("Mass: 780 / 750 kg", ui.TextosBarra[0].text);
             Assert.AreEqual(PresentacionMision.ColorSemaforo(EstadoSemaforo.Rojo), ui.LuzEstado.color);
 
             // Quitar dos instrumentos y pasar a Explorador: no se borran los que quedan (caso 2).
@@ -89,7 +89,7 @@ namespace SpaceMission.Tests
             ui.ElegirLanzador("explorador");
             CollectionAssert.AreEqual(new[] { "termica", "radar" }, EstadoJuego.Configuracion.InstrumentoIds);
             Assert.AreEqual(EstadoSemaforo.Verde, ui.Ultima.Estado);
-            Assert.AreEqual("Costo: 820 / 1,250 cr", ui.TextosBarra[2].text);
+            Assert.AreEqual("Cost: 820 / 1,250 cr", ui.TextosBarra[2].text);
 
             // La nave muestra solo los módulos elegidos.
             // Desde la vista orbital de Diego hay dos NaveUI en la escena: se usa la que maneja la Configuración.
