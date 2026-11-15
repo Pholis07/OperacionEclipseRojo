@@ -76,7 +76,7 @@ namespace SpaceMission.PlayTests
             Assert.IsFalse(director.Reproduciendo, "la cinemática no terminó en " + TopeSegundos + " s");
             float duracion = Time.realtimeSinceStartup - inicio;
             Debug.Log("CINEMATICA " + lanzador + " (" + (espanol ? "es" : "en") + "): " + duracion.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " s");
-            Assert.Less(duracion, 34f, "versión 7: la cinemática ronda los 30 s (el storyboard pide 24, tolerancia 20–28)");
+            Assert.That(duracion, Is.InRange(38f, 52f), "versión 8: las 10 fases a su tiempo original (unos 45 s; el video de referencia dura 49)");
             if (cuadrosConVoz == 0) Assert.Inconclusive("Sin salida de audio: no sonó ninguna voz.");
             Assert.LessOrEqual(maxVoces, 1, "dos voces sonaron a la vez");
             Assert.IsFalse(director.Hablando, "control de misión siguió hablando después de la cinemática");
