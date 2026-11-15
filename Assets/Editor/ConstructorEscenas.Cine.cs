@@ -60,9 +60,7 @@ public static partial class ConstructorEscenas
         // Una llama por motor, hija de la pieza que la lleva (los propulsores se van con su fuego).
         // Explorador (Ares): la tobera de la primera etapa al pie y el motor de la etapa superior en el corte.
         var explorador = cohetes.explorador.transform;
-        var llamasExplorador = ConstruirLlamas(new[] { (explorador, new Vector3(0f, 0.05f, 0f), 0.2f, 5f) });
-        var superiorExplorador = explorador.Find("EtapaSuperior");
-        var llamaSupExplorador = ConstruirLlamas(new[] { (superiorExplorador, new Vector3(0f, CorteEtapaAres * AltoExplorador, 0f), 0.15f, 1.8f) });
+        var (llamasExplorador, llamaSupExplorador) = LlamasExplorador(explorador);
         // Versión 9: llamas de los lanzadores de la tabla CohetesExtra.
         var llamasExtra = cohetes.extras.Select(c => LlamasExtra(c.cohete, c.id)).ToList();
 
@@ -273,6 +271,7 @@ public static partial class ConstructorEscenas
         AsignarLista(director, "soloEnTierra", new Object[] { complejo.raiz });
         Asignar(director, "cielo", complejo.cielo);
         AsignarLista(director, "brazos", complejo.brazos);
+        AsignarLista(director, "sujeciones", complejo.sujeciones);
         Asignar(director, "luzMotores", complejo.luz);
         Asignar(director, "chispas", complejo.chispas);
         AsignarLista(director, "humoLados", complejo.humoLados);

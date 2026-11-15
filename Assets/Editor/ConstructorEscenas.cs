@@ -790,8 +790,17 @@ public static partial class ConstructorEscenas
         var marteCentro = marte.transform.position;
 
         // Vista Revisión: tarjeta encima de la configuración.
-        var revision = Panel(canvas, "VistaRevision", new Color(0, 0, 0, 0.8f));
+        // Renovación visual: ya no es un velo que tapa toda la nave. El resumen va a la izquierda, el panel derecho
+        // de Configuración queda velado y por el centro se ve (y se inspecciona) la nave que se va a lanzar.
+        var revision = Panel(canvas, "VistaRevision", new Color(0, 0, 0, 0f));
         Estirar(revision);
+        revision.gameObject.AddComponent<VentanaInspeccion>();
+        foreach (var (nombreVelo, min, max) in new[] { ("VeloIzquierdo", 0f, 0.43f), ("VeloDerecho", 0.645f, 1f) })
+        {
+            var veloLado = Panel(revision, nombreVelo, new Color(0, 0, 0, 0.86f));
+            Anclar(veloLado, new Vector2(min, 0f), new Vector2(max, 1f));
+            veloLado.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        }
         var revisionUI = ConstruirRevision(revision, catalogo, controlador);
 
         // Vista Carga (gameplay v3): herramientas que suben a la nave, entre Revisión y Lanzar.
@@ -826,6 +835,7 @@ public static partial class ConstructorEscenas
         Asignar(camara, "vistaBriefing", briefing.gameObject);
         AsignarEncuadre(camara, "plataforma", Plataforma + new Vector3(0, 6.3f, -21f), Plataforma + new Vector3(0, 6f, 0), 60f);
         Asignar(camara, "raizNave", nave.transform);
+        Asignar(camara, "vistaRevision", revision.gameObject);
         // Pestaña Lanzador: sin elección los dos cohetes; con elección solo el elegido, en el centro, con un
         // encuadre a su altura (Explorador 7.5, Titán 11).
         var plataformaUI = cohetes.explorador.transform.parent.gameObject.AddComponent<PlataformaCohetes>();
@@ -867,6 +877,45 @@ public static partial class ConstructorEscenas
         etiqueta.gameObject.SetActive(false);
         Asignar(camara, "etiquetaFoco", etiqueta);
         Asignar(camara, "textoFoco", textoEtiqueta);
+
+        // Renovación visual: barra de inspección (foco por instrumento instalado y «Restablecer vista»), en el hueco
+        // central, bajo la nave. Girar y acercar se hacen arrastrando y con la rueda (CamaraConfiguracion).
+        var inspeccion = new GameObject("InspeccionNave", typeof(RectTransform)).GetComponent<RectTransform>();
+        inspeccion.SetParent(configuracion, false);
+        Anclar(inspeccion, new Vector2(0.375f, 0.16f), new Vector2(0.645f, 0.275f));   // sobre el rótulo de la pestaña
+        var contenidoInspeccion = Columna(inspeccion, "Contenido", 6, TextAnchor.LowerCenter, new Color(0, 0, 0, 0), 0);
+        Estirar(contenidoInspeccion);
+        contenidoInspeccion.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        var pista = Texto(contenidoInspeccion, "Pista", "Drag to rotate · scroll to zoom", 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
+        pista.raycastTarget = false;
+        var filaInspeccion = Fila(contenidoInspeccion, "Botones", 8);
+        filaInspeccion.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleCenter;
+        filaInspeccion.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
+        var botonesFoco = new List<Object>();
+        foreach (var idFoco in IdsInstrumento)
+        {
+            var b = Boton(filaInspeccion, "Foco_" + idFoco, Iconos.DeInstrumento(idFoco), false);
+            var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.minHeight = le.preferredHeight = 52; le.preferredWidth = 60; le.minWidth = 52;
+            b.gameObject.SetActive(false);
+            botonesFoco.Add(b);
+        }
+        var botonReset = Boton(filaInspeccion, "RestablecerVista", "Reset view", false);
+        {
+            var le = botonReset.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.minHeight = le.preferredHeight = 52; le.preferredWidth = 250; le.minWidth = 220;
+            foreach (var t in botonReset.GetComponentsInChildren<TextMeshProUGUI>()) { t.enableAutoSizing = false; t.fontSize = 24; }
+        }
+        // Hangar de integración: se ve con la nave (pestañas Satélite e Instrumentos y Revisión).
+        var hangar = ConstruirHangar(nave.transform.position);
+        Asignar(camara, "hangar", hangar);
+        var inspeccionNave = inspeccion.gameObject.AddComponent<InspeccionNave>();
+        Asignar(inspeccionNave, "camara", camara);
+        Asignar(inspeccionNave, "configuracion", configUI);
+        AsignarTextos(inspeccionNave, "ids", IdsInstrumento);
+        AsignarLista(inspeccionNave, "botonesFoco", botonesFoco.ToArray());
+        Asignar(inspeccionNave, "botonRestablecer", botonReset);
+        Asignar(inspeccionNave, "contenido", contenidoInspeccion.gameObject);
 
         CrearEventSystem();
         Asignar(controlador, "operacion", operacionUI);
@@ -1857,7 +1906,7 @@ public static partial class ConstructorEscenas
     {
         var ui = vista.gameObject.AddComponent<RevisionUI>();
         var tarjeta = Columna(vista, "Tarjeta", 22, TextAnchor.UpperLeft, Tarjeta, 48);
-        Anclar(tarjeta, new Vector2(0.25f, 0.045f), new Vector2(0.75f, 0.955f));
+        Anclar(tarjeta, new Vector2(0.02f, 0.045f), new Vector2(0.42f, 0.955f));   // a la izquierda: la nave se ve en el centro
         tarjeta.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(tarjeta);
         var paso = Texto(tarjeta, "Paso", Paso(3), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
@@ -1944,7 +1993,7 @@ public static partial class ConstructorEscenas
         explorador.localPosition = new Vector3(-3.3f, 0, 0);
         var superiorExplorador = ConstruirAres(explorador);
         // Logo del patrocinador en la etapa superior, por delante y por detrás (calcomanía curva).
-        float alturaLogoExp = AltoExplorador * 0.68f;
+        float alturaLogoExp = AltoExplorador * 0.635f;   // en la franja color espuma, bajo la banda negra
         LogoPatrocinio(superiorExplorador, "Fence", false, RadioNucleo(explorador, alturaLogoExp) + 0.012f, alturaLogoExp, 0.5f, explorador);
         explorador.gameObject.AddComponent<GiroLento>().enabled = false;
 
@@ -1961,7 +2010,19 @@ public static partial class ConstructorEscenas
         LogoPatrocinio(slsModelo.inferior != null ? slsModelo.inferior.transform : sls, "Security", true,
             RadioNucleo(sls, alturaLogo) + 0.012f, alturaLogo, 1.35f, sls);
         foreach (int lado in new[] { -1, 1 })   // brillo de los motores al pie (el Bloom lo hace resplandecer)
-            Pieza(PrimitiveType.Cylinder, "Llama", sls, new Vector3(lado * 0.7f, 0.02f, 0), Vector3.zero, new Vector3(0.3f, 0.005f, 0.3f), llama);
+            Pieza(PrimitiveType.Cylinder, "Llama", sls, new Vector3(lado * 0.7f, 0.035f, 0), Vector3.zero, new Vector3(0.3f, 0.005f, 0.3f), llama);   // sobre el foso (0.02), sin tocarlo
+        if (slsModelo.inferior != null && slsModelo.superior != null)
+        {
+            // El SLS viene en dos archivos con las bocas abiertas: se tapan el núcleo (arriba) y la etapa superior (abajo).
+            var interiorSls = CrearMaterial("NASA_Cohete_SLS_Interior", Hex("#23272E"), 0.35f, 0.3f);
+            float union = sls.InverseTransformPoint(Limites(slsModelo.superior).min).y;
+            var nucleo = slsModelo.inferior.GetComponentsInChildren<MeshFilter>(true).Where(mf => mf.name.EndsWith("_Nucleo"));
+            TaparObjeto(sls, slsModelo.inferior.transform, nucleo, union, true, interiorSls, "SLS_Tapa_Nucleo");
+            var etapa = slsModelo.superior.GetComponentsInChildren<MeshFilter>(true).Where(mf => mf.name.EndsWith("_Etapa"));
+            TaparObjeto(sls, slsModelo.superior.transform, etapa, union, false, interiorSls, "SLS_Tapa_Superior");
+        }
+        if (slsModelo.superior != null)
+            MedirCohete(sls, 11f, new[] { slsModelo.superior.transform.Find("NarizIzq"), slsModelo.superior.transform.Find("NarizDer") }, 0.47f);
         sls.gameObject.AddComponent<GiroLento>().enabled = false;
 
         // Anillos que señalan el lanzador elegido.
@@ -1998,7 +2059,7 @@ public static partial class ConstructorEscenas
         mat.EnableKeyword("_ALPHATEST_ON");
         mat.renderQueue = (int)RenderQueue.AlphaTest;
         EditorUtility.SetDirty(mat);
-        var malla = GuardarMalla(ParcheCilindro(radio, alto), "Logo_" + cual + "_" + Mathf.RoundToInt(radio * 1000));
+        var malla = GuardarMalla(ParcheCilindro(radio, alto), "Logo_" + cual + "_" + Mathf.RoundToInt(radio * 1000) + "x" + Mathf.RoundToInt(alto * 1000));   // radio y lado: dos cohetes del mismo radio no comparten parche
         referencia = referencia != null ? referencia : padre;
         foreach (var (nombre, giro) in new[] { ("LogoFrente", 0f), ("LogoDetras", 180f) })
         {
@@ -2040,7 +2101,7 @@ public static partial class ConstructorEscenas
     }
 
     /// <summary>Radio del núcleo del cohete a una altura dada (vértices cerca del eje X = 0), en su espacio local.</summary>
-    static float RadioNucleo(Transform cohete, float altura)
+    static float RadioNucleo(Transform cohete, float altura, float lado = 0.7f)
     {
         float radio = 0f;
         foreach (var mf in cohete.GetComponentsInChildren<MeshFilter>())
@@ -2049,7 +2110,7 @@ public static partial class ConstructorEscenas
             foreach (var vert in mf.sharedMesh.vertices)
             {
                 var p = cohete.InverseTransformPoint(mf.transform.TransformPoint(vert));
-                if (Mathf.Abs(p.y - altura) < 0.35f && Mathf.Abs(p.x) < 0.12f) radio = Mathf.Max(radio, Mathf.Abs(p.z));
+                if (Mathf.Abs(p.y - altura) < lado * 0.5f && Mathf.Abs(p.x) < 0.12f) radio = Mathf.Max(radio, Mathf.Abs(p.z));
             }
         }
         return radio > 0.05f ? radio : 0.47f;

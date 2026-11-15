@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace SpaceMission
 {
@@ -10,7 +12,11 @@ namespace SpaceMission
     /// - Pestaña Instrumentos: la nave; al instalar un instrumento, un acercamiento breve a su módulo con una
     ///   etiqueta hacia fuera y una línea guía. Al pasar el cursor por un instrumento sin instalar, su holograma
     ///   aparece en el montaje donde iría.
-    /// Solo lee el estado (pestaña y EstadoJuego.Configuracion): no cambia nada de la lógica.
+    /// - Inspección (pestañas Satélite e Instrumentos, también con la Revisión abierta): arrastrar gira la nave con
+    ///   topes, la rueda acerca con topes, y hay foco por instrumento y «Restablecer vista». Lo mismo con el
+    ///   teclado (flechas, + y −, R). Los gestos que empiezan sobre la interfaz no giran la nave.
+    /// Es el único dueño de esta cámara. Solo lee el estado (pestaña y EstadoJuego.Configuracion): no cambia nada
+    /// de la lógica.
     /// </summary>
     [RequireComponent(typeof(Camera))]
     public class CamaraConfiguracion : MonoBehaviour
@@ -27,6 +33,8 @@ namespace SpaceMission
         [SerializeField] GameObject vistaConfiguracion;
         [Tooltip("Versión 6: en el Briefing se ve el Marte 3D detrás del expediente (sin la nave).")]
         [SerializeField] GameObject vistaBriefing;
+        [Tooltip("Con la Revisión abierta se ve la nave que se va a lanzar, sea cual sea la pestaña de debajo.")]
+        [SerializeField] GameObject vistaRevision;
 
         [Header("Encuadres")]
         [SerializeField] Encuadre nave;
@@ -42,6 +50,8 @@ namespace SpaceMission
 
         [Header("Objetos")]
         [SerializeField] Transform raizNave;
+        [Tooltip("Hangar de integración: el escenario de la nave en las pestañas Satélite e Instrumentos.")]
+        [SerializeField] GameObject hangar;
 
         [Header("Acercamiento a un instrumento")]
         [SerializeField] float distanciaModulo = 3.6f;
@@ -81,6 +91,7 @@ namespace SpaceMission
             var config = EstadoJuego.Configuracion;
             bool enConfiguracion = vistaConfiguracion != null && vistaConfiguracion.activeInHierarchy && configuracion != null;
             var pestana = enConfiguracion ? configuracion.PestanaActual : ConfiguracionUI.Pestana.Instrumentos;
+            if (vistaRevision != null && vistaRevision.activeInHierarchy) pestana = ConfiguracionUI.Pestana.Instrumentos;
 
             DetectarInstalacion(config, enConfiguracion && pestana == ConfiguracionUI.Pestana.Instrumentos);
 
@@ -93,6 +104,12 @@ namespace SpaceMission
             else if (pestana == ConfiguracionUI.Pestana.Satelite) { objetivo = nave; objetivo.campo = campoSatelite; }
             else if (moduloEnFoco != null && Time.unscaledTime < finFoco) objetivo = EncuadreModulo(moduloEnFoco);
             else moduloEnFoco = null;
+            bool inspeccion = enConfiguracion && (pestana == ConfiguracionUI.Pestana.Instrumentos || pestana == ConfiguracionUI.Pestana.Satelite);
+            LeerInspeccion(inspeccion);
+            if (inspeccion && moduloEnFoco == null) objetivo.campo = (objetivo.campo > 1f ? objetivo.campo : 60f) * zoomUsuario;
+            if (!inspeccion) Restablecer();
+            bool verHangar = inspeccion && !enBriefingAhora();
+            if (hangar != null && hangar.activeSelf != verHangar) hangar.SetActive(verHangar);
 
             bool enBriefing = vistaBriefing != null && vistaBriefing.activeInHierarchy && briefing.campo > 1f;
             if (enBriefing) objetivo = briefing;
@@ -232,7 +249,7 @@ namespace SpaceMission
             var modulo = raizNave.Find("Modulo_" + nuevo);
             if (modulo == null) return;
             moduloEnFoco = modulo;
-            finFoco = Time.unscaledTime + duracionModulo;
+            finFoco = Time.unscaledTime + Mathf.Max(duracionModulo, Instalacion.Duracion + 1.8f);   // el montaje entero y una pausa
             if (textoFoco != null && catalogo != null)
                 textoFoco.text = Iconos.DeInstrumento(nuevo) + "  " + catalogo.Instrumento(nuevo).Nombre.ToUpperInvariant() +
                                  Idioma.T("\n<size=75%><color=#94A3B8>INSTALLED HERE</color></size>");
@@ -247,8 +264,19 @@ namespace SpaceMission
             var fuera = punto - centro;
             if (fuera.sqrMagnitude < 0.01f) fuera = Vector3.back;
             var dir = (fuera.normalized + Vector3.back * 1.1f).normalized;
-            var mira = Vector3.Lerp(centro, punto, 0.65f);
-            return new Encuadre { posicion = mira + dir * distanciaModulo, mirarA = mira, campo = 42f };
+            // Renovación visual: de cerca, para que se vea la pieza llegar, encajar y cerrar sus fijaciones (antes
+            // la distancia era fija y el instrumento quedaba como un punto sobre un satélite grande).
+            var renderers = modulo.GetComponentsInChildren<Renderer>();
+            float tamano = 0.3f;
+            if (renderers.Length > 0)
+            {
+                var b = renderers[0].bounds;
+                foreach (var r in renderers) b.Encapsulate(r.bounds);
+                tamano = Mathf.Max(b.size.x, b.size.y, b.size.z);
+            }
+            float distancia = Mathf.Clamp(tamano * 4.2f, 1.2f, distanciaModulo);
+            var mira = Vector3.Lerp(centro, punto, 0.88f);
+            return new Encuadre { posicion = mira + dir * distancia, mirarA = mira, campo = 42f };
         }
 
         static Vector3 CentroVisual(Transform t)
@@ -268,7 +296,98 @@ namespace SpaceMission
             if (girar && !Preferencias.ReducirMovimiento) giroSatelite += Time.unscaledDeltaTime * 14f;
             else giroSatelite = Mathf.MoveTowardsAngle(giroSatelite, 0f, Time.unscaledDeltaTime * 120f);
             giroSatelite = Mathf.Repeat(giroSatelite + 180f, 360f) - 180f;
-            raizNave.localRotation = poseNave * Quaternion.Euler(0f, giroSatelite, 0f);
+            raizNave.localRotation = Quaternion.Euler(inclinacionUsuario, 0f, 0f) * poseNave * Quaternion.Euler(0f, giroSatelite + giroUsuario, 0f);
+        }
+
+        bool enBriefingAhora() => vistaBriefing != null && vistaBriefing.activeInHierarchy && briefing.campo > 1f;
+
+        // ---------- Inspección manual ----------
+
+        public const float TopeGiro = 170f, TopeInclinacion = 40f, ZoomCerca = 0.5f, ZoomLejos = 1.2f;
+        float giroUsuario, inclinacionUsuario, zoomUsuario = 1f;
+        bool arrastrando;
+
+        public float GiroUsuario => giroUsuario;
+        public float InclinacionUsuario => inclinacionUsuario;
+        public float ZoomUsuario => zoomUsuario;
+        public Transform ModuloEnFoco => moduloEnFoco;
+
+        /// <summary>Gira la nave (grados) dentro de los topes. Cualquier gesto del jugador suelta el foco automático.</summary>
+        public void Girar(float giro, float inclinacion)
+        {
+            giroUsuario = Mathf.Clamp(giroUsuario + giro, -TopeGiro, TopeGiro);
+            inclinacionUsuario = Mathf.Clamp(inclinacionUsuario + inclinacion, -TopeInclinacion, TopeInclinacion);
+            moduloEnFoco = null;
+        }
+
+        /// <summary>Acerca (valor positivo) o aleja la vista dentro de los topes.</summary>
+        public void Acercar(float pasos)
+        {
+            zoomUsuario = Mathf.Clamp(zoomUsuario * Mathf.Pow(0.9f, pasos), ZoomCerca, ZoomLejos);
+            moduloEnFoco = null;
+        }
+
+        /// <summary>Vuelve a la vista de partida: sin giro, sin zoom y sin foco.</summary>
+        public void Restablecer()
+        {
+            giroUsuario = 0f; inclinacionUsuario = 0f; zoomUsuario = 1f; arrastrando = false;
+        }
+
+        /// <summary>Enfoca el módulo de un instrumento instalado (botón de foco). Devuelve si existe y está montado.</summary>
+        public bool Enfocar(string idInstrumento)
+        {
+            if (raizNave == null) return false;
+            var modulo = raizNave.Find("Modulo_" + idInstrumento);
+            if (modulo == null || !modulo.gameObject.activeSelf) return false;
+            Restablecer();
+            moduloEnFoco = modulo;
+            finFoco = Time.unscaledTime + 4f;
+            if (textoFoco != null && catalogo != null)
+                textoFoco.text = Iconos.DeInstrumento(idInstrumento) + "  " + catalogo.Instrumento(idInstrumento).Nombre.ToUpperInvariant();
+            return true;
+        }
+
+        static readonly List<RaycastResult> golpes = new List<RaycastResult>();
+
+        /// <summary>¿El puntero está sobre un control? Una VentanaInspeccion (hueco por el que se ve la nave) no cuenta.</summary>
+        static bool SobreInterfaz(Mouse raton)
+        {
+            if (EventSystem.current == null || raton == null) return false;
+            var datos = new PointerEventData(EventSystem.current) { position = raton.position.ReadValue() };
+            golpes.Clear();
+            EventSystem.current.RaycastAll(datos, golpes);
+            return golpes.Count > 0 && golpes[0].gameObject.GetComponent<VentanaInspeccion>() == null;
+        }
+
+        void LeerInspeccion(bool permitido)
+        {
+            if (!permitido || !Application.isPlaying) { arrastrando = false; return; }
+            var raton = Mouse.current;
+            bool sobreInterfaz = SobreInterfaz(raton);
+            if (raton != null)
+            {
+                if (raton.leftButton.wasPressedThisFrame) arrastrando = !sobreInterfaz;
+                if (!raton.leftButton.isPressed) arrastrando = false;
+                if (arrastrando)
+                {
+                    var d = raton.delta.ReadValue();
+                    if (d.sqrMagnitude > 0.01f) Girar(-d.x * 0.35f, d.y * 0.25f);
+                }
+                float rueda = raton.scroll.ReadValue().y;
+                if (!sobreInterfaz && Mathf.Abs(rueda) > 0.01f) Acercar(Mathf.Sign(rueda));
+            }
+            var teclado = Keyboard.current;
+            if (teclado == null) return;
+            // Con un campo de texto activo las teclas son suyas.
+            var elegido = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+            if (elegido != null && elegido.GetComponent<TMPro.TMP_InputField>() != null) return;
+            float dt = Time.unscaledDeltaTime;
+            float gx = (teclado.rightArrowKey.isPressed ? 1f : 0f) - (teclado.leftArrowKey.isPressed ? 1f : 0f);
+            float gy = (teclado.upArrowKey.isPressed ? 1f : 0f) - (teclado.downArrowKey.isPressed ? 1f : 0f);
+            if (gx != 0f || gy != 0f) Girar(gx * 90f * dt, gy * 60f * dt);
+            if (teclado.equalsKey.isPressed || teclado.numpadPlusKey.isPressed) Acercar(4f * dt);
+            if (teclado.minusKey.isPressed || teclado.numpadMinusKey.isPressed) Acercar(-4f * dt);
+            if (teclado.rKey.wasPressedThisFrame) { Restablecer(); moduloEnFoco = null; }
         }
 
         float giroSatelite;

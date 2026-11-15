@@ -60,6 +60,7 @@ namespace SpaceMission
         [Header("Complejo de lanzamiento")]
         [SerializeField] Renderer cielo;                 // shader Cielo (_Noche: día → espacio)
         [SerializeField] Transform[] brazos;             // brazos de la torre (giran para retirarse)
+        [SerializeField] Transform[] sujeciones = new Transform[0];   // sujeciones del pedestal (sueltan el cohete)
         [SerializeField] Light luzMotores;
         [SerializeField] ParticleSystem chispas;
         [SerializeField] ParticleSystem[] humoLados;     // salen por los extremos del foso de llamas
@@ -301,8 +302,7 @@ namespace SpaceMission
             var camSuelo = basePos + new Vector3(alto * 0.75f, 0.5f, -alto * 1.45f);
             for (float t = 0f; Sigue(t, 4f, 6f); t += Time.deltaTime)
             {
-                float giro = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 1.1f));
-                for (int i = 0; i < brazos.Length; i++) if (brazos[i] != null) brazos[i].localRotation = Quaternion.Euler(0f, -75f * giro, 0f);
+                RetirarBrazos(Mathf.Clamp01(t / 1.1f));
                 if (t > 1.1f)
                 {
                     float u = t - 1.1f;
@@ -410,7 +410,13 @@ namespace SpaceMission
             var escalaSat = sat.localScale;
             var nariz = Vector3.zero;
             foreach (var c in cofia) nariz += CentroVisual(c) / cofia.Length;
-            var radioNariz = alto * 0.028f;   // nariz del SLS y del Ares: misma proporción
+            // El radio libre de la cofia se mide en cada cohete (antes era una proporción fija del SLS y el Ares).
+            var perfilCohete = cohete.GetComponent<PerfilCohete>();
+            var radioNariz = perfilCohete != null ? perfilCohete.RadioCarga : alto * 0.028f;
+            // La carga va en la parte ancha de la cofia (a un tercio de su altura), no en su centro: ahí cabe.
+            if (perfilCohete != null) nariz -= adelante * perfilCohete.AltoCofia * 0.2f;
+            // La cámara no se acerca más que esto, aunque la cofia sea muy fina (plano cercano de la cámara).
+            float radioToma = Mathf.Max(radioNariz, alto * 0.016f);
             // El satélite viaja dentro de la cofia, a una escala que cabe en ella.
             sat.localScale = escalaSat;
             float tamano = Mathf.Max(0.01f, TamanoVisual(sat));
@@ -430,12 +436,16 @@ namespace SpaceMission
             }
             var bisagras = new Vector3[cofia.Length];
             for (int i = 0; i < cofia.Length; i++) bisagras[i] = cofia[i].position;
-            bool pernos = false, resortes = false, gas = false, estable = false;
+            bool pernos = false, resortes = false, gas = false, estable = false, desplegando = false;
+            // Renovación visual: la nave viaja con sus mecanismos plegados y los despliega al quedar libre.
+            var aspectoSat = sat.GetComponent<NaveSatelite>();
+            if (aspectoSat != null) aspectoSat.Desplegar(0f);
+            const float duracion7 = 6.6f, inicioDespliegue = 3.7f, finDespliegue = 5.8f;
             // Cámara del lado iluminado por el Sol (si no, la nariz se ve azul, solo con la luz de contorno).
             var haciaSol = RenderSettings.sun != null ? -RenderSettings.sun.transform.forward : Vector3.back;
             var lateral = Vector3.ProjectOnPlane(haciaSol, adelante).normalized;
             if (lateral.sqrMagnitude < 0.01f) lateral = Vector3.Cross(adelante, Vector3.up).normalized;
-            for (float t = 0f; t < 5.4f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; t < duracion7 && !omitir; t += Time.deltaTime)
             {
                 // La etapa (con el satélite dentro) sigue avanzando despacio por inercia.
                 var avance = adelante * t * alto * 0.05f;
@@ -478,10 +488,23 @@ namespace SpaceMission
                     textoHud.text = Idioma.T("PAYLOAD RELEASED");
                     if (gasFrio != null) { gasFrio.transform.position = sat.position; gasFrio.Play(); }
                 }
+                // Despliegue: los mecanismos de los instrumentos montados se abren uno tras otro, y al final una
+                // pausa con la nave completa (plano protagonista).
+                if (t > inicioDespliegue)
+                {
+                    if (!desplegando)
+                    {
+                        desplegando = true;
+                        textoHud.text = Idioma.T("DEPLOYING INSTRUMENTS");
+                        Sonar(ArteDatos.Efecto.Servo, 0.45f);
+                    }
+                    if (aspectoSat != null) aspectoSat.Desplegar(Mathf.InverseLerp(inicioDespliegue, finDespliegue, t));
+                }
                 // Cámara de lado, acercándose a la nariz y siguiendo luego al satélite.
                 var mira = Vector3.Lerp(centroNariz, sat.position, Mathf.Clamp01((t - 2f) / 2.5f));
                 // Cerca, a la escala de la nariz: el satélite (pequeño, cabía en la cofia) llena buena parte del cuadro.
-                var dist = radioNariz * Mathf.Lerp(10f, 4.2f, Mathf.Clamp01(t / 5.4f));
+                // Se acerca hasta quedar junto a la nave: el despliegue y la pausa final se ven de cerca.
+                var dist = radioToma * Mathf.Lerp(10f, 3f, Mathf.Clamp01(t / 4.6f));
                 Mirar(mira + lateral * dist + Vector3.up * dist * 0.35f - adelante * dist * 0.4f, mira, 40f);
                 yield return null;
             }
@@ -718,17 +741,50 @@ namespace SpaceMission
             foreach (var c in cohetesExtra) { Mostrar(c.llamas, false); Mostrar(c.llamaSuperior, false); }
             if (luzMotores != null) luzMotores.enabled = false;
             if (destello != null) destello.alpha = 0f;
-            // Los brazos de la torre, a la altura del cohete elegido y pegados a él.
+            // Los brazos de la torre, a la altura del cohete elegido y con el largo justo para tocar su costado.
+            var perfil = cohete != null ? cohete.GetComponent<PerfilCohete>() : null;
             for (int i = 0; i < brazos.Length; i++)
             {
                 if (brazos[i] == null) continue;
                 var p = brazos[i].localPosition;
-                brazos[i].localPosition = new Vector3(p.x, alto * (0.3f + 0.22f * i), p.z);
+                float altura = alto * (0.3f + 0.22f * i);
+                brazos[i].localPosition = new Vector3(p.x, altura, p.z);
                 brazos[i].localRotation = Quaternion.identity;
+                var brazo = brazos[i].GetComponent<BrazoTorre>();
+                if (brazo != null) brazo.Ajustar(perfil != null ? perfil.HaciaTorre(altura - 0.3f, altura + 0.3f) : alto * 0.04f);
+            }
+            // Las sujeciones del pedestal, justo fuera del pie del cohete elegido y cerradas sobre él.
+            float pie = perfil != null ? perfil.RadioBase : alto * 0.06f;
+            foreach (var su in sujeciones)
+            {
+                if (su == null) continue;
+                var dir = new Vector3(su.localPosition.x, 0f, su.localPosition.z).normalized;
+                su.localPosition = dir * (pie + 0.16f);
+                su.localRotation = Quaternion.LookRotation(dir, Vector3.up);
             }
             foreach (var ps in new[] { chispas, vapor, estela, aves, pirotecnia, gasFrio })
                 if (ps != null) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        /// <summary>0 = brazos apoyados en el cohete; 1 = retirados (primero sueltan los umbilicales).</summary>
+        void RetirarBrazos(float k)
+        {
+            foreach (var b in brazos)
+            {
+                if (b == null) continue;
+                var brazo = b.GetComponent<BrazoTorre>();
+                if (brazo != null) brazo.Retirar(k);
+                else b.localRotation = Quaternion.Euler(0f, 75f * Mathf.SmoothStep(0f, 1f, k), 0f);
+            }
+            // Las sujeciones se abren hacia fuera al final de la retirada, justo antes de que el cohete suba.
+            float abre = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.55f, 1f, k));
+            foreach (var su in sujeciones)
+            {
+                if (su == null) continue;
+                var dir = new Vector3(su.localPosition.x, 0f, su.localPosition.z).normalized;
+                su.localRotation = Quaternion.LookRotation(dir, Vector3.up) * Quaternion.Euler(62f * abre, 0f, 0f);
+            }
         }
 
         /// <summary>Guarda la pose de todo lo que la cinemática mueve, para dejarlo igual al terminar u omitir.</summary>
@@ -745,6 +801,7 @@ namespace SpaceMission
             if (propulsoresExplorador != null) foreach (var p in propulsoresExplorador) Guardar(p);
             if (propulsoresTitan != null) foreach (var p in propulsoresTitan) Guardar(p);
             if (brazos != null) foreach (var b in brazos) Guardar(b);
+            if (sujeciones != null) foreach (var su in sujeciones) Guardar(su);
             if (cofiaExplorador != null) foreach (var c in cofiaExplorador) Guardar(c);
             if (cofiaTitan != null) foreach (var c in cofiaTitan) Guardar(c);
         }
@@ -857,6 +914,12 @@ namespace SpaceMission
             if (cielo != null) Noche(0f);
             if (escalaSatelite != Vector3.zero && escenario != null && escenario.Satelite != null)
                 escenario.Satelite.localScale = escalaSatelite;
+            // Ver la cinemática u omitirla deja la nave igual: desplegada, como va en órbita.
+            if (escenario != null && escenario.Satelite != null)
+            {
+                var aspecto = escenario.Satelite.GetComponent<NaveSatelite>();
+                if (aspecto != null) aspecto.PoseDeReposo();
+            }
             MostrarZona(false);
             if (escenario != null)
             {

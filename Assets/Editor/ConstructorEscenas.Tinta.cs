@@ -32,7 +32,7 @@ public static partial class ConstructorEscenas
 
     static readonly HashSet<string> EstructurasTinta = new HashSet<string>
     {
-        "Plataforma", "Torre_Servicio", "Torre_Acento", "Lanzamiento_Mastil", "Lanzamiento_Edificio", "Lanzamiento_Franja",
+        "Plataforma", "Torre_Servicio", "Torre_Acento", "Torre_Cable", "Lanzamiento_Mastil", "Lanzamiento_Edificio", "Lanzamiento_Franja", "Lanzamiento_Pedestal", "Lanzamiento_Senal",
     };
 
     static readonly HashSet<string> SueloTinta = new HashSet<string>
@@ -58,9 +58,10 @@ public static partial class ConstructorEscenas
             ajuste.contorno = 1.6f; ajuste.maximo = 0.35f; ajuste.borde = 0.1f; ajuste.sombra = 0.4f; ajuste.colorBorde = "#F2C9A0";
             return true;
         }
-        if (EstructurasTinta.Contains(nombre))
+        if (EstructurasTinta.Contains(nombre) || nombre.StartsWith("Hangar_"))
         {
-            ajuste.contorno = 1.3f; ajuste.maximo = 0.3f; ajuste.borde = 0.06f; ajuste.brillo = 0.3f; ajuste.sombra = 0.42f; ajuste.colorBorde = "#F2C9A0";
+            ajuste.contorno = emite ? 0f : 1.3f;   // lo que emite luz (lámparas) no lleva contorno
+            ajuste.maximo = 0.3f; ajuste.borde = 0.06f; ajuste.brillo = 0.3f; ajuste.sombra = 0.42f; ajuste.colorBorde = "#F2C9A0";
             return true;
         }
         if (nombre.StartsWith("Arbol_"))

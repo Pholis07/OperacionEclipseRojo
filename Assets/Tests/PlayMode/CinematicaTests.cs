@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -90,6 +91,54 @@ namespace SpaceMission.PlayTests
             Assert.LessOrEqual(Atenuacion.VocesSonando, 1);
         }
 
+        /// <summary>
+        /// Renovación visual: la cinemática termina con los seis lanzadores (a tiempo acelerado) y deja todo como
+        /// estaba: cohete y brazos en su sitio y el satélite a su escala. Un error en el registro hace fallar la prueba.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator LaCinematicaTerminaConCadaLanzador(
+            [Values("pionero", "explorador", "horizonte", "titan", "goliat", "coloso")] string lanzador)
+        {
+            Preferencias.ReducirMovimiento = false;
+            SceneManager.LoadScene("Mision");
+            int cuadros = 0;
+            while (SceneManager.GetActiveScene().name != "Mision" && cuadros++ < 600) yield return null;
+            yield return null;
+            EstadoJuego.Configuracion = new Configuracion("media", lanzador, new[] { "radar" });
+            var director = Object.FindFirstObjectByType<DirectorCinematica>();
+            var escenario = Object.FindFirstObjectByType<EscenarioOrbital>(FindObjectsInactive.Include);
+            var escala = escenario.Satelite.localScale;
+            var brazos = Object.FindObjectsByType<BrazoTorre>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            Assert.AreEqual(3, brazos.Length);
+            var cohetes = Object.FindObjectsByType<PerfilCohete>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var poses = cohetes.Select(c => (c.transform, c.transform.localPosition, c.transform.localRotation)).ToArray();
+            int finales = 0;
+            director.AlTerminar += () => finales++;
+            Time.timeScale = 6f;
+            try
+            {
+                director.Reproducir();
+                Assert.IsTrue(director.Reproduciendo);
+                float inicio = Time.realtimeSinceStartup;
+                while (director.Reproduciendo && Time.realtimeSinceStartup - inicio < 60f) yield return null;
+                Assert.IsFalse(director.Reproduciendo, "la cinemática no terminó");
+            }
+            finally { Time.timeScale = 1f; }
+            yield return null;
+            Assert.AreEqual(1, finales, "el final se avisa una sola vez");
+            Assert.AreEqual(escala, escenario.Satelite.localScale, "el satélite vuelve a su escala");
+            var radar = escenario.Satelite.Find("Modulo_radar");
+            Assert.IsTrue(radar.gameObject.activeSelf, "la nave de la cinemática lleva la carga elegida");
+            Assert.IsFalse(escenario.Satelite.Find("Modulo_termica").gameObject.activeSelf, "y solo esa");
+            Assert.AreEqual(1f, radar.GetComponent<MecanismoInstrumento>().Despliegue, 1e-3f, "termina desplegada");
+            foreach (var b in brazos) Assert.Less(Quaternion.Angle(Quaternion.identity, b.transform.localRotation), 0.1f, "los brazos vuelven a su sitio");
+            foreach (var (t, p, r) in poses)
+            {
+                Assert.Less((t.localPosition - p).magnitude, 1e-3f, t.name + " vuelve a su posición");
+                Assert.Less(Quaternion.Angle(t.localRotation, r), 0.1f, t.name + " vuelve a su giro");
+            }
+        }
+
         [UnityTest]
         public IEnumerator SaltarLaCinematicaCallaAControlDeMision()
         {
@@ -101,6 +150,14 @@ namespace SpaceMission.PlayTests
             director.Omitir();
             yield return null;
             Assert.IsFalse(director.Reproduciendo);
+            // Omitir deja la nave igual que verla entera: con la carga elegida y desplegada.
+            var sat = Object.FindFirstObjectByType<EscenarioOrbital>(FindObjectsInactive.Include).Satelite;
+            foreach (var id in new[] { "termica", "radar" })
+            {
+                Assert.IsTrue(sat.Find("Modulo_" + id).gameObject.activeSelf, id);
+                Assert.AreEqual(1f, sat.Find("Modulo_" + id).GetComponent<MecanismoInstrumento>().Despliegue, 1e-3f);
+            }
+            Assert.IsFalse(sat.Find("Modulo_espectrometro").gameObject.activeSelf);
             Assert.IsFalse(director.Hablando, "saltar corta la voz y vacía la fila");
             Assert.LessOrEqual(Atenuacion.VocesSonando, 1, "como mucho, la transmisión inicial");
         }

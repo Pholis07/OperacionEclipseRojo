@@ -9,6 +9,14 @@ namespace SpaceMission
     /// - Espectrómetro: curva de reflectancia por bandas que se va trazando (modo hiperespectral) y después tres capas
     ///   que se alternan, Visible / Infrarrojo / Composición (modo multiespectral).
     /// - Cámara de alta resolución: destello de captura y una nota prudente.
+    /// Renovación visual: los cinco instrumentos tienen su lectura, distinta de las demás y siempre con el resultado
+    /// real del juego (si la lectura no dio con la anomalía, el gráfico sale plano y la nota lo dice):
+    /// - Cámara térmica: la misma franja en gris (imagen base) que un barrido convierte a falso color, con leyenda
+    ///   de escala relativa (más frío / más cálido). No da temperaturas.
+    /// - Radar de subsuelo: trazas que llegan una a una (perfil de ecos, esquemático); con hallazgo, un eco claro
+    ///   bajo la superficie en el centro; sin él, solo ruido.
+    /// - Sensor atmosférico: opacidad relativa del polvo a lo largo de la pasada.
+    /// Son ilustraciones de los datos, no fenómenos que se verían desde fuera: cada título lo dice.
     /// Los textos son prudentes: «firma compatible con…», sin afirmar agua actual ni vida, y una imagen no muestra
     /// lo que hay bajo la superficie.
     /// El panel se crea por código la primera vez (hereda la fuente de un texto de la vista).
@@ -34,7 +42,54 @@ namespace SpaceMission
         public string Nota => nota.text;
 
         /// <summary>Instrumentos que tienen un modo propio en pantalla.</summary>
-        public static bool Tiene(string instrumento) => instrumento == "espectrometro" || instrumento == "alta_res";
+        public static bool Tiene(string instrumento) =>
+            instrumento == "espectrometro" || instrumento == "alta_res" || instrumento == "termica" || instrumento == "radar" || instrumento == "atmosferico";
+
+        static readonly string[] LeyendaTermica = { "COOLER", "RELATIVE SCALE", "WARMER" };
+        static readonly string[] LeyendaRadar = { "SURFACE", "SCHEMATIC", "ECHO BELOW" };
+        static readonly string[] LeyendaAtmosfera = { "CLEAR", "RELATIVE SCALE", "DUSTY" };
+
+        static string[] Leyenda(string instrumento) =>
+            instrumento == "termica" ? LeyendaTermica : instrumento == "radar" ? LeyendaRadar : instrumento == "atmosferico" ? LeyendaAtmosfera : null;
+
+        public static string TituloDe(string instrumento)
+        {
+            switch (instrumento)
+            {
+                case "espectrometro": return Idioma.T("HYPERSPECTRAL · REFLECTANCE BY BAND");
+                case "termica": return Idioma.T("THERMAL INFRARED · FALSE COLOR");
+                case "radar": return Idioma.T("RADAR SOUNDER · ECHO PROFILE");
+                case "atmosferico": return Idioma.T("ATMOSPHERIC SOUNDER · DUST OPACITY");
+                default: return Idioma.T("HIGH RESOLUTION · OPTICAL CAPTURE");
+            }
+        }
+
+        /// <summary>Altura (0 a 1) de la columna «i» en la lectura de este instrumento. Con «encontrada» aparece el rasgo.</summary>
+        public static float Valor(string instrumento, int i, bool encontrada)
+        {
+            float x = i / (Bandas - 1f);
+            float centro = Mathf.Exp(-Mathf.Pow((x - 0.5f) / 0.13f, 2f));
+            switch (instrumento)
+            {
+                case "termica":      // contraste térmico: una mancha más cálida en el centro
+                    return Mathf.Clamp01(0.3f + 0.06f * Mathf.Sin(x * 17f) + (encontrada ? 0.6f * centro : 0f));
+                case "radar":        // eco bajo la superficie: ruido bajo y, con hallazgo, un reflector claro
+                    return Mathf.Clamp01(0.12f + 0.07f * Mathf.Abs(Mathf.Sin(x * 31f)) + (encontrada ? 0.62f * Mathf.SmoothStep(0f, 1f, centro * 1.6f) : 0f));
+                case "atmosferico":  // opacidad del polvo a lo largo de la pasada
+                    return Mathf.Clamp01(0.35f + 0.18f * Mathf.Sin(x * 5.2f + 0.6f) + 0.05f * Mathf.Sin(x * 29f) + (encontrada ? 0.15f * centro : 0f));
+                default: return 0f;
+            }
+        }
+
+        static Color ColorDe(string instrumento, float v, float x)
+        {
+            switch (instrumento)
+            {
+                case "termica": return Color.HSVToRGB(Mathf.Lerp(0.62f, 0.04f, Mathf.InverseLerp(0.25f, 0.9f, v)), 0.85f, 1f);   // azul → naranja
+                case "radar": return Color.Lerp(new Color(0.2f, 0.42f, 0.5f), new Color(0.55f, 0.95f, 1f), Mathf.InverseLerp(0.15f, 0.7f, v));
+                default: return Color.Lerp(new Color(0.55f, 0.75f, 0.95f), new Color(0.9f, 0.68f, 0.4f), Mathf.InverseLerp(0.2f, 0.7f, v));
+            }
+        }
 
         public ModoEscaneo(RectTransform vista, TMP_Text plantilla)
         {
@@ -74,10 +129,26 @@ namespace SpaceMission
             panel.gameObject.SetActive(true);
             CapaActiva = -1;
             bool espectro = instrumento == "espectrometro";
-            titulo.text = espectro ? Idioma.T("HYPERSPECTRAL · REFLECTANCE BY BAND") : Idioma.T("HIGH RESOLUTION · OPTICAL CAPTURE");
+            titulo.text = TituloDe(instrumento);
             nota.text = "";
-            foreach (var b in barras) b.gameObject.SetActive(espectro);
-            foreach (var c in chips) c.gameObject.SetActive(false);
+            var leyenda = Leyenda(instrumento);
+            foreach (var b in barras) b.gameObject.SetActive(espectro || leyenda != null);
+            for (int i = 0; i < chips.Length; i++)
+            {
+                chips[i].gameObject.SetActive(leyenda != null);
+                if (leyenda == null) continue;
+                chips[i].text = Idioma.T(leyenda[i]);
+                chips[i].color = i == 1 ? new Color(0.58f, 0.64f, 0.72f, 0.8f) : Color.white;
+            }
+            if (leyenda != null)
+            {
+                for (int i = 0; i < Bandas; i++)
+                {
+                    curva[i] = Valor(instrumento, i, encontrada);
+                    barras[i].sizeDelta = new Vector2(barras[i].sizeDelta.x, 0f);
+                }
+                return;
+            }
             if (!espectro) return;
             // Curva de reflectancia: sube hacia el infrarrojo, con un valle de absorción si hay firma.
             for (int i = 0; i < Bandas; i++)
@@ -117,6 +188,28 @@ namespace SpaceMission
                     chips[i].color = i == activa ? new Color(1f, 1f, 1f, 1f) : new Color(0.58f, 0.64f, 0.72f, 0.7f);
                 }
             }
+            else if (Leyenda(instrumento) != null)
+            {
+                float altoZona = panel.rect.height * 0.42f;
+                float avance = Mathf.Clamp01(t / 0.8f) * Bandas;
+                for (int i = 0; i < Bandas; i++)
+                {
+                    float k = Mathf.Clamp01(avance - i);
+                    if (instrumento == "termica")
+                    {
+                        // La franja entera está desde el principio en gris (imagen base); el barrido la pasa a falso color.
+                        barras[i].sizeDelta = new Vector2(0f, altoZona * 0.8f);
+                        float gris = 0.3f + 0.4f * curva[i];
+                        imagenes[i].color = Color.Lerp(new Color(gris, gris, gris), ColorDe(instrumento, curva[i], i / (Bandas - 1f)), k);
+                    }
+                    else
+                    {
+                        // Radar: cada traza llega con su pulso. Atmósfera: el perfil se va trazando con la pasada.
+                        barras[i].sizeDelta = new Vector2(0f, altoZona * curva[i] * k);
+                        imagenes[i].color = ColorDe(instrumento, curva[i], i / (Bandas - 1f));
+                    }
+                }
+            }
             else
             {
                 // Cámara: destello blanco corto al capturar (cerca del final del enfoque).
@@ -124,20 +217,38 @@ namespace SpaceMission
             }
         }
 
-        /// <summary>Al terminar el escaneo: la nota prudente con lo que se puede decir.</summary>
-        public void Concluir(string instrumento, bool encontrada)
+        /// <summary>
+        /// Al terminar el escaneo: la nota prudente con lo que se puede decir. «aporta» es si esta lectura dio
+        /// evidencia nueva; si vio la anomalía pero no aporta (repetida o con poca calidad), la nota lo dice.
+        /// </summary>
+        public void Concluir(string instrumento, bool encontrada, bool aporta = true)
         {
             if (!Visible) return;
             destello.color = new Color(1f, 1f, 1f, 0f);
-            nota.text = TextoNota(instrumento, encontrada);
+            nota.text = encontrada && !aporta ? Idioma.T("The anomaly shows again, but this reading adds no new evidence.") : TextoNota(instrumento, encontrada);
         }
 
-        public static string TextoNota(string instrumento, bool encontrada) =>
-            instrumento == "espectrometro"
-                ? (encontrada ? Idioma.T("Signature consistent with minerals formed in water. It does not prove there is water today.")
-                              : Idioma.T("No clear mineral signature at this point."))
-                : (encontrada ? Idioma.T("Image captured: textures and fractures on the surface. An image alone does not show what lies below.")
-                              : Idioma.T("Image captured: nothing unusual at this point."));
+        public static string TextoNota(string instrumento, bool encontrada)
+        {
+            switch (instrumento)
+            {
+                case "espectrometro":
+                    return encontrada ? Idioma.T("Signature consistent with minerals formed in water. It does not prove there is water today.")
+                                      : Idioma.T("No clear mineral signature at this point.");
+                case "termica":
+                    return encontrada ? Idioma.T("Thermal contrast detected in the observed region. Illustrative view: relative scale, not temperatures.")
+                                      : Idioma.T("No thermal contrast at this point.");
+                case "radar":
+                    return encontrada ? Idioma.T("Echo from below the surface, consistent with a buried layer. It does not identify what the layer is made of.")
+                                      : Idioma.T("No clear echo from below the surface at this point.");
+                case "atmosferico":
+                    return encontrada ? Idioma.T("Dust profile recorded over the region: context for the other readings, not a finding by itself.")
+                                      : Idioma.T("Dust profile recorded: nothing unusual at this point.");
+                default:
+                    return encontrada ? Idioma.T("Image captured: textures and fractures on the surface. An image alone does not show what lies below.")
+                                      : Idioma.T("Image captured: nothing unusual at this point.");
+            }
+        }
 
         public void Ocultar()
         {

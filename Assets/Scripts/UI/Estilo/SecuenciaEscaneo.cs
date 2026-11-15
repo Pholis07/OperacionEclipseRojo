@@ -147,7 +147,9 @@ namespace SpaceMission
             Haz(true, objetivo, color);
             // Versión 7: el espectrómetro y la cámara muestran su modo de análisis (solo en la versión completa).
             bool encontrada = lectura == Lectura.Encontrada;
-            if (completa && ModoEscaneo.Tiene(instrumento))
+            // Renovación visual: los cinco instrumentos tienen lectura, también cuando no aporta evidencia (el gráfico
+            // sale plano y la nota lo dice: nunca un falso éxito).
+            if (ModoEscaneo.Tiene(instrumento))
             {
                 if (modo == null) modo = new ModoEscaneo((RectTransform)vista.transform, textoEstado);
                 modo.Empezar(instrumento, encontrada);
@@ -171,10 +173,10 @@ namespace SpaceMission
             var (texto, colorTexto) = Resultado(lectura, completa);
             Estado(texto, colorTexto);
             if (completa) Sonar(ArteDatos.Efecto.DatosRecibidos);
-            modo?.Concluir(instrumento, encontrada);
+            modo?.Concluir(instrumento, encontrada, completa);
             // Con un modo en pantalla se da un poco más de tiempo para leer su nota.
             bool conModo = modo != null && modo.Visible;
-            if (!saltando) yield return Esperar(completa ? TDatos + (conModo ? 1.2f : 0f) : 0.5f, objetivo, f1, null);
+            if (!saltando) yield return Esperar(completa ? TDatos + (conModo ? 1.2f : 0f) : conModo ? 1.6f : 0.5f, objetivo, f1, null);
             modo?.Ocultar();
 
             // 5) Regreso: la cámara vuelve al encuadre de presentación; al fundirse, todo vuelve al ancla.
