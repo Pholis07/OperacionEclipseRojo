@@ -6,7 +6,9 @@ using UnityEngine.InputSystem;
 namespace SpaceMission
 {
     /// <summary>
-    /// Cinemática Tierra → Marte (~36 s, 10 tomas con cortes) al pulsar «Lanzar» con la misión válida:
+    /// Cinemática Tierra → Marte (unos 30 s, 10 tomas con cortes) al pulsar «Lanzar» con la misión válida.
+    /// Versión 7: se acortó hacia el storyboard (24 s, tolerancia 20–28): las tomas sin voz van más rápidas y las
+    /// frases de control empiezan con su toma. No baja más porque las cuatro frases duran 14.5 s y no se enciman.
     /// complejo de lanzamiento con árboles, mar y torre; encendido con chispas, una llama por motor, luz, humo,
     /// vapor y aves; despegue con sacudida; ascenso entre nubes hasta el negro del espacio; separación propia de
     /// cada cohete (Titán: propulsores laterales y después la etapa central; Explorador: los cuatro propulsores se
@@ -225,7 +227,7 @@ namespace SpaceMission
             Toma(1, Idioma.T("LAUNCH COMPLEX"));
             Sonar(ArteDatos.Efecto.CuentaAtras);
             yield return Cortar(false);
-            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime * 1.8f)
             {
                 float k = t / 3.6f;
                 textoCuenta.text = t < 1.2f ? Idioma.T("T-05") : t < 2.4f ? Idioma.T("T-04") : Idioma.T("T-03");
@@ -239,7 +241,7 @@ namespace SpaceMission
             Toma(2, Idioma.T("IGNITION SEQUENCE"));
             Sonar(ArteDatos.Efecto.VozEncendido);
             bool chispazo = false, encendido = false;
-            for (float t = 0f; Sigue(t, 3.6f, 6f); t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 3.6f, 6f); t += Time.deltaTime * 1.38f)
             {
                 textoCuenta.text = t < 1.2f ? Idioma.T("T-02") : t < 2.4f ? Idioma.T("T-01") : "";
                 if (!chispazo && t > 0.5f)
@@ -271,10 +273,11 @@ namespace SpaceMission
             yield return Cortar(false);
             Toma(3, Idioma.T("LIFTOFF!"));
             Sonar(ArteDatos.Efecto.BrazosTorre);
+            Sonar(ArteDatos.Efecto.VozDespegue);   // versión 7: la frase empieza con la toma y cabe en ella
             bool voz = false;
             float subida = 0f;
             var camSuelo = basePos + new Vector3(alto * 0.75f, 0.5f, -alto * 1.45f);
-            for (float t = 0f; Sigue(t, 4f, 6f); t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 4f, 6f); t += Time.deltaTime * 1.33f)
             {
                 float giro = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 1.1f));
                 for (int i = 0; i < brazos.Length; i++) if (brazos[i] != null) brazos[i].localRotation = Quaternion.Euler(0f, -75f * giro, 0f);
@@ -282,7 +285,7 @@ namespace SpaceMission
                 {
                     float u = t - 1.1f;
                     subida = 0.5f * 0.55f * alto * u * u;
-                    if (!voz) { voz = true; Sonar(ArteDatos.Efecto.VozDespegue); sacudida = Mathf.Max(sacudida, 0.4f); }
+                    if (!voz) { voz = true; sacudida = Mathf.Max(sacudida, 0.4f); }
                 }
                 cohete.position = basePos + Vector3.up * subida;
                 Mirar(camSuelo, cohete.position + Vector3.up * alto * 0.55f, 52f);
@@ -295,7 +298,7 @@ namespace SpaceMission
             if (estela != null) estela.Play();
             var camArboles = basePos + new Vector3(31f, 4.2f, -52f);
             float inicio4 = subida;
-            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime * 2.25f)
             {
                 subida = inicio4 + alto * (1.2f * t + 0.5f * t * t);
                 cohete.position = basePos + Vector3.up * subida;
@@ -306,7 +309,7 @@ namespace SpaceMission
             // 5) Entre las nubes: el cielo pasa de azul al negro del espacio; el cohete empieza a inclinarse.
             yield return Cortar(true);
             Toma(5, Idioma.T("THROUGH THE CLOUDS"));
-            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime * 2.25f)
             {
                 float k = t / 3.6f;
                 cohete.position = basePos + Vector3.up * Mathf.Lerp(55f, 175f, k * (0.6f + 0.4f * k));
@@ -338,21 +341,21 @@ namespace SpaceMission
                 giros[i] = propulsores[i].rotation;
             }
             bool fuera = false, separado = false;
-            for (float t = 0f; Sigue(t, 3.8f, 7f); t += Time.deltaTime)
+            Sonar(ArteDatos.Efecto.VozSeparacion);   // versión 7: la frase empieza con la toma
+            for (float t = 0f; Sigue(t, 3.8f, 7f); t += Time.deltaTime * 1.19f)
             {
                 var avance = puntoEspacio.position + adelante * (t * alto * 0.22f);
                 // Primero se sueltan los propulsores laterales y se alejan girando.
                 if (!fuera && t > 0.5f) { fuera = true; Sonar(ArteDatos.Efecto.SeparacionPropulsores); }
-                float sp = fuera ? t - 0.5f : 0f;
+                float sp = fuera ? Mathf.Min(t, 3.8f) - 0.5f : 0f;   // si la toma se alarga por la voz, las piezas no siguen alejándose
                 // Después la etapa central se queda atrás y la superior sigue con su motor (sin sonido).
                 if (!separado && t > 1.9f)
                 {
                     separado = true;
                     Sonar(ArteDatos.Efecto.Separacion);
-                    Sonar(ArteDatos.Efecto.VozSeparacion);
                     EncenderSuperior(true);
                 }
-                float s2 = separado ? t - 1.9f : 0f;
+                float s2 = separado ? Mathf.Min(t, 3.8f) - 1.9f : 0f;
                 cohete.position = avance - adelante * s2 * s2 * alto * 0.35f;
                 cohete.rotation = puntoEspacio.rotation * Quaternion.Euler(s2 * 9f, 0f, s2 * 6f);
                 superior.position = avance + desfaseSuperior + adelante * s2 * alto * 0.14f;
@@ -409,7 +412,7 @@ namespace SpaceMission
             var haciaSol = RenderSettings.sun != null ? -RenderSettings.sun.transform.forward : Vector3.back;
             var lateral = Vector3.ProjectOnPlane(haciaSol, adelante).normalized;
             if (lateral.sqrMagnitude < 0.01f) lateral = Vector3.Cross(adelante, Vector3.up).normalized;
-            for (float t = 0f; t < 5.4f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; t < 5.4f && !omitir; t += Time.deltaTime * 1.93f)
             {
                 // La etapa (con el satélite dentro) sigue avanzando despacio por inercia.
                 var avance = adelante * t * alto * 0.05f;
@@ -466,7 +469,7 @@ namespace SpaceMission
             Toma(8, Idioma.T("INTERPLANETARY TRANSFER · TIME LAPSE"));
             Activar(false, false, true);
             Sonar(ArteDatos.Efecto.Transferencia);
-            yield return Transferencia(4.5f);
+            yield return Transferencia(2.4f);
 
             // 9) Aproximación a Marte e inserción orbital.
             yield return Cortar(true);
@@ -479,7 +482,7 @@ namespace SpaceMission
             var entrada = escenario.PosicionEnOrbita(fEntrada);
             var lejos = entrada - tan * 70f + rad * 25f;
             Sonar(ArteDatos.Efecto.Propulsores);
-            for (float t = 0f; t < 3.5f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; t < 3.5f && !omitir; t += Time.deltaTime * 1.75f)
             {
                 float k = Animar.SalidaCubica(t / 3.5f);
                 sat.position = Vector3.Lerp(lejos, entrada, k);
@@ -500,7 +503,7 @@ namespace SpaceMission
             var inicioCam = camara.transform.position;
             var inicioRot = camara.transform.rotation;
             float inicioFov = camara.fieldOfView;
-            for (float t = 0f; Sigue(t, 3f, 6f); t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 3f, 6f); t += Time.deltaTime * 1.15f)
             {
                 float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 3f));
                 escenario.ColocarSatelite(Mathf.Lerp(fEntrada, fFinal, Animar.SalidaCubica(Mathf.Clamp01(t / 3f))), null);
@@ -511,7 +514,7 @@ namespace SpaceMission
 
             // Fundido a la Operación.
             textoHud.text = "";
-            for (float t = 0f; t < 1f; t += Time.deltaTime / 0.6f)
+            for (float t = 0f; t < 1f; t += Time.deltaTime / 0.5f)
             {
                 velo.alpha = 1f - t;
                 yield return null;
@@ -590,10 +593,10 @@ namespace SpaceMission
         IEnumerator Cortar(bool fundirANegro)
         {
             if (fundirANegro)
-                for (float t = 0f; t < 1f && !omitir; t += Time.deltaTime / 0.18f) { corte.alpha = t; yield return null; }
+                for (float t = 0f; t < 1f && !omitir; t += Time.deltaTime / 0.12f) { corte.alpha = t; yield return null; }
             corte.alpha = 1f;
             yield return null;
-            for (float t = 0f; t < 1f && !omitir; t += Time.deltaTime / 0.22f) { corte.alpha = 1f - t; yield return null; }
+            for (float t = 0f; t < 1f && !omitir; t += Time.deltaTime / 0.14f) { corte.alpha = 1f - t; yield return null; }
             corte.alpha = 0f;
         }
 

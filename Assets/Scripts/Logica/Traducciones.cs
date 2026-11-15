@@ -811,6 +811,17 @@ namespace SpaceMission
             { "Continuous watch of the storm over the region", "Vigilancia continua de la tormenta sobre la región" },
             { "Too far for the subsurface radar and the high-resolution camera: at most a partial result", "Demasiado lejos para el radar de subsuelo y la cámara de alta resolución: como mucho, resultado parcial" },
             { "From 17,000 km the subsurface radar and the high-resolution camera cannot work: this orbit gives at most a partial result.", "Desde 17,000 km el radar de subsuelo y la cámara de alta resolución no pueden trabajar: esta órbita da como mucho un resultado parcial." },
+            // Versión 7: modos de análisis del escaneo.
+            { "HYPERSPECTRAL · REFLECTANCE BY BAND", "HIPERESPECTRAL · REFLECTANCIA POR BANDA" },
+            { "MULTISPECTRAL · LAYERS", "MULTIESPECTRAL · CAPAS" },
+            { "HIGH RESOLUTION · OPTICAL CAPTURE", "ALTA RESOLUCIÓN · CAPTURA ÓPTICA" },
+            { "VISIBLE", "VISIBLE" },
+            { "INFRARED", "INFRARROJO" },
+            { "COMPOSITE", "COMPOSICIÓN" },
+            { "Signature consistent with minerals formed in water. It does not prove there is water today.", "Firma compatible con minerales formados con agua. No demuestra que hoy haya agua." },
+            { "No clear mineral signature at this point.", "Sin firma mineral clara en este punto." },
+            { "Image captured: textures and fractures on the surface. An image alone does not show what lies below.", "Imagen capturada: texturas y fracturas en la superficie. Una imagen sola no muestra lo que hay debajo." },
+            { "Image captured: nothing unusual at this point.", "Imagen capturada: nada fuera de lo normal en este punto." },
         };
     }
 }

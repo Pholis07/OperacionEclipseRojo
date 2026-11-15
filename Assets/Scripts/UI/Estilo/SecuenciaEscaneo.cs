@@ -47,8 +47,13 @@ namespace SpaceMission
         bool saltando;
         Vector3 camPos, camVel;
         MaterialPropertyBlock bloque;
+        ModoEscaneo modo;   // versión 7: modos del espectrómetro y de la cámara de alta resolución
 
         public bool Activa => secuencia != null;
+
+        /// <summary>Duración nominal de la secuencia completa (storyboard B: de 9 a 11 s).</summary>
+        public const float DuracionCompleta = 0.3f + TObjetivo + TAvance + TEscaneo + TDatos + TRegreso + 0.3f;
+        const float TObjetivo = 0.9f, TAvance = 1.8f, TEscaneo = 3.0f, TDatos = 1.4f, TRegreso = 1.9f;
 
         void Awake()
         {
@@ -116,13 +121,13 @@ namespace SpaceMission
             // 1) Objetivo fijado.
             Estado(Idioma.T("TARGET LOCKED"), Cian);
             Sonar(ArteDatos.Efecto.FijarObjetivo);
-            if (completa) yield return Esperar(0.8f, objetivo, f0, null);
+            if (completa) yield return Esperar(TObjetivo, objetivo, f0, null);
 
             // 2) Avance por la órbita, orientando los instrumentos hacia la región.
             Estado(Idioma.T("APPROACH"), Cian);
             Sonar(ArteDatos.Efecto.Servo, 0.7f);
             Sonar(ArteDatos.Efecto.Propulsores, 0.5f);
-            float tAvance = completa ? 1.6f : 0.9f;
+            float tAvance = completa ? TAvance : 0.9f;
             for (float t = 0f; t < 1f && !saltando; t += Time.deltaTime / tAvance)
             {
                 float k = Mathf.SmoothStep(0f, 1f, t);
@@ -138,11 +143,19 @@ namespace SpaceMission
             // 3) Escaneo con el efecto del instrumento.
             Estado(Idioma.T("SCANNING"), color);
             Sonar(ArteDatos.EscaneoDe(instrumento));
-            float tEscaneo = completa ? 2.2f : 1.1f;
+            float tEscaneo = completa ? TEscaneo : 1.1f;
             Haz(true, objetivo, color);
+            // Versión 7: el espectrómetro y la cámara muestran su modo de análisis (solo en la versión completa).
+            bool encontrada = lectura == Lectura.Encontrada;
+            if (completa && ModoEscaneo.Tiene(instrumento))
+            {
+                if (modo == null) modo = new ModoEscaneo((RectTransform)vista.transform, textoEstado);
+                modo.Empezar(instrumento, encontrada);
+            }
             for (float t = 0f; t < 1f && !saltando; t += Time.deltaTime / tEscaneo)
             {
                 AnimarHaz(instrumento, t, objetivo, color);
+                modo?.Animar(instrumento, t);
                 Seguir(f1, objetivo, Mathf.Sin(t * Mathf.PI) * 0.12f);   // acercamiento sutil
                 Reticula(objetivo, true);
                 yield return null;
@@ -153,14 +166,18 @@ namespace SpaceMission
             var (texto, colorTexto) = Resultado(lectura, completa);
             Estado(texto, colorTexto);
             if (completa) Sonar(ArteDatos.Efecto.DatosRecibidos);
-            if (!saltando) yield return Esperar(completa ? 0.9f : 0.5f, objetivo, f1, null);
+            modo?.Concluir(instrumento, encontrada);
+            // Con un modo en pantalla se da un poco más de tiempo para leer su nota.
+            bool conModo = modo != null && modo.Visible;
+            if (!saltando) yield return Esperar(completa ? TDatos + (conModo ? 1.2f : 0f) : 0.5f, objetivo, f1, null);
+            modo?.Ocultar();
 
             // 5) Regreso: la cámara vuelve al encuadre de presentación; al fundirse, todo vuelve al ancla.
             Estado("", Cian);
             var (pa, ra) = escenario.PoseCamara(f1);
             var (pi, ri) = (camara.transform.position, camara.transform.rotation);
             float fovInicial = camara.fieldOfView;
-            float tRegreso = saltando ? 0.15f : 0.8f;
+            float tRegreso = saltando ? 0.15f : completa ? TRegreso : 0.8f;
             for (float t = 0f; t < 1f; t += Time.deltaTime / tRegreso)
             {
                 float k = Mathf.SmoothStep(0f, 1f, t);
@@ -219,6 +236,7 @@ namespace SpaceMission
         void Terminar()
         {
             saltando = false;
+            modo?.Ocultar();
             if (haz != null) haz.gameObject.SetActive(false);
             if (mancha != null) mancha.gameObject.SetActive(false);
             if (fuente != null) fuente.Stop();
