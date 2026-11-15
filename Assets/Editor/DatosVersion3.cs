@@ -95,6 +95,10 @@ public static class DatosVersion3
             "Comunicación láser: el transmisor gasta 50 W y la ventana de contacto se abre cada 2 órbitas.",
             "El polvo bloquea el láser: si sigues en una tormenta creciendo, esa órbita no puedes enviar.");
         llcd.vatiosTransmisor = 50; llcd.cicloContacto = 2; llcd.tormentaBloqueaEnvio = true;
+        var aztech = Satelite(catalogo, "aztechsat", 15, 0,
+            "Enlace por la constelación Globalstar: puede enviar aunque la ventana de contacto esté cerrada (fuera de la ventana cuesta 1 órbita).",
+            "Plataforma diminuta (CubeSat 1U): 100 W menos de límite de energía y 1 bloque menos de memoria.");
+        aztech.envioSinVentana = true; aztech.orbitasEnvioSinVentana = 1; aztech.limiteExtraW = -100; aztech.memoriaExtra = -1;
         foreach (var s in catalogo.satelites) EditorUtility.SetDirty(s);
 
         catalogo.objetivos = new List<ObjetivoDatos>
@@ -156,10 +160,18 @@ public static class DatosVersion3
     static SateliteDatos Satelite(CatalogoDatos c, string id, int costo, int masa, string ventaja, string desventaja)
     {
         var s = c.Satelite(id);
+        if (s == null)   // lo crea ConstructorEscenas.CrearDatosSatelites; por si se corre esto antes
+        {
+            s = ScriptableObject.CreateInstance<SateliteDatos>();
+            s.id = id;
+            AssetDatabase.CreateAsset(s, Carpeta + "/Satelite_" + id + ".asset");
+            c.satelites.Add(s);
+        }
         s.costoCr = costo; s.masaKg = masa; s.ventaja = ventaja; s.desventaja = desventaja;
         s.instrumentosConAlcance = new string[0]; s.factorAlcance = 1f; s.combustiblePorCambioAltitud = -1;
         s.memoriaExtra = 0; s.inmuneOrientacion = false; s.inmuneTormenta = false; s.consumoExtraW = 0;
         s.vatiosTransmisor = -1; s.cicloContacto = -1; s.tormentaBloqueaEnvio = false;
+        s.limiteExtraW = 0; s.envioSinVentana = false; s.orbitasEnvioSinVentana = 0;
         return s;
     }
 

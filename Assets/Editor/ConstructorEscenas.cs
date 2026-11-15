@@ -1017,11 +1017,12 @@ public static partial class ConstructorEscenas
         }
 
         var lista = Columna(izq, "ListaOpciones", 10, TextAnchor.UpperLeft);
-        Alto(lista, 5 * 78 + 4 * 8);
-        lista.GetComponent<UnityEngine.UI.VerticalLayoutGroup>().spacing = 8;
+        // Hasta 6 opciones (los satélites, con el AztechSat-1).
+        Alto(lista, 6 * 70 + 5 * 6);
+        lista.GetComponent<UnityEngine.UI.VerticalLayoutGroup>().spacing = 6;
         var plantilla = Boton(lista, "PlantillaOpcion", "Opción", false);
         var lePlantilla = plantilla.GetComponent<UnityEngine.UI.LayoutElement>();
-        lePlantilla.preferredWidth = -1; lePlantilla.minHeight = 78; lePlantilla.preferredHeight = 78;
+        lePlantilla.preferredWidth = -1; lePlantilla.minHeight = 70; lePlantilla.preferredHeight = 70;
         var etiqueta = plantilla.GetComponentInChildren<TextMeshProUGUI>();
         etiqueta.font = ConstructorEstilo.Texto;
         etiqueta.fontSize = 27;

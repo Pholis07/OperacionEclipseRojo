@@ -100,7 +100,7 @@ namespace SpaceMission
 
         public static string Ayuda(SateliteDatos s) =>
             "<b>" + s.nombre + "</b>\n" + s.descripcion + Dato(Iconos.Informe, "Basado en", s.inspiradoEn) +
-            "\n<size=85%><color=#94A3B8>" + s.credito + ". Solo cambia el aspecto de la nave.</color></size>";
+            "\n<size=85%><color=#94A3B8>" + s.credito + ". Ventaja y desventaja: en la Carga.</color></size>";
 
         // ---------- Revisión ----------
 

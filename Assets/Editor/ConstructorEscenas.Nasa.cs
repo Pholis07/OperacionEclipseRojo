@@ -23,6 +23,7 @@ public static partial class ConstructorEscenas
         ("chandra", "Sat_Chandra", 7.0f, new Vector3(0f, 90f, 0f)),
         ("aquarius", "Sat_Aquarius", 5.0f, Vector3.zero),
         ("llcd", "Sat_LLCD", 7.2f, Vector3.zero),
+        ("aztechsat", null, 0f, Vector3.zero),   // sin modelo de NASA: CubeSat 1U hecho por código (CuerpoCubeSat)
     };
 
     static readonly string[] IdsInstrumento = { "termica", "radar", "alta_res", "atmosferico", "espectrometro" };
@@ -55,6 +56,8 @@ public static partial class ConstructorEscenas
                 "Midió la salinidad de los océanos desde la órbita de la Tierra, con un gran reflector de antena."),
             ["llcd"] = ("Relé láser LLCD", "LLCD (2013)",
                 "Demostró comunicaciones por láser desde la órbita de la Luna. Plataforma con grandes paneles solares."),
+            ["aztechsat"] = ("Nanosatélite AztechSat-1", "AztechSat-1 (UPAEP, 2019)",
+                "CubeSat 1U de la UPAEP (Puebla). Liberado desde la Estación Espacial en 2020, probó a comunicarse a través de la constelación Globalstar."),
         };
         var lista = new List<SateliteDatos>();
         foreach (var s in Satelites)
@@ -71,7 +74,7 @@ public static partial class ConstructorEscenas
             datos.nombre = t.nombre;
             datos.inspiradoEn = t.inspirado;
             datos.descripcion = t.descripcion;
-            datos.credito = "Modelo 3D: NASA 3D Resources";
+            datos.credito = s.modelo != null ? "Modelo 3D: NASA 3D Resources" : "Modelo 3D: propio del equipo (hecho por código)";
             EditorUtility.SetDirty(datos);
             lista.Add(datos);
         }
@@ -95,8 +98,10 @@ public static partial class ConstructorEscenas
         var cuerpos = new GameObject[Satelites.Length];
         for (int s = 0; s < Satelites.Length; s++)
         {
-            cuerpos[s] = InstanciarModelo("NASA/" + Satelites[s].modelo, "Cuerpo_" + Satelites[s].id, raiz.transform,
-                Satelites[s].tamano, Satelites[s].giro, true);
+            cuerpos[s] = Satelites[s].modelo == null
+                ? CuerpoCubeSat(raiz.transform, "Cuerpo_" + Satelites[s].id)
+                : InstanciarModelo("NASA/" + Satelites[s].modelo, "Cuerpo_" + Satelites[s].id, raiz.transform,
+                    Satelites[s].tamano, Satelites[s].giro, true);
             cuerpos[s].SetActive(s == 0);
         }
 
@@ -158,6 +163,41 @@ public static partial class ConstructorEscenas
 
         raiz.transform.rotation = Quaternion.Euler(12, -28, 0);
         return nave;
+    }
+
+    /// <summary>
+    /// AztechSat-1: CubeSat 1U hecho con piezas simples (no hay modelo de NASA y solo se usan assets propios o CC0).
+    /// Cubo de aluminio con celdas solares en cuatro caras, rieles en las aristas y antenas de alambre detrás.
+    /// La cara de delante (−Z) queda libre para montar los instrumentos.
+    /// </summary>
+    static GameObject CuerpoCubeSat(Transform padre, string nombre)
+    {
+        const float lado = 2.2f;
+        var cuerpo = new GameObject(nombre).transform;
+        cuerpo.SetParent(padre, false);
+        var aluminio = CrearMaterial("CubeSat_Aluminio", Hex("#A7ADB5"), 0.8f, 0.55f);
+        var celdas = CrearMaterial("CubeSat_Celdas", Hex("#1B2A4A"), 0.55f, 0.8f);
+        var riel = CrearMaterial("CubeSat_Riel", Hex("#D9DDE2"), 0.85f, 0.6f);
+        var antena = CrearMaterial("CubeSat_Antena", Hex("#C8A24A"), 0.85f, 0.6f);
+
+        Pieza(PrimitiveType.Cube, "Casco", cuerpo, Vector3.zero, Vector3.zero, Vector3.one * lado, aluminio);
+        float h = lado / 2f + 0.01f, celda = lado * 0.82f;
+        Pieza(PrimitiveType.Cube, "Celdas_D", cuerpo, new Vector3(h, 0, 0), Vector3.zero, new Vector3(0.02f, celda, celda), celdas);
+        Pieza(PrimitiveType.Cube, "Celdas_I", cuerpo, new Vector3(-h, 0, 0), Vector3.zero, new Vector3(0.02f, celda, celda), celdas);
+        Pieza(PrimitiveType.Cube, "Celdas_A", cuerpo, new Vector3(0, h, 0), Vector3.zero, new Vector3(celda, 0.02f, celda), celdas);
+        Pieza(PrimitiveType.Cube, "Celdas_B", cuerpo, new Vector3(0, -h, 0), Vector3.zero, new Vector3(celda, 0.02f, celda), celdas);
+        for (int i = 0; i < 4; i++)
+        {
+            float x = (i % 2 == 0 ? 1 : -1) * lado / 2f, y = (i < 2 ? 1 : -1) * lado / 2f;
+            Pieza(PrimitiveType.Cube, "Riel_" + i, cuerpo, new Vector3(x, y, 0), Vector3.zero, new Vector3(0.14f, 0.14f, lado * 1.08f), riel);
+        }
+        // Antenas de cinta en cruz, en la cara de atrás.
+        float largo = 1.4f, z = lado / 2f + 0.03f;
+        Pieza(PrimitiveType.Cylinder, "Antena_D", cuerpo, new Vector3(largo / 2f + 0.3f, 0, z), new Vector3(0, 0, 90), new Vector3(0.03f, largo / 2f, 0.03f), antena);
+        Pieza(PrimitiveType.Cylinder, "Antena_I", cuerpo, new Vector3(-largo / 2f - 0.3f, 0, z), new Vector3(0, 0, 90), new Vector3(0.03f, largo / 2f, 0.03f), antena);
+        Pieza(PrimitiveType.Cylinder, "Antena_A", cuerpo, new Vector3(0, largo / 2f + 0.3f, z), Vector3.zero, new Vector3(0.03f, largo / 2f, 0.03f), antena);
+        Pieza(PrimitiveType.Cylinder, "Antena_B", cuerpo, new Vector3(0, -largo / 2f - 0.3f, z), Vector3.zero, new Vector3(0.03f, largo / 2f, 0.03f), antena);
+        return cuerpo.gameObject;
     }
 
     static void Lista(SerializedObject so, string campo, int n, System.Action<SerializedProperty, int> poner)

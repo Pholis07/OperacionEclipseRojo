@@ -6,7 +6,7 @@ namespace SpaceMission
 {
     /// <summary>
     /// Vista Configuración: pestañas Órbita, Lanzador, Satélite e Instrumentos, ayuda, barras, semáforo y nave.
-    /// La pestaña Satélite solo cambia el aspecto de la nave (todavía no cuenta en las reglas).
+    /// La pestaña Satélite no cuenta en las reglas ni en el semáforo: el satélite se paga en la Carga y actúa en la Operación.
     /// La selección vive en EstadoJuego.Configuracion; cambiar de pestaña o de lanzador no borra nada.
     /// </summary>
     public class ConfiguracionUI : MonoBehaviour

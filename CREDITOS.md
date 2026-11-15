@@ -86,6 +86,7 @@ Hechos para este juego, sin licencias de terceros:
 - **Generados por `Herramientas/arte.py`:** el cielo de estrellas (`Texturas/Estrellas.png`), la lámina dorada y las celdas solares de la nave, y los sprites de interfaz (`Interfaz/*`: chaflanes, círculo, halo, segmentos y barrido).
 - **Generado por `Herramientas/favicon.py`:** el icono de la pestaña del navegador (`Assets/WebGLTemplates/PantallaCompleta/TemplateData/favicon.png`), Marte con la sombra de un eclipse. Se genera con `python3 -I Herramientas/favicon.py <ruta de salida>`.
 - **Generados por código en el constructor:** el cohete Explorador (inspirado en el Soyuz), la plataforma y la torre, la llama y el humo del despegue, el mapa de la transferencia, el shader de atmósfera y las mallas de `Assets/Arte/Mallas`.
+- **Generado por código en `ConstructorEscenas.Nasa.cs` (`CuerpoCubeSat`):** el satélite Nanosatélite AztechSat-1, un CubeSat 1U con piezas simples. Está inspirado en la misión AztechSat-1 de la UPAEP (Puebla), pero no es un modelo oficial.
 
 ## Audio
 

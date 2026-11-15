@@ -174,7 +174,9 @@ Adrian las aprobó tal cual el 2026-11-14. El satélite no entra en el Evaluador
 | Chandra | 30 cr | 40 kg | No le afecta la pérdida de orientación; térmica y alta resolución +20 % de alcance | Muy pesado (−4 de combustible) |
 | Aquarius | 40 cr | 20 kg | +1 bloque de memoria; la tormenta creciendo no le da lecturas falsas | +50 W de consumo en la Operación |
 | LLCD | 50 cr | 10 kg | Transmisor de 50 W; ventana de contacto cada 2 órbitas | Si sigue en una tormenta creciendo, esa órbita no puede enviar |
+| AztechSat-1 (añadido el 2026-11-14) | 15 cr | 0 kg | Enlace por la constelación Globalstar: puede enviar con la ventana cerrada (fuera de la ventana cuesta 1 órbita) | −100 W de límite de energía y 1 bloque menos de memoria |
 
 - Si lo que sobra no alcanza, la Carga bloquea «Lanzar» y ofrece «Usar el MRO».
+- El AztechSat-1 es el único, además del MRO, que cabe en el nivel 3 con victoria en elíptica (sobran 20 cr).
 - La Revisión sigue mostrando el consumo sin el Aquarius; la Operación lo suma.
 - Diego muestra estos datos en su pestaña Satélite (campos `ventaja` y `desventaja` de `SateliteDatos`).

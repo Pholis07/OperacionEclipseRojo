@@ -31,3 +31,6 @@ MonoBehaviour:
   vatiosTransmisor: 50
   cicloContacto: 2
   tormentaBloqueaEnvio: 1
+  limiteExtraW: 0
+  envioSinVentana: 0
+  orbitasEnvioSinVentana: 0

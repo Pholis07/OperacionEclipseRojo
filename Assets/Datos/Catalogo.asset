@@ -44,6 +44,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a22690b564701ba61bb444559af10bc7, type: 2}
   - {fileID: 11400000, guid: ce5f961a5aeffeb8d8d876a6829a7554, type: 2}
   - {fileID: 11400000, guid: 0298209afbfb39b0abbacd56d70469a7, type: 2}
+  - {fileID: 11400000, guid: 86898502ec30593a08b66fe6d16a4d2f, type: 2}
   reglas: {fileID: 11400000, guid: 83e50f30dd15de941a127939728ace01, type: 2}
   niveles:
   - {fileID: 11400000, guid: e65a2d90e1db227fda6af11f3e45b0c5, type: 2}

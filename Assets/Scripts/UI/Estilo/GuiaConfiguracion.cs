@@ -87,7 +87,7 @@ namespace SpaceMission
                     break;
                 case ConfiguracionUI.Pestana.Satelite:
                     textoInstruccion.text = "3 · ELIGE EL SATÉLITE";
-                    textoLeyenda.text = "TU SATÉLITE\n<size=24><color=#94A3B8>Modelos 3D de misiones reales de NASA. Por ahora solo cambia el aspecto.</color></size>";
+                    textoLeyenda.text = "TU SATÉLITE\n<size=24><color=#94A3B8>Inspirados en misiones reales. Cada uno tiene ventaja y desventaja: las ves en la Carga.</color></size>";
                     break;
                 default:
                     textoInstruccion.text = n + " · INSTALA LOS INSTRUMENTOS";

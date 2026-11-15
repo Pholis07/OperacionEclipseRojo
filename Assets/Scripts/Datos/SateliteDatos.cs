@@ -39,5 +39,8 @@ namespace SpaceMission
         [Tooltip("-1 = el de las reglas.")]
         public int cicloContacto = -1;
         public bool tormentaBloqueaEnvio;        // si sigue en la tormenta, no puede enviar esa órbita
+        public int limiteExtraW;                 // cambia el límite de energía (negativo: paneles pequeños)
+        public bool envioSinVentana;             // puede enviar con la ventana cerrada (relé por constelación)
+        public int orbitasEnvioSinVentana;       // lo que cuesta cada envío fuera de la ventana
     }
 }

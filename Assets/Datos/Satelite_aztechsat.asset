@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3c4ce2c95edb332b9ee2f42ac903296, type: 3}
+  m_Name: Satelite_aztechsat
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.SateliteDatos
+  id: aztechsat
+  nombre: "Nanosat\xE9lite AztechSat-1"
+  inspiradoEn: AztechSat-1 (UPAEP, 2019)
+  descripcion: "CubeSat 1U de la UPAEP (Puebla). Liberado desde la Estaci\xF3n Espacial en 2020, prob\xF3 a comunicarse a trav\xE9s de la constelaci\xF3n Globalstar."
+  credito: "Modelo 3D: propio del equipo (hecho por c\xF3digo)"
+  costoCr: 15
+  masaKg: 0
+  ventaja: "Enlace por la constelaci\xF3n Globalstar: puede enviar aunque la ventana de contacto est\xE9 cerrada (fuera de la ventana cuesta 1 \xF3rbita)."
+  desventaja: "Plataforma diminuta (CubeSat 1U): 100 W menos de l\xEDmite de energ\xEDa y 1 bloque menos de memoria."
+  instrumentosConAlcance: []
+  factorAlcance: 1
+  combustiblePorCambioAltitud: -1
+  memoriaExtra: -1
+  inmuneOrientacion: 0
+  inmuneTormenta: 0
+  consumoExtraW: 0
+  vatiosTransmisor: -1
+  cicloContacto: -1
+  tormentaBloqueaEnvio: 0
+  limiteExtraW: -100
+  envioSinVentana: 1
+  orbitasEnvioSinVentana: 1

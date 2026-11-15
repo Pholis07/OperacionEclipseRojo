@@ -347,8 +347,10 @@ namespace SpaceMission
             if (botonEnviar != null)
             {
                 botonEnviar.gameObject.SetActive(Op.ConMemoria);
-                botonEnviar.interactable = !Op.Terminada && !Op.EsperandoDecision && Op.ContactoAbierto && !Op.EnvioBloqueado && Op.MemoriaUsada > 0;
-                botonEnviar.GetComponentInChildren<TMP_Text>().text = "Enviar (+" + Op.VatiosTransmisor + " W)";
+                botonEnviar.interactable = !Op.Terminada && !Op.EsperandoDecision && (Op.ContactoAbierto || Op.PuedeEnviarSinVentana) && !Op.EnvioBloqueado && Op.MemoriaUsada > 0;
+                botonEnviar.GetComponentInChildren<TMP_Text>().text = !Op.ContactoAbierto && Op.PuedeEnviarSinVentana
+                    ? "Globalstar (+" + Op.Satelite.orbitasEnvioSinVentana + " órbita)"
+                    : "Enviar (+" + Op.VatiosTransmisor + " W)";
             }
             if (botonEsperar != null)
             {

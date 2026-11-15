@@ -66,6 +66,9 @@ namespace SpaceMission
         public int VatiosTransmisor => Satelite != null && Satelite.vatiosTransmisor >= 0 ? Satelite.vatiosTransmisor : reglas.vatiosTransmisor;
         public int CicloContacto => Satelite != null && Satelite.cicloContacto > 0 ? Satelite.cicloContacto : reglas.cicloContacto;
 
+        /// <summary>AztechSat-1: puede enviar por la constelación aunque la ventana esté cerrada (cuesta órbitas).</summary>
+        public bool PuedeEnviarSinVentana => Satelite != null && Satelite.envioSinVentana;
+
         /// <summary>LLCD en la tormenta: el polvo bloquea el láser en esta órbita.</summary>
         public bool EnvioBloqueado { get; private set; }
 
@@ -139,7 +142,7 @@ namespace SpaceMission
         // ---------- Energía ----------
 
         public int LimiteW =>
-            nivel.potenciaDisponibleW - Eventos.Where(e => !e.Resuelto &&
+            nivel.potenciaDisponibleW + (Satelite != null ? Satelite.limiteExtraW : 0) - Eventos.Where(e => !e.Resuelto &&
                 (e.Datos.efecto == EfectoEvento.ReducirLimite || e.Datos.efecto == EfectoEvento.ReducirLimiteTemporal))
                 .Sum(e => e.Datos.vatios);
 
@@ -316,7 +319,9 @@ namespace SpaceMission
         /// </summary>
         public bool Enviar()
         {
-            if (Terminada || EsperandoDecision || !ConMemoria || !ContactoAbierto || EnvioBloqueado || MemoriaUsada == 0) return false;
+            if (Terminada || EsperandoDecision || !ConMemoria || EnvioBloqueado || MemoriaUsada == 0) return false;
+            if (!ContactoAbierto && !PuedeEnviarSinVentana) return false;
+            bool porConstelacion = !ContactoAbierto;
             if (ConsumoW + VatiosTransmisor > LimiteW)
             {
                 Apagon();
@@ -326,6 +331,7 @@ namespace SpaceMission
             EnMemoria.Clear();
             MemoriaUsada = 0;
             RegistrarSiCompleta(Orbitas);
+            if (porConstelacion) GastarOrbitas(Satelite.orbitasEnvioSinVentana);   // la constelación transmite despacio
             return true;
         }
 

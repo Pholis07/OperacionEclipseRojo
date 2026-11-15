@@ -287,3 +287,18 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - El informe dice el satélite.
 - Verificado en el navegador a 1366x768: con el Chandra en el caso 2 falta masa (−10 kg), «Lanzar» se bloquea y «Usar el MRO» lo desbloquea.
 - 22 pruebas nuevas en `SatelitesTests.cs`. Pasan las 222 pruebas EditMode y las 19 PlayMode. Build de 35.3 MB sin errores.
+
+## Sexto satélite: AztechSat-1
+
+- Adrian pidió añadir el AztechSat-1. La IA verificó en internet lo que hizo la misión real: CubeSat 1U de la UPAEP, lanzado en la CRS-19 (5 de diciembre de 2019), liberado desde la Estación Espacial en febrero de 2020 y con el objetivo de comunicarse a través de la constelación Globalstar. Propuso mecánicas a partir de eso y Adrian las aprobó:
+  - 15 cr y 0 kg.
+  - Envío por la constelación con la ventana cerrada (cuesta 1 órbita).
+  - −100 W de límite y −1 bloque de memoria.
+- No hay modelo de NASA y solo se usan assets propios o CC0, así que Adrian eligió que la IA hiciera uno simple: `CuerpoCubeSat` en `ConstructorEscenas.Nasa.cs`. Es un cubo de aluminio con celdas solares, rieles y antenas, con 4 materiales `CubeSat_*`. La lista `Satelites` de Diego tiene ahora 6 entradas, para que «Construir escenas» no lo borre.
+- Interfaz:
+  - La lista de opciones de la Configuración cabe con 6 filas.
+  - El botón de envío dice «Globalstar (+1 órbita)» cuando la ventana está cerrada.
+  - «Usar el MRO» solo aparece si «Lanzar» está bloqueado.
+  - El pie y la ayuda del satélite ya no dicen «solo cambia el aspecto».
+- Verificado en el navegador a 1366x768: las 6 opciones, el modelo, la Carga y la Operación (límite de 600 W y memoria de 2 en el nivel 2). Un clic de la prueba no acertó al botón de envío porque se movió, así que el envío por Globalstar solo está probado en las pruebas automáticas.
+- 5 pruebas nuevas en `SatelitesTests.cs`. Pasan las 227 pruebas EditMode y las 19 PlayMode. Build de 35.3 MB sin errores.

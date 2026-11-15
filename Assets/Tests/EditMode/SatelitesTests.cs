@@ -26,6 +26,7 @@ namespace SpaceMission.Tests
         [TestCase("chandra", 30, 40)]
         [TestCase("aquarius", 40, 20)]
         [TestCase("llcd", 50, 10)]
+        [TestCase("aztechsat", 15, 0)]
         public void LosSatelitesTienenElCostoYLaMasaAprobados(string id, int costo, int masa)
         {
             Assert.AreEqual(costo, S(id).costoCr);
@@ -117,13 +118,13 @@ namespace SpaceMission.Tests
         }
 
         [Test]
-        public void EnNivel3ConVictoriaEnElipticaSoloCabeElMro()
+        public void EnNivel3ConVictoriaEnElipticaSoloCabenElMroYElAztechSat()
         {
             foreach (var s in catalogo.satelites)
             {
                 var c = new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico" }) { SateliteId = s.id };
                 var carga = new Carga(Evaluador.Evaluar(c, catalogo, catalogo.Nivel(2)), c, catalogo, catalogo.Nivel(2));
-                Assert.AreEqual(s.id == "mro", carga.PuedeLanzar, s.id + ": sobran 20 cr");
+                Assert.AreEqual(s.id == "mro" || s.id == "aztechsat", carga.PuedeLanzar, s.id + ": sobran 20 cr");
             }
         }
 
@@ -279,6 +280,59 @@ namespace SpaceMission.Tests
             var op = new Operacion(e, c, catalogo, null, 1, new Carga(e, c, catalogo));
             op.Terminar();
             StringAssert.Contains("Satélite: Cartógrafo Magellan.", InformeMision.Construir(e, c, catalogo, op, null).Recursos);
+        }
+
+        // ---------- AztechSat-1 ----------
+
+        [Test]
+        public void ElAztechSatTieneLosDatosAprobados()
+        {
+            var a = S("aztechsat");
+            Assert.AreEqual("Nanosatélite AztechSat-1", a.nombre);
+            Assert.IsTrue(a.envioSinVentana);
+            Assert.AreEqual(1, a.orbitasEnvioSinVentana);
+            Assert.AreEqual(-100, a.limiteExtraW);
+            Assert.AreEqual(-1, a.memoriaExtra);
+            Assert.AreEqual("mro", catalogo.satelites[0].id);
+            Assert.AreEqual(6, catalogo.satelites.Count);
+        }
+
+        [Test]
+        public void ElAztechSatTieneMenosEnergiaYMemoria()
+        {
+            var op = Nueva("aztechsat");
+            Assert.AreEqual(700, op.LimiteW, "800 − 100");
+            Assert.AreEqual(3, op.MemoriaCapacidad, "4 − 1");
+            Assert.AreEqual(8, op.Combustible, "no pesa: 80 kg libres");
+        }
+
+        [Test]
+        public void ElAztechSatEnviaSinVentanaPagandoUnaOrbita()
+        {
+            var op = Nueva("aztechsat");
+            op.Escanear("termica", Centro);   // órbita 1: la ventana normal es en 1 órbita más
+            Assert.IsFalse(op.ContactoAbierto);
+            Assert.IsTrue(op.PuedeEnviarSinVentana);
+            Assert.IsTrue(op.Enviar());
+            CollectionAssert.Contains(op.Recibidas, "TX-01");
+            Assert.AreEqual(10, op.Orbitas, "12 − 1 del escaneo − 1 del envío por la constelación");
+
+            op.Escanear("termica", Lejos);    // órbita 3: ventana cerrada
+            op.Esperar();
+            op.Esperar();                     // órbita 5: ventana normal
+            Assert.IsTrue(op.ContactoAbierto);
+            Assert.AreEqual(7, op.Orbitas);
+            Assert.IsTrue(op.Enviar());
+            Assert.AreEqual(7, op.Orbitas, "con la ventana abierta no cuesta");
+        }
+
+        [Test]
+        public void SinElAztechSatNoSeEnviaConLaVentanaCerrada()
+        {
+            var op = Nueva("mro");
+            op.Escanear("termica", Centro);
+            Assert.IsFalse(op.PuedeEnviarSinVentana);
+            Assert.IsFalse(op.Enviar());
         }
 
         [Test]

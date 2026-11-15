@@ -88,7 +88,7 @@ namespace SpaceMission
             if (!Carga.PuedeLanzar)
                 textoRecursos.text += "\n<color=#EF4444><b>No alcanza lo que sobra.</b></color> Quita herramientas o usa el MRO para lanzar.";
             botonLanzar.interactable = Carga.PuedeLanzar;
-            if (botonUsarMro != null) botonUsarMro.gameObject.SetActive(s != null && s.id != Carga.IdMro);
+            if (botonUsarMro != null) botonUsarMro.gameObject.SetActive(!Carga.PuedeLanzar && s != null && s.id != Carga.IdMro);
 
             foreach (var h in catalogo.herramientas)
             {
