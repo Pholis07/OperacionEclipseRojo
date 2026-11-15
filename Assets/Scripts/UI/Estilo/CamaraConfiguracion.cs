@@ -333,11 +333,23 @@ namespace SpaceMission
             return true;
         }
 
+        static readonly List<RaycastResult> golpes = new List<RaycastResult>();
+
+        /// <summary>¿El puntero está sobre un control? Una VentanaInspeccion (hueco por el que se ve la nave) no cuenta.</summary>
+        static bool SobreInterfaz(Mouse raton)
+        {
+            if (EventSystem.current == null || raton == null) return false;
+            var datos = new PointerEventData(EventSystem.current) { position = raton.position.ReadValue() };
+            golpes.Clear();
+            EventSystem.current.RaycastAll(datos, golpes);
+            return golpes.Count > 0 && golpes[0].gameObject.GetComponent<VentanaInspeccion>() == null;
+        }
+
         void LeerInspeccion(bool permitido)
         {
             if (!permitido || !Application.isPlaying) { arrastrando = false; return; }
             var raton = Mouse.current;
-            bool sobreInterfaz = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+            bool sobreInterfaz = SobreInterfaz(raton);
             if (raton != null)
             {
                 if (raton.leftButton.wasPressedThisFrame) arrastrando = !sobreInterfaz;

@@ -86,7 +86,7 @@ namespace SpaceMission.Tests
             foreach (var m in Todos().Where(x => x.shader.name == Tinta))
             {
                 bool emite = m.GetColor("_EmissionColor").maxColorComponent > 0.01f;
-                bool suelo = m.name.StartsWith("Lanzamiento_") && !new[] { "Lanzamiento_Mastil", "Lanzamiento_Edificio", "Lanzamiento_Franja" }.Contains(m.name);
+                bool suelo = m.name.StartsWith("Lanzamiento_") && !new[] { "Lanzamiento_Mastil", "Lanzamiento_Edificio", "Lanzamiento_Franja", "Lanzamiento_Pedestal", "Lanzamiento_Senal" }.Contains(m.name);   // estructuras: con contorno
                 if (m.name.Contains("Vidrio") || emite || suelo) Assert.AreEqual(0f, m.GetFloat("_Contorno"), m.name);
                 else Assert.That(m.GetFloat("_Contorno"), Is.InRange(0.5f, 2f), m.name + ": de 1 a 2 px a 1080p");
             }

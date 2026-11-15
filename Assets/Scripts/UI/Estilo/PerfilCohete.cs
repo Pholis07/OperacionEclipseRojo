@@ -15,6 +15,7 @@ namespace SpaceMission
         [SerializeField] float radioCarga = 0.1f;
         [SerializeField] float radioCorte = 0.2f;
         [SerializeField] float altoCofia = 0.5f;
+        [SerializeField] float radioBase = 0.5f;
 
         public float Alto => alto;
         /// <summary>Radio libre dentro de la cofia: el satélite se escala para caber.</summary>
@@ -25,9 +26,12 @@ namespace SpaceMission
         /// <summary>Alto de la cofia: la carga va a un tercio de su altura, donde se midió el radio libre.</summary>
         public float AltoCofia => altoCofia;
 
-        public void Fijar(float altoCohete, float[] perfil, float carga, float corte, float cofia)
+        /// <summary>Radio del pie del cohete (con aletas y toberas): las sujeciones del pedestal se ponen justo fuera.</summary>
+        public float RadioBase => radioBase;
+
+        public void Fijar(float altoCohete, float[] perfil, float carga, float corte, float cofia, float pie)
         {
-            alto = altoCohete; haciaTorre = perfil; radioCarga = carga; radioCorte = corte; altoCofia = cofia;
+            alto = altoCohete; haciaTorre = perfil; radioCarga = carga; radioCorte = corte; altoCofia = cofia; radioBase = pie;
         }
 
         /// <summary>Distancia del eje a la piel del cohete, hacia la torre, entre dos alturas (la mayor de las bandas).</summary>

@@ -790,8 +790,17 @@ public static partial class ConstructorEscenas
         var marteCentro = marte.transform.position;
 
         // Vista Revisión: tarjeta encima de la configuración.
-        var revision = Panel(canvas, "VistaRevision", new Color(0, 0, 0, 0.8f));
+        // Renovación visual: ya no es un velo que tapa toda la nave. El resumen va a la izquierda, el panel derecho
+        // de Configuración queda velado y por el centro se ve (y se inspecciona) la nave que se va a lanzar.
+        var revision = Panel(canvas, "VistaRevision", new Color(0, 0, 0, 0f));
         Estirar(revision);
+        revision.gameObject.AddComponent<VentanaInspeccion>();
+        foreach (var (nombreVelo, min, max) in new[] { ("VeloIzquierdo", 0f, 0.43f), ("VeloDerecho", 0.645f, 1f) })
+        {
+            var veloLado = Panel(revision, nombreVelo, new Color(0, 0, 0, 0.86f));
+            Anclar(veloLado, new Vector2(min, 0f), new Vector2(max, 1f));
+            veloLado.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        }
         var revisionUI = ConstruirRevision(revision, catalogo, controlador);
 
         // Vista Carga (gameplay v3): herramientas que suben a la nave, entre Revisión y Lanzar.
@@ -1896,7 +1905,7 @@ public static partial class ConstructorEscenas
     {
         var ui = vista.gameObject.AddComponent<RevisionUI>();
         var tarjeta = Columna(vista, "Tarjeta", 22, TextAnchor.UpperLeft, Tarjeta, 48);
-        Anclar(tarjeta, new Vector2(0.25f, 0.045f), new Vector2(0.75f, 0.955f));
+        Anclar(tarjeta, new Vector2(0.02f, 0.045f), new Vector2(0.42f, 0.955f));   // a la izquierda: la nave se ve en el centro
         tarjeta.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(tarjeta);
         var paso = Texto(tarjeta, "Paso", Paso(3), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);

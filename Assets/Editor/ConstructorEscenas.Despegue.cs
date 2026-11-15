@@ -18,6 +18,7 @@ public static partial class ConstructorEscenas
         public GameObject raiz;
         public Renderer cielo;
         public Transform[] brazos;
+        public Transform[] sujeciones;
         public Light luz;
         public ParticleSystem chispas, vapor, estela, aves;
         public ParticleSystem[] humoLados;
@@ -56,7 +57,10 @@ public static partial class ConstructorEscenas
 
         // ----- Suelo: pasto, camino, playa y mar -----
         var matPasto = CrearMaterial("Lanzamiento_Pasto", Color.white, 0f, 0.12f, ConstructorEstilo.Imagen("Texturas/Pasto"), new Vector2(70, 26));
-        Pieza(PrimitiveType.Quad, "Pasto", t, new Vector3(0, -0.02f, -100f), new Vector3(90, 0, 0), new Vector3(1000, 460, 1), matPasto)
+        // El pasto es un plano con un hueco bajo la losa, para que el foso de gases tenga fondo (si no, se vería
+        // el pasto dentro del canal).
+        Malla(GuardarMalla(PlanoConHueco(new Rect(-500f, -330f, 1000f, 460f), new Rect(-17f, -1.9f, 34f, 3.8f)), "Pasto_ConFoso", false),
+                "Pasto", t, new Vector3(0, -0.02f, 0f), Vector3.zero, Vector3.one, matPasto)
             .GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
         var matArena = CrearMaterial("Lanzamiento_Arena", Hex("#CBB98E"), 0f, 0.2f);
         Pieza(PrimitiveType.Quad, "Playa", t, new Vector3(0, -0.06f, 136f), new Vector3(90, 0, 0), new Vector3(1000, 16, 1), matArena);
@@ -82,11 +86,57 @@ public static partial class ConstructorEscenas
         // ----- Árboles (3 mallas) -----
         ConstruirArboles(t, semilla);
 
-        // ----- Plataforma: losa, foso de llamas -----
+        // ----- Plataforma: losa partida por el foso de gases, pedestal de lanzamiento, sujeciones y barreras -----
+        // Renovación visual: el foso es un canal de verdad (antes una losa negra plana) y el cohete se apoya en un
+        // pedestal que lo cruza, con cuatro sujeciones que lo sueltan en el despegue.
         var matLosa = CrearMaterial("Lanzamiento_Losa", Color.white, 0f, 0.25f, ConstructorEstilo.Imagen("Texturas/Losa"), Vector2.one);
-        Pieza(PrimitiveType.Cube, "Losa", t, new Vector3(0, -0.5f, 0), Vector3.zero, new Vector3(34f, 1f, 34f), matLosa);
         var matFoso = CrearMaterial("Lanzamiento_Foso", Hex("#1A1A1C"), 0f, 0.1f);
-        Pieza(PrimitiveType.Cube, "Foso", t, new Vector3(0, 0.01f, 0), Vector3.zero, new Vector3(32f, 0.02f, 3.4f), matFoso);
+        const float medioFoso = 1.9f, fondoFoso = -1.3f;
+        Pieza(PrimitiveType.Cube, "Losa", t, new Vector3(0, -0.5f, (17f + medioFoso) / 2f), Vector3.zero, new Vector3(34f, 1f, 17f - medioFoso), matLosa);
+        Pieza(PrimitiveType.Cube, "LosaFrente", t, new Vector3(0, -0.5f, -(17f + medioFoso) / 2f), Vector3.zero, new Vector3(34f, 1f, 17f - medioFoso), matLosa);
+        Pieza(PrimitiveType.Cube, "Foso", t, new Vector3(0, fondoFoso - 0.05f, 0), Vector3.zero, new Vector3(34f, 0.1f, medioFoso * 2f), matFoso);
+        foreach (int sentido in new[] { -1, 1 })
+            Pieza(PrimitiveType.Cube, "ParedFoso", t, new Vector3(0, fondoFoso / 2f, sentido * (medioFoso - 0.02f)), Vector3.zero, new Vector3(34f, -fondoFoso, 0.04f), matFoso);
+        foreach (int sentido in new[] { -1, 1 })
+            Pieza(PrimitiveType.Cube, "TopeFoso", t, new Vector3(sentido * 17f, fondoFoso / 2f, 0), Vector3.zero, new Vector3(0.04f, -fondoFoso, medioFoso * 2f), matFoso);
+        // Deflector: la cuña que reparte los gases hacia los dos extremos del foso.
+        foreach (int sentido in new[] { -1, 1 })
+            Pieza(PrimitiveType.Cube, "Deflector", t, new Vector3(sentido * 1.1f, fondoFoso + 0.55f, 0), new Vector3(0, 0, sentido * -38f), new Vector3(2.6f, 0.12f, medioFoso * 2f - 0.1f), matFoso);
+        var matPedestal = CrearMaterial("Lanzamiento_Pedestal", Hex("#4A525C"), 0.6f, 0.4f);
+        var matSenal = CrearMaterial("Lanzamiento_Senal", Hex("#D9A82E"), 0.1f, 0.4f);
+        Pieza(PrimitiveType.Cube, "Pedestal", t, new Vector3(0, -0.09f, 0), Vector3.zero, new Vector3(4.2f, 0.18f, medioFoso * 2f + 1.2f), matPedestal);
+        foreach (int sentido in new[] { -1, 1 })
+        {
+            Pieza(PrimitiveType.Cube, "VigaPedestal", t, new Vector3(sentido * 1.9f, -0.5f, 0), Vector3.zero, new Vector3(0.3f, 0.7f, medioFoso * 2f + 1.2f), matPedestal);
+            Pieza(PrimitiveType.Cube, "BordePedestal", t, new Vector3(sentido * 2.06f, 0.005f, 0), Vector3.zero, new Vector3(0.1f, 0.012f, medioFoso * 2f + 1.2f), matSenal);
+        }
+        Pieza(PrimitiveType.Cylinder, "BocaPedestal", t, new Vector3(0, 0.004f, 0), Vector3.zero, new Vector3(2.9f, 0.004f, 2.9f), matFoso);
+        var sujeciones = new List<Transform>();
+        for (int i = 0; i < 4; i++)
+        {
+            var dir = Quaternion.Euler(0f, 45f + 90f * i, 0f) * Vector3.forward;
+            var pivote = new GameObject("Sujecion" + i).transform;
+            pivote.SetParent(t, false);
+            pivote.localPosition = dir * 1.2f;
+            pivote.localRotation = Quaternion.LookRotation(dir, Vector3.up);   // −Z local mira al cohete
+            Pieza(PrimitiveType.Cube, "Poste", pivote, new Vector3(0f, 0.19f, 0.02f), Vector3.zero, new Vector3(0.16f, 0.38f, 0.2f), matPedestal);
+            Pieza(PrimitiveType.Cube, "Garra", pivote, new Vector3(0f, 0.34f, -0.13f), Vector3.zero, new Vector3(0.13f, 0.09f, 0.22f), matSenal);
+            sujeciones.Add(pivote);
+        }
+        c.sujeciones = sujeciones.ToArray();
+        // Barreras y señalización al borde de la losa, del lado de la cámara.
+        for (int i = -4; i <= 4; i++)
+        {
+            if (i == 0) continue;   // el paso del camino
+            Pieza(PrimitiveType.Cube, "Barrera", t, new Vector3(i * 3.4f, 0.45f, -16.2f), Vector3.zero, new Vector3(2.4f, 0.14f, 0.1f), matSenal);
+            foreach (int sentido in new[] { -1, 1 })
+                Pieza(PrimitiveType.Cube, "PieBarrera", t, new Vector3(i * 3.4f + sentido * 1.05f, 0.225f, -16.2f), Vector3.zero, new Vector3(0.1f, 0.45f, 0.1f), matPedestal);
+        }
+        foreach (int sentido in new[] { -1, 1 })
+        {
+            Pieza(PrimitiveType.Cube, "Cartel", t, new Vector3(sentido * 6.5f, 1.5f, -16.4f), Vector3.zero, new Vector3(1.6f, 0.9f, 0.06f), matSenal);
+            Pieza(PrimitiveType.Cube, "PosteCartel", t, new Vector3(sentido * 6.5f, 0.55f, -16.4f), Vector3.zero, new Vector3(0.1f, 1.1f, 0.1f), matPedestal);
+        }
 
         // ----- Torre de servicio: celosía con brazos que se retiran -----
         var matTorre = CrearMaterial("Torre_Servicio", Hex("#5B6470"), 0.6f, 0.4f);
@@ -299,6 +349,32 @@ public static partial class ConstructorEscenas
     }
 
     /// <summary>Árboles de pocos polígonos (pinos y frondosos) unidos en 3 mallas: troncos, copas oscuras y claras.</summary>
+    /// <summary>Plano horizontal (XZ, mirando arriba) con un hueco rectangular. UV de 0 a 1 sobre el plano entero.</summary>
+    static Mesh PlanoConHueco(Rect plano, Rect hueco)
+    {
+        var v = new List<Vector3>(); var n = new List<Vector3>(); var uv = new List<Vector2>(); var tri = new List<int>();
+        void Rectangulo(float x0, float z0, float x1, float z1)
+        {
+            if (x1 - x0 <= 0f || z1 - z0 <= 0f) return;
+            int b = v.Count;
+            foreach (var (x, z) in new[] { (x0, z0), (x0, z1), (x1, z1), (x1, z0) })
+            {
+                v.Add(new Vector3(x, 0f, z)); n.Add(Vector3.up);
+                uv.Add(new Vector2((x - plano.xMin) / plano.width, (z - plano.yMin) / plano.height));
+            }
+            tri.AddRange(new[] { b, b + 1, b + 2, b, b + 2, b + 3 });
+        }
+        Rectangulo(plano.xMin, plano.yMin, hueco.xMin, plano.yMax);
+        Rectangulo(hueco.xMax, plano.yMin, plano.xMax, plano.yMax);
+        Rectangulo(hueco.xMin, plano.yMin, hueco.xMax, hueco.yMin);
+        Rectangulo(hueco.xMin, hueco.yMax, hueco.xMax, plano.yMax);
+        var m = new Mesh();
+        m.SetVertices(v); m.SetNormals(n); m.SetUVs(0, uv); m.SetTriangles(tri, 0);
+        m.RecalculateTangents();
+        m.RecalculateBounds();
+        return m;
+    }
+
     static void ConstruirArboles(Transform padre, System.Random azar)
     {
         var troncos = new MallaPlana(); var oscuras = new MallaPlana(); var claras = new MallaPlana();
@@ -307,7 +383,7 @@ public static partial class ConstructorEscenas
         while (lugares.Count < 240 && intentos++ < 5000)
         {
             float a = (float)(azar.NextDouble() * Mathf.PI * 2);
-            float r = 30f + (float)azar.NextDouble() * 150f;
+            float r = 58f + (float)azar.NextDouble() * 122f;   // renovación visual: la vegetación, lejos del complejo
             var p = new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r);
             if (p.z > 118f) continue;                                  // playa y mar
             if (Mathf.Abs(p.x) < 8f && p.z < -16f) continue;           // camino
@@ -315,7 +391,8 @@ public static partial class ConstructorEscenas
             lugares.Add((p, 0.8f + (float)azar.NextDouble() * 0.7f));
         }
         // Grupos en primer plano para las tomas (plano general y «desde los árboles»).
-        foreach (var centro in new[] { new Vector3(-36f, 0f, -52f), new Vector3(26f, 0f, -42f) })
+        // Renovación visual: queda solo el grupo de la toma «desde los árboles»; el plano general ya no los lleva delante.
+        foreach (var centro in new[] { new Vector3(26f, 0f, -42f) })
             for (int i = 0; i < 9; i++)
                 lugares.Add((centro + new Vector3((float)azar.NextDouble() * 10f - 5f, 0f, (float)azar.NextDouble() * 8f - 4f), 1f + (float)azar.NextDouble() * 0.5f));
 

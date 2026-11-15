@@ -271,6 +271,7 @@ public static partial class ConstructorEscenas
         AsignarLista(director, "soloEnTierra", new Object[] { complejo.raiz });
         Asignar(director, "cielo", complejo.cielo);
         AsignarLista(director, "brazos", complejo.brazos);
+        AsignarLista(director, "sujeciones", complejo.sujeciones);
         Asignar(director, "luzMotores", complejo.luz);
         Asignar(director, "chispas", complejo.chispas);
         AsignarLista(director, "humoLados", complejo.humoLados);

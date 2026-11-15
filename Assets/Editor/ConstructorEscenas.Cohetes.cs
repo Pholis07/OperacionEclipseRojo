@@ -479,6 +479,7 @@ public static partial class ConstructorEscenas
         var direccion = DireccionBrazo;
         var lateral = new Vector3(direccion.z, 0f, -direccion.x);
         var puntosCofia = new List<Vector3>();
+        float radioBase = 0f;
         foreach (var mf in cohete.GetComponentsInChildren<MeshFilter>(true))
         {
             if (mf.sharedMesh == null || !EsPielDeCohete(mf.GetComponent<Renderer>())) continue;
@@ -487,6 +488,7 @@ public static partial class ConstructorEscenas
             {
                 var p = cohete.InverseTransformPoint(mf.transform.TransformPoint(vert));
                 if (esCofia) puntosCofia.Add(p);
+                if (p.y < alto * 0.05f) radioBase = Mathf.Max(radioBase, new Vector2(p.x, p.z).magnitude);
                 if (Mathf.Abs(Vector3.Dot(p, lateral)) > AnchoBrazo * 0.5f + 0.06f) continue;
                 int k = Mathf.Clamp(Mathf.FloorToInt(p.y / alto * Bandas), 0, Bandas - 1);
                 haciaTorre[k] = Mathf.Max(haciaTorre[k], Vector3.Dot(p, direccion));
@@ -517,7 +519,7 @@ public static partial class ConstructorEscenas
             radioCarga = Mathf.Max(alto * 0.006f, Mathf.Min(R(abajo), R(arriba)) * 0.78f);
         }
         var perfil = cohete.GetComponent<PerfilCohete>() ?? cohete.gameObject.AddComponent<PerfilCohete>();
-        perfil.Fijar(alto, haciaTorre, radioCarga, radioCorte, altoCofia);
+        perfil.Fijar(alto, haciaTorre, radioCarga, radioCorte, altoCofia, radioBase);
         Debug.Log("[Cohetes] " + cohete.name + ": radio de carga " + radioCarga.ToString("0.000") + ", corte " + radioCorte.ToString("0.000") + ", cofia " + altoCofia.ToString("0.00"));
         return perfil;
     }

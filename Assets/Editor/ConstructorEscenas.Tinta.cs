@@ -32,7 +32,7 @@ public static partial class ConstructorEscenas
 
     static readonly HashSet<string> EstructurasTinta = new HashSet<string>
     {
-        "Plataforma", "Torre_Servicio", "Torre_Acento", "Torre_Cable", "Lanzamiento_Mastil", "Lanzamiento_Edificio", "Lanzamiento_Franja",
+        "Plataforma", "Torre_Servicio", "Torre_Acento", "Torre_Cable", "Lanzamiento_Mastil", "Lanzamiento_Edificio", "Lanzamiento_Franja", "Lanzamiento_Pedestal", "Lanzamiento_Senal",
     };
 
     static readonly HashSet<string> SueloTinta = new HashSet<string>

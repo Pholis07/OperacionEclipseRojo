@@ -60,6 +60,7 @@ namespace SpaceMission
         [Header("Complejo de lanzamiento")]
         [SerializeField] Renderer cielo;                 // shader Cielo (_Noche: día → espacio)
         [SerializeField] Transform[] brazos;             // brazos de la torre (giran para retirarse)
+        [SerializeField] Transform[] sujeciones = new Transform[0];   // sujeciones del pedestal (sueltan el cohete)
         [SerializeField] Light luzMotores;
         [SerializeField] ParticleSystem chispas;
         [SerializeField] ParticleSystem[] humoLados;     // salen por los extremos del foso de llamas
@@ -752,6 +753,15 @@ namespace SpaceMission
                 var brazo = brazos[i].GetComponent<BrazoTorre>();
                 if (brazo != null) brazo.Ajustar(perfil != null ? perfil.HaciaTorre(altura - 0.3f, altura + 0.3f) : alto * 0.04f);
             }
+            // Las sujeciones del pedestal, justo fuera del pie del cohete elegido y cerradas sobre él.
+            float pie = perfil != null ? perfil.RadioBase : alto * 0.06f;
+            foreach (var su in sujeciones)
+            {
+                if (su == null) continue;
+                var dir = new Vector3(su.localPosition.x, 0f, su.localPosition.z).normalized;
+                su.localPosition = dir * (pie + 0.16f);
+                su.localRotation = Quaternion.LookRotation(dir, Vector3.up);
+            }
             foreach (var ps in new[] { chispas, vapor, estela, aves, pirotecnia, gasFrio })
                 if (ps != null) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -766,6 +776,14 @@ namespace SpaceMission
                 var brazo = b.GetComponent<BrazoTorre>();
                 if (brazo != null) brazo.Retirar(k);
                 else b.localRotation = Quaternion.Euler(0f, 75f * Mathf.SmoothStep(0f, 1f, k), 0f);
+            }
+            // Las sujeciones se abren hacia fuera al final de la retirada, justo antes de que el cohete suba.
+            float abre = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.55f, 1f, k));
+            foreach (var su in sujeciones)
+            {
+                if (su == null) continue;
+                var dir = new Vector3(su.localPosition.x, 0f, su.localPosition.z).normalized;
+                su.localRotation = Quaternion.LookRotation(dir, Vector3.up) * Quaternion.Euler(62f * abre, 0f, 0f);
             }
         }
 
@@ -783,6 +801,7 @@ namespace SpaceMission
             if (propulsoresExplorador != null) foreach (var p in propulsoresExplorador) Guardar(p);
             if (propulsoresTitan != null) foreach (var p in propulsoresTitan) Guardar(p);
             if (brazos != null) foreach (var b in brazos) Guardar(b);
+            if (sujeciones != null) foreach (var su in sujeciones) Guardar(su);
             if (cofiaExplorador != null) foreach (var c in cofiaExplorador) Guardar(c);
             if (cofiaTitan != null) foreach (var c in cofiaTitan) Guardar(c);
         }
