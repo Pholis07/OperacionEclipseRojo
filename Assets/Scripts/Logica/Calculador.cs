@@ -53,8 +53,10 @@ namespace SpaceMission
             if (lanzador != null && r.EspaciosUsados > lanzador.espacios) r.LimitesSuperados.Add(Limite.Espacios);
             if (r.AlcanceCalculado && r.DeltaVDisponibleMs < r.DeltaVNecesarioMs) r.LimitesSuperados.Add(Limite.Alcance);
 
-            r.Estado = r.Faltantes.Count > 0 ? EstadoSemaforo.Gris
-                : r.LimitesSuperados.Count > 0 ? EstadoSemaforo.Rojo : EstadoSemaforo.Valida;
+            // Un límite superado se ve en rojo aunque falte algo por elegir: desde la versión 6 la órbita se elige al
+            // final, y con el gris primero el jugador no se enteraba de que ya se había pasado (instrumentos de más).
+            r.Estado = r.LimitesSuperados.Count > 0 ? EstadoSemaforo.Rojo
+                : r.Faltantes.Count > 0 ? EstadoSemaforo.Gris : EstadoSemaforo.Valida;
             return r;
         }
 

@@ -25,7 +25,10 @@ namespace SpaceMission
             if (calculo.Estado == EstadoSemaforo.Gris)
                 e.Mensaje = MensajeGris(calculo);
             else if (calculo.Estado == EstadoSemaforo.Rojo)
+            {
                 e.Mensaje = MensajeRojo(calculo, config, catalogo, nivel != null ? nivel : catalogo.mision);
+                if (calculo.Faltantes.Count > 0) e.Mensaje += " " + MensajeGris(calculo);
+            }
             else
                 EvaluarValida(e, config, catalogo);
 

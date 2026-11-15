@@ -420,22 +420,40 @@ public static partial class ConstructorEscenas
     {
         var panel = Panel(canvas, "PanelOpciones", new Color(0, 0, 0, 0.85f));
         Estirar(panel);
-        var tarjeta = Columna(panel, "Tarjeta", 22, TextAnchor.UpperLeft, Tarjeta, 48);
-        Anclar(tarjeta, new Vector2(0.3f, 0.06f), new Vector2(0.7f, 0.94f));
-        tarjeta.GetComponent<UnityEngine.UI.VerticalLayoutGroup>().spacing = 14;
+        // Versión 9: más ancha y en dos columnas (sonido | pantalla, ayuda e idioma), con cada volumen en una fila.
+        var tarjeta = Columna(panel, "Tarjeta", 18, TextAnchor.UpperLeft, Tarjeta, 44);
+        Anclar(tarjeta, new Vector2(0.15f, 0.1f), new Vector2(0.85f, 0.9f));
         MarcoHud(tarjeta);
-        Texto(tarjeta, "TituloOpciones", "Options", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(tarjeta, "TituloOpciones", "Options", 52, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(tarjeta);
-        var musica = Deslizador(tarjeta, "Musica", SpaceMission.Iconos.Volumen + "  Music");
-        var ambiente = Deslizador(tarjeta, "Ambiente", SpaceMission.Iconos.Volumen + "  Ambience");
-        var efectos = Deslizador(tarjeta, "Efectos", SpaceMission.Iconos.Volumen + "  Interface effects");
-        var voz = Deslizador(tarjeta, "Voz", SpaceMission.Iconos.Senal + "  Transmission voice");
-        var silencio = Casilla(tarjeta, "Silencio", "Mute all sound");
-        var movimiento = Casilla(tarjeta, "ReducirMovimiento", "Reduce motion (no shaking or cinematics)");
+        var columnas = Fila(tarjeta, "Columnas", 56);
+        columnas.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandHeight = false;
+        columnas.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var izq = Columna(columnas, "Sonido", 14, TextAnchor.UpperLeft);
+        var der = Columna(columnas, "Pantalla", 14, TextAnchor.UpperLeft);
+
+        Subtitulo(izq, "TituloSonido", "Sound");
+        var musica = Deslizador(izq, "Musica", SpaceMission.Iconos.Volumen + "  Music");
+        var ambiente = Deslizador(izq, "Ambiente", SpaceMission.Iconos.Volumen + "  Ambience");
+        var efectos = Deslizador(izq, "Efectos", SpaceMission.Iconos.Volumen + "  Interface effects");
+        var voz = Deslizador(izq, "Voz", SpaceMission.Iconos.Senal + "  Transmission voice");
+        Alto(Vacio(izq, "EspacioSonido"), 4);
+        var silencio = Casilla(izq, "Silencio", "Mute all sound");
+
+        Subtitulo(der, "TituloPantalla", "Display");
+        var movimiento = Casilla(der, "ReducirMovimiento", "Reduce motion (no shaking or cinematics)");
+        var pantallaCompleta = Casilla(der, "PantallaCompleta", "Full screen");
+        var contornos = Casilla(der, "ContornosTinta", "Ink outlines");
+        Alto(Vacio(der, "EspacioAyuda"), 6);
+        Subtitulo(der, "TituloAyuda", "Help");
+        var consejos = Casilla(der, "Consejos", "Show tips");
+        // Nombres exactos: OpcionesUI y las pruebas buscan estas casillas por nombre.
+        pantallaCompleta.name = "PantallaCompleta"; contornos.name = "ContornosTinta"; consejos.name = "Consejos";
+        Alto(Vacio(der, "EspacioIdioma"), 6);
         // Versión 5, bloque 5: idioma.
-        Texto(tarjeta, "EtiquetaIdioma", "Language", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        ConstruirSelectorIdioma(tarjeta, "SelectorIdiomaOpciones", 56);
-        Alto(Vacio(tarjeta, "Espacio"), 8).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        Subtitulo(der, "EtiquetaIdioma", "Language");
+        ConstruirSelectorIdioma(der, "SelectorIdiomaOpciones", 56);
+
         var cerrar = Boton(tarjeta, "BotonCerrarOpciones", "Done", true);
         panel.gameObject.SetActive(false);
 
@@ -452,6 +470,9 @@ public static partial class ConstructorEscenas
         Asignar(ui, "reducirMovimiento", movimiento);
         Asignar(ui, "ambiente", ambiente);
         Asignar(ui, "silencio", silencio);
+        Asignar(ui, "pantallaCompleta", pantallaCompleta);
+        Asignar(ui, "contornos", contornos);
+        Asignar(ui, "consejos", consejos);
         return ui;
     }
 
@@ -477,11 +498,23 @@ public static partial class ConstructorEscenas
 
     static UnityEngine.UI.Slider Deslizador(Transform padre, string nombre, string etiqueta)
     {
-        Texto(padre, "Etiqueta" + nombre, etiqueta, 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        // Etiqueta y barra en la misma fila (versión 9: el panel de Opciones ya no apila etiqueta sobre barra).
+        var fila = Fila(padre, "Fila" + nombre, 18);
+        Alto(fila, 44);
+        var grupo = fila.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        grupo.childForceExpandWidth = false;
+        grupo.childAlignment = TextAnchor.MiddleLeft;
+        var texto = Texto(fila, "Etiqueta" + nombre, etiqueta, 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        texto.textWrappingMode = TextWrappingModes.NoWrap;
+        Encoger(texto, 18);
+        var leTexto = texto.GetComponent<UnityEngine.UI.LayoutElement>();
+        if (leTexto == null) leTexto = texto.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        leTexto.preferredWidth = 300; leTexto.minWidth = 220; leTexto.flexibleWidth = 0;
         var go = UnityEngine.UI.DefaultControls.CreateSlider(new UnityEngine.UI.DefaultControls.Resources());
         go.name = "Deslizador" + nombre;
-        go.transform.SetParent(padre, false);
-        Alto((RectTransform)go.transform, 32);
+        go.transform.SetParent(fila, false);
+        var leBarra = go.AddComponent<UnityEngine.UI.LayoutElement>();
+        leBarra.flexibleWidth = 1; leBarra.minHeight = 28; leBarra.preferredHeight = 28;
         go.transform.Find("Background").GetComponent<UnityEngine.UI.Image>().color = FondoBarra;
         go.transform.Find("Fill Area/Fill").GetComponent<UnityEngine.UI.Image>().color = Acento;
         var asa = go.transform.Find("Handle Slide Area/Handle").GetComponent<UnityEngine.UI.Image>();
@@ -501,23 +534,33 @@ public static partial class ConstructorEscenas
         var go = UnityEngine.UI.DefaultControls.CreateToggle(new UnityEngine.UI.DefaultControls.Resources());
         go.name = "Casilla" + nombre;
         go.transform.SetParent(padre, false);
-        Alto((RectTransform)go.transform, 48);
+        Alto((RectTransform)go.transform, 46);
         Object.DestroyImmediate(go.transform.Find("Label").gameObject); // la etiqueta por defecto no es TextMeshPro
+        // La etiqueta va primero: las pruebas leen el primer texto de la casilla.
+        var t = Texto(go.transform, "Texto", etiqueta, 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        t.transform.SetSiblingIndex(0);
+        Anclar(t.rectTransform, Vector2.zero, Vector2.one);
+        t.rectTransform.offsetMin = new Vector2(56, 0);
+        Encoger(t, 18);
+        // Versión 9: caja con borde cian y un ✓ (casilla marcada) en el color de acento, en vez de un cuadro liso.
         var fondo = (RectTransform)go.transform.Find("Background");
         fondo.anchorMin = fondo.anchorMax = new Vector2(0, 0.5f);
         fondo.pivot = new Vector2(0, 0.5f);
-        fondo.sizeDelta = new Vector2(40, 40);
+        fondo.sizeDelta = new Vector2(38, 38);
         fondo.anchoredPosition = Vector2.zero;
         fondo.GetComponent<UnityEngine.UI.Image>().color = FondoBarra;
-        var marca = fondo.Find("Checkmark").GetComponent<UnityEngine.UI.Image>();
-        marca.color = Acento;
-        marca.sprite = null;
-        ((RectTransform)marca.transform).sizeDelta = new Vector2(-12, -12);
-        Bordes(fondo, LineaHud);
-        var t = Texto(go.transform, "Texto", etiqueta, 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        Anclar(t.rectTransform, Vector2.zero, Vector2.one);
-        t.rectTransform.offsetMin = new Vector2(60, 0);
-        return go.GetComponent<UnityEngine.UI.Toggle>();
+        Bordes(fondo, Cian * new Color(1f, 1f, 1f, 0.7f));
+        Object.DestroyImmediate(fondo.Find("Checkmark").gameObject);
+        var marca = Texto(fondo, "Checkmark", SpaceMission.Iconos.Elegido, 36, Acento, FontStyles.Normal, TextAlignmentOptions.Center);
+        marca.raycastTarget = false;
+        Estirar(marca.rectTransform);
+        var casilla = go.GetComponent<UnityEngine.UI.Toggle>();
+        casilla.graphic = marca;
+        var colores = casilla.colors;
+        colores.highlightedColor = Cian;
+        colores.selectedColor = Cian;
+        casilla.colors = colores;
+        return casilla;
     }
 
     static void ConstruirPantallaTitulo(RectTransform canvas, GameObject foco, params RectTransform[] entradas)

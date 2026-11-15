@@ -75,6 +75,21 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void UnLimiteSuperadoSeVeEnRojoAunqueFalteLaOrbita()
+        {
+            // La órbita se elige al final (versión 6): con todos los instrumentos el jugador ya se pasó y debe verlo.
+            var c = Config("explorador", null, "termica+radar+alta_res+atmosferico+espectrometro");
+            var r = Calculador.Calcular(c, catalogo);
+            Assert.AreEqual(EstadoSemaforo.Rojo, r.Estado);
+            CollectionAssert.Contains(r.LimitesSuperados, Limite.Espacios);
+            CollectionAssert.Contains(r.Faltantes, Faltante.Orbita);
+            var e = Evaluador.Evaluar(c, catalogo);
+            Assert.IsFalse(e.SePuedeLanzar);
+            StringAssert.Contains("slots", e.Mensaje, "dice qué límite se superó");
+            StringAssert.Contains("an orbit", e.Mensaje, "y qué falta por elegir");
+        }
+
+        [Test]
         public void SinNadaFaltanLasTresCosas()
         {
             var r = Calculador.Calcular(new Configuracion(), catalogo);

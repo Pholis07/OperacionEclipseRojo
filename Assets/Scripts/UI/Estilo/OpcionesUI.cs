@@ -14,6 +14,10 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Toggle reducirMovimiento;
         [SerializeField] UnityEngine.UI.Slider ambiente;
         [SerializeField] UnityEngine.UI.Toggle silencio;
+        // Versión 9: el constructor ya las crea en su columna. Si faltan (escena vieja), se clonan como antes.
+        [SerializeField] UnityEngine.UI.Toggle pantallaCompleta;
+        [SerializeField] UnityEngine.UI.Toggle contornos;
+        [SerializeField] UnityEngine.UI.Toggle consejos;
 
         void Awake()
         {
@@ -50,21 +54,18 @@ namespace SpaceMission
             botonCerrar.onClick.AddListener(() => Mostrar(false));
         }
 
-        UnityEngine.UI.Toggle pantallaCompleta;
-
         /// <summary>
         /// Versión 7: interruptor «Pantalla completa». La escena Menu se edita a mano, así que se crea aquí copiando
         /// la casilla de «Reducir movimiento» y poniéndola justo debajo.
         /// </summary>
         void CrearPantallaCompleta()
         {
-            if (reducirMovimiento == null || pantallaCompleta != null) return;
-            pantallaCompleta = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
-            pantallaCompleta.name = "PantallaCompleta";
-            pantallaCompleta.transform.SetSiblingIndex(reducirMovimiento.transform.GetSiblingIndex() + 1);
+            if (pantallaCompleta == null)
+            {
+                if (reducirMovimiento == null) return;
+                pantallaCompleta = Clonar("PantallaCompleta", "Full screen", reducirMovimiento);
+            }
             pantallaCompleta.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
-            var etiqueta = pantallaCompleta.GetComponentInChildren<TMPro.TMP_Text>();
-            if (etiqueta != null) etiqueta.text = "Full screen";   // TraductorEscena lo pasa al español
             pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);
             pantallaCompleta.onValueChanged.AddListener(v => Screen.fullScreen = v);
         }
@@ -73,9 +74,20 @@ namespace SpaceMission
         /// Versión 8: la marca de las casillas tenía tamaño negativo (anclada a un punto con −12 de tamaño) y no se
         /// veía nunca, estuviera marcada o no. Se estira dentro de su caja con un margen.
         /// </summary>
+        /// <summary>Copia de «Reducir movimiento» justo después de «despuesDe» (solo con escenas sin la casilla).</summary>
+        UnityEngine.UI.Toggle Clonar(string nombre, string etiqueta, UnityEngine.UI.Toggle despuesDe)
+        {
+            var copia = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
+            copia.name = nombre;
+            copia.transform.SetSiblingIndex(despuesDe.transform.GetSiblingIndex() + 1);
+            var texto = copia.GetComponentInChildren<TMPro.TMP_Text>();
+            if (texto != null) texto.text = etiqueta;   // TraductorEscena lo pasa al español
+            return copia;
+        }
+
         static void ArreglarMarca(UnityEngine.UI.Toggle casilla)
         {
-            if (casilla == null || casilla.graphic == null) return;
+            if (casilla == null || casilla.graphic == null || casilla.graphic is TMPro.TMP_Text) return;   // el ✓ (versión 9) ya tiene su tamaño
             var marca = casilla.graphic.rectTransform;
             marca.anchorMin = Vector2.zero;
             marca.anchorMax = Vector2.one;
@@ -83,27 +95,21 @@ namespace SpaceMission
             marca.offsetMax = new Vector2(-7f, -7f);
         }
 
-        UnityEngine.UI.Toggle contornos;
-
         /// <summary>
         /// Versión 8 (Eclipse Ink): interruptor «Contornos de tinta». Apagado es el modo ligero (sin la pasada de
         /// contorno). Se crea por código, como «Pantalla completa», porque la escena Menu se edita a mano.
         /// </summary>
         void CrearContornos()
         {
-            if (reducirMovimiento == null || contornos != null) return;
-            var despuesDe = pantallaCompleta != null ? pantallaCompleta : reducirMovimiento;
-            contornos = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
-            contornos.name = "ContornosTinta";
-            contornos.transform.SetSiblingIndex(despuesDe.transform.GetSiblingIndex() + 1);
+            if (contornos == null)
+            {
+                if (reducirMovimiento == null) return;
+                contornos = Clonar("ContornosTinta", "Ink outlines", pantallaCompleta != null ? pantallaCompleta : reducirMovimiento);
+            }
             contornos.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
-            var etiqueta = contornos.GetComponentInChildren<TMPro.TMP_Text>();
-            if (etiqueta != null) etiqueta.text = "Ink outlines";   // TraductorEscena lo pasa al español
             contornos.SetIsOnWithoutNotify(Preferencias.ContornosTinta);
             contornos.onValueChanged.AddListener(v => Preferencias.ContornosTinta = v);
         }
-
-        UnityEngine.UI.Toggle consejos;
 
         /// <summary>
         /// Interruptor «Show tips»: los consejos de cada pantalla, la guía paso a paso de la Operación y el resaltado.
@@ -111,14 +117,12 @@ namespace SpaceMission
         /// </summary>
         void CrearConsejos()
         {
-            if (reducirMovimiento == null || consejos != null) return;
-            var despuesDe = contornos != null ? contornos : reducirMovimiento;
-            consejos = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
-            consejos.name = "Consejos";
-            consejos.transform.SetSiblingIndex(despuesDe.transform.GetSiblingIndex() + 1);
+            if (consejos == null)
+            {
+                if (reducirMovimiento == null) return;
+                consejos = Clonar("Consejos", "Show tips", contornos != null ? contornos : reducirMovimiento);
+            }
             consejos.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
-            var etiqueta = consejos.GetComponentInChildren<TMPro.TMP_Text>();
-            if (etiqueta != null) etiqueta.text = "Show tips";   // TraductorEscena lo pasa al español
             consejos.SetIsOnWithoutNotify(Preferencias.GuiaActiva);
             consejos.onValueChanged.AddListener(v => Preferencias.GuiaActiva = v);
         }

@@ -862,6 +862,9 @@ namespace SpaceMission
             { "<color=#EF4444>Mission Control cancelled the mission: no evidence reached Earth by the end of month {0}.</color> Press “View report”.", "<color=#EF4444>Control de Misión canceló la misión: ninguna evidencia llegó a la Tierra antes de terminar el mes {0}.</color> Pulsa «Ver informe»." },
             { "Mission Control cancelled the mission: no evidence had reached Earth by the end of month {0}. Turn on an instrument, find the anomaly and send its data when there is contact.", "Control de Misión canceló la misión: ninguna evidencia había llegado a la Tierra al terminar el mes {0}. Enciende un instrumento, encuentra la anomalía y envía sus datos cuando haya contacto." },
             { "\nIf no evidence has reached Earth by the end of month {0}, Mission Control cancels the mission.", "\nSi ninguna evidencia ha llegado a la Tierra al terminar el mes {0}, Control de Misión cancela la misión." },
+            { "Sound", "Sonido" },
+            { "Display", "Pantalla" },
+            { "Help", "Ayuda" },
         };
     }
 }
