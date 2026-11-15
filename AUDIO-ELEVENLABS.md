@@ -89,6 +89,30 @@ Los sonidos se revisaron con `ffmpeg`: duración, picos, volumen medio y silenci
 
 Los motores solo suenan a pleno en la plataforma. En el espacio, los efectos son vibración de la estructura o sonidos de interfaz, nunca sonido que viaje por el vacío.
 
+## Tercera tanda: título, despegue, meses y final (2026-11-14)
+
+18 audios en el mismo flow, una toma de cada uno: **unos 644 créditos** (208 de efectos y 436 de voz: las cuatro frases se generaron dos veces porque el nodo del filtro de radio vuelve a generar la voz que tiene conectada). Normalizados con ffmpeg aplicando solo ganancia (los bucles no pierden la costura) y un limitador.
+
+| Archivo | Dónde suena | Volumen |
+|---|---|---|
+| `Efectos/SFX_Title_Confirm` | Al cerrar la pantalla de título | −15 LUFS |
+| `Efectos/AMB_Launch_Coast` | Ambiente de la costa en las tomas de la plataforma (bucle) | −24 LUFS |
+| `Efectos/SFX_Ignition_Sparks` | Chispas antes del encendido | −16 LUFS |
+| `Efectos/SFX_Engine_Ignition` | Encendido de los motores | −16 LUFS |
+| `Efectos/SFX_Engine_Roar_Close` | Rugido del motor mientras sube por la atmósfera (bucle). Se corta al llegar al espacio | −17 LUFS |
+| `Efectos/SFX_Tower_Arms_Release` | Los brazos de la torre se retiran | −16 LUFS |
+| `Efectos/SFX_Booster_Separation` | Se sueltan los propulsores laterales (sonido estructural) | −17 LUFS |
+| `Voces/Control/VOZ_Encendido`, `VOZ_Despegue`, `VOZ_Separacion`, `VOZ_Orbita` | Control de misión en la cinemática | −16 LUFS |
+| `Efectos/SFX_Month_Pass` | Transición «pasa un mes» | −16 LUFS |
+| `Efectos/SFX_Stamp` | El sello del resultado | −22 LUFS (transitorio corto) |
+| `Efectos/SFX_Outcome_Victory`, `_Partial`, `_Failure` | Remate de cada final | −15 LUFS |
+| `Efectos/SFX_Signal_Lost` | Final fallido: se pierde la señal | −16 LUFS |
+| `Efectos/SFX_Score_Tick` | El total de puntos contando | −22 LUFS |
+
+Frases de las voces (español neutro): «Secuencia de encendido iniciada. Motores principales, encendidos.» · «¡Despegue! El cohete dejó la torre.» · «Separación confirmada. La etapa superior continúa el ascenso.» · «Inserción orbital completada. Estamos en órbita de Marte.»
+
+**No se escucharon a oído.**
+
 ## Dónde está el código
 
 - **`Assets/Scripts/UI/Estilo/MusicaEscena.cs`:** música y ambiente de cada escena, con entrada suave. En Resultado elige el tema según el resultado.

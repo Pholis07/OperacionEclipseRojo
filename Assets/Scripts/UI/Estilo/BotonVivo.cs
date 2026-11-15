@@ -14,6 +14,13 @@ namespace SpaceMission
         [SerializeField] float escalaPulsado = 0.97f;
         [SerializeField] ArteDatos.Sonido sonidoPulsar = ArteDatos.Sonido.Click;
 
+        /// <summary>
+        /// Botón bajo el cursor o con el foco del teclado (null al salir). Lo usa, por ejemplo, la cámara de
+        /// Configuración para mostrar dónde se instalaría un instrumento antes de elegirlo.
+        /// </summary>
+        public static event System.Action<GameObject> AlCambiarEncima;
+        public static GameObject Encimado { get; private set; }
+
         Vector3 escalaBase = Vector3.one;
         Coroutine animacion;
         bool encima;
@@ -24,6 +31,14 @@ namespace SpaceMission
         {
             encima = false;
             transform.localScale = escalaBase;
+            if (Encimado == gameObject) Avisar(null);
+        }
+
+        static void Avisar(GameObject go)
+        {
+            if (Encimado == go) return;
+            Encimado = go;
+            AlCambiarEncima?.Invoke(go);
         }
 
         bool Activo
@@ -59,6 +74,8 @@ namespace SpaceMission
 
         void Encima(bool valor)
         {
+            if (valor) Avisar(gameObject);
+            else if (Encimado == gameObject) Avisar(null);
             if (encima == valor) return;
             encima = valor;
             Escalar(valor && Activo ? escalaEncima : 1f, 0.12f);

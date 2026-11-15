@@ -63,6 +63,24 @@ MonoBehaviour:
   escaneoEspectrometro: {fileID: 8300000, guid: be21cc957de77b4a2b7c4f6de6d33c97, type: 3}
   ambienteOrbital: {fileID: 8300000, guid: b7760bd62e165fac995f34fc11925ea7, type: 3}
   ambienteControl: {fileID: 8300000, guid: 98210849a8b8b15fd834025291b4ed67, type: 3}
+  sonidoTitulo: {fileID: 8300000, guid: 987d098043f44c4e291dbcaff266a4ef, type: 3}
+  chispas: {fileID: 8300000, guid: 9e7fa23ad8e147b8a944476a12ba61f9, type: 3}
+  ignicion: {fileID: 8300000, guid: 4d8d3cf752cad4a46a69f536ba205c83, type: 3}
+  motorCercano: {fileID: 8300000, guid: f1871a95a8bdaae7f9e99d1e5580911f, type: 3}
+  brazosTorre: {fileID: 8300000, guid: 0fac8e076369396b7b680721841e6afb, type: 3}
+  separacionPropulsores: {fileID: 8300000, guid: 2d0bad489c88df9d2881bf1fff1aece2, type: 3}
+  ambienteCosta: {fileID: 8300000, guid: bf6b14762d2cc6b319d24490f85364ee, type: 3}
+  vozEncendido: {fileID: 8300000, guid: 2abc820a2a9debc8d860f327d2258b04, type: 3}
+  vozDespegue: {fileID: 8300000, guid: 685621c49b47f17d989f3b1688fa9cf7, type: 3}
+  vozSeparacion: {fileID: 8300000, guid: 7e64c7d27948743e58f4f8c8cade8f93, type: 3}
+  vozOrbita: {fileID: 8300000, guid: 344fb26adea522cda8027a659c93c04d, type: 3}
+  pasoMes: {fileID: 8300000, guid: 592977b60096cd04591ac84468549ee6, type: 3}
+  sello: {fileID: 8300000, guid: 065d7c96e81543e4dabfcc979c56baf5, type: 3}
+  remateVictoria: {fileID: 8300000, guid: bc5bf1906670ec09c85e1bd43a6ef2c5, type: 3}
+  remateParcial: {fileID: 8300000, guid: dc62daa457353d301aa57776c1567aa2, type: 3}
+  remateFracaso: {fileID: 8300000, guid: 4f19dd9b6ab7aea17a1fb4b3df64aaf1, type: 3}
+  senalPerdida: {fileID: 8300000, guid: 1d4c6045b8508f7e9842bee6d88b58b0, type: 3}
+  conteoPuntos: {fileID: 8300000, guid: 001ba68ac566f784a97702a83428919a, type: 3}
   voces:
   - transmisionId: TX-00
     clip: {fileID: 8300000, guid: 5882c1b16f52dd13b8589d4deaaceea2, type: 3}

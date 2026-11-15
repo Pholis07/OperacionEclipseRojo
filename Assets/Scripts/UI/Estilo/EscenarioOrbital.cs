@@ -50,6 +50,10 @@ namespace SpaceMission
                 lineaOrbita.positionCount = Puntos;
                 for (int i = 0; i < Puntos; i++)
                     lineaOrbita.SetPosition(i, Trayectoria.Punto(orbita, i * Mathf.PI * 2f / Puntos, radioOrbita / transform.lossyScale.x));
+                // El color de la órbita elegida, el mismo que en Configuración (se conserva el alfa actual).
+                var color = Trayectoria.Color(orbita);
+                color.a = lineaOrbita.startColor.a;
+                lineaOrbita.startColor = lineaOrbita.endColor = color;
             }
             if (nave != null && config != null) nave.Mostrar(config);
             if (marte != null) marte.rotation = giroBaseMarte;
@@ -108,6 +112,12 @@ namespace SpaceMission
             // Girar θ sobre Y lleva el ángulo atan2(z, x) de a a a − θ.
             marte.rotation = giroBaseMarte * Quaternion.Euler(0f, angLocal - angDeseado, 0f);
             return PuntoEnSuperficie(uv);
+        }
+
+        /// <summary>Gira el planeta sobre su eje (tiempo acelerado del paso de los meses). Preparar lo devuelve a su giro.</summary>
+        public void GirarPlaneta(float grados)
+        {
+            if (marte != null) marte.rotation = marte.rotation * Quaternion.Euler(0f, grados, 0f);
         }
 
         public Vector3 PuntoEnSuperficie(Vector2 uv) =>

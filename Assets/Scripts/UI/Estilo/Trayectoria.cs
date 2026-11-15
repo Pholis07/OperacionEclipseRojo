@@ -39,6 +39,19 @@ namespace SpaceMission
             return Plano(orbitaId) * new Vector3(Mathf.Cos(angulo) * r, 0f, Mathf.Sin(angulo) * r);
         }
 
+        /// <summary>
+        /// Color propio de cada órbita (para distinguirlas a simple vista en Configuración, la cinemática y la
+        /// investigación): polar cian, media verde, elíptica ámbar.
+        /// </summary>
+        public static Color Color(string orbitaId)
+        {
+            ColorUtility.TryParseHtmlString(ColorHex(orbitaId), out var c);
+            return c;
+        }
+
+        public static string ColorHex(string orbitaId) =>
+            orbitaId == "polar" ? "#5EC8E5" : orbitaId == "media" ? "#6EE7A0" : orbitaId == "eliptica" ? "#F5B342" : "#5EC8E5";
+
         /// <summary>Velocidad angular relativa (segunda ley de Kepler aproximada): más rápido cerca del planeta.</summary>
         public static float Ritmo(string orbitaId, float angulo)
         {

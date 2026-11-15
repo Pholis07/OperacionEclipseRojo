@@ -9,7 +9,7 @@ using UnityEngine;
 public class ImportadorArte : AssetPostprocessor
 {
     // Subir este número fuerza a Unity a reimportar las imágenes con los ajustes nuevos.
-    public override uint GetVersion() => 5;
+    public override uint GetVersion() => 8;
 
     /// <summary>
     /// Audio de Assets/Arte/Audio (ElevenLabs): música comprimida en memoria (Vorbis), efectos cortos en mono y
@@ -84,6 +84,19 @@ public class ImportadorArte : AssetPostprocessor
             ti.textureCompression = TextureImporterCompression.Uncompressed; // son diminutas y deben verse nítidas
             if (nombre.StartsWith("Chaflan")) ti.spriteBorder = new Vector4(18, 18, 18, 18);
         }
+        else if (assetPath.Contains("/Patrocinio/"))
+        {
+            // Logos del patrocinador: sprites con transparencia para la interfaz y calcomanía en los cohetes
+            // (con mipmaps, que en 3D se ven pequeños y sin ellos parpadean).
+            ti.textureType = TextureImporterType.Sprite;
+            ti.spriteImportMode = SpriteImportMode.Single;
+            ti.alphaIsTransparency = true;
+            ti.mipmapEnabled = true;
+            ti.wrapMode = TextureWrapMode.Clamp;
+            ti.anisoLevel = 4;
+            ti.maxTextureSize = 1024;
+            ti.textureCompression = TextureImporterCompression.CompressedHQ;
+        }
         else if (assetPath.Contains("/Fondos/"))
         {
             ti.mipmapEnabled = false;
@@ -103,16 +116,26 @@ public class ImportadorArte : AssetPostprocessor
         }
         else if (assetPath.Contains("/Texturas/"))
         {
-            bool repetible = nombre == "Lamina_Dorada" || nombre == "Celdas_Solares";
+            bool repetible = nombre == "Lamina_Dorada" || nombre == "Celdas_Solares" || nombre == "Marte_Detalle" ||
+                             nombre == "Nubes" || nombre == "Pasto";
+            bool mitad = nombre == "Marte_Superficie_Oeste" || nombre == "Marte_Superficie_Este";
             ti.wrapMode = repetible ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
             // Los mapas de planeta se repiten a lo ancho (longitud) para que no se vea la costura.
-            if (nombre.StartsWith("Marte_") || nombre.StartsWith("Tierra_")) ti.wrapModeU = TextureWrapMode.Repeat;
+            // Las dos mitades del mapa 8K no: cada una termina donde empieza la otra (shader Planeta).
+            if ((nombre.StartsWith("Marte_") || nombre.StartsWith("Tierra_")) && !mitad) ti.wrapModeU = TextureWrapMode.Repeat;
             ti.mipmapEnabled = nombre != "Estrellas"; // las estrellas se ven a 1:1, sin mipmaps quedan nítidas
             ti.anisoLevel = 4;
-            // La superficie de Marte se ve de cerca al elegir la órbita: más resolución.
-            ti.maxTextureSize = nombre == "Marte_Superficie" ? 4096 : 2048;
+            // La superficie de Marte se ve de cerca al elegir la órbita: más resolución. Las mitades 8K y las
+            // normales a 4096 van con compresión Crunch para que la descarga en el navegador siga siendo ligera.
+            ti.maxTextureSize = nombre == "Marte_Superficie" || mitad || nombre == "Marte_Normal" ? 4096
+                              : nombre == "Marte_Detalle" ? 512 : 2048;
+            if (mitad || nombre == "Marte_Normal")
+            {
+                ti.crunchedCompression = true;
+                ti.compressionQuality = 70;
+            }
             if (nombre == "Marte_Normal") ti.textureType = TextureImporterType.NormalMap;
-            if (nombre == "Marte_Polvo") ti.alphaIsTransparency = true;
+            if (nombre == "Marte_Polvo" || nombre == "Nubes") ti.alphaIsTransparency = true;
         }
     }
 }

@@ -22,6 +22,7 @@ namespace SpaceMission
         [SerializeField] EscenarioOrbital escenario;
         [SerializeField] Camera camara;
         [SerializeField] DirectorCinematica director;
+        [SerializeField] TransicionMes transicion;      // el escaneo empieza cuando termina «pasa un mes»
 
         [Header("Vista (encima del mapa)")]
         [SerializeField] CanvasGroup vista;
@@ -87,6 +88,8 @@ namespace SpaceMission
 
         IEnumerator Secuencia(string instrumento, Vector2 punto, Lectura lectura, bool completa)
         {
+            // Primero el paso del mes (si se está viendo); mientras tanto el resumen sigue esperando.
+            while (transicion != null && transicion.Activa) yield return null;
             saltando = false;
             PrepararCamara();
             escenario.Preparar(EstadoJuego.Configuracion);

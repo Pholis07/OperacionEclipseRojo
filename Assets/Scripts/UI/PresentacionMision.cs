@@ -69,8 +69,10 @@ namespace SpaceMission
             "<indent=1.5em><color=" + Cian + ">" + icono + "</color> <b>" + nombre + "</b>\n" +
             "<size=89%><color=#94A3B8>" + string.Join("     ", chips) + "</color></size></indent>";
 
+        // El icono de cada órbita va en su color (el mismo de su línea en el planeta).
         public static string TextoOpcion(OrbitaDatos o) =>
-            Tarjeta(Iconos.Orbita, o.nombre, Chip(Iconos.Costo, TextosBriefing.Numero(o.costoCr) + " cr"));
+            Tarjeta("<color=" + Trayectoria.ColorHex(o.id) + ">" + Iconos.Orbita + "</color>", o.nombre,
+                Chip(Iconos.Costo, TextosBriefing.Numero(o.costoCr) + " cr"));
 
         public static string TextoOpcion(LanzadorDatos l) =>
             Tarjeta(Iconos.Lanzador, l.nombre, Chip(Iconos.Costo, TextosBriefing.Numero(l.costoCr) + " cr"),

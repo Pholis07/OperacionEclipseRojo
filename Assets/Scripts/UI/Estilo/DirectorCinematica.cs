@@ -6,8 +6,11 @@ using UnityEngine.InputSystem;
 namespace SpaceMission
 {
     /// <summary>
-    /// Cinemática Tierra → Marte (storyboard A, ~24 s, 8 tomas con cortes) al pulsar «Lanzar» con la misión
-    /// válida. Se ve encima de todo; la Operación ya está activa debajo desde el mismo cuadro (las pruebas y la
+    /// Cinemática Tierra → Marte (~36 s, 10 tomas con cortes) al pulsar «Lanzar» con la misión válida:
+    /// complejo de lanzamiento con árboles, mar y torre; encendido con chispas, una llama por motor, luz, humo,
+    /// vapor y aves; despegue con sacudida; ascenso entre nubes hasta el negro del espacio; separación propia de
+    /// cada cohete (Titán: propulsores laterales y después la etapa central; Explorador: los cuatro propulsores se
+    /// abren en cruz) y las tomas de transferencia, inserción y órbita. Se ve encima de todo; la Operación ya está activa debajo desde el mismo cuadro (las pruebas y la
     /// lógica no esperan a la cinemática). Usa el lanzador, el satélite, los instrumentos y la órbita elegidos.
     /// «Omitir» (o Escape) lleva exactamente al mismo final: satélite en el ancla de su órbita, audio de la
     /// investigación y la vista de la Operación. El final se avisa una sola vez (AlTerminar).
@@ -36,10 +39,27 @@ namespace SpaceMission
         [SerializeField] Transform superiorExplorador;
         [SerializeField] Transform superiorTitan;
         [SerializeField] GameObject[] soloEnTierra;
-        [SerializeField] ParticleSystem humo;
-        [SerializeField] Transform llama;
         [SerializeField] GameObject espacio;          // Tierra, estrellas: solo en las tomas en órbita terrestre
         [SerializeField] Transform puntoEspacio;
+
+        [Header("Complejo de lanzamiento")]
+        [SerializeField] Renderer cielo;                 // shader Cielo (_Noche: día → espacio)
+        [SerializeField] Transform[] brazos;             // brazos de la torre (giran para retirarse)
+        [SerializeField] Light luzMotores;
+        [SerializeField] ParticleSystem chispas;
+        [SerializeField] ParticleSystem[] humoLados;     // salen por los extremos del foso de llamas
+        [SerializeField] ParticleSystem vapor;
+        [SerializeField] ParticleSystem estela;          // columna de humo que deja el cohete al subir
+        [SerializeField] ParticleSystem aves;
+        [SerializeField] Renderer[] llamasExplorador;
+        [SerializeField] Renderer[] llamasTitan;
+        [SerializeField] Renderer[] llamaSuperiorExplorador;   // motor de la etapa superior (en el vacío, sin sonido)
+        [SerializeField] Renderer[] llamaSuperiorTitan;
+        [SerializeField] Transform[] propulsoresExplorador;    // los cuatro bloques laterales (se abren en cruz)
+        [SerializeField] Transform[] propulsoresTitan;         // los dos propulsores laterales del SLS
+        [SerializeField] AudioSource fuenteBucle;              // ambiente de la costa y rugido del motor (en bucle)
+        [SerializeField] CanvasGroup destello;                  // destello blanco al encender
+        [SerializeField] Color colorNiebla = new Color(0.72f, 0.79f, 0.86f);
 
         [Header("Transferencia")]
         [SerializeField] GameObject mapaTransferencia;
@@ -57,9 +77,8 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.RawImage mapaOperacion;
 
         static readonly Color CieloDia = new Color(0.36f, 0.56f, 0.82f);
-        static readonly Color CieloAlto = new Color(0.05f, 0.08f, 0.2f);
         static readonly Color Negro = new Color(0.01f, 0.012f, 0.02f);
-        const int Tomas = 8;
+        const int Tomas = 10;
 
         RenderTexture textura;
         Coroutine rutina;
@@ -67,6 +86,11 @@ namespace SpaceMission
         Transform cohete, superior;
         Vector3 posCohete, posSuperior;
         Quaternion rotCohete;
+        Renderer[] llamas, llamaSuperior;
+        float sacudida, potencia;
+        MaterialPropertyBlock bloque;
+        readonly System.Collections.Generic.List<(Transform t, Vector3 p, Quaternion r, bool activo)> poses =
+            new System.Collections.Generic.List<(Transform, Vector3, Quaternion, bool)>();
 
         public bool Reproduciendo => rutina != null;
 
@@ -125,12 +149,19 @@ namespace SpaceMission
             bool titan = config.LanzadorId == "titan";
             cohete = titan ? coheteTitan : coheteExplorador;
             superior = titan ? superiorTitan : superiorExplorador;
+            llamas = titan ? llamasTitan : llamasExplorador;
+            llamaSuperior = titan ? llamaSuperiorTitan : llamaSuperiorExplorador;
+            var propulsores = titan ? propulsoresTitan : propulsoresExplorador;
+            GuardarPoses(propulsores);
             if (coheteExplorador != null) coheteExplorador.gameObject.SetActive(!titan);
             if (coheteTitan != null) coheteTitan.gameObject.SetActive(titan);
+            // El elegido, en el centro de la plataforma (bajo los brazos de la torre).
+            cohete.localPosition = new Vector3(0f, cohete.localPosition.y, 0f);
             posCohete = cohete.position; rotCohete = cohete.rotation; posSuperior = superior.localPosition;
             float alto = titan ? 11f : 6.1f;
             escenario.Preparar(config);
             escenario.MostrarOrbita(false);
+            PrepararComplejo(alto);
 
             PrepararCamara();
             velo.gameObject.SetActive(true);
@@ -139,79 +170,166 @@ namespace SpaceMission
             corte.alpha = 1f;
             if (musica != null) musica.Cambiar(ArteDatos.Musica.Lanzamiento);
             Activar(true, false, false);
+            Bucle(ArteDatos.Efecto.AmbienteCosta, 0.55f);
+            var basePos = posCohete;
 
-            // 1) 0–2.5 s: detalle de las toberas, cuenta atrás.
-            Toma(1, "SISTEMAS NOMINALES");
+            // 1) Plano general del complejo: árboles delante, el mar detrás, cuenta atrás.
+            Toma(1, "COMPLEJO DE LANZAMIENTO");
             Sonar(ArteDatos.Efecto.CuentaAtras);
             yield return Cortar(false);
-            var basePos = posCohete;
-            for (float t = 0f; t < 2.5f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
             {
-                textoCuenta.text = t < 0.8f ? "T−03" : t < 1.6f ? "T−02" : "T−01";
-                var cam = basePos + new Vector3(-alto * 0.32f, alto * 0.06f, -alto * 0.42f) + Vector3.up * t * 0.08f * alto;
-                Mirar(cam, basePos + Vector3.up * alto * 0.35f, 50f);
+                float k = t / 3.6f;
+                textoCuenta.text = t < 1.2f ? "T−05" : t < 2.4f ? "T−04" : "T−03";
+                var cam = basePos + Vector3.Lerp(new Vector3(-58f, 13f, -80f), new Vector3(-50f, 11.5f, -70f), k);
+                Mirar(cam, basePos + Vector3.up * alto * 0.5f, 30f);
+                yield return null;
+            }
+
+            // 2) Los motores de cerca: chispas, voz de control y encendido.
+            yield return Cortar(true);
+            Toma(2, "SECUENCIA DE ENCENDIDO");
+            Sonar(ArteDatos.Efecto.VozEncendido);
+            bool chispazo = false, encendido = false;
+            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
+            {
+                textoCuenta.text = t < 1.2f ? "T−02" : t < 2.4f ? "T−01" : "";
+                if (!chispazo && t > 0.5f)
+                {
+                    chispazo = true;
+                    if (chispas != null) { chispas.transform.position = basePos + Vector3.up * 0.2f; chispas.Play(); }
+                    Sonar(ArteDatos.Efecto.Chispas);
+                }
+                if (!encendido && t > 1.7f)
+                {
+                    encendido = true;
+                    Encender(true);
+                    Sonar(ArteDatos.Efecto.Ignicion);
+                    Bucle(ArteDatos.Efecto.MotorCercano, 0.8f);
+                    sacudida = 0.55f;
+                    StartCoroutine(Destellar());
+                    foreach (var h in humoLados) if (h != null) h.Play();
+                    if (vapor != null) vapor.Play();
+                    if (aves != null) aves.Play();
+                }
+                potencia = encendido ? Mathf.MoveTowards(potencia, 1f, Time.deltaTime * 1.6f) : 0f;
+                var cam = basePos + new Vector3(-alto * 0.62f, alto * 0.09f, -alto * 0.95f) + Vector3.forward * t * 0.08f * alto;
+                Mirar(cam, basePos + Vector3.up * alto * 0.16f, 42f);
                 yield return null;
             }
             textoCuenta.text = "";
 
-            // 2) 2.5–5.8 s: ignición y despegue, contrapicado.
-            Toma(2, "LANZAMIENTO CONFIRMADO");
-            Encender(true, alto);
-            Sonar(ArteDatos.Efecto.Despegue);
-            var camSuelo = basePos + new Vector3(-alto * 0.9f, alto * 0.05f, -alto * 1.4f);
-            for (float t = 0f; t < 3.3f && !omitir; t += Time.deltaTime)
+            // 3) Los brazos de la torre se retiran y el cohete despega, visto desde abajo.
+            yield return Cortar(false);
+            Toma(3, "¡DESPEGUE!");
+            Sonar(ArteDatos.Efecto.BrazosTorre);
+            bool voz = false;
+            float subida = 0f;
+            var camSuelo = basePos + new Vector3(alto * 0.75f, 0.5f, -alto * 1.45f);
+            for (float t = 0f; t < 4f && !omitir; t += Time.deltaTime)
             {
-                float subida = t < 0.6f ? 0f : 0.5f * 2.2f * alto * 0.12f * (t - 0.6f) * (t - 0.6f);
+                float giro = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 1.1f));
+                for (int i = 0; i < brazos.Length; i++) if (brazos[i] != null) brazos[i].localRotation = Quaternion.Euler(0f, -75f * giro, 0f);
+                if (t > 1.1f)
+                {
+                    float u = t - 1.1f;
+                    subida = 0.5f * 0.55f * alto * u * u;
+                    if (!voz) { voz = true; Sonar(ArteDatos.Efecto.VozDespegue); sacudida = Mathf.Max(sacudida, 0.4f); }
+                }
                 cohete.position = basePos + Vector3.up * subida;
-                Mirar(camSuelo, cohete.position + Vector3.up * alto * 0.5f, 55f);
+                Mirar(camSuelo, cohete.position + Vector3.up * alto * 0.55f, 52f);
                 yield return null;
             }
 
-            // 3) 5.8–8.5 s: plano lateral largo, el cielo pasa de azul a negro.
+            // 4) Desde detrás de los árboles: sube dejando su columna de humo.
             yield return Cortar(true);
-            Toma(3, "ASCENSO");
-            Activar(false, false, false);
-            for (float t = 0f; t < 2.7f && !omitir; t += Time.deltaTime)
+            Toma(4, "ASCENSO");
+            if (estela != null) estela.Play();
+            var camArboles = basePos + new Vector3(31f, 4.2f, -52f);
+            float inicio4 = subida;
+            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
             {
-                float k = t / 2.7f;
-                cohete.position = basePos + Vector3.up * (alto * 6f + alto * 8f * k * k);
-                cohete.rotation = rotCohete * Quaternion.Euler(0f, 0f, -12f * k);   // empieza a inclinarse
-                camara.backgroundColor = Color.Lerp(CieloDia, Color.Lerp(CieloAlto, Negro, k), Mathf.SmoothStep(0f, 1f, k));
-                var cam = cohete.position + new Vector3(-alto * 2.6f, -alto * 0.4f, -alto * 1.2f);
-                Mirar(cam, cohete.position + cohete.up * alto * 0.5f, 42f);
+                subida = inicio4 + alto * (1.2f * t + 0.5f * t * t);
+                cohete.position = basePos + Vector3.up * subida;
+                Mirar(camArboles, Vector3.Lerp(basePos + Vector3.up * alto * 2.5f, cohete.position + Vector3.up * alto * 0.5f, 0.7f), 44f);
                 yield return null;
             }
 
-            // 4) 8.5–11 s: en órbita terrestre, separación de etapas con la Tierra de fondo.
+            // 5) Entre las nubes: el cielo pasa de azul al negro del espacio; el cohete empieza a inclinarse.
             yield return Cortar(true);
-            Toma(4, "SEPARACIÓN COMPLETADA");
-            Encender(false, alto);
+            Toma(5, "ATRAVESANDO LAS NUBES");
+            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
+            {
+                float k = t / 3.6f;
+                cohete.position = basePos + Vector3.up * Mathf.Lerp(55f, 175f, k * (0.6f + 0.4f * k));
+                cohete.rotation = rotCohete * Quaternion.Euler(0f, 0f, -14f * k);
+                Noche(Mathf.SmoothStep(0f, 0.85f, k));
+                var cam = cohete.position + new Vector3(-alto * 1.7f, -alto * 1.3f, -alto * 1.5f);
+                Mirar(cam, cohete.position + cohete.up * alto * 0.7f, 50f);
+                yield return null;
+            }
+
+            // 6) En órbita terrestre: separación propia de cada cohete (en el vacío no suena el motor).
+            yield return Cortar(true);
+            Toma(6, "SEPARACIÓN DE ETAPAS");
+            Encender(false);
+            DetenerBucle();
             Activar(false, true, false);
             camara.backgroundColor = Negro;
             cohete.position = puntoEspacio.position;
             cohete.rotation = puntoEspacio.rotation;   // eje del cohete (arriba) = dirección de avance
-            bool separado = false;
             var adelante = cohete.up;
-            var desfaseSuperior = superior.position - cohete.position;   // donde va la etapa superior unida
+            var lado = cohete.right;
+            var desfaseSuperior = superior.position - cohete.position;
             var rotSuperior = superior.rotation;
-            for (float t = 0f; t < 2.5f && !omitir; t += Time.deltaTime)
+            var desfases = new Vector3[propulsores.Length];
+            var giros = new Quaternion[propulsores.Length];
+            for (int i = 0; i < propulsores.Length; i++)
             {
-                if (!separado && t > 0.6f) { separado = true; Sonar(ArteDatos.Efecto.Separacion); }
-                float s = separado ? (t - 0.6f) : 0f;
-                var avance = puntoEspacio.position + adelante * (t * alto * 0.25f);
-                // La etapa inferior se queda atrás y gira despacio; la superior sigue de frente.
-                cohete.position = avance - adelante * s * s * alto * 0.35f;
-                cohete.rotation = puntoEspacio.rotation * Quaternion.Euler(s * 9f, 0f, s * 6f);
-                superior.position = avance + desfaseSuperior + adelante * s * alto * 0.12f;
+                desfases[i] = propulsores[i].position - cohete.position;
+                giros[i] = propulsores[i].rotation;
+            }
+            bool fuera = false, separado = false;
+            for (float t = 0f; t < 3.8f && !omitir; t += Time.deltaTime)
+            {
+                var avance = puntoEspacio.position + adelante * (t * alto * 0.22f);
+                // Primero se sueltan los propulsores laterales y se alejan girando.
+                if (!fuera && t > 0.5f) { fuera = true; Sonar(ArteDatos.Efecto.SeparacionPropulsores); }
+                float sp = fuera ? t - 0.5f : 0f;
+                // Después la etapa central se queda atrás y la superior sigue con su motor (sin sonido).
+                if (!separado && t > 1.9f)
+                {
+                    separado = true;
+                    Sonar(ArteDatos.Efecto.Separacion);
+                    Sonar(ArteDatos.Efecto.VozSeparacion);
+                    EncenderSuperior(true);
+                }
+                float s2 = separado ? t - 1.9f : 0f;
+                cohete.position = avance - adelante * s2 * s2 * alto * 0.35f;
+                cohete.rotation = puntoEspacio.rotation * Quaternion.Euler(s2 * 9f, 0f, s2 * 6f);
+                superior.position = avance + desfaseSuperior + adelante * s2 * alto * 0.14f;
                 superior.rotation = rotSuperior;
-                var centro = avance + adelante * alto * 0.55f;
-                // De lado y algo por encima: el cohete cruza la pantalla con la Tierra debajo.
-                Mirar(centro + Vector3.up * alto * 0.3f + Vector3.back * alto * 1.35f, centro + Vector3.down * alto * 0.1f, 45f);
+                // Los propulsores son hijos del cohete: su pose se fija después de mover el cohete.
+                for (int i = 0; i < propulsores.Length; i++)
+                {
+                    var p = propulsores[i];
+                    if (p == null) continue;
+                    var radial = Vector3.ProjectOnPlane(desfases[i], adelante);
+                    radial = radial.sqrMagnitude < 0.0001f ? lado : radial.normalized;
+                    if (titan)
+                        p.position = avance + desfases[i] + radial * sp * sp * alto * 0.12f - adelante * sp * sp * alto * 0.18f;
+                    else   // Explorador: se abren en cruz, girando hacia fuera desde la base
+                        p.position = avance + desfases[i] + radial * sp * alto * 0.22f - adelante * sp * sp * alto * 0.12f;
+                    p.rotation = Quaternion.AngleAxis((titan ? 18f : 55f) * sp, Vector3.Cross(adelante, radial)) * giros[i];
+                }
+                var centro = avance + adelante * alto * 0.5f;
+                Mirar(centro + Vector3.up * alto * 0.35f + Vector3.back * alto * 1.5f, centro + Vector3.down * alto * 0.1f, 46f);
                 yield return null;
             }
 
-            // 5) 11–13 s: se libera la carga científica (el satélite elegido, con sus instrumentos).
-            Toma(5, "CARGA CIENTÍFICA LIBERADA");
+            // 7) Se libera la carga científica (el satélite elegido, con sus instrumentos).
+            Toma(7, "CARGA CIENTÍFICA LIBERADA");
+            EncenderSuperior(false);
             Sonar(ArteDatos.Efecto.Despliegue);
             var sat = escenario.Satelite;
             var escalaSat = sat.localScale;
@@ -226,16 +344,16 @@ namespace SpaceMission
                 yield return null;
             }
 
-            // 6) 13–17.5 s: transferencia Tierra → Marte en un mapa (tiempo acelerado, sin cifras).
+            // 8) Transferencia Tierra → Marte en un mapa (tiempo acelerado, sin cifras).
             yield return Cortar(true);
-            Toma(6, "TRANSFERENCIA INTERPLANETARIA · TIEMPO ACELERADO");
+            Toma(8, "TRANSFERENCIA INTERPLANETARIA · TIEMPO ACELERADO");
             Activar(false, false, true);
             Sonar(ArteDatos.Efecto.Transferencia);
             yield return Transferencia(4.5f);
 
-            // 7) 17.5–21 s: aproximación a Marte e inserción orbital.
+            // 9) Aproximación a Marte e inserción orbital.
             yield return Cortar(true);
-            Toma(7, "INSERCIÓN ORBITAL");
+            Toma(9, "INSERCIÓN ORBITAL");
             Activar(false, false, false);
             sat.localScale = escalaSat;
             float fFinal = escenario.FaseAncla;
@@ -255,10 +373,11 @@ namespace SpaceMission
                 yield return null;
             }
 
-            // 8) 21–24 s: plano héroe en la órbita elegida; la cámara llega al encuadre de la investigación.
-            Toma(8, "ÓRBITA ESTABLECIDA · ANOMALÍA LOCALIZADA");
+            // 10) Plano héroe en la órbita elegida; la cámara llega al encuadre de la investigación.
+            Toma(10, "ÓRBITA ESTABLECIDA · ANOMALÍA LOCALIZADA");
             escenario.MostrarOrbita(true, 0.85f);
             Sonar(ArteDatos.Efecto.DatosRecibidos, 0.8f);
+            Sonar(ArteDatos.Efecto.VozOrbita);
             MostrarZona(true);
             var (pa, ra) = escenario.PoseCamara(fFinal);
             var inicioCam = camara.transform.position;
@@ -327,6 +446,15 @@ namespace SpaceMission
 
         void Mirar(Vector3 posicion, Vector3 objetivo, float campo)
         {
+            // Sacudida de la cámara al encender y al despegar (se apaga sola; nada con «Reducir movimiento»).
+            if (sacudida > 0f)
+            {
+                float tt = Time.time * 28f;
+                var ruido = new Vector3(Mathf.PerlinNoise(tt, 0.3f) - 0.5f, Mathf.PerlinNoise(0.7f, tt) - 0.5f, Mathf.PerlinNoise(tt, tt * 0.5f) - 0.5f);
+                posicion += ruido * sacudida * 0.9f;
+                sacudida = Mathf.MoveTowards(sacudida, 0f, Time.deltaTime * 0.25f);
+            }
+            AnimarFuego();
             camara.transform.position = posicion;
             camara.transform.rotation = Quaternion.LookRotation(objetivo - posicion, Vector3.up);
             camara.fieldOfView = campo;
@@ -345,33 +473,146 @@ namespace SpaceMission
         void Activar(bool tierraFirme, bool orbitaTerrestre, bool mapa)
         {
             if (soloEnTierra != null) foreach (var go in soloEnTierra) if (go != null) go.SetActive(tierraFirme);
+            // Bruma lejana solo en el complejo de lanzamiento (colinas y mar); en el espacio no hay niebla.
+            RenderSettings.fog = tierraFirme;
+            // Sombras del cohete solo sobre la plataforma: en órbita serían manchas enormes sobre la Tierra.
+            foreach (var c in new[] { coheteExplorador, coheteTitan })
+                if (c != null)
+                    foreach (var r in c.GetComponentsInChildren<MeshRenderer>(true))
+                        if (!r.name.StartsWith("LlamaMotor") && !r.name.StartsWith("Logo"))
+                            r.shadowCastingMode = tierraFirme ? UnityEngine.Rendering.ShadowCastingMode.On : UnityEngine.Rendering.ShadowCastingMode.Off;
+            if (tierraFirme)
+            {
+                RenderSettings.fogMode = FogMode.Linear;
+                RenderSettings.fogColor = colorNiebla;
+                RenderSettings.fogStartDistance = 110f;
+                RenderSettings.fogEndDistance = 620f;
+            }
             if (espacio != null) espacio.SetActive(orbitaTerrestre);
             if (mapaTransferencia != null) mapaTransferencia.SetActive(mapa);
             if (camara == null) return;
             if (tierraFirme) camara.backgroundColor = CieloDia;
             else if (!orbitaTerrestre) camara.backgroundColor = Negro;
             // Cada escenario solo ve lo suyo (los demás quedan más allá del plano lejano o tras su cielo).
-            camara.farClipPlane = tierraFirme ? 320f : mapa ? 140f : 600f;
+            camara.farClipPlane = tierraFirme ? 700f : mapa ? 140f : 600f;
         }
 
-        void Encender(bool encendido, float alto)
+        void Encender(bool encendido)
         {
-            if (llama != null)
+            potencia = 0f;
+            Mostrar(llamas, encendido);
+            if (luzMotores != null) luzMotores.enabled = encendido;
+            if (!encendido)
             {
-                llama.gameObject.SetActive(encendido);
-                if (encendido)
-                {
-                    llama.SetParent(cohete, false);
-                    llama.localPosition = Vector3.zero;
-                    llama.localRotation = Quaternion.identity;
-                    llama.localScale = Vector3.one * alto * 0.12f;
-                }
+                foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                if (vapor != null) vapor.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                if (estela != null) estela.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             }
-            if (humo != null)
+        }
+
+        void EncenderSuperior(bool encendido) => Mostrar(llamaSuperior, encendido);
+
+        static void Mostrar(Renderer[] rs, bool visible)
+        {
+            if (rs == null) return;
+            foreach (var r in rs) if (r != null && r.gameObject.activeSelf != visible) r.gameObject.SetActive(visible);
+        }
+
+        /// <summary>Potencia de las llamas, parpadeo de la luz y la columna de humo que sigue al cohete.</summary>
+        void AnimarFuego()
+        {
+            if (llamas == null || cohete == null) return;
+            bloque ??= new MaterialPropertyBlock();
+            bloque.SetFloat("_Potencia", potencia);
+            foreach (var r in llamas) if (r != null && r.gameObject.activeSelf) r.SetPropertyBlock(bloque);
+            if (luzMotores != null && luzMotores.enabled)
             {
-                if (encendido) { humo.transform.position = posCohete; humo.Play(); }
-                else humo.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                luzMotores.transform.position = cohete.position + Vector3.up * 0.5f;
+                luzMotores.intensity = potencia * (9f + 4f * Mathf.PerlinNoise(Time.time * 14f, 0.5f));
             }
+            if (estela != null) estela.transform.position = cohete.position;
+        }
+
+        IEnumerator Destellar()
+        {
+            if (destello == null) yield break;
+            destello.alpha = 0.55f;
+            for (float t = 0f; t < 1f; t += Time.deltaTime / 0.5f) { destello.alpha = 0.55f * (1f - t); yield return null; }
+            destello.alpha = 0f;
+        }
+
+        void Noche(float k)
+        {
+            if (cielo == null) return;
+            bloque ??= new MaterialPropertyBlock();
+            cielo.GetPropertyBlock(bloque);
+            bloque.SetFloat("_Noche", k);
+            cielo.SetPropertyBlock(bloque);
+            // Al cambiar de escena (OnDisable → Final) la cámara puede estar ya destruida.
+            if (camara != null) camara.backgroundColor = Color.Lerp(CieloDia, Negro, k);
+        }
+
+        void PrepararComplejo(float alto)
+        {
+            Noche(0f);
+            sacudida = 0f;
+            potencia = 0f;
+            Mostrar(llamasExplorador, false);
+            Mostrar(llamasTitan, false);
+            Mostrar(llamaSuperiorExplorador, false);
+            Mostrar(llamaSuperiorTitan, false);
+            if (luzMotores != null) luzMotores.enabled = false;
+            if (destello != null) destello.alpha = 0f;
+            // Los brazos de la torre, a la altura del cohete elegido y pegados a él.
+            for (int i = 0; i < brazos.Length; i++)
+            {
+                if (brazos[i] == null) continue;
+                var p = brazos[i].localPosition;
+                brazos[i].localPosition = new Vector3(p.x, alto * (0.3f + 0.22f * i), p.z);
+                brazos[i].localRotation = Quaternion.identity;
+            }
+            foreach (var ps in new[] { chispas, vapor, estela, aves })
+                if (ps != null) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        /// <summary>Guarda la pose de todo lo que la cinemática mueve, para dejarlo igual al terminar u omitir.</summary>
+        void GuardarPoses(Transform[] propulsores)
+        {
+            poses.Clear();
+            void Guardar(Transform t) { if (t != null) poses.Add((t, t.localPosition, t.localRotation, t.gameObject.activeSelf)); }
+            Guardar(coheteExplorador); Guardar(coheteTitan); Guardar(superiorExplorador); Guardar(superiorTitan);
+            if (propulsoresExplorador != null) foreach (var p in propulsoresExplorador) Guardar(p);
+            if (propulsoresTitan != null) foreach (var p in propulsoresTitan) Guardar(p);
+            if (brazos != null) foreach (var b in brazos) Guardar(b);
+        }
+
+        void RestaurarPoses()
+        {
+            foreach (var (t, p, r, activo) in poses)
+            {
+                if (t == null) continue;
+                t.localPosition = p;
+                t.localRotation = r;
+                t.gameObject.SetActive(activo);
+            }
+            poses.Clear();
+        }
+
+        void Bucle(ArteDatos.Efecto efecto, float volumen)
+        {
+            if (fuenteBucle == null || ReproductorUI.Actual == null || ReproductorUI.Actual.Arte == null) return;
+            var clip = ReproductorUI.Actual.Arte.Clip(efecto);
+            if (clip == null) return;
+            fuenteBucle.clip = clip;
+            fuenteBucle.loop = true;
+            fuenteBucle.volume = volumen * Preferencias.VolumenEfectos;
+            fuenteBucle.Play();
+        }
+
+        void DetenerBucle()
+        {
+            if (fuenteBucle != null) fuenteBucle.Stop();
         }
 
         void MostrarZona(bool visible)
@@ -414,9 +655,16 @@ namespace SpaceMission
         {
             if (rutina != null) { StopCoroutine(rutina); rutina = null; }
             if (fuente != null) fuente.Stop();
-            Encender(false, 1f);
-            if (llama != null) llama.SetParent(transform, false);
-            if (cohete != null) { cohete.position = posCohete; cohete.rotation = rotCohete; superior.localPosition = posSuperior; superior.localRotation = Quaternion.identity; }
+            DetenerBucle();
+            if (llamas != null) Encender(false);
+            EncenderSuperior(false);
+            sacudida = 0f;
+            if (destello != null) destello.alpha = 0f;
+            foreach (var ps in new[] { chispas, vapor, estela, aves })
+                if (ps != null) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            if (humoLados != null) foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            RestaurarPoses();
+            if (cielo != null) Noche(0f);
             MostrarZona(false);
             if (escenario != null)
             {

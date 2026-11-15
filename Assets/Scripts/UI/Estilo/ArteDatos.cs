@@ -41,7 +41,11 @@ namespace SpaceMission
         public enum Efecto
         {
             CuentaAtras, Despegue, Separacion, Despliegue, Transferencia, Propulsores, Servo, FijarObjetivo,
-            EscaneoTermica, EscaneoRadar, EscaneoAltaRes, EscaneoAtmosferico, EscaneoEspectrometro, DatosRecibidos
+            EscaneoTermica, EscaneoRadar, EscaneoAltaRes, EscaneoAtmosferico, EscaneoEspectrometro, DatosRecibidos,
+            // Pulido de presentación (van al final: los valores anteriores no cambian).
+            Chispas, Ignicion, MotorCercano, BrazosTorre, SeparacionPropulsores, AmbienteCosta,
+            VozEncendido, VozDespegue, VozSeparacion, VozOrbita,
+            PasoMes, Sello, RemateVictoria, RemateParcial, RemateFracaso, SenalPerdida, ConteoPuntos
         }
 
         [Header("Imágenes")]
@@ -88,6 +92,26 @@ namespace SpaceMission
         public AudioClip ambienteOrbital;
         public AudioClip ambienteControl;
 
+        [Header("Pulido: título, despegue, meses y final")]
+        public AudioClip sonidoTitulo;
+        public AudioClip chispas;
+        public AudioClip ignicion;
+        public AudioClip motorCercano;
+        public AudioClip brazosTorre;
+        public AudioClip separacionPropulsores;
+        public AudioClip ambienteCosta;
+        public AudioClip vozEncendido;
+        public AudioClip vozDespegue;
+        public AudioClip vozSeparacion;
+        public AudioClip vozOrbita;
+        public AudioClip pasoMes;
+        public AudioClip sello;
+        public AudioClip remateVictoria;
+        public AudioClip remateParcial;
+        public AudioClip remateFracaso;
+        public AudioClip senalPerdida;
+        public AudioClip conteoPuntos;
+
         [Header("Voces de las transmisiones")]
         public List<Voz> voces = new List<Voz>();
 
@@ -129,6 +153,23 @@ namespace SpaceMission
                 case Efecto.EscaneoAltaRes: return escaneoAltaRes;
                 case Efecto.EscaneoAtmosferico: return escaneoAtmosferico;
                 case Efecto.EscaneoEspectrometro: return escaneoEspectrometro;
+                case Efecto.Chispas: return chispas;
+                case Efecto.Ignicion: return ignicion != null ? ignicion : despegue;
+                case Efecto.MotorCercano: return motorCercano;
+                case Efecto.BrazosTorre: return brazosTorre;
+                case Efecto.SeparacionPropulsores: return separacionPropulsores != null ? separacionPropulsores : separacion;
+                case Efecto.AmbienteCosta: return ambienteCosta;
+                case Efecto.VozEncendido: return vozEncendido;
+                case Efecto.VozDespegue: return vozDespegue;
+                case Efecto.VozSeparacion: return vozSeparacion;
+                case Efecto.VozOrbita: return vozOrbita;
+                case Efecto.PasoMes: return pasoMes;
+                case Efecto.Sello: return sello;
+                case Efecto.RemateVictoria: return remateVictoria;
+                case Efecto.RemateParcial: return remateParcial;
+                case Efecto.RemateFracaso: return remateFracaso;
+                case Efecto.SenalPerdida: return senalPerdida;
+                case Efecto.ConteoPuntos: return conteoPuntos;
                 default: return senal;
             }
         }

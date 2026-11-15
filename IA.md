@@ -349,3 +349,11 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Adrian aprobó que el presupuesto y los meses sobrantes solo sumen si llegó a la Tierra al menos una evidencia (`Puntuacion.Desglose`). La misma partida fracasada pasa de 745 a 130 puntos (fracaso y combustible sobrante).
 - Prueba nueva en `MesesTests`. Tres pruebas antiguas que miraban la línea del presupuesto en misiones sin evidencia ahora envían una antes de mirar los puntos. Pasan las 212 pruebas EditMode y las 19 PlayMode.
 - Después Adrian pidió la misma regla para el combustible sobrante. Ahora, sin evidencia enviada, solo cuentan los 100 puntos del fracaso (y los objetivos o la petición de la NASA, si se cumplen). La prueba `SinEvidenciaEnviadaNoSumaNadaDeLoQueSobra` lo comprueba. Pasan las 212 pruebas EditMode y las 19 PlayMode.
+
+## Pulido de presentación con el patrocinador (Diego, 2026-11-14)
+
+- Diego pidió: un arranque más profesional con el logo del patrocinador (National Bulwark Services) donde salía el de Unity; Marte con mejores texturas; órbitas que se distingan; solo el cohete elegido en la pestaña Lanzador; instrumentos mejor montados; un despegue con mucho más detalle según el lanzador (árboles, fuego, logo en los cohetes); una transición de meses al estilo de los juegos de supervivencia; y un final animado según lo que pasó.
+- Decisiones de Diego: los dos logos, sin fondo; patrocinador y después Unity en el splash; sí generar audio nuevo.
+- La IA recortó los logos con un script propio (se conserva el blanco interior del toro), hizo el mapa de Marte de 8K en dos mitades de 4096 para WebGL, shaders propios (`Planeta`, `Cielo`, `Llama`, `Aditivo`), el complejo de lanzamiento por código, la transición de meses, el final animado y 18 audios con ElevenLabs (unos 644 créditos).
+- Único cambio en código de Adrian: el evento `OperacionUI.AlResolverMes` y la transición en la condición que retrasa el dibujo del resumen. La lógica sigue igual y en el mismo cuadro.
+- Detalle completo en `ECLIPSE-IMPLEMENTACION.md` (sección «Pulido de presentación»).

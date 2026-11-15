@@ -80,12 +80,20 @@ Descargadas del repositorio de Google Fonts (github.com/google/fonts).
 |---|---|---|
 | `Assets/Arte/Fuentes/Lucide.ttf` | Lucide Icons, paquete `lucide-static` 1.73.0 (fuente de iconos) | ISC (`LICENSE-Lucide.txt`) |
 
+## Patrocinador
+
+- **National Bulwark Services**: sus dos logos («Perimeter Electric Fence» y «Monitored Security Systems») aparecen como patrocinador del equipo en el splash de inicio, la página de carga del navegador, la pantalla de título, el Menú, la pantalla de Resultado y los dos cohetes. Los aportó Diego como logos del patrocinador; la marca es de su dueño y se usa solo para reconocer el patrocinio.
+- Originales en `Herramientas/patrocinio/`. `Herramientas/logos.py` les quita el fondo blanco y crea una versión clara (letras blancas, el toro igual) para fondos oscuros; `Herramientas/composiciones.py` arma la imagen del splash. Resultado en `Assets/Arte/Patrocinio/` y `Assets/WebGLTemplates/PantallaCompleta/TemplateData/patrocinio_*.png`.
+
 ## Recursos propios
 
 Hechos para este juego, sin licencias de terceros:
 - **Generados por `Herramientas/arte.py`:** el cielo de estrellas (`Texturas/Estrellas.png`), la lámina dorada y las celdas solares de la nave, y los sprites de interfaz (`Interfaz/*`: chaflanes, círculo, halo, segmentos y barrido).
 - **Generado por `Herramientas/favicon.py`:** el icono de la pestaña del navegador (`Assets/WebGLTemplates/PantallaCompleta/TemplateData/favicon.png`), Marte con la sombra de un eclipse. Se genera con `python3 -I Herramientas/favicon.py <ruta de salida>`.
 - **Generados por código en el constructor:** el cohete Explorador (inspirado en el Soyuz), la plataforma y la torre, la llama y el humo del despegue, el mapa de la transferencia, el shader de atmósfera y las mallas de `Assets/Arte/Mallas`.
+- **Marte en alta resolución (`Herramientas/marte_hd.py`):** las dos mitades de 4096×4096 del mapa de 8K de Solar System Scope (CC BY 4.0, ya acreditado arriba), el relieve a 4096 calculado del brillo y la textura de detalle (ruido propio).
+- **Generados por scripts propios en `Herramientas/`:** el cielo de estrellas nuevo (`estrellas.py`); las nubes, el pasto, la losa de la plataforma, las bocanadas de humo, las aves y las chispas de la cinemática (`despegue_texturas.py`); la viñeta, el resplandor, el aro de los zócalos y el degradado de la interfaz (`composiciones.py`).
+- **Generados por código en `ConstructorEscenas.Despegue.cs`:** el complejo de lanzamiento (torre de celosía, brazos, pararrayos, torre de agua, edificios, árboles, colinas, mar), las llamas de cada motor y las partículas. Shaders propios `Planeta`, `Cielo`, `Llama` y `Aditivo` en `Assets/Arte/Shaders`.
 - **Generado por código en `ConstructorEscenas.Nasa.cs` (`CuerpoCubeSat`):** el satélite Nanosatélite AztechSat-1, un CubeSat 1U con piezas simples. Está inspirado en la misión AztechSat-1 de la UPAEP (Puebla), pero no es un modelo oficial.
 
 ## Audio
@@ -100,6 +108,9 @@ Todo el audio de `Assets/Arte/Audio` (música, efectos, ambiente y voces) se gen
 
 | `Musica/MUS_Lanzamiento_Cinematica.mp3` (cinemática de lanzamiento, 25 s) | Eleven Music v2.5, instrumental |
 | `Efectos/SFX_*.mp3` (13 efectos de la cinemática y del escaneo orbital) y `Efectos/AMB_*.mp3` (ambiente de la sala de control y de la nave en órbita, 20 s en bucle) | Sound Effects v2. Generados el 2026-11-14 con las indicaciones de `02_AUDIO_ELEVENLABS/01_PROMPTS_LISTOS_ELEVENLABS.csv` del paquete del equipo; volumen normalizado con ffmpeg |
+
+| `Efectos/SFX_Title_Confirm`, `SFX_Ignition_Sparks`, `SFX_Engine_Ignition`, `SFX_Engine_Roar_Close`, `SFX_Tower_Arms_Release`, `SFX_Booster_Separation`, `AMB_Launch_Coast`, `SFX_Month_Pass`, `SFX_Stamp`, `SFX_Outcome_*`, `SFX_Signal_Lost`, `SFX_Score_Tick` (tercera tanda: título, despegue, meses y final) | Sound Effects v2, generados el 2026-11-14 |
+| `Voces/Control/VOZ_*.mp3` (4 frases de control en la cinemática) | Multilingual v2 con «César Augusto — Spanish (Neutral)» y el filtro «Bright Phone», como las transmisiones |
 
 Las indicaciones usadas están en `AUDIO-ELEVENLABS.md`.
 

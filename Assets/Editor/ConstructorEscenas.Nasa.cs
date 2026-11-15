@@ -89,10 +89,13 @@ public static partial class ConstructorEscenas
     /// Nave con los cinco cuerpos de satélite (solo el elegido encendido) y un módulo por instrumento,
     /// en el orden del catálogo. Los módulos aparecen al elegir el instrumento (NaveUI).
     /// </summary>
-    static NaveUI ConstruirNave(string sateliteFijo = null)
+    static NaveUI ConstruirNave(string sateliteFijo = null, bool conZocalos = true)
     {
         var raiz = new GameObject("Nave");
         var matSoporte = CrearMaterial("Nave_Plata", Hex("#C9CED6"), 0.85f, 0.7f);
+        var matPlaca = CrearMaterial("Nave_Placa", Hex("#3A3F47"), 0.75f, 0.55f);
+        var matBrillo = MaterialAditivo("Brillo_Sol", null, Color.white);
+        var matHolograma = MaterialAditivo("Holograma_Instrumento", null, new Color(0.37f, 0.85f, 1f, 0.6f));
 
         // Cuerpos de los satélites, centrados en la raíz.
         var cuerpos = new GameObject[Satelites.Length];
@@ -115,25 +118,74 @@ public static partial class ConstructorEscenas
             // La base del modelo del kit está en y = 0: así queda apoyada en el origen del módulo.
             var b = Limites(equipo);
             equipo.transform.localPosition -= new Vector3(b.center.x, b.min.y, b.center.z);
+            MaterialesInstrumento(equipo);
             var soporte = Pieza(PrimitiveType.Cylinder, "Soporte", m, Vector3.zero, Vector3.zero, new Vector3(0.12f, 0.05f, 0.12f), matSoporte);
             soporte.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-            m.gameObject.AddComponent<Instalacion>();
+            // Placa base atornillada al casco (NaveSatelite la coloca al pie del soporte).
+            var placa = Pieza(PrimitiveType.Cylinder, "Placa", m, Vector3.zero, Vector3.zero, new Vector3(0.34f, 0.012f, 0.34f), matPlaca);
+            placa.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+            // Destello al encajar (Instalacion): un brillo aditivo sobre el casco, apagado al empezar.
+            var destello = new GameObject("Destello", typeof(SpriteRenderer)).GetComponent<SpriteRenderer>();
+            destello.transform.SetParent(m, false);
+            destello.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            destello.transform.localScale = Vector3.one * 0.5f;
+            destello.sprite = ConstructorEstilo.Sprite("Resplandor");
+            destello.color = new Color(0.55f, 0.9f, 1f, 1f);
+            destello.sharedMaterial = matBrillo;
+            destello.gameObject.SetActive(false);
+            var instalacion = m.gameObject.AddComponent<Instalacion>();
+            Asignar(instalacion, "destello", destello);
             modulos[i] = m;
             m.gameObject.SetActive(false);
+        }
+
+        // Zócalos (aros en cada montaje) y hologramas de vista previa, aparte de los módulos.
+        var zocalos = new SpriteRenderer[IdsInstrumento.Length];
+        var fantasmas = new Transform[IdsInstrumento.Length];
+        for (int i = 0; i < IdsInstrumento.Length && conZocalos; i++)
+        {
+            var z = new GameObject("Zocalo_" + IdsInstrumento[i], typeof(SpriteRenderer)).GetComponent<SpriteRenderer>();
+            z.transform.SetParent(raiz.transform, false);
+            z.sprite = ConstructorEstilo.Sprite("Anillo");
+            z.color = new Color(0.37f, 0.78f, 0.9f, 0.5f);
+            z.sharedMaterial = matBrillo;
+            zocalos[i] = z;
+            var f = new GameObject("Fantasma_" + IdsInstrumento[i]).transform;
+            f.SetParent(raiz.transform, false);
+            var holo = InstanciarModelo("Instrumentos/" + ModelosInstrumento[i], "Holograma", f, TamanoModulo, Vector3.zero, false);
+            var bh = Limites(holo);
+            holo.transform.localPosition -= new Vector3(bh.center.x, bh.min.y, bh.center.z);
+            foreach (var r in holo.GetComponentsInChildren<Renderer>())
+            {
+                var mats = new Material[r.sharedMaterials.Length];
+                for (int k = 0; k < mats.Length; k++) mats[k] = matHolograma;
+                r.sharedMaterials = mats;
+                r.shadowCastingMode = ShadowCastingMode.Off;
+            }
+            f.gameObject.SetActive(false);
+            fantasmas[i] = f;
         }
 
         // Montajes de cada satélite: debajo del casco (la cara que mira a Marte), con el soporte hasta la superficie.
         var posiciones = new List<Vector3>();
         var rotaciones = new List<Quaternion>();
         var largos = new List<float>();
+        var escalas = new List<float>();
         for (int s = 0; s < Satelites.Length; s++)
         {
-            foreach (var montaje in CalcularMontajes(cuerpos[s], IdsInstrumento.Length))
+            var montajes = CalcularMontajes(cuerpos[s], IdsInstrumento.Length);
+            foreach (var montaje in montajes)
             {
                 posiciones.Add(montaje.posicion);
                 rotaciones.Add(montaje.rotacion);
                 largos.Add(montaje.largo);
             }
+            // Módulos tan grandes como quepan sin encimarse: la distancia mínima entre montajes manda.
+            float minima = float.MaxValue;
+            for (int a = 0; a < montajes.Count; a++)
+                for (int b = a + 1; b < montajes.Count; b++)
+                    minima = Mathf.Min(minima, Vector3.Distance(montajes[a].posicion, montajes[b].posicion));
+            escalas.Add(Mathf.Clamp(minima * 0.9f / TamanoModulo, 0.5f, 1f));
         }
 
         var nave = raiz.AddComponent<NaveUI>();
@@ -157,12 +209,50 @@ public static partial class ConstructorEscenas
         Lista(sa, "posiciones", posiciones.Count, (p, k) => p.vector3Value = posiciones[k]);
         Lista(sa, "rotaciones", rotaciones.Count, (p, k) => p.quaternionValue = rotaciones[k]);
         Lista(sa, "largosSoporte", largos.Count, (p, k) => p.floatValue = largos[k]);
+        Lista(sa, "escalas", escalas.Count, (p, k) => p.floatValue = escalas[k]);
+        if (conZocalos)
+        {
+            Lista(sa, "zocalos", zocalos.Length, (p, k) => p.objectReferenceValue = zocalos[k]);
+            Lista(sa, "fantasmas", fantasmas.Length, (p, k) => p.objectReferenceValue = fantasmas[k]);
+        }
         sa.FindProperty("sateliteFijo").stringValue = sateliteFijo ?? "";
         sa.ApplyModifiedPropertiesWithoutUndo();
         aspecto.Aplicar(string.IsNullOrEmpty(sateliteFijo) ? Satelites[0].id : sateliteFijo);
 
         raiz.transform.rotation = Quaternion.Euler(12, -28, 0);
         return nave;
+    }
+
+    /// <summary>
+    /// Materiales de los instrumentos del kit (vienen del MTL, planos): metal y rugosidad según el nombre del
+    /// material y las lentes cian encendidas (el Bloom las hace brillar). Se guardan como Instrumento_&lt;mtl&gt;.mat.
+    /// </summary>
+    static void MaterialesInstrumento(GameObject equipo)
+    {
+        foreach (var r in equipo.GetComponentsInChildren<Renderer>())
+        {
+            var mats = r.sharedMaterials;
+            for (int k = 0; k < mats.Length; k++)
+            {
+                var original = mats[k];
+                if (original == null) continue;
+                var nombre = original.name.Replace(" (Instance)", "");
+                var color = original.HasProperty("_BaseColor") ? original.GetColor("_BaseColor") : original.color;
+                var bajo = nombre.ToLowerInvariant();
+                float metal = 0.2f, suave = 0.45f;
+                Color? emision = null;
+                if (bajo.Contains("titanio") || bajo.Contains("metal")) { metal = 0.85f; suave = 0.6f; }
+                else if (bajo.Contains("oro")) { metal = 0.95f; suave = 0.7f; }
+                else if (bajo.Contains("cobre")) { metal = 0.9f; suave = 0.55f; }
+                else if (bajo.Contains("panel")) { metal = 0.5f; suave = 0.8f; }
+                else if (bajo.Contains("ceramico") || bajo.Contains("blanco")) { metal = 0.05f; suave = 0.5f; }
+                else if (bajo.Contains("vidriooscuro")) { metal = 0.2f; suave = 0.92f; }
+                if (bajo.Contains("vidriocian") || bajo.Contains("cian")) { metal = 0.1f; suave = 0.95f; emision = color * 2.4f; }
+                else if (bajo.Contains("verde") || bajo.Contains("rojo")) emision = color * 1.2f;   // pilotos
+                mats[k] = CrearMaterial("Instrumento_" + nombre, color, metal, suave, null, Vector2.one, emision);
+            }
+            r.sharedMaterials = mats;
+        }
     }
 
     /// <summary>

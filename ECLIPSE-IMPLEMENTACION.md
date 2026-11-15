@@ -133,3 +133,54 @@ Están enlazados por nombre en `Arte.asset` (`ConstructorEstilo.Arte`) y normali
    - Bajar la música mientras habla la voz (ducking).
    - Los audios del CSV que se reutilizaron o quedaron sin generar (ver `AUDIO-ELEVENLABS.md`).
 6. Al abrir el proyecto: cerrar Unity antes de `git pull` y, después, **Herramientas > Construir escenas (sin Menu)** solo si se cambia el constructor. Las escenas ya van construidas en la rama.
+
+---
+
+# Pulido de presentación: patrocinador, arranque, Marte, órbitas, lanzador, instrumentos, despegue, meses y final
+
+**Fecha:** 2026-11-14 · **Rama:** `feat/pulido-presentacion` (sin fusionar a `main`). Pedido de Diego. Todo es presentación: no cambia reglas, datos, balance ni los textos que comprueban las pruebas.
+
+## Qué se hizo
+
+| Tema | Qué se ve | Archivos principales |
+|---|---|---|
+| Patrocinador | Los dos logos de National Bulwark Services sin fondo (versión original y versión clara con letras blancas). Splash de Unity: primero los logos y después «Made with Unity». Página de carga del navegador con estrellas, Marte, porcentaje y «Patrocinado por». Franja en el título, el Menú y Resultado. Calcomanía curva en los dos cohetes | `Herramientas/logos.py`, `composiciones.py`, `Assets/Arte/Patrocinio`, `ConstructorWebGL.AplicarSplash`, `WebGLTemplates/PantallaCompleta/index.html`, `ConstructorEscenas.LogoPatrocinio` |
+| Título | Viñeta con Marte detrás; el título aparece letra a letra con el espaciado cerrándose, una línea, el lema y los logos. Al pulsar: destello y los bloques del Menú entran escalonados. Enter ya no pulsa a la vez «Iniciar misión» | `PantallaTitulo.cs`, `ConstruirPantallaTitulo` |
+| Marte | Shader propio `Planeta`: mapa de 8K en dos mitades de 4096 (límite de WebGL, con Crunch), relieve a 4096, detalle de cerca, terminador suave, borde de polvo, ambiente fijo. La atmósfera brilla más del lado del Sol. Capa de tormenta algo más transparente | `Planeta.shader`, `Atmosfera.shader`, `Herramientas/marte_hd.py`, `MaterialPlaneta()` |
+| Cielo y Menú | Estrellas nuevas (tamaños, tonos, Vía Láctea). Sol asomando por el borde de Marte. Órbita del Menú con halo y estela | `Herramientas/estrellas.py`, `BrilloRespira.cs`, `OrbitaDecorativa.cs`, `Aditivo.shader` |
+| Órbitas | Un color por órbita (polar cian, media verde, elíptica ámbar) en Configuración, la cinemática, la investigación y el icono de cada opción. En la pestaña Órbita se ven las tres con su nombre; la elegida gruesa, con halo, estela y marcador; la elíptica marca «más cerca» y «más lejos» | `Trayectoria.Color`, `AnilloOrbita.cs`, `ConstruirAnilloOrbita` |
+| Lanzador | Sin elegir: los dos. Elegido: solo ese, centrado, con una entrada corta y encuadre a su altura. La leyenda habla solo del elegido | `PlataformaCohetes.cs`, `CamaraConfiguracion.cs`, `GuiaConfiguracion.cs` |
+| Instrumentos | Tamaño según el satélite (sin encimarse), placa base, zócalos en el casco (latido si están vacíos, destello al quitar), materiales metálicos y lentes que brillan, llegada desde fuera con destello, etiqueta más pequeña hacia fuera con línea guía, holograma al pasar el cursor por un instrumento sin instalar | `NaveSatelite.cs`, `Instalacion.cs`, `CamaraConfiguracion.cs`, `BotonVivo.AlCambiarEncima`, `ConstruirNave` |
+| Despegue | 10 tomas (unos 38 s): complejo con cielo y nubes, mar, colinas, unos 260 árboles (3 mallas), torre de celosía con brazos que se retiran, pararrayos, torre de agua; chispas, una llama por motor con resplandor, luz que parpadea, humo por el foso, vapor, aves, sacudida y destello; ascenso entre nubes hasta el negro; separación propia (Titán: propulsores laterales y después la etapa central; Explorador: cuatro propulsores en cruz); motor de la etapa superior sin sonido en el vacío; voces de control | `DirectorCinematica.cs`, `ConstructorEscenas.Despegue.cs`, `Cielo.shader`, `Llama.shader`, `MirarCamara.cs` |
+| Meses | Transición «pasa el tiempo» entre «Resolver mes» y el resumen: Marte gira rápido y el satélite da vueltas, tarjeta de calendario (MES N → N+1, tira de 12 meses, días corriendo) y lo más importante del mes. Orden: transición → vista 3D del escaneo → resumen → decisión | `TransicionMes.cs`, `SecuenciaEscaneo.cs` (espera), `OperacionUI.cs` (evento) |
+| Final | Escena 3D detrás del informe (Marte, la nave elegida, la Tierra). Victoria: pulsos de datos a la Tierra; parcial: enlace que se corta; fracaso: la tormenta cubre Marte, la nave se apaga, estática. Apagones: la nave parpadea; datos sin enviar: bloques orbitando; sin combustible: deriva. Sello que cae, informe escalonado, total de puntos contando, franja del patrocinador | `FinalAnimado.cs`, `ConstruirResultado` |
+| Audio | 18 audios nuevos (ver `AUDIO-ELEVENLABS.md`, tercera tanda) | `ArteDatos.cs`, `ConstructorEstilo.cs` |
+
+## Cambio en código de Adrian
+
+Solo `OperacionUI.cs`: el evento `AlResolverMes(ResultadoMes)` (se lanza al final de `ResolverMes`, con la lógica ya hecha y el resumen ya pendiente) y la transición en la condición `ocupada` de `ActualizarPaneles`. `ResumenVisible` y el avance del mes siguen siendo inmediatos.
+
+## Reglas que se respetaron
+
+- La lógica nunca espera a la animación: botones activos e interactivos desde el primer cuadro, el mes avanza en el mismo cuadro, `Modulo_<id>` se activan en el mismo cuadro, un solo `Titulo` en Resultado con su texto completo.
+- «Reducir movimiento» desactiva todo lo nuevo.
+- En el vacío no suena el motor: el bucle del rugido se corta al llegar a la órbita.
+
+## Pruebas (resultados reales)
+
+| Prueba | Resultado |
+|---|---|
+| EditMode (batch) | **212 de 212** |
+| PlayMode `RecorridoTests` (batch, 19 casos con la cinemática y la transición en marcha) | **19 de 19** |
+| PlayMode temporal de captura (solo en la copia de trabajo): cinemática Titán y Explorador, un mes con escaneo y la entrada del final | **2 de 2**. Cinemática: 39.1 s (Titán) y 38.8 s (Explorador). Mes con transición y escaneo: 9.4 s. Se revisaron los fotogramas de las 10 tomas, la separación de cada cohete, la tarjeta del mes y la entrada del final (fracaso) |
+| Capturas en batch de Menú, título, Configuración (órbitas, lanzador, instrumentos, holograma) y los tres finales | Revisadas |
+| Build WebGL (batch) | **Compila**: 46.0 MB, 0 errores (antes 35.3 MB: el Marte de 8K y el audio nuevo). Splash: patrocinador 2.6 s y después Unity |
+
+**No se probó a mano** ni en el navegador: el sonido, la página de carga (no se pudo abrir un navegador sin ventana en esta máquina), el rendimiento con el complejo de lanzamiento (unas 1,200 partículas y 260 árboles en 3 mallas) y cómo se ve la etiqueta con línea guía en el juego real (en las capturas el Canvas usa otro modo).
+
+## Pendientes
+
+1. Escuchar los 18 audios nuevos en el juego.
+2. Probar en el navegador: página de carga, splash, FPS de la cinemática en un portátil y que el título no deje pasar Enter a «Iniciar misión».
+3. Si el peso de 46 MB pesa en la carga, bajar las mitades de Marte a 2048 (`ImportadorArte`, `Marte_Superficie_*`).
+4. Revisión del equipo antes de fusionar a `main` (Adrian: el evento nuevo en `OperacionUI`).

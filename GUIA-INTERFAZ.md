@@ -68,28 +68,23 @@ Resolución de referencia 1920x1080 (Canvas > Canvas Scaler, «Scale With Screen
 
 | Objeto (Hierarchy) | Qué es | Valores actuales |
 |--------------------|--------|------------------|
-| `Main Camera` | Cámara de la escena 3D, con posprocesado | Posición 0, 0.2, -8.5; fondo `#0B0B10` |
+| `Main Camera` | Cámara de la escena 3D, con posprocesado | Posición 0, 0.2, -8.5; fondo `#080D17` |
 | `Estrellas` | Cielo de estrellas en un plano lejano; se mueve un poco con el ratón (`Parallax`) | Posición 0, 0.2, 60; escala 128 x 72 |
-| `Marte` y `Atmosfera` | Planeta con la foto real (tormenta de 2018) y su borde de atmósfera; gira despacio (`GiroLento`, 1.5 grados por segundo) | Posición 5.5, -12.5, 9; diámetro 21 |
-| `PivoteNave/Nave` | La nave con todos los módulos; gira (`GiroLento`) y se mueve con el ratón (`Parallax` en el pivote) | Pivote en 3.4, 0.9, 0; nave a escala 0.85 |
-| `Sol`, `LuzContorno` | Luz cálida de lado y luz fría de contorno | Intensidad 2.1 y 1.1 |
-| `PostProceso` | Bloom, tonemapping ACES, viñeta y ajuste de color (`Assets/Arte/PostProceso.asset`) | Global |
-| `Audio` | Música del Menú y efectos (`MusicaEscena`, `ReproductorUI`) | Música: Menú |
-| `Canvas/Velo` | Franja oscura detrás del texto, con línea a la derecha | `#0B0B10` al 80 %, anclas 0,0 → 0.44,1 |
-| `Canvas/Contenido` | Columna alineada a la izquierda (espacio 26) | Anclas 0.05,0.1 → 0.41,0.9 |
-| `Contenido/Etiqueta` | «SIMULACIÓN DE DISEÑO DE MISIONES», subrayada | 28 pt, acento |
-| `Contenido/Titulo` | «OPERACIÓN / ECLIPSE ROJO» | 88 pt (Rajdhani, mayúsculas) |
-| `Contenido/Premisa` | La premisa | 34 pt, `#94A3B8` |
-| `Contenido/BotonIniciar` | «Iniciar misión» con icono de cohete (principal). Tiene el foco del teclado al empezar | 520 x 88, chaflán, `#E2643A` |
-| `Contenido/BotonComoJugar` | «Cómo jugar» (secundario, marco fino) | 520 x 88 |
-| `Contenido/BotonOpciones` | «Opciones» (secundario) | 520 x 88 |
-| `Canvas/FichaMision` | Datos de ambientación a la derecha (DESTINO, ESTADO, SEÑAL), en cian y mono | Anclas 0.6,0.78 → 0.96,0.95 |
-| `Canvas/Pie` | Aviso de valores ficticios y crédito de las imágenes | 24 pt |
-| `Canvas/Teclas` | «[ ENTER ] Seleccionar · [ ↑ ↓ ] Moverse» | 24 pt |
+| `Marte`, `TormentaPolvo` y `Atmosfera` | Planeta con el shader `Planeta` (mapa de 8K, relieve, detalle), la capa de la tormenta y el borde de atmósfera; gira despacio | Posición 6.6, 0.1, 9; diámetro 13.5 |
+| `SolEclipse` | El Sol asomando por el borde de Marte (brillo aditivo que respira, `BrilloRespira`) | Detrás y arriba a la derecha del planeta |
+| `OrbitaMenu` (+ `Brillo`, `Estela`) y `SateliteEnOrbita` | Órbita cian con halo y estela; el MRO de NASA la recorre (`OrbitaDecorativa`) | Semieje 9.6, excentricidad 0.18 |
+| `Anomalia` | Pulso de la región de la anomalía cada 6 s (`PulsoAnomalia`) | Sobre la cara visible |
+| `Sol`, `LuzContorno`, `PostProceso` | Luz cálida de lado, luz fría de contorno; Bloom, ACES, viñeta | Intensidad 2.1 y 1.1 |
+| `Audio` | Música del Menú y ambiente de la sala de control | Música: Menú |
+| `Canvas/Velo` | Franja oscura detrás del texto, con línea a la derecha | Anclas 0,0 → 0.44,1 |
+| `Canvas/Contenido` | Etiqueta, título, lema, premisa, `BotonIniciar` y la fila `Secundarios` (`BotonComoJugar`, `BotonOpciones`, `BotonCreditos`) | Anclas 0.05,0.16 → 0.41,0.9 |
+| `Canvas/AvisoSenal` y `Canvas/Objetivo` | «SEÑAL ANÓMALA DETECTADA» y «OBJETIVO · MARTE» | Arriba y abajo a la derecha |
+| `Canvas/Patrocinio` | «PATROCINADO POR» con los dos logos (`FranjaPatrocinio`) | Anclas 0.05,0.055 → 0.41,0.14 |
+| `Canvas/Pie` | Aviso de valores ficticios (corto; el detalle está en Créditos) | 14–18 pt |
+| `Canvas/Teclas` | «[ ENTER ] Seleccionar · [ ↑ ↓ ← → ] Moverse» | 18–22 pt |
 | `Canvas/Opciones` | Script `OpcionesUI` (volúmenes y «Reducir movimiento») | No lo borres |
-| `Canvas/PanelOpciones` | Ventana de Opciones, oculta al empezar | Anclas 0.3,0.16 → 0.7,0.84 |
-| `Canvas/PanelComoJugar` | Ventana de «Cómo jugar», oculta al empezar | Tarjeta con anclas 0.2,0.18 → 0.8,0.82 |
-| `Canvas/PantallaTitulo` | Velo «PULSA CUALQUIER TECLA PARA COMENZAR». Se ve una vez por sesión y permite el audio en el navegador | Último hijo del Canvas |
+| `Canvas/PanelOpciones`, `PanelComoJugar`, `PanelCreditos` | Ventanas, ocultas al empezar | |
+| `Canvas/PantallaTitulo` | Título animado (letra a letra, línea, lema, logos) con viñeta. Al pulsar: destello y los bloques del Menú entran escalonados. Se ve una vez por sesión y permite el audio en el navegador | Último hijo del Canvas |
 | `MenuUI` | Script que conecta los botones | No lo borres |
 | `EventSystem` | Necesario para los clics | Debe haber exactamente uno |
 
@@ -200,5 +195,5 @@ Colores de las opciones elegidas y de las barras: en `Assets/Scripts/UI/Configur
 
 ## Pendiente
 
-- **Audio:** generarlo con ElevenLabs (`AUDIO-ELEVENLABS.md`).
-- **Logos del patrocinador:** falta saber qué patrocinador, tener los archivos (PNG con fondo transparente) y el permiso. Propuesta: franja grande abajo en el Menú, logo en una esquina del Briefing y franja en la pantalla de Resultado.
+- **Audio:** generado con ElevenLabs en tres tandas (`AUDIO-ELEVENLABS.md`). Falta escucharlo en el juego.
+- **Logos del patrocinador (hecho, 2026-11-14):** National Bulwark Services, sin fondo (`Assets/Arte/Patrocinio`). Están en el splash, la página de carga, el título, el Menú (abajo a la izquierda), Resultado y los dos cohetes. Para cambiarlos, ver `Herramientas/logos.py`.

@@ -68,12 +68,19 @@ namespace SpaceMission
         // Presentación (cinemática y vista 3D): el resumen y la decisión esperan a que terminen.
         SecuenciaEscaneo secuenciaEscaneo;
         DirectorCinematica director;
+        TransicionMes transicionMes;
 
         /// <summary>
         /// Tras resolver un mes con observaciones: instrumento, región, lectura y si aportó evidencia nueva, de la
         /// observación más relevante. Solo lo usa la vista 3D (SecuenciaEscaneo); la lógica ya terminó cuando se avisa.
         /// </summary>
         public event System.Action<string, Vector2, Lectura, bool> AlEscanear;
+
+        /// <summary>
+        /// Tras resolver un mes válido (la lógica ya terminó y el resumen ya está pendiente). Solo lo usa la
+        /// transición «pasa un mes» (TransicionMes); no cambia ninguna regla.
+        /// </summary>
+        public event System.Action<ResultadoMes> AlResolverMes;
 
         public Operacion Op { get; private set; }
         /// <summary>Instrumento elegido: el clic en el mapa fija su región.</summary>
@@ -90,7 +97,8 @@ namespace SpaceMission
         void ActualizarPaneles()
         {
             if (Op == null) return;
-            bool ocupada = (secuenciaEscaneo != null && secuenciaEscaneo.Activa) || (director != null && director.Reproduciendo);
+            bool ocupada = (secuenciaEscaneo != null && secuenciaEscaneo.Activa) || (director != null && director.Reproduciendo) ||
+                           (transicionMes != null && transicionMes.Activa);
             Ver(panelResumen, resumenPendiente && !ocupada);
             Ver(panelDecision, Op.EsperandoDecision && !resumenPendiente && !ocupada);
         }
@@ -117,6 +125,7 @@ namespace SpaceMission
             botonContinuar.onClick.AddListener(ContinuarResumen);
             secuenciaEscaneo = FindFirstObjectByType<SecuenciaEscaneo>(FindObjectsInactive.Include);
             director = FindFirstObjectByType<DirectorCinematica>(FindObjectsInactive.Include);
+            transicionMes = FindFirstObjectByType<TransicionMes>(FindObjectsInactive.Include);
         }
 
         /// <summary>Empieza la Operación de una misión lanzada con lo que se cargó. La semilla fija solo la usan las pruebas.</summary>
@@ -214,6 +223,7 @@ namespace SpaceMission
             aviso = "";
             if (Op.Recibidas.Count > recibidas) MostrarTransmision(Op.Recibidas.Last());
             if (r.Evento != null) MostrarEvento(r.Evento);
+            AlResolverMes?.Invoke(r);
             Refrescar();
 
             var destacada = r.Observaciones.OrderByDescending(o => o.Evidencias.Count)

@@ -160,10 +160,30 @@ public static class ConstructorEstilo
         arte.escaneoEspectrometro = Audio("Efectos/SFX_Scan_Spectrometer");
         arte.ambienteOrbital = Audio("Efectos/AMB_Investigacion_Orbital");
         arte.ambienteControl = Audio("Efectos/AMB_Menu_Control");
+        // Pulido de presentación (tercera tanda): título, despegue detallado, paso de los meses y final.
+        arte.sonidoTitulo = Audio("Efectos/SFX_Title_Confirm");
+        arte.chispas = Audio("Efectos/SFX_Ignition_Sparks");
+        arte.ignicion = Audio("Efectos/SFX_Engine_Ignition");
+        arte.motorCercano = Audio("Efectos/SFX_Engine_Roar_Close");
+        arte.brazosTorre = Audio("Efectos/SFX_Tower_Arms_Release");
+        arte.separacionPropulsores = Audio("Efectos/SFX_Booster_Separation");
+        arte.ambienteCosta = Audio("Efectos/AMB_Launch_Coast");
+        arte.vozEncendido = Audio("Voces/Control/VOZ_Encendido");
+        arte.vozDespegue = Audio("Voces/Control/VOZ_Despegue");
+        arte.vozSeparacion = Audio("Voces/Control/VOZ_Separacion");
+        arte.vozOrbita = Audio("Voces/Control/VOZ_Orbita");
+        arte.pasoMes = Audio("Efectos/SFX_Month_Pass");
+        arte.sello = Audio("Efectos/SFX_Stamp");
+        arte.remateVictoria = Audio("Efectos/SFX_Outcome_Victory");
+        arte.remateParcial = Audio("Efectos/SFX_Outcome_Partial");
+        arte.remateFracaso = Audio("Efectos/SFX_Outcome_Failure");
+        arte.senalPerdida = Audio("Efectos/SFX_Signal_Lost");
+        arte.conteoPuntos = Audio("Efectos/SFX_Score_Tick");
         arte.voces = new List<ArteDatos.Voz>();
         foreach (var guid in AssetDatabase.FindAssets("t:AudioClip", new[] { "Assets/Arte/Audio/Voces" }))
         {
             var ruta = AssetDatabase.GUIDToAssetPath(guid);
+            if (!Path.GetFileName(ruta).StartsWith("voz_")) continue; // Voces/Control son las de la cinemática
             arte.voces.Add(new ArteDatos.Voz
             {
                 transmisionId = Path.GetFileNameWithoutExtension(ruta).Replace("voz_", ""),
@@ -191,6 +211,10 @@ public static class ConstructorEstilo
 
     public static Sprite Sprite(string nombre) =>
         AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Arte/Interfaz/" + nombre + ".png");
+
+    /// <summary>Logo del patrocinador (Assets/Arte/Patrocinio). «Fence» o «Security»; claro = letras blancas para fondos oscuros.</summary>
+    public static Sprite Patrocinio(string cual, bool claro) =>
+        AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Arte/Patrocinio/Patrocinio_" + cual + (claro ? "_Claro" : "") + ".png");
 
     static AudioClip Audio(string rutaSinExtension)
     {

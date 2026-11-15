@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using SpaceMission;
 using TMPro;
 using UnityEditor;
@@ -49,38 +50,27 @@ public static partial class ConstructorEscenas
         plataforma.name = "PlataformaCine";
         Object.DestroyImmediate(cohetes.explorador.GetComponent<GiroLento>());
         Object.DestroyImmediate(cohetes.titan.GetComponent<GiroLento>());
-        var sueloPlataforma = plataforma.Find("Suelo").gameObject;
-        var matTerreno = CrearMaterial("Terreno_Cabo", Hex("#6B6A5E"), 0f, 0.15f);
-        var terreno = Pieza(PrimitiveType.Quad, "Terreno", null, EscenarioLanzamiento + new Vector3(0, -0.1f, 0), new Vector3(90, 0, 0),
-            new Vector3(600, 600, 1), matTerreno);
-        var matTorre = CrearMaterial("Torre_Servicio", Hex("#4B5563"), 0.6f, 0.4f);
-        var torre = new GameObject("TorreServicio").transform;
-        torre.position = EscenarioLanzamiento + new Vector3(0f, 0f, 1.6f);
-        Pieza(PrimitiveType.Cube, "Mastil", torre, new Vector3(0, 6.5f, 0), Vector3.zero, new Vector3(0.9f, 13f, 0.9f), matTorre);
-        for (int i = 0; i < 4; i++)
-            Pieza(PrimitiveType.Cube, "Brazo" + i, torre, new Vector3(0, 3f + i * 2.6f, -0.5f), Vector3.zero, new Vector3(1.6f, 0.12f, 0.25f), matTorre);
+        // El disco de la plataforma de Configuración no hace falta: la losa del complejo lo sustituye.
+        Object.DestroyImmediate(plataforma.Find("Suelo").gameObject);
+        var complejo = ConstruirComplejo(EscenarioLanzamiento);
 
-        // Llama (cono encendido hacia abajo; el Bloom la hace brillar) y humo con pocas partículas.
-        // Dos conos translúcidos: núcleo muy brillante y envoltura anaranjada (colores HDR para el Bloom).
-        var llama = new GameObject("Llama").transform;
-        var mLlama = GuardarMalla(Cono(0.55f, 0.04f, 3.2f), "Llama_Cono");
-        Material Translucido(string nombre, Color color)
-        {
-            var ruta = "Assets/Materiales/" + nombre + ".mat";
-            var m = AssetDatabase.LoadAssetAtPath<Material>(ruta);
-            if (m == null) { m = new Material(Shader.Find("Sprites/Default")); AssetDatabase.CreateAsset(m, ruta); }
-            m.color = color;
-            EditorUtility.SetDirty(m);
-            return m;
-        }
-        var nucleo = Malla(mLlama, "Nucleo", llama, Vector3.zero, new Vector3(180, 0, 0), new Vector3(0.55f, 0.8f, 0.55f),
-            Translucido("Llama_Nucleo", new Color(3f, 2.2f, 1.3f, 0.95f)));
-        var envoltura = Malla(mLlama, "Envoltura", llama, Vector3.zero, new Vector3(180, 0, 0), new Vector3(1f, 1.15f, 1f),
-            Translucido("Llama_Envoltura", new Color(2.2f, 0.9f, 0.3f, 0.35f)));
-        nucleo.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-        envoltura.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-        llama.gameObject.SetActive(false);
-        var humo = ConstruirHumo(EscenarioLanzamiento);
+        // Una llama por motor, hija de la pieza que la lleva (los propulsores se van con su fuego).
+        var soyuz = cohetes.explorador.transform;
+        var toberasSoyuz = new List<(Transform, Vector3, float, float)>();
+        for (int i = 0; i < 4; i++) toberasSoyuz.Add((soyuz.Find("Bloque" + i), Vector3.zero, 0.12f, 4.2f));
+        toberasSoyuz.Add((soyuz, new Vector3(0f, 0.13f, 0f), 0.13f, 4.6f));
+        var llamasExplorador = ConstruirLlamas(toberasSoyuz);
+        var superiorSoyuz = soyuz.Find("EtapaSuperior");
+        var llamaSupExplorador = ConstruirLlamas(new[] { (superiorSoyuz, new Vector3(0f, 3.45f, 0f), 0.14f, 1.8f) });
+
+        var titan = cohetes.titan.transform;
+        var inferiorTitan = titan.Find("SLS_NASA/EtapaInferior");
+        var superiorTitan = titan.Find("SLS_NASA/EtapaSuperior");
+        var izqTitan = inferiorTitan.Find("PropulsorIzq");
+        var derTitan = inferiorTitan.Find("PropulsorDer");
+        var llamasTitan = ConstruirLlamas(ToberasSls(titan, inferiorTitan, izqTitan, derTitan, 11f));
+        var baseSuperior = Limites(superiorTitan.gameObject);
+        var llamaSupTitan = ConstruirLlamas(new[] { (superiorTitan, superiorTitan.InverseTransformPoint(new Vector3(baseSuperior.center.x, baseSuperior.min.y, baseSuperior.center.z)), 0.16f, 2.2f) });
 
         // ---------- 2) Órbita terrestre ----------
         var espacio = new GameObject("OrbitaTerrestre");
@@ -145,7 +135,7 @@ public static partial class ConstructorEscenas
         linea.widthMultiplier = 0.045f;
         linea.startColor = linea.endColor = new Color(CianOrbita.r, CianOrbita.g, CianOrbita.b, 0.55f);
         linea.shadowCastingMode = ShadowCastingMode.Off;
-        var naveOrbita = ConstruirNave();
+        var naveOrbita = ConstruirNave(null, false);
         naveOrbita.name = "NaveOrbita";
         naveOrbita.transform.localScale = Vector3.one * 0.3f;
         // Sin sombras sobre Marte: a esta escala se verían como una mancha enorme.
@@ -211,6 +201,14 @@ public static partial class ConstructorEscenas
         var cuenta = Texto(velo, "Cuenta", "", 150, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
         cuenta.font = ConstructorEstilo.Mono;
         Anclar(cuenta.rectTransform, new Vector2(0.3f, 0.4f), new Vector2(0.7f, 0.65f));
+        // Destello blanco al encender los motores (encima de la imagen, debajo de los textos).
+        var destello = Panel(velo, "Destello", new Color(1f, 0.96f, 0.9f, 1f));
+        Estirar(destello);
+        destello.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        destello.SetSiblingIndex(1);
+        var grupoDestello = destello.gameObject.AddComponent<CanvasGroup>();
+        grupoDestello.alpha = 0f;
+        grupoDestello.blocksRaycasts = false;
         var omitir = Boton(velo, "BotonOmitir", "Omitir  " + SpaceMission.Iconos.Omitir, false);
         Fijar(omitir.GetComponent<RectTransform>(), new Vector2(0.98f, 0.015f), new Vector2(1, 0), new Vector2(260, 64));
         var tOmitir = omitir.GetComponentInChildren<TextMeshProUGUI>();
@@ -226,6 +224,10 @@ public static partial class ConstructorEscenas
         var fuente = raizDirector.GetComponent<AudioSource>();
         fuente.playOnAwake = false;
         fuente.spatialBlend = 0f;
+        var fuenteBucle = raizDirector.AddComponent<AudioSource>();
+        fuenteBucle.playOnAwake = false;
+        fuenteBucle.loop = true;
+        fuenteBucle.spatialBlend = 0f;
         var director = raizDirector.AddComponent<DirectorCinematica>();
         Asignar(director, "botonLanzar", lanzar);
         Asignar(director, "camara", camara);
@@ -242,9 +244,23 @@ public static partial class ConstructorEscenas
         Asignar(director, "coheteTitan", cohetes.titan.transform);
         Asignar(director, "superiorExplorador", cohetes.explorador.transform.Find("EtapaSuperior"));
         Asignar(director, "superiorTitan", cohetes.titan.transform.Find("SLS_NASA/EtapaSuperior"));
-        AsignarLista(director, "soloEnTierra", new Object[] { sueloPlataforma, terreno, torre.gameObject });
-        Asignar(director, "humo", humo);
-        Asignar(director, "llama", llama);
+        AsignarLista(director, "soloEnTierra", new Object[] { complejo.raiz });
+        Asignar(director, "cielo", complejo.cielo);
+        AsignarLista(director, "brazos", complejo.brazos);
+        Asignar(director, "luzMotores", complejo.luz);
+        Asignar(director, "chispas", complejo.chispas);
+        AsignarLista(director, "humoLados", complejo.humoLados);
+        Asignar(director, "vapor", complejo.vapor);
+        Asignar(director, "estela", complejo.estela);
+        Asignar(director, "aves", complejo.aves);
+        AsignarLista(director, "llamasExplorador", llamasExplorador.ToArray());
+        AsignarLista(director, "llamasTitan", llamasTitan.ToArray());
+        AsignarLista(director, "llamaSuperiorExplorador", llamaSupExplorador.ToArray());
+        AsignarLista(director, "llamaSuperiorTitan", llamaSupTitan.ToArray());
+        AsignarLista(director, "propulsoresExplorador", new Object[] { soyuz.Find("Bloque0"), soyuz.Find("Bloque1"), soyuz.Find("Bloque2"), soyuz.Find("Bloque3") });
+        AsignarLista(director, "propulsoresTitan", new Object[] { izqTitan, derTitan });
+        Asignar(director, "fuenteBucle", fuenteBucle);
+        Asignar(director, "destello", grupoDestello);
         Asignar(director, "espacio", espacio);
         Asignar(director, "puntoEspacio", puntoEspacio);
         Asignar(director, "mapaTransferencia", mapa);
@@ -256,7 +272,6 @@ public static partial class ConstructorEscenas
         Asignar(director, "escenario", escenario);
         Asignar(director, "pulsoZona", pulsoZona);
         Asignar(director, "mapaOperacion", ultimoMapa);
-        llama.SetParent(raizDirector.transform, false);
 
         // ---------- Vista orbital en el lugar del mapa (cada escaneo) ----------
         var vista = Panel(ultimoMapa.transform, "VistaOrbital", Color.black);
@@ -311,53 +326,83 @@ public static partial class ConstructorEscenas
         Asignar(secuencia, "mancha", mancha);
         Asignar(secuencia, "fuente", fuenteEscaneo);
         Asignar(secuencia, "catalogo", catalogo);
-    }
 
-    /// <summary>Humo del despegue: pocas partículas grandes que se extienden por el suelo (≤ 400 a la vez).</summary>
-    static ParticleSystem ConstruirHumo(Vector3 posicion)
-    {
-        var go = new GameObject("Humo", typeof(ParticleSystem));
-        go.transform.position = posicion;
-        go.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
-        var ps = go.GetComponent<ParticleSystem>();
-        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        var main = ps.main;
-        main.playOnAwake = false;
-        main.loop = true;
-        main.duration = 3f;
-        main.maxParticles = 400;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(2.5f, 4f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(3f, 7f);
-        main.startSize = new ParticleSystem.MinMaxCurve(2.5f, 5f);
-        main.startColor = new Color(0.82f, 0.8f, 0.77f, 0.55f);
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        var emision = ps.emission;
-        emision.rateOverTime = 110f;
-        var forma = ps.shape;
-        forma.shapeType = ParticleSystemShapeType.Cone;
-        forma.angle = 80f;
-        forma.radius = 1.2f;
-        var tam = ps.sizeOverLifetime;
-        tam.enabled = true;
-        tam.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, 0.6f, 1f, 1.6f));
-        var color = ps.colorOverLifetime;
-        color.enabled = true;
-        var grad = new Gradient();
-        grad.SetKeys(new[] { new GradientColorKey(new Color(1f, 0.75f, 0.5f), 0f), new GradientColorKey(new Color(0.85f, 0.85f, 0.85f), 0.25f) },
-            new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.6f, 0.1f), new GradientAlphaKey(0f, 1f) });
-        color.color = grad;
-        var r = go.GetComponent<ParticleSystemRenderer>();
-        var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materiales/Humo.mat");
-        if (mat == null)
+        // ---------- «Pasa un mes» (entre «Resolver mes» y el resumen) ----------
+        var padreOperacion = operacion.transform as RectTransform ?? canvas;
+        var paso = Panel(padreOperacion, "TransicionMes", new Color(0.015f, 0.02f, 0.035f, 1f));
+        Estirar(paso);
+        paso.SetAsLastSibling();   // encima del resumen y de la decisión
+        var grupoPaso = paso.gameObject.AddComponent<CanvasGroup>();
+        var fondoPaso = new GameObject("Pantalla", typeof(RectTransform), typeof(UnityEngine.UI.RawImage)).GetComponent<UnityEngine.UI.RawImage>();
+        fondoPaso.transform.SetParent(paso, false);
+        Estirar(fondoPaso.rectTransform);
+        fondoPaso.color = new Color(0.75f, 0.75f, 0.75f, 1f);
+        fondoPaso.raycastTarget = false;
+        var vinetaPaso = new GameObject("Vineta", typeof(RectTransform), typeof(UnityEngine.UI.Image)).GetComponent<UnityEngine.UI.Image>();
+        vinetaPaso.transform.SetParent(paso, false);
+        vinetaPaso.sprite = ConstructorEstilo.Sprite("Vineta");
+        vinetaPaso.raycastTarget = false;
+        Estirar(vinetaPaso.rectTransform);
+        var tarjeta = Columna(paso, "Tarjeta", 16, TextAnchor.MiddleCenter, new Color(Fondo.r, Fondo.g, Fondo.b, 0.82f), 34);
+        Anclar(tarjeta, new Vector2(0.32f, 0.27f), new Vector2(0.68f, 0.73f));
+        tarjeta.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        MarcoHud(tarjeta);
+        var etiquetaPaso = Texto(tarjeta, "Etiqueta", "PASA EL TIEMPO", 24, Cian, FontStyles.Normal, TextAlignmentOptions.Center);
+        etiquetaPaso.font = ConstructorEstilo.Mono;
+        etiquetaPaso.characterSpacing = 10;
+        var ventana = Vacio(tarjeta, "Ventana");
+        Alto(ventana, 150);
+        ventana.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
+        TextMeshProUGUI Mes(string nombre)
         {
-            mat = new Material(Shader.Find("Sprites/Default"));
-            AssetDatabase.CreateAsset(mat, "Assets/Materiales/Humo.mat");
+            var m = Texto(ventana, nombre, "MES 1", 120, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Center);
+            m.characterSpacing = 8;
+            m.textWrappingMode = TextWrappingModes.NoWrap;
+            Estirar(m.rectTransform);
+            return m;
         }
-        mat.mainTexture = sHalo != null ? sHalo.texture : null;
-        EditorUtility.SetDirty(mat);
-        r.sharedMaterial = mat;
-        r.shadowCastingMode = ShadowCastingMode.Off;
-        return ps;
+        var mesAnterior = Mes("MesAnterior");
+        var mesNuevo = Mes("MesNuevo");
+        mesNuevo.color = Acento;
+        var tira = Fila(tarjeta, "Meses", 6);
+        Alto(tira, 14);
+        var segmentos = new Object[12];
+        for (int i = 0; i < 12; i++)
+        {
+            var seg = Panel(tira, "Mes" + (i + 1), new Color(1, 1, 1, 0.12f));
+            seg.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+            segmentos[i] = seg.GetComponent<UnityEngine.UI.Image>();
+        }
+        var dias = Texto(tarjeta, "Dias", "DÍA 0", 30, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
+        dias.font = ConstructorEstilo.Mono;
+        dias.characterSpacing = 6;
+        var suceso = Texto(tarjeta, "Suceso", "", 30, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
+        suceso.characterSpacing = 4;
+        var pistaPaso = Texto(paso, "Pista", "Clic para saltar", 20, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Right);
+        Anclar(pistaPaso.rectTransform, new Vector2(0.6f, 0.03f), new Vector2(0.97f, 0.08f));
+        var saltarPaso = paso.gameObject.AddComponent<UnityEngine.UI.Button>();
+        saltarPaso.transition = UnityEngine.UI.Selectable.Transition.None;
+        paso.gameObject.SetActive(false);
+
+        var fuentePaso = raizOrbital.AddComponent<AudioSource>();
+        fuentePaso.playOnAwake = false;
+        fuentePaso.spatialBlend = 0f;
+        var transicion = raizOrbital.AddComponent<TransicionMes>();
+        Asignar(transicion, "operacion", operacion);
+        Asignar(transicion, "director", director);
+        Asignar(transicion, "escenario", escenario);
+        Asignar(transicion, "camara", camara);
+        Asignar(transicion, "grupo", grupoPaso);
+        Asignar(transicion, "pantalla", fondoPaso);
+        Asignar(transicion, "saltar", saltarPaso);
+        Asignar(transicion, "tarjeta", tarjeta);
+        Asignar(transicion, "textoMesAnterior", mesAnterior);
+        Asignar(transicion, "textoMesNuevo", mesNuevo);
+        Asignar(transicion, "textoDias", dias);
+        Asignar(transicion, "textoSuceso", suceso);
+        AsignarLista(transicion, "segmentos", segmentos);
+        Asignar(transicion, "fuente", fuentePaso);
+        Asignar(secuencia, "transicion", transicion);
     }
 
     static void LineaCirculo(Transform padre, string nombre, Vector3 centro, float radio, Color color)

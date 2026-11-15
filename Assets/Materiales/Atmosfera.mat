@@ -25,6 +25,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _DependeSol: 0.75
     - _Intensidad: 1.2
     - _Potencia: 3.5
     m_Colors:

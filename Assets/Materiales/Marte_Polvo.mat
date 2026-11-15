@@ -30,7 +30,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Ambiente: 0.08
-    - _Opacidad: 0.5
+    - _Opacidad: 0.38
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

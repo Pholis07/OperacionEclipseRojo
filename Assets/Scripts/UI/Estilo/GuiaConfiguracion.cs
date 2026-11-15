@@ -79,11 +79,15 @@ namespace SpaceMission
             {
                 case ConfiguracionUI.Pestana.Orbita:
                     textoInstruccion.text = "1 · ELIGE LA ÓRBITA";
-                    textoLeyenda.text = "MARTE\n<size=24><color=#94A3B8>El anillo cian muestra la forma de la órbita elegida.</color></size>";
+                    textoLeyenda.text = "MARTE\n<size=24><color=#94A3B8>Cada color es una órbita: la elegida brilla y la recorre tu nave.</color></size>";
                     break;
                 case ConfiguracionUI.Pestana.Lanzador:
                     textoInstruccion.text = "2 · ELIGE EL COHETE";
-                    textoLeyenda.text = "PLATAFORMA DE LANZAMIENTO\n<size=24><color=#94A3B8>Explorador: aspecto inspirado en el Soyuz · Titán: aspecto inspirado en el SLS. Capacidades ficticias.</color></size>";
+                    textoLeyenda.text = string.IsNullOrEmpty(c.LanzadorId)
+                        ? "PLATAFORMA DE LANZAMIENTO\n<size=24><color=#94A3B8>Explorador: aspecto inspirado en el Soyuz · Titán: aspecto inspirado en el SLS. Capacidades ficticias.</color></size>"
+                        : PlataformaCohetes.EsTitan(c.LanzadorId)
+                            ? "TITÁN\n<size=24><color=#94A3B8>Aspecto inspirado en el SLS de NASA. Capacidades ficticias.</color></size>"
+                            : "EXPLORADOR\n<size=24><color=#94A3B8>Aspecto inspirado en el Soyuz. Capacidades ficticias.</color></size>";
                     break;
                 case ConfiguracionUI.Pestana.Satelite:
                     textoInstruccion.text = "3 · ELIGE EL SATÉLITE";

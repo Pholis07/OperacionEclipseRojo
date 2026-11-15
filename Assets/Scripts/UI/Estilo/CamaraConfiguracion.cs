@@ -6,8 +6,10 @@ namespace SpaceMission
     /// <summary>
     /// Cámara de la vista Configuración: se acerca a lo que el jugador está eligiendo.
     /// - Pestaña Órbita: el planeta con el anillo de la órbita.
-    /// - Pestaña Lanzador: la plataforma con los dos cohetes; el elegido se ilumina y gira.
-    /// - Pestaña Instrumentos: la nave; al instalar un instrumento, un acercamiento breve a su módulo.
+    /// - Pestaña Lanzador: la plataforma (PlataformaCohetes deja solo el elegido); el encuadre se ajusta a su altura.
+    /// - Pestaña Instrumentos: la nave; al instalar un instrumento, un acercamiento breve a su módulo con una
+    ///   etiqueta hacia fuera y una línea guía. Al pasar el cursor por un instrumento sin instalar, su holograma
+    ///   aparece en el montaje donde iría.
     /// Solo lee el estado (pestaña y EstadoJuego.Configuracion): no cambia nada de la lógica.
     /// </summary>
     [RequireComponent(typeof(Camera))]
@@ -28,16 +30,14 @@ namespace SpaceMission
         [SerializeField] Encuadre nave;
         [SerializeField] Encuadre planeta;
         [SerializeField] Encuadre plataforma;
+        [SerializeField] Encuadre plataformaExplorador;
+        [SerializeField] Encuadre plataformaTitan;
         [SerializeField] float suavizado = 0.45f;
         [Tooltip("Campo de visión en la pestaña Satélite (más cerca que en Instrumentos).")]
         [SerializeField] float campoSatelite = 44f;
 
         [Header("Objetos")]
         [SerializeField] Transform raizNave;
-        [SerializeField] GameObject coheteExplorador;
-        [SerializeField] GameObject coheteTitan;
-        [SerializeField] GameObject resaltadoExplorador;
-        [SerializeField] GameObject resaltadoTitan;
 
         [Header("Acercamiento a un instrumento")]
         [SerializeField] float distanciaModulo = 3.6f;
@@ -46,6 +46,9 @@ namespace SpaceMission
         [Tooltip("Etiqueta flotante (dentro del Canvas) que señala el módulo instalado.")]
         [SerializeField] RectTransform etiquetaFoco;
         [SerializeField] TMPro.TMP_Text textoFoco;
+        [SerializeField] RectTransform guiaFoco;     // línea del módulo a la etiqueta
+        [SerializeField] RectTransform puntoFoco;    // punto sobre el módulo
+        [SerializeField] float separacionEtiqueta = 170f;
 
         Camera camara;
         Vector3 posicion, mirar, velPosicion, velMirar;
@@ -54,6 +57,7 @@ namespace SpaceMission
         Transform moduloEnFoco;
         float finFoco;
         Renderer[] renderersNave;
+        NaveSatelite aspectoNave;
 
         void Awake()
         {
@@ -61,7 +65,11 @@ namespace SpaceMission
             posicion = transform.position;
             mirar = transform.position + transform.forward * 10f;
             campo = camara.fieldOfView;
-            if (raizNave != null) renderersNave = raizNave.GetComponentsInChildren<Renderer>(true);
+            if (raizNave != null)
+            {
+                renderersNave = raizNave.GetComponentsInChildren<Renderer>(true);
+                aspectoNave = raizNave.GetComponent<NaveSatelite>();
+            }
         }
 
         void LateUpdate()
@@ -74,7 +82,9 @@ namespace SpaceMission
 
             Encuadre objetivo = nave;
             if (pestana == ConfiguracionUI.Pestana.Orbita) objetivo = planeta;
-            else if (pestana == ConfiguracionUI.Pestana.Lanzador) objetivo = plataforma;
+            else if (pestana == ConfiguracionUI.Pestana.Lanzador)
+                objetivo = string.IsNullOrEmpty(config.LanzadorId) || plataformaExplorador.campo <= 1f ? plataforma
+                         : PlataformaCohetes.EsTitan(config.LanzadorId) ? plataformaTitan : plataformaExplorador;
             else if (pestana == ConfiguracionUI.Pestana.Satelite) { objetivo = nave; objetivo.campo = campoSatelite; }
             else if (moduloEnFoco != null && Time.unscaledTime < finFoco) objetivo = EncuadreModulo(moduloEnFoco);
             else moduloEnFoco = null;
@@ -82,7 +92,7 @@ namespace SpaceMission
             // La nave no se ve mientras se mira el planeta (estaría delante, flotando sin sentido).
             MostrarNave(pestana != ConfiguracionUI.Pestana.Orbita);
             GirarSatelite(enConfiguracion && pestana == ConfiguracionUI.Pestana.Satelite);
-            ResaltarCohete(config.LanzadorId);
+            MostrarFantasma(config, enConfiguracion && pestana == ConfiguracionUI.Pestana.Instrumentos);
 
             float t = Preferencias.ReducirMovimiento ? 0f : suavizado;
             float dt = Time.unscaledDeltaTime;
@@ -97,18 +107,62 @@ namespace SpaceMission
             ColocarEtiqueta();
         }
 
-        /// <summary>Etiqueta «INSTALADO» sobre el módulo enfocado, siguiendo su posición en pantalla.</summary>
+        /// <summary>
+        /// Etiqueta «INSTALADO AQUÍ» del módulo enfocado: hacia fuera de la nave (no la tapa), dentro de la zona
+        /// central entre los paneles, con una línea guía hasta un punto sobre el módulo.
+        /// </summary>
         void ColocarEtiqueta()
         {
             if (etiquetaFoco == null) return;
             bool visible = moduloEnFoco != null && Time.unscaledTime < finFoco;
             if (etiquetaFoco.gameObject.activeSelf != visible) etiquetaFoco.gameObject.SetActive(visible);
+            if (guiaFoco != null && guiaFoco.gameObject.activeSelf != visible) guiaFoco.gameObject.SetActive(visible);
+            if (puntoFoco != null && puntoFoco.gameObject.activeSelf != visible) puntoFoco.gameObject.SetActive(visible);
             if (!visible) return;
-            var pantalla = camara.WorldToScreenPoint(CentroVisual(moduloEnFoco));
-            if (pantalla.z <= 0f) return;
             var padre = (RectTransform)etiquetaFoco.parent;
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(padre, pantalla, null, out var local))
-                etiquetaFoco.anchoredPosition = local + new Vector2(0f, 90f);
+            var pantalla = camara.WorldToScreenPoint(CentroVisual(moduloEnFoco));
+            var pantallaNave = camara.WorldToScreenPoint(raizNave.position);
+            if (pantalla.z <= 0f) return;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(padre, pantalla, null, out var punto)) return;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(padre, pantallaNave, null, out var centro);
+            var dir = punto - centro;
+            dir = dir.sqrMagnitude < 1f ? Vector2.up : dir.normalized;
+            var deseado = punto + dir * separacionEtiqueta;
+            // Zona central libre entre los dos paneles de Configuración (en proporción del lienzo).
+            var r = padre.rect;
+            var medio = etiquetaFoco.rect.size * 0.5f;
+            float minX = r.xMin + r.width * 0.375f + medio.x, maxX = r.xMin + r.width * 0.645f - medio.x;
+            float minY = r.yMin + r.height * 0.16f + medio.y, maxY = r.yMin + r.height * 0.84f - medio.y;
+            deseado = new Vector2(Mathf.Clamp(deseado.x, minX, Mathf.Max(minX, maxX)), Mathf.Clamp(deseado.y, minY, maxY));
+            etiquetaFoco.anchoredPosition = deseado;
+            if (puntoFoco != null) puntoFoco.anchoredPosition = punto;
+            if (guiaFoco != null)
+            {
+                var d = deseado - punto;
+                guiaFoco.anchoredPosition = punto + d * 0.5f;
+                guiaFoco.sizeDelta = new Vector2(d.magnitude, guiaFoco.sizeDelta.y);
+                guiaFoco.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg);
+            }
+        }
+
+        /// <summary>Holograma del instrumento bajo el cursor (si aún no está instalado) en su montaje.</summary>
+        void MostrarFantasma(Configuracion config, bool permitido)
+        {
+            if (aspectoNave == null) return;
+            string id = null;
+            var encima = BotonVivo.Encimado;
+            if (permitido && encima != null && catalogo != null && encima.transform.IsChildOf(vistaConfiguracion.transform))
+            {
+                var texto = encima.GetComponentInChildren<TMPro.TMP_Text>();
+                if (texto != null)
+                    foreach (var instrumento in catalogo.instrumentos)
+                        if (texto.text.Contains(instrumento.nombre) && !config.InstrumentoIds.Contains(instrumento.id))
+                        {
+                            id = instrumento.id;
+                            break;
+                        }
+            }
+            aspectoNave.MostrarFantasma(id);
         }
 
         /// <summary>Si se añadió un instrumento, enfoca su módulo un momento (solo en la pestaña Instrumentos).</summary>
@@ -171,26 +225,6 @@ namespace SpaceMission
             if (renderersNave == null) return;
             foreach (var r in renderersNave)
                 if (r != null) r.enabled = visible;
-        }
-
-        void ResaltarCohete(string lanzadorId)
-        {
-            Activar(resaltadoExplorador, lanzadorId == "explorador");
-            Activar(resaltadoTitan, lanzadorId == "titan");
-            Girar(coheteExplorador, lanzadorId == "explorador");
-            Girar(coheteTitan, lanzadorId == "titan");
-        }
-
-        static void Activar(GameObject go, bool valor)
-        {
-            if (go != null && go.activeSelf != valor) go.SetActive(valor);
-        }
-
-        static void Girar(GameObject cohete, bool elegido)
-        {
-            if (cohete == null) return;
-            var giro = cohete.GetComponent<GiroLento>();
-            if (giro != null) giro.enabled = elegido;
         }
     }
 }
