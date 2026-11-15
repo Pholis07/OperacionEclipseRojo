@@ -58,9 +58,10 @@ public static partial class ConstructorEscenas
             ajuste.contorno = 1.6f; ajuste.maximo = 0.35f; ajuste.borde = 0.1f; ajuste.sombra = 0.4f; ajuste.colorBorde = "#F2C9A0";
             return true;
         }
-        if (EstructurasTinta.Contains(nombre))
+        if (EstructurasTinta.Contains(nombre) || nombre.StartsWith("Hangar_"))
         {
-            ajuste.contorno = 1.3f; ajuste.maximo = 0.3f; ajuste.borde = 0.06f; ajuste.brillo = 0.3f; ajuste.sombra = 0.42f; ajuste.colorBorde = "#F2C9A0";
+            ajuste.contorno = emite ? 0f : 1.3f;   // lo que emite luz (lámparas) no lleva contorno
+            ajuste.maximo = 0.3f; ajuste.borde = 0.06f; ajuste.brillo = 0.3f; ajuste.sombra = 0.42f; ajuste.colorBorde = "#F2C9A0";
             return true;
         }
         if (nombre.StartsWith("Arbol_"))

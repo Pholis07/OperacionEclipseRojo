@@ -127,6 +127,10 @@ namespace SpaceMission.PlayTests
             yield return null;
             Assert.AreEqual(1, finales, "el final se avisa una sola vez");
             Assert.AreEqual(escala, escenario.Satelite.localScale, "el satélite vuelve a su escala");
+            var radar = escenario.Satelite.Find("Modulo_radar");
+            Assert.IsTrue(radar.gameObject.activeSelf, "la nave de la cinemática lleva la carga elegida");
+            Assert.IsFalse(escenario.Satelite.Find("Modulo_termica").gameObject.activeSelf, "y solo esa");
+            Assert.AreEqual(1f, radar.GetComponent<MecanismoInstrumento>().Despliegue, 1e-3f, "termina desplegada");
             foreach (var b in brazos) Assert.Less(Quaternion.Angle(Quaternion.identity, b.transform.localRotation), 0.1f, "los brazos vuelven a su sitio");
             foreach (var (t, p, r) in poses)
             {
@@ -146,6 +150,14 @@ namespace SpaceMission.PlayTests
             director.Omitir();
             yield return null;
             Assert.IsFalse(director.Reproduciendo);
+            // Omitir deja la nave igual que verla entera: con la carga elegida y desplegada.
+            var sat = Object.FindFirstObjectByType<EscenarioOrbital>(FindObjectsInactive.Include).Satelite;
+            foreach (var id in new[] { "termica", "radar" })
+            {
+                Assert.IsTrue(sat.Find("Modulo_" + id).gameObject.activeSelf, id);
+                Assert.AreEqual(1f, sat.Find("Modulo_" + id).GetComponent<MecanismoInstrumento>().Despliegue, 1e-3f);
+            }
+            Assert.IsFalse(sat.Find("Modulo_espectrometro").gameObject.activeSelf);
             Assert.IsFalse(director.Hablando, "saltar corta la voz y vacía la fila");
             Assert.LessOrEqual(Atenuacion.VocesSonando, 1, "como mucho, la transmisión inicial");
         }

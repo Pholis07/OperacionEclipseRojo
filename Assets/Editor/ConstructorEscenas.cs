@@ -868,6 +868,45 @@ public static partial class ConstructorEscenas
         Asignar(camara, "etiquetaFoco", etiqueta);
         Asignar(camara, "textoFoco", textoEtiqueta);
 
+        // Renovación visual: barra de inspección (foco por instrumento instalado y «Restablecer vista»), en el hueco
+        // central, bajo la nave. Girar y acercar se hacen arrastrando y con la rueda (CamaraConfiguracion).
+        var inspeccion = new GameObject("InspeccionNave", typeof(RectTransform)).GetComponent<RectTransform>();
+        inspeccion.SetParent(configuracion, false);
+        Anclar(inspeccion, new Vector2(0.375f, 0.085f), new Vector2(0.645f, 0.2f));
+        var contenidoInspeccion = Columna(inspeccion, "Contenido", 6, TextAnchor.LowerCenter, new Color(0, 0, 0, 0), 0);
+        Estirar(contenidoInspeccion);
+        contenidoInspeccion.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        var pista = Texto(contenidoInspeccion, "Pista", "Drag to rotate · scroll to zoom", 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Center);
+        pista.raycastTarget = false;
+        var filaInspeccion = Fila(contenidoInspeccion, "Botones", 8);
+        filaInspeccion.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childAlignment = TextAnchor.MiddleCenter;
+        filaInspeccion.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
+        var botonesFoco = new List<Object>();
+        foreach (var idFoco in IdsInstrumento)
+        {
+            var b = Boton(filaInspeccion, "Foco_" + idFoco, Iconos.DeInstrumento(idFoco), false);
+            var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.minHeight = le.preferredHeight = 52; le.preferredWidth = 60; le.minWidth = 52;
+            b.gameObject.SetActive(false);
+            botonesFoco.Add(b);
+        }
+        var botonReset = Boton(filaInspeccion, "RestablecerVista", "Reset view", false);
+        {
+            var le = botonReset.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.minHeight = le.preferredHeight = 52; le.preferredWidth = 250; le.minWidth = 220;
+            foreach (var t in botonReset.GetComponentsInChildren<TextMeshProUGUI>()) { t.enableAutoSizing = false; t.fontSize = 24; }
+        }
+        // Hangar de integración: se ve con la nave (pestañas Satélite e Instrumentos y Revisión).
+        var hangar = ConstruirHangar(nave.transform.position);
+        Asignar(camara, "hangar", hangar);
+        var inspeccionNave = inspeccion.gameObject.AddComponent<InspeccionNave>();
+        Asignar(inspeccionNave, "camara", camara);
+        Asignar(inspeccionNave, "configuracion", configUI);
+        AsignarTextos(inspeccionNave, "ids", IdsInstrumento);
+        AsignarLista(inspeccionNave, "botonesFoco", botonesFoco.ToArray());
+        Asignar(inspeccionNave, "botonRestablecer", botonReset);
+        Asignar(inspeccionNave, "contenido", contenidoInspeccion.gameObject);
+
         CrearEventSystem();
         Asignar(controlador, "operacion", operacionUI);
 

@@ -435,12 +435,16 @@ namespace SpaceMission
             }
             var bisagras = new Vector3[cofia.Length];
             for (int i = 0; i < cofia.Length; i++) bisagras[i] = cofia[i].position;
-            bool pernos = false, resortes = false, gas = false, estable = false;
+            bool pernos = false, resortes = false, gas = false, estable = false, desplegando = false;
+            // Renovación visual: la nave viaja con sus mecanismos plegados y los despliega al quedar libre.
+            var aspectoSat = sat.GetComponent<NaveSatelite>();
+            if (aspectoSat != null) aspectoSat.Desplegar(0f);
+            const float duracion7 = 6.6f, inicioDespliegue = 3.7f, finDespliegue = 5.8f;
             // Cámara del lado iluminado por el Sol (si no, la nariz se ve azul, solo con la luz de contorno).
             var haciaSol = RenderSettings.sun != null ? -RenderSettings.sun.transform.forward : Vector3.back;
             var lateral = Vector3.ProjectOnPlane(haciaSol, adelante).normalized;
             if (lateral.sqrMagnitude < 0.01f) lateral = Vector3.Cross(adelante, Vector3.up).normalized;
-            for (float t = 0f; t < 5.4f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; t < duracion7 && !omitir; t += Time.deltaTime)
             {
                 // La etapa (con el satélite dentro) sigue avanzando despacio por inercia.
                 var avance = adelante * t * alto * 0.05f;
@@ -483,10 +487,23 @@ namespace SpaceMission
                     textoHud.text = Idioma.T("PAYLOAD RELEASED");
                     if (gasFrio != null) { gasFrio.transform.position = sat.position; gasFrio.Play(); }
                 }
+                // Despliegue: los mecanismos de los instrumentos montados se abren uno tras otro, y al final una
+                // pausa con la nave completa (plano protagonista).
+                if (t > inicioDespliegue)
+                {
+                    if (!desplegando)
+                    {
+                        desplegando = true;
+                        textoHud.text = Idioma.T("DEPLOYING INSTRUMENTS");
+                        Sonar(ArteDatos.Efecto.Servo, 0.45f);
+                    }
+                    if (aspectoSat != null) aspectoSat.Desplegar(Mathf.InverseLerp(inicioDespliegue, finDespliegue, t));
+                }
                 // Cámara de lado, acercándose a la nariz y siguiendo luego al satélite.
                 var mira = Vector3.Lerp(centroNariz, sat.position, Mathf.Clamp01((t - 2f) / 2.5f));
                 // Cerca, a la escala de la nariz: el satélite (pequeño, cabía en la cofia) llena buena parte del cuadro.
-                var dist = radioToma * Mathf.Lerp(10f, 4.2f, Mathf.Clamp01(t / 5.4f));
+                // Se acerca hasta la liberación y abre un poco el plano durante el despliegue (caben los botalones).
+                var dist = radioToma * (Mathf.Lerp(10f, 4.2f, Mathf.Clamp01(t / 5.4f)) + 2.4f * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(inicioDespliegue, finDespliegue, t)));
                 Mirar(mira + lateral * dist + Vector3.up * dist * 0.35f - adelante * dist * 0.4f, mira, 40f);
                 yield return null;
             }
@@ -878,6 +895,12 @@ namespace SpaceMission
             if (cielo != null) Noche(0f);
             if (escalaSatelite != Vector3.zero && escenario != null && escenario.Satelite != null)
                 escenario.Satelite.localScale = escalaSatelite;
+            // Ver la cinemática u omitirla deja la nave igual: desplegada, como va en órbita.
+            if (escenario != null && escenario.Satelite != null)
+            {
+                var aspecto = escenario.Satelite.GetComponent<NaveSatelite>();
+                if (aspecto != null) aspecto.PoseDeReposo();
+            }
             MostrarZona(false);
             if (escenario != null)
             {

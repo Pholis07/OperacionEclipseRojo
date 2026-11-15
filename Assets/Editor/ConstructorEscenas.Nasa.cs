@@ -135,6 +135,8 @@ public static partial class ConstructorEscenas
             destello.gameObject.SetActive(false);
             var instalacion = m.gameObject.AddComponent<Instalacion>();
             Asignar(instalacion, "destello", destello);
+            // Fijaciones, conector, indicador y mecanismo propio. Solo la nave del constructor anima el montaje.
+            MontajeModulo(m, equipo, IdsInstrumento[i], instalacion, conZocalos);
             modulos[i] = m;
             m.gameObject.SetActive(false);
         }
@@ -165,6 +167,8 @@ public static partial class ConstructorEscenas
             f.gameObject.SetActive(false);
             fantasmas[i] = f;
         }
+        var tapas = new Transform[IdsInstrumento.Length];
+        for (int i = 0; i < IdsInstrumento.Length && conZocalos; i++) tapas[i] = TapaCiega(raiz.transform, IdsInstrumento[i]);
 
         // Montajes de cada satélite: debajo del casco (la cara que mira a Marte), con el soporte hasta la superficie.
         var posiciones = new List<Vector3>();
@@ -214,10 +218,13 @@ public static partial class ConstructorEscenas
         {
             Lista(sa, "zocalos", zocalos.Length, (p, k) => p.objectReferenceValue = zocalos[k]);
             Lista(sa, "fantasmas", fantasmas.Length, (p, k) => p.objectReferenceValue = fantasmas[k]);
+            Lista(sa, "tapas", tapas.Length, (p, k) => p.objectReferenceValue = tapas[k]);
         }
+        sa.FindProperty("desplegada").boolValue = !conZocalos;   // hangar: plegada; órbita e informe: desplegada
         sa.FindProperty("sateliteFijo").stringValue = sateliteFijo ?? "";
         sa.ApplyModifiedPropertiesWithoutUndo();
         aspecto.Aplicar(string.IsNullOrEmpty(sateliteFijo) ? Satelites[0].id : sateliteFijo);
+        aspecto.PoseDeReposo();
 
         raiz.transform.rotation = Quaternion.Euler(12, -28, 0);
         return nave;

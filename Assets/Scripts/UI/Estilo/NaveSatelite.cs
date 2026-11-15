@@ -30,6 +30,9 @@ namespace SpaceMission
         [SerializeField] float[] escalas;
         [SerializeField] SpriteRenderer[] zocalos;      // uno por módulo (opcional)
         [SerializeField] Transform[] fantasmas;         // uno por módulo (opcional)
+        [SerializeField] Transform[] tapas;             // tapa ciega de cada soporte vacío (opcional)
+        [Tooltip("Mecanismos desplegados (en órbita y en el informe) o plegados (hangar de integración).")]
+        [SerializeField] bool desplegada;
         [SerializeField] string sateliteFijo;
         [SerializeField] Color colorZocalo = new Color(0.37f, 0.78f, 0.9f, 0.55f);
 
@@ -39,7 +42,25 @@ namespace SpaceMission
 
         public string Actual => aplicado;
 
-        void OnEnable() => Aplicar(Elegido());
+        /// <summary>¿Los mecanismos van desplegados cuando la nave está en reposo?</summary>
+        public bool Desplegada => desplegada;
+
+        /// <summary>Despliega (0 a 1) los mecanismos de los instrumentos montados. La cinemática lo anima tras liberar la nave.</summary>
+        public void Desplegar(float k)
+        {
+            if (modulos == null) return;
+            foreach (var m in modulos)
+            {
+                if (m == null) continue;
+                var mec = m.GetComponent<MecanismoInstrumento>();
+                if (mec != null) mec.Desplegar(k);
+            }
+        }
+
+        /// <summary>Deja los mecanismos en la pose de reposo de esta nave (plegados en el hangar, desplegados en órbita).</summary>
+        public void PoseDeReposo() => Desplegar(desplegada ? 1f : 0f);
+
+        void OnEnable() { Aplicar(Elegido()); PoseDeReposo(); }
 
         void Update()
         {
@@ -108,6 +129,14 @@ namespace SpaceMission
                     fantasmas[m].localRotation = rotaciones[k];
                     fantasmas[m].localScale = Vector3.one * escala;
                 }
+                if (tapas != null && m < tapas.Length && tapas[m] != null)
+                {
+                    // La tapa ciega cierra el soporte vacío, a ras del casco.
+                    tapas[m].localPosition = posiciones[k] - rotaciones[k] * Vector3.up * (largo * 2f - 0.012f);
+                    tapas[m].localRotation = rotaciones[k];
+                    tapas[m].localScale = Vector3.one * escala;
+                    tapas[m].gameObject.SetActive(modulos[m] == null || !modulos[m].gameObject.activeSelf);
+                }
                 if (zocalos != null && m < zocalos.Length && zocalos[m] != null)
                 {
                     // El aro va pegado al casco (debajo del módulo), del tamaño de la base del módulo.
@@ -148,7 +177,13 @@ namespace SpaceMission
                 var z = zocalos[m];
                 if (z == null || modulos[m] == null) continue;
                 bool ocupado = modulos[m].gameObject.activeSelf;
-                if (estaban[m] && !ocupado) destellos[m] = 1f;   // se acaba de quitar
+                if (estaban[m] && !ocupado)
+                {
+                    destellos[m] = 1f;   // se acaba de quitar
+                    Retirada.Empezar(modulos[m]);
+                }
+                if (tapas != null && m < tapas.Length && tapas[m] != null && tapas[m].gameObject.activeSelf == ocupado)
+                    tapas[m].gameObject.SetActive(!ocupado);
                 estaban[m] = ocupado;
                 destellos[m] = Mathf.Max(0f, destellos[m] - Time.unscaledDeltaTime * 2.2f);
                 var c = colorZocalo;
