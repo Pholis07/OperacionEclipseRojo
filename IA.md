@@ -302,3 +302,10 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - El pie y la ayuda del satélite ya no dicen «solo cambia el aspecto».
 - Verificado en el navegador a 1366x768: las 6 opciones, el modelo, la Carga y la Operación (límite de 600 W y memoria de 2 en el nivel 2). Un clic de la prueba no acertó al botón de envío porque se movió, así que el envío por Globalstar solo está probado en las pruebas automáticas.
 - 5 pruebas nuevas en `SatelitesTests.cs`. Pasan las 227 pruebas EditMode y las 19 PlayMode. Build de 35.3 MB sin errores.
+
+## Arreglo: texturas de los satélites de NASA al regenerar
+
+- **Causa:** `MaterialNasa` tomaba la textura del material que crea el importador de OBJ de Unity, y el importador a veces le asigna a cada material la textura del anterior, según el orden de importación. La versión comiteada ya tenía 10 materiales mal: 5 con la textura de otro (4 del Aquarius y el `foil_gold` del MRO) y 5 sin textura (3 del Magellan, el `foil_gold` del Chandra y el `AO_other_dep` del Aquarius).
+- **Arreglo:** la textura se carga por nombre, `<modelo>_<material>.png`, la misma convención que siguen todos los `.mtl`. El importador solo se usa si no hay archivo. Se comprobó que los 58 materiales `NASA_Sat_*` quedan con su textura.
+- `Marcador_Orbita`, `Nave_Tobera` y `Plataforma_Resalte` ahora llevan la palabra clave `_EMISSION`, que es lo que pide el constructor. La versión anterior tenía el color de emisión pero sin la palabra clave, así que no brillaban.
+- El build pasa de 35.3 a 36.7 MB, porque ahora sí entran las texturas que faltaban. Pasan las 227 pruebas EditMode y las 19 PlayMode.

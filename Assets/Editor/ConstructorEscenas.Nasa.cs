@@ -338,7 +338,10 @@ public static partial class ConstructorEscenas
     {
         if (original == null) return null;
         var n = original.name.ToLowerInvariant();
-        var textura = original.HasProperty("_BaseMap") ? original.GetTexture("_BaseMap") as Texture2D : original.mainTexture as Texture2D;
+        // La textura se busca por nombre (<modelo>_<material>.png, como en el .mtl): el importador de OBJ de Unity
+        // a veces asigna a cada material la textura del anterior, según el orden en que se importaron los archivos.
+        var textura = AssetDatabase.LoadAssetAtPath<Texture2D>(RutaModelos + "NASA/" + modelo + "_" + original.name.Replace(" ", "_") + ".png")
+                      ?? (original.HasProperty("_BaseMap") ? original.GetTexture("_BaseMap") as Texture2D : original.mainTexture as Texture2D);
         var color = original.HasProperty("_BaseColor") ? original.GetColor("_BaseColor") : original.color;
         float metal = 0.15f, suave = 0.4f;
         if (n.Contains("foil") || n.Contains("gold")) { metal = 0.85f; suave = 0.62f; }
