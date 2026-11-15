@@ -89,8 +89,9 @@ namespace SpaceMission
 
         /// <summary>
         /// Versión 6: tarjeta de la órbita con su frenado y la masa con la que se llega; si no se llega, el motivo en rojo.
+        /// «capacidadKg» es lo que carga el lanzador: la masa con la que se llega nunca se muestra por encima.
         /// </summary>
-        public static string TextoOpcion(OrbitaDatos o, Alcance.Resultado a)
+        public static string TextoOpcion(OrbitaDatos o, Alcance.Resultado a, int capacidadKg = int.MaxValue)
         {
             var icono = "<color=" + Trayectoria.ColorHex(o.id) + ">" + Iconos.Orbita + "</color>";
             var costo = Chip(Iconos.Costo, TextosBriefing.Numero(o.costoCr) + " cr");
@@ -98,7 +99,7 @@ namespace SpaceMission
             var frenado = Chip(Iconos.Lanzador, TextosBriefing.Numero(a.NecesarioMs) + " m/s");
             if (a.Alcanza)
                 return Tarjeta(icono, o.Nombre, costo, frenado,
-                    "<color=" + ColorBuff + ">" + Iconos.Sube + Idioma.T(" up to ") + TextosBriefing.Numero(a.MasaMaximaKg) + " kg</color>");
+                    "<color=" + ColorBuff + ">" + Iconos.Sube + Idioma.T(" up to ") + TextosBriefing.Numero(System.Math.Min(a.MasaMaximaKg, capacidadKg)) + " kg</color>");
             return Tarjeta(icono, "<color=#94A3B8>" + o.Nombre + "</color>", costo, frenado,
                 "<color=" + ColorDebuff + ">" + Iconos.Baja + Idioma.T(" max ") + TextosBriefing.Numero(a.MasaMaximaKg) + " kg</color>");
         }

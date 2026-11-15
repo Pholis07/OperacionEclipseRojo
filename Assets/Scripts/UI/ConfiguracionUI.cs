@@ -206,10 +206,12 @@ namespace SpaceMission
             switch (PestanaActual)
             {
                 case Pestana.Orbita:
+                    var lanzadorElegido = string.IsNullOrEmpty(Config.LanzadorId) ? null : catalogo.Lanzador(Config.LanzadorId);
+                    int capacidad = lanzadorElegido != null ? lanzadorElegido.capacidadKg : int.MaxValue;
                     foreach (var o in catalogo.orbitas)
                     {
                         var alcance = Alcance.Evaluar(Config, o, catalogo, Nivel);
-                        CrearOpcion(PresentacionMision.TextoOpcion(o, alcance), Config.OrbitaId == o.id, () => ElegirOrbita(o.id), !alcance.Alcanza);
+                        CrearOpcion(PresentacionMision.TextoOpcion(o, alcance, capacidad), Config.OrbitaId == o.id, () => ElegirOrbita(o.id), !alcance.Alcanza);
                     }
                     CrearNota(PresentacionMision.NotaAlcance(Config, catalogo, Nivel), ExplicarAlcance);
                     break;
