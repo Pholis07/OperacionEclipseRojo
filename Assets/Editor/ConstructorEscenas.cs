@@ -1275,8 +1275,9 @@ public static partial class ConstructorEscenas
         var polvo = GameObject.Find("TormentaPolvo");
         var naveFinal = ConstruirNave(null, false);
         naveFinal.name = "NaveFinal";
-        naveFinal.transform.position = new Vector3(0.6f, 1.15f, 2.6f);
-        naveFinal.transform.localScale = Vector3.one * 0.3f;
+        // Versión 8: la nave es la protagonista del informe: grande y en primer plano, delante de Marte.
+        naveFinal.transform.position = new Vector3(2.2f, 0.7f, -3.1f);
+        naveFinal.transform.localScale = Vector3.one * 0.48f;
         foreach (var r in naveFinal.GetComponentsInChildren<Renderer>(true)) r.shadowCastingMode = ShadowCastingMode.Off;
         var matTierraFinal = CrearMaterial("Tierra", Color.white, 0f, 0.35f, ConstructorEstilo.Imagen("Texturas/Tierra_Superficie"), Vector2.one);
         var tierraFinal = Malla(EsferaUV(), "Tierra", null, new Vector3(-11f, 6f, 48f), new Vector3(18f, 0f, 0f), Vector3.one * 2.4f, matTierraFinal);
@@ -1303,11 +1304,15 @@ public static partial class ConstructorEscenas
         ConstruirIluminacion();
 
         var canvas = CrearCanvas();
-        // Velo sobre la escena 3D (se oscurece al entrar el informe).
-        var fondo = Panel(canvas, "Fondo", new Color(Fondo.r, Fondo.g, Fondo.b, 0.74f));
-        Estirar(fondo);
-        fondo.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
-        var grupoFondo = fondo.gameObject.AddComponent<CanvasGroup>();
+        // Velo sobre la escena 3D (entra con el informe). Versión 8: un degradado solo a la izquierda, como en el
+        // Briefing: el texto se lee y Marte y la nave quedan nítidos a la derecha.
+        var velo = new GameObject("Fondo", typeof(RectTransform), typeof(UnityEngine.UI.RawImage), typeof(CanvasGroup));
+        velo.transform.SetParent(canvas, false);
+        Estirar((RectTransform)velo.transform);
+        var imgVelo = velo.GetComponent<UnityEngine.UI.RawImage>();
+        imgVelo.texture = ConstructorEstilo.Imagen("Interfaz/Degradado_Izquierda");
+        imgVelo.raycastTarget = false;
+        var grupoFondo = velo.GetComponent<CanvasGroup>();
         grupoFondo.blocksRaycasts = false;
         var estatica = new GameObject("Estatica", typeof(RectTransform), typeof(UnityEngine.UI.RawImage), typeof(CanvasGroup));
         estatica.transform.SetParent(canvas, false);
@@ -1322,71 +1327,48 @@ public static partial class ConstructorEscenas
         grupoEstatica.blocksRaycasts = false;
 
         // El informe va en dos pantallas para no saturar:
-        // 1) VistaVeredicto: título, conclusión, puntos y sello, con «Ver detalles».
-        // 2) VistaDetalle: evidencias, lo que faltó, desglose de puntos y recursos, con «Modificar mi misión».
+        // 1) VistaVeredicto (póster): título, conclusión, evidencias de un vistazo, puntos y sello, con «Ver detalles».
+        // 2) VistaDetalle (tablero): recursos en barras, fichas, objetivos, evidencias y puntos, con «Modificar mi misión».
         var vistaVeredicto = Vacio(canvas, "VistaVeredicto");
         Estirar(vistaVeredicto);
         var vistaDetalle = Vacio(canvas, "VistaDetalle");
         Estirar(vistaDetalle);
         vistaDetalle.gameObject.AddComponent<AparecerVista>();
 
-        // Veredicto, a la izquierda: conclusión y botón al detalle. A la derecha se ve Marte.
-        var izq = Columna(vistaVeredicto, "Conclusion", 26, TextAnchor.UpperLeft);
-        Anclar(izq, new Vector2(0.05f, 0.06f), new Vector2(0.48f, 0.94f));
+        // ---------- Veredicto ----------
+        var izq = Columna(vistaVeredicto, "Conclusion", 20, TextAnchor.UpperLeft);
+        Anclar(izq, new Vector2(0.05f, 0.06f), new Vector2(0.47f, 0.94f));
         Encabezado(izq, "Etiqueta", SpaceMission.Iconos.Informe + "  MISSION REPORT");
         var titulo = Texto(izq, "Titulo", "", 80, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         titulo.fontStyle = FontStyles.UpperCase;
-        var conclusion = Texto(izq, "TextoConclusion", "", 34, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        conclusion.lineSpacing = 10;
-        conclusion.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        titulo.lineSpacing = -22;
+        titulo.enableAutoSizing = true; titulo.fontSizeMin = 54; titulo.fontSizeMax = 86;
+        // Barra del color del resultado (verde, ámbar o rojo): la pone FinalAnimado.
+        var filaBarra = Vacio(izq, "FilaBarraResultado");
+        Alto(filaBarra, 8);
+        var barraResultado = Panel(filaBarra, "BarraResultado", Acento);
+        barraResultado.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        barraResultado.anchorMin = Vector2.zero; barraResultado.anchorMax = new Vector2(0, 1);
+        barraResultado.pivot = new Vector2(0, 0.5f); barraResultado.offsetMin = Vector2.zero; barraResultado.offsetMax = new Vector2(220, 0);
+        var conclusion = Texto(izq, "TextoConclusion", "", 31, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        conclusion.lineSpacing = 8;
+        // Evidencias de un vistazo: una línea por instrumento, con ✓ o aviso.
+        var resumen = Texto(izq, "TextoResumen", "", 30, TextoClaro, FontStyles.Bold, TextAlignmentOptions.TopLeft);
+        resumen.lineSpacing = 10;
+        Alto(Vacio(izq, "EspacioVeredicto"), 0).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var total = Texto(izq, "TotalPuntos", "", 76, Acento, FontStyles.Bold, TextAlignmentOptions.Left);
+        total.textWrappingMode = TextWrappingModes.NoWrap;
+        var nivelJugado = Texto(izq, "TextoNivel", "", 22, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
+        nivelJugado.font = ConstructorEstilo.Mono;
+        nivelJugado.characterSpacing = 4;
+        nivelJugado.fontStyle = FontStyles.UpperCase;
         var detalle = Boton(izq, "BotonDetalle", "View details", true);
         AjustarTexto(detalle);
 
-        // Detalle, a la izquierda: recursos usados y las acciones.
-        var izqDetalle = Columna(vistaDetalle, "Acciones", 26, TextAnchor.UpperLeft);
-        Anclar(izqDetalle, new Vector2(0.05f, 0.06f), new Vector2(0.48f, 0.94f));
-        Encabezado(izqDetalle, "EtiquetaDetalle", SpaceMission.Iconos.Informe + "  MISSION DETAILS");
-        var cajaRecursos = Columna(izqDetalle, "Recursos", 8, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
-        Bordes(cajaRecursos, LineaHud);
-        var recursos = Texto(cajaRecursos, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        // El cuadro mide lo que su texto (antes se estiraba hasta los botones y quedaba medio vacío).
-        Alto(Vacio(izqDetalle, "EspacioDetalle"), 0).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var modificar = Boton(izqDetalle, "BotonModificar", "Modify my mission", true);
-        AjustarTexto(modificar); // texto exacto: lo comprueban las pruebas
-        var volver = Boton(izqDetalle, "BotonVeredicto", "Back to the verdict", false);
-        AjustarTexto(volver);
-
-        // Detalle, a la derecha: evidencias, revelación, lo que faltó y el desglose de puntos.
-        var der = Columna(vistaDetalle, "Detalle", 28, TextAnchor.UpperLeft, TarjetaTranslucida, 40);
-        Anclar(der, new Vector2(0.52f, 0.13f), new Vector2(0.95f, 0.94f));
-        MarcoHud(der);
-        var evidencias = Texto(der, "TextoEvidencias", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        evidencias.lineSpacing = 8;
-        var faltantes = Texto(der, "TextoFaltantes", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        faltantes.lineSpacing = 8;
-        var puntos = Texto(der, "TextoPuntos", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        puntos.lineSpacing = 8;
-        // Con muchas líneas (carga, satélite, objetivos) los textos se achican en vez de encimarse.
-        foreach (var t in new[] { conclusion, recursos, evidencias, faltantes, puntos })
-        {
-            t.enableAutoSizing = true;
-            t.fontSizeMin = 18;
-            t.fontSizeMax = t.fontSize;
-            t.overflowMode = TextOverflowModes.Truncate;
-        }
-        Alto(Vacio(der, "Espacio"), 0).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        Miniatura(der, "Mision", arte.imagenMision, 150, SpaceMission.Iconos.Senal + "  MARS DURING THE STORM  ·  NASA/JPL-Caltech/MSSS");
-
-        // Arriba a la derecha: total de puntos (cuenta hacia arriba) y el sello del resultado.
-        var cabecera = Vacio(vistaVeredicto, "Cabecera");
-        Anclar(cabecera, new Vector2(0.52f, 0.76f), new Vector2(0.95f, 0.95f));
-        var grupoCabecera = cabecera.gameObject.AddComponent<CanvasGroup>();
-        var total = Texto(cabecera, "TotalPuntos", "", 84, Acento, FontStyles.Bold, TextAlignmentOptions.Left);
-        Anclar(total.rectTransform, Vector2.zero, new Vector2(0.62f, 1f));
-        total.textWrappingMode = TextWrappingModes.NoWrap;
+        // Sello del resultado, junto al encabezado (ya no flota en la esquina).
         var sello = Vacio(vistaVeredicto, "Sello");
-        sello.anchorMin = sello.anchorMax = new Vector2(0.86f, 0.855f);
-        sello.sizeDelta = new Vector2(250, 250);
+        sello.anchorMin = sello.anchorMax = new Vector2(0.575f, 0.83f);
+        sello.sizeDelta = new Vector2(230, 230);
         sello.gameObject.AddComponent<CanvasGroup>().blocksRaycasts = false;
         var aro = new GameObject("Aro", typeof(RectTransform), typeof(UnityEngine.UI.Image)).GetComponent<UnityEngine.UI.Image>();
         aro.transform.SetParent(sello, false);
@@ -1396,9 +1378,111 @@ public static partial class ConstructorEscenas
         var textoSello = Texto(sello, "TextoSello", "", 34, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
         textoSello.characterSpacing = 4;
         textoSello.lineSpacing = -10;
-        textoSello.enableAutoSizing = true; textoSello.fontSizeMin = 20; textoSello.fontSizeMax = 36;
+        textoSello.enableAutoSizing = true; textoSello.fontSizeMin = 18; textoSello.fontSizeMax = 34;
         Anclar(textoSello.rectTransform, new Vector2(0.14f, 0.2f), new Vector2(0.86f, 0.8f));
         sello.localRotation = Quaternion.Euler(0, 0, -8f);
+
+        // ---------- Detalle (tablero) ----------
+        // Fondo propio: el tablero ocupa toda la pantalla y necesita más contraste que el póster.
+        var veloDetalle = Panel(vistaDetalle, "VeloDetalle", new Color(Fondo.r, Fondo.g, Fondo.b, 0.6f));
+        Estirar(veloDetalle);
+        veloDetalle.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+
+        var izqDetalle = Columna(vistaDetalle, "Acciones", 16, TextAnchor.UpperLeft);
+        Anclar(izqDetalle, new Vector2(0.05f, 0.06f), new Vector2(0.48f, 0.94f));
+        Encabezado(izqDetalle, "EtiquetaDetalle", SpaceMission.Iconos.Informe + "  MISSION DETAILS");
+
+        // Recursos: una barra por recurso, con su cifra.
+        var cajaRecursos = Columna(izqDetalle, "Recursos", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 22);
+        Bordes(cajaRecursos, LineaHud);
+        Subtitulo(cajaRecursos, "TituloRecursos", "Resources used");
+        var textosBarra = new Object[4];
+        var rellenos = new Object[4];
+        for (int i = 0; i < 4; i++)
+        {
+            var t = Texto(cajaRecursos, "TextoBarra" + i, "", 25, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+            t.textWrappingMode = TextWrappingModes.NoWrap;
+            Alto(t.rectTransform, 32);
+            var fondoBarra = Panel(cajaRecursos, "Barra" + i, FondoBarra);
+            Alto(fondoBarra, 14);
+            Bordes(fondoBarra, LineaHud);
+            var relleno = Panel(fondoBarra, "Relleno", Cian);
+            relleno.anchorMin = Vector2.zero; relleno.anchorMax = new Vector2(0.5f, 1);
+            relleno.pivot = new Vector2(0, 0.5f); relleno.offsetMin = new Vector2(2, 2); relleno.offsetMax = new Vector2(-2, -2);
+            relleno.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+            textosBarra[i] = t;
+            rellenos[i] = relleno;
+        }
+
+        // Fichas de la operación: meses, combustible, memoria sin enviar y apagones.
+        var filaFichas = Fila(izqDetalle, "Fichas", 12);
+        Alto(filaFichas, 104);
+        var fichas = new Object[4];
+        for (int i = 0; i < 4; i++)
+        {
+            var ficha = Panel(filaFichas, "Ficha" + i, TarjetaTranslucida);
+            ficha.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+            Bordes(ficha, LineaHud);
+            var t = Texto(ficha, "TextoFicha" + i, "", 21, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Center);
+            t.lineSpacing = -4;
+            Anclar(t.rectTransform, new Vector2(0.04f, 0.06f), new Vector2(0.96f, 0.94f));
+            Encoger(t, 15);
+            fichas[i] = t;
+        }
+
+        // Objetivos extra (la caja se esconde si la misión no tenía).
+        var cajaObjetivos = Columna(izqDetalle, "ObjetivosExtra", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 22);
+        Bordes(cajaObjetivos, LineaHud);
+        Subtitulo(cajaObjetivos, "TituloObjetivos", "Bonus objectives");
+        var objetivos = Texto(cajaObjetivos, "TextoObjetivos", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        objetivos.lineSpacing = 4;
+
+        Alto(Vacio(izqDetalle, "EspacioDetalle"), 0).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var modificar = Boton(izqDetalle, "BotonModificar", "Modify my mission", true);
+        AjustarTexto(modificar); // texto exacto: lo comprueban las pruebas
+        var filaVolver = Fila(izqDetalle, "FilaVolver", 16);
+        Alto(filaVolver, 76);
+        filaVolver.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>().childForceExpandWidth = false;
+        var menu = Boton(filaVolver, "BotonMenu", SpaceMission.Iconos.Atras + "  Menu", false);
+        menu.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = 240;
+        menu.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 0;
+        AjustarTexto(menu);
+        var volver = Boton(filaVolver, "BotonVeredicto", "Back to the verdict", false);
+        volver.GetComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+        AjustarTexto(volver);
+        foreach (var b in new[] { menu, volver })
+        {
+            b.GetComponent<UnityEngine.UI.LayoutElement>().minHeight = 76;
+            b.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 76;
+        }
+
+        // A la derecha: evidencias (una fila por instrumento) y la tabla de puntos.
+        var der = Columna(vistaDetalle, "Detalle", 12, TextAnchor.UpperLeft, TarjetaTranslucida, 34);
+        Anclar(der, new Vector2(0.52f, 0.13f), new Vector2(0.95f, 0.94f));
+        MarcoHud(der);
+        Subtitulo(der, "TituloEvidencias", "Evidence obtained");
+        var evidencias = Texto(der, "TextoEvidencias", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        evidencias.lineSpacing = 6;
+        evidencias.paragraphSpacing = 14;
+        Alto(Vacio(der, "Separador"), 10);
+        Subtitulo(der, "TituloPuntos", "Score");
+        var puntos = Texto(der, "TextoPuntos", "", 25, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        puntos.lineSpacing = 6;
+        // Con muchas líneas (cinco instrumentos, carga, objetivos) los textos se achican en vez de encimarse.
+        foreach (var t in new[] { conclusion, resumen, objetivos, evidencias, puntos })
+        {
+            t.enableAutoSizing = true;
+            t.fontSizeMin = 17;
+            t.fontSizeMax = t.fontSize;
+            t.overflowMode = TextOverflowModes.Truncate;
+        }
+        // Los dos textos largos se reparten el alto de la tarjeta.
+        evidencias.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1.25f;
+        puntos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1f;
+        var credito = Texto(der, "CreditoImagen", SpaceMission.Iconos.Senal + "  MARS: NASA/JPL-Caltech/MSSS (MARCI, 2018)", 17, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
+        credito.font = ConstructorEstilo.Mono;
+        credito.textWrappingMode = TextWrappingModes.NoWrap;
+        Encoger(credito, 12);
 
         // Abajo a la derecha: agradecimiento al patrocinador.
         var franja = FranjaPatrocinio(canvas, "Patrocinio", "THANKS TO OUR SPONSOR", 72);
@@ -1427,11 +1511,12 @@ public static partial class ConstructorEscenas
         AsignarLista(animado, "pulsos", pulsos);
         AsignarLista(animado, "bloquesMemoria", bloques);
         var grupoIzq = izq.gameObject.AddComponent<CanvasGroup>();
-        AsignarLista(animado, "paneles", new Object[] { grupoIzq, grupoCabecera, franja.GetComponent<CanvasGroup>() });
+        AsignarLista(animado, "paneles", new Object[] { grupoIzq, franja.GetComponent<CanvasGroup>() });
         Asignar(animado, "veloInforme", grupoFondo);
         Asignar(animado, "sello", sello);
         Asignar(animado, "textoSello", textoSello);
         Asignar(animado, "aroSello", aro);
+        Asignar(animado, "barraResultado", barraResultado.GetComponent<UnityEngine.UI.Image>());
         Asignar(animado, "totalPuntos", total);
         Asignar(animado, "estatica", grupoEstatica);
         Asignar(animado, "saltar", botonSaltar);
@@ -1442,12 +1527,17 @@ public static partial class ConstructorEscenas
         Asignar(ui, "textoTitulo", titulo);
         Asignar(ui, "textoConclusion", conclusion);
         Asignar(ui, "textoEvidencias", evidencias);
-        Asignar(ui, "textoFaltantes", faltantes);
-        Asignar(ui, "textoRecursos", recursos);
         Asignar(ui, "textoPuntos", puntos);
+        Asignar(ui, "textoResumen", resumen);
+        Asignar(ui, "textoNivel", nivelJugado);
+        AsignarLista(ui, "textosBarra", textosBarra);
+        AsignarLista(ui, "barras", rellenos);
+        AsignarLista(ui, "fichas", fichas);
+        Asignar(ui, "textoObjetivos", objetivos);
         Asignar(ui, "botonModificar", modificar);
         Asignar(ui, "botonDetalle", detalle);
         Asignar(ui, "botonVeredicto", volver);
+        Asignar(ui, "botonMenu", menu);
         Asignar(ui, "vistaVeredicto", vistaVeredicto.gameObject);
         Asignar(ui, "vistaDetalle", vistaDetalle.gameObject);
         vistaDetalle.gameObject.SetActive(false);
@@ -2846,6 +2936,16 @@ public static partial class ConstructorEscenas
         var linea = Panel(padre, "Linea", LineaHud);
         linea.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
         Alto(linea, GrosorLinea);
+    }
+
+    /// <summary>Título de sección dentro de una tarjeta: cian, en mayúsculas y espaciado.</summary>
+    static TextMeshProUGUI Subtitulo(Transform padre, string nombre, string texto)
+    {
+        var t = Texto(padre, nombre, texto, 23, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
+        t.fontStyle = FontStyles.UpperCase;
+        t.characterSpacing = 5;
+        t.textWrappingMode = TextWrappingModes.NoWrap;
+        return t;
     }
 
     /// <summary>Etiqueta en mayúsculas con el color de acento y subrayada.</summary>

@@ -824,6 +824,23 @@ namespace SpaceMission
             { "Image captured: nothing unusual at this point.", "Imagen capturada: nada fuera de lo normal en este punto." },
             { "Full screen", "Pantalla completa" },
             { "Ink outlines", "Contornos de tinta" },
+            // Versión 8: informe final como tablero.
+            { "Resources used", "Recursos usados" },
+            { "Evidence obtained", "Evidencias obtenidas" },
+            { "Score", "Puntos" },
+            { "Bonus objectives", "Objetivos extra" },
+            { "Months used", "Meses usados" },
+            { "Fuel left", "Combustible" },
+            { "Records unsent", "Registros sin enviar" },
+            { "Blackouts", "Apagones" },
+            { "Reached Earth", "Llegó a la Tierra" },
+            { "Missing", "Faltó" },
+            { " · supporting", " · complementaria" },
+            { "No valid evidence reached Earth.", "No llegó evidencia válida a la Tierra." },
+            { "Not on board", "No iba a bordo" },
+            { "Total", "Total" },
+            { "Nothing: the mission covered everything its orbit required.", "Nada: la misión cubrió todo lo que pedía su órbita." },
+            { "  MARS: NASA/JPL-Caltech/MSSS (MARCI, 2018)", "  MARTE: NASA/JPL-Caltech/MSSS (MARCI, 2018)" },
         };
     }
 }

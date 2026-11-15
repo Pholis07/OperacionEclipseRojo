@@ -29,6 +29,7 @@ namespace SpaceMission
         [SerializeField] RectTransform sello;
         [SerializeField] TMP_Text textoSello;
         [SerializeField] UnityEngine.UI.Graphic aroSello;
+        [SerializeField] UnityEngine.UI.Graphic barraResultado;   // versión 8: barra bajo el título, del color del resultado
         [SerializeField] TMP_Text totalPuntos;
         [SerializeField] CanvasGroup estatica;
         [SerializeField] UnityEngine.UI.Button saltar;
@@ -37,6 +38,12 @@ namespace SpaceMission
         static readonly Color Verde = new Color(0.13f, 0.77f, 0.37f);
         static readonly Color Ambar = new Color(0.92f, 0.7f, 0.03f);
         static readonly Color Rojo = new Color(0.94f, 0.27f, 0.27f);
+
+        /// <summary>
+        /// Opacidad de la tormenta en el fracaso. Versión 8: antes subía al 95 % y borraba el relieve de Marte;
+        /// ahora se queda en un velo de polvo que deja ver el planeta.
+        /// </summary>
+        public const float TormentaFracaso = 0.5f;
 
         CategoriaResultado categoria;
         bool saltando, terminado;
@@ -164,7 +171,7 @@ namespace SpaceMission
                 if (polvo != null)
                 {
                     polvo.GetPropertyBlock(bloque);
-                    bloque.SetFloat("_Opacidad", Mathf.Lerp(opacidad, 0.95f, k));
+                    bloque.SetFloat("_Opacidad", Mathf.Lerp(opacidad, TormentaFracaso, k));
                     polvo.SetPropertyBlock(bloque);
                 }
                 if (estatica != null) estatica.alpha = Mathf.Clamp01(k * 1.4f) * (0.35f + 0.25f * Mathf.PerlinNoise(Time.time * 30f, 0f));
@@ -188,6 +195,18 @@ namespace SpaceMission
             var color = categoria == CategoriaResultado.Victoria ? Verde : categoria == CategoriaResultado.Parcial ? Ambar : Rojo;
             textoSello.color = color;
             if (aroSello != null) aroSello.color = color;
+            if (barraResultado != null) barraResultado.color = color;
+        }
+
+        /// <summary>La tormenta en su estado final: también al saltar la entrada o con «Reducir movimiento».</summary>
+        void TormentaFinal()
+        {
+            if (polvo == null || categoria != CategoriaResultado.Fracaso) return;
+            if (EstadoJuego.Resultado == null || !EstadoJuego.Resultado.SePuedeLanzar) return;
+            var bloque = new MaterialPropertyBlock();
+            polvo.GetPropertyBlock(bloque);
+            bloque.SetFloat("_Opacidad", TormentaFracaso);
+            polvo.SetPropertyBlock(bloque);
         }
 
         IEnumerator CaerSello()
@@ -238,6 +257,7 @@ namespace SpaceMission
         {
             if (terminado) return;
             terminado = true;
+            TormentaFinal();
             foreach (var p in paneles) if (p != null) p.alpha = 1f;
             if (veloInforme != null) veloInforme.alpha = 1f;
             if (sello != null)
