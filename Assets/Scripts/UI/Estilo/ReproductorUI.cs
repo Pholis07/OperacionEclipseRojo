@@ -31,11 +31,33 @@ namespace SpaceMission
             if (Actual == this) Actual = null;
         }
 
+        /// <summary>Peticiones de sonido desde que arrancó (para las pruebas: reconstruir una vista no debe sonar).</summary>
+        public static int Peticiones { get; private set; }
+
+        const float Enfriamiento = 0.12f;   // una acción = un sonido: dentro de este tiempo solo gana el más importante
+        static float ultimoTiempo = -1f;
+        static ArteDatos.Sonido ultimoSonido;
+
+        /// <summary>Navegar (0) &lt; montar o quitar (1) &lt; avisos y semáforo (2) &lt; lanzamiento y señal (3).</summary>
+        static int Prioridad(ArteDatos.Sonido s) =>
+            s == ArteDatos.Sonido.Hover || s == ArteDatos.Sonido.Click || s == ArteDatos.Sonido.Pestana ? 0
+            : s == ArteDatos.Sonido.Elegir || s == ArteDatos.Sonido.Quitar ? 1
+            : s == ArteDatos.Sonido.Lanzamiento || s == ArteDatos.Sonido.Senal ? 3 : 2;
+
         public static void Sonar(ArteDatos.Sonido sonido, float volumen = 1f)
         {
+            Peticiones++;
             if (Actual == null || Actual.arte == null) return;
             var clip = Actual.arte.Clip(sonido);
-            if (clip != null) Actual.fuente.PlayOneShot(clip, volumen * Preferencias.VolumenEfectos);
+            if (clip == null) return;
+            if (Time.unscaledTime - ultimoTiempo < Enfriamiento)
+            {
+                if (Prioridad(sonido) <= Prioridad(ultimoSonido)) return;   // repetido o menos importante: se calla
+                Actual.fuente.Stop();                                        // más importante: sustituye al anterior
+            }
+            ultimoTiempo = Time.unscaledTime;
+            ultimoSonido = sonido;
+            Actual.fuente.PlayOneShot(clip, volumen * Preferencias.VolumenEfectos);
         }
 
         /// <summary>Reproduce una voz (transmisiones) cortando la anterior.</summary>

@@ -20,7 +20,7 @@ namespace SpaceMission
             StopAllCoroutines();
             StartCoroutine(Animar.Durante(0.35f, t => transform.localScale = escalaFinal * Mathf.Max(0.01f, t),
                 Animar.SalidaRebote));
-            ReproductorUI.Sonar(ArteDatos.Sonido.Elegir, 0.8f);
+            // Sin sonido aquí: aparecer no es una intención del jugador. Suena ConfiguracionUI al instalar.
         }
 
         void OnDisable() => transform.localScale = escalaFinal;

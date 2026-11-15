@@ -116,7 +116,11 @@ namespace SpaceMission
         public void AlternarInstrumento(string id)
         {
             if (Config.InstrumentoIds.Contains(id)) Config.QuitarInstrumento(id);
-            else Config.AgregarInstrumento(id);
+            else
+            {
+                Config.AgregarInstrumento(id);
+                ReproductorUI.Sonar(ArteDatos.Sonido.Elegir, 0.8f);   // un solo sonido de montaje: tapa al clic
+            }
             textoAyuda.text = PresentacionMision.Ayuda(catalogo.Instrumento(id));
             Cambio();
         }

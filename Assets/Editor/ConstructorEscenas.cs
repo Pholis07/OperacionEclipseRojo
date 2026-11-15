@@ -956,6 +956,14 @@ public static partial class ConstructorEscenas
         faltantes.lineSpacing = 8;
         var puntos = Texto(der, "TextoPuntos", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         puntos.lineSpacing = 8;
+        // Con muchas líneas (carga, satélite, objetivos) los textos se achican en vez de encimarse.
+        foreach (var t in new[] { conclusion, recursos, evidencias, faltantes, puntos })
+        {
+            t.enableAutoSizing = true;
+            t.fontSizeMin = 18;
+            t.fontSizeMax = t.fontSize;
+            t.overflowMode = TextOverflowModes.Truncate;
+        }
         Alto(Vacio(der, "Espacio"), 0).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         Miniatura(der, "Mision", arte.imagenMision, 200, SpaceMission.Iconos.Senal + "  MARTE DURANTE LA TORMENTA  ·  NASA/JPL-Caltech/MSSS");
 

@@ -24,11 +24,11 @@ namespace SpaceMission
             reducirMovimiento.SetIsOnWithoutNotify(Preferencias.ReducirMovimiento);
 
             musica.onValueChanged.AddListener(v => Preferencias.VolumenMusica = v);
-            efectos.onValueChanged.AddListener(v =>
-            {
-                Preferencias.VolumenEfectos = v;
-                ReproductorUI.Sonar(ArteDatos.Sonido.Hover); // para oír el volumen nuevo
-            });
+            efectos.onValueChanged.AddListener(v => Preferencias.VolumenEfectos = v);
+            // Una sola preescucha al soltar el deslizador, no una por cada paso.
+            var alSoltar = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerUp };
+            alSoltar.callback.AddListener(_ => ReproductorUI.Sonar(ArteDatos.Sonido.Click));
+            efectos.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>().triggers.Add(alSoltar);
             voz.onValueChanged.AddListener(v => Preferencias.VolumenVoz = v);
             reducirMovimiento.onValueChanged.AddListener(v => Preferencias.ReducirMovimiento = v);
             if (ambiente != null)
