@@ -84,7 +84,7 @@ namespace SpaceMission
             PintarPestana(pestanaLanzador, pestana == Pestana.Lanzador);
             PintarPestana(pestanaInstrumentos, pestana == Pestana.Instrumentos);
             if (pestanaSatelite != null) PintarPestana(pestanaSatelite, pestana == Pestana.Satelite);
-            textoAyuda.text = "Choose an option to see its description.";
+            textoAyuda.text = Idioma.T("Choose an option to see its description.");
             DibujarOpciones(); // cambiar de pestaña no cambia la configuración: no hace falta recalcular
         }
 

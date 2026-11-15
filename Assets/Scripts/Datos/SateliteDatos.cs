@@ -47,5 +47,13 @@ namespace SpaceMission
         public int limiteExtraW;                 // cambia el límite de energía (negativo: paneles pequeños)
         public bool envioSinVentana;             // puede enviar con la ventana cerrada (relé por constelación)
         public int bloquesEnvioSinVentana;       // cuántos bloques caben por mes fuera de la ventana
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string Nombre => Idioma.T(nombre);
+        public string Descripcion => Idioma.T(descripcion);
+        public string Credito => Idioma.T(credito);
+        public string Ventaja => Idioma.T(ventaja);
+        public string Desventaja => Idioma.T(desventaja);
+        public string DatoNasa => Idioma.Espanol && !string.IsNullOrEmpty(datoNasaEs) ? datoNasaEs : datoNasa;
     }
 }

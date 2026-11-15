@@ -206,13 +206,13 @@ namespace SpaceMission
             var basePos = posCohete;
 
             // 1) Plano general del complejo: árboles delante, el mar detrás, cuenta atrás.
-            Toma(1, "LAUNCH COMPLEX");
+            Toma(1, Idioma.T("LAUNCH COMPLEX"));
             Sonar(ArteDatos.Efecto.CuentaAtras);
             yield return Cortar(false);
             for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
             {
                 float k = t / 3.6f;
-                textoCuenta.text = t < 1.2f ? "T-05" : t < 2.4f ? "T-04" : "T-03";
+                textoCuenta.text = t < 1.2f ? Idioma.T("T-05") : t < 2.4f ? Idioma.T("T-04") : Idioma.T("T-03");
                 var cam = basePos + Vector3.Lerp(new Vector3(-58f, 13f, -80f), new Vector3(-50f, 11.5f, -70f), k);
                 Mirar(cam, basePos + Vector3.up * alto * 0.5f, 30f);
                 yield return null;
@@ -220,12 +220,12 @@ namespace SpaceMission
 
             // 2) Los motores de cerca: chispas, voz de control y encendido.
             yield return Cortar(true);
-            Toma(2, "IGNITION SEQUENCE");
+            Toma(2, Idioma.T("IGNITION SEQUENCE"));
             Sonar(ArteDatos.Efecto.VozEncendido);
             bool chispazo = false, encendido = false;
             for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
             {
-                textoCuenta.text = t < 1.2f ? "T-02" : t < 2.4f ? "T-01" : "";
+                textoCuenta.text = t < 1.2f ? Idioma.T("T-02") : t < 2.4f ? Idioma.T("T-01") : "";
                 if (!chispazo && t > 0.5f)
                 {
                     chispazo = true;
@@ -253,7 +253,7 @@ namespace SpaceMission
 
             // 3) Los brazos de la torre se retiran y el cohete despega, visto desde abajo.
             yield return Cortar(false);
-            Toma(3, "LIFTOFF!");
+            Toma(3, Idioma.T("LIFTOFF!"));
             Sonar(ArteDatos.Efecto.BrazosTorre);
             bool voz = false;
             float subida = 0f;
@@ -275,7 +275,7 @@ namespace SpaceMission
 
             // 4) Desde detrás de los árboles: sube dejando su columna de humo.
             yield return Cortar(true);
-            Toma(4, "ASCENT");
+            Toma(4, Idioma.T("ASCENT"));
             if (estela != null) estela.Play();
             var camArboles = basePos + new Vector3(31f, 4.2f, -52f);
             float inicio4 = subida;
@@ -289,7 +289,7 @@ namespace SpaceMission
 
             // 5) Entre las nubes: el cielo pasa de azul al negro del espacio; el cohete empieza a inclinarse.
             yield return Cortar(true);
-            Toma(5, "THROUGH THE CLOUDS");
+            Toma(5, Idioma.T("THROUGH THE CLOUDS"));
             for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
             {
                 float k = t / 3.6f;
@@ -303,7 +303,7 @@ namespace SpaceMission
 
             // 6) En órbita terrestre: separación propia de cada cohete (en el vacío no suena el motor).
             yield return Cortar(true);
-            Toma(6, "STAGE SEPARATION");
+            Toma(6, Idioma.T("STAGE SEPARATION"));
             Encender(false);
             DetenerBucle();
             Activar(false, true, false);
@@ -361,7 +361,7 @@ namespace SpaceMission
 
             // 7) La cofia se abre y el satélite se separa: pernos, mitades que se alejan girando, resortes que
             //    empujan la carga y la etapa superior que se aparta con pulsos de gas frío (en el vacío, sin motor).
-            Toma(7, "FAIRING SEPARATION · PAYLOAD RELEASE");
+            Toma(7, Idioma.T("FAIRING SEPARATION · PAYLOAD RELEASE"));
             EncenderSuperior(false);
             var cofia = titan ? cofiaTitan : cofiaExplorador;
             var sat = escenario.Satelite;
@@ -433,7 +433,7 @@ namespace SpaceMission
                 {
                     estable = true;   // el satélite se estabiliza con sus propios propulsores
                     Sonar(ArteDatos.Efecto.Despliegue);
-                    textoHud.text = "PAYLOAD RELEASED";
+                    textoHud.text = Idioma.T("PAYLOAD RELEASED");
                     if (gasFrio != null) { gasFrio.transform.position = sat.position; gasFrio.Play(); }
                 }
                 // Cámara de lado, acercándose a la nariz y siguiendo luego al satélite.
@@ -447,14 +447,14 @@ namespace SpaceMission
 
             // 8) Transferencia Tierra → Marte en un mapa (tiempo acelerado, sin cifras).
             yield return Cortar(true);
-            Toma(8, "INTERPLANETARY TRANSFER · TIME LAPSE");
+            Toma(8, Idioma.T("INTERPLANETARY TRANSFER · TIME LAPSE"));
             Activar(false, false, true);
             Sonar(ArteDatos.Efecto.Transferencia);
             yield return Transferencia(4.5f);
 
             // 9) Aproximación a Marte e inserción orbital.
             yield return Cortar(true);
-            Toma(9, "ORBIT INSERTION");
+            Toma(9, Idioma.T("ORBIT INSERTION"));
             Activar(false, false, false);
             sat.localScale = escalaSat;
             float fFinal = escenario.FaseAncla;
@@ -475,7 +475,7 @@ namespace SpaceMission
             }
 
             // 10) Plano héroe en la órbita elegida; la cámara llega al encuadre de la investigación.
-            Toma(10, "ORBIT ESTABLISHED · ANOMALY LOCATED");
+            Toma(10, Idioma.T("ORBIT ESTABLISHED · ANOMALY LOCATED"));
             escenario.MostrarOrbita(true, 0.85f);
             Sonar(ArteDatos.Efecto.DatosRecibidos, 0.8f);
             Sonar(ArteDatos.Efecto.VozOrbita);
@@ -551,7 +551,7 @@ namespace SpaceMission
 
         void Toma(int numero, string hud)
         {
-            textoFase.text = "MISSION PHASE  " + numero + " / " + Tomas;
+            textoFase.text = Idioma.T("MISSION PHASE  ") + numero + " / " + Tomas;
             textoHud.text = hud;
         }
 

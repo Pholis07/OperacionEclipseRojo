@@ -24,5 +24,12 @@ namespace SpaceMission
 
         /// <summary>Ids de instrumento complementario cuya revelación desbloquea esta órbita.</summary>
         public List<string> revelacionesDesbloqueadas = new List<string>();
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string Nombre => Idioma.T(nombre);
+        public string DescripcionBreve => Idioma.T(descripcionBreve);
+        public string Ventaja => Idioma.T(ventaja);
+        public string Limitacion => Idioma.T(limitacion);
+        public string DatoNasa => Idioma.Espanol && !string.IsNullOrEmpty(datoNasaEs) ? datoNasaEs : datoNasa;
     }
 }

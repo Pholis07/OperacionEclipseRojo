@@ -51,7 +51,7 @@ namespace SpaceMission
 
             e.Estado = e.Categoria == CategoriaResultado.Victoria ? EstadoSemaforo.Verde : EstadoSemaforo.Amarillo;
             e.Mensaje = e.Estado == EstadoSemaforo.Verde
-                ? "Setup ready: it covers all the evidence the orbit requires."
+                ? Idioma.T("Setup ready: it covers all the evidence the orbit requires.")
                 : MensajeAmarillo(e, catalogo);
 
             ElegirTransmisiones(e, config, orbita, catalogo);
@@ -109,10 +109,10 @@ namespace SpaceMission
         static string MensajeGris(ResultadoCalculo r)
         {
             var partes = new List<string>();
-            if (r.Faltantes.Contains(Faltante.Orbita)) partes.Add("an orbit");
-            if (r.Faltantes.Contains(Faltante.Lanzador)) partes.Add("a launcher");
-            if (r.Faltantes.Contains(Faltante.Instrumentos)) partes.Add("at least one instrument");
-            return "Incomplete setup: you still need to choose " + Unir(partes) + ".";
+            if (r.Faltantes.Contains(Faltante.Orbita)) partes.Add(Idioma.T("an orbit"));
+            if (r.Faltantes.Contains(Faltante.Lanzador)) partes.Add(Idioma.T("a launcher"));
+            if (r.Faltantes.Contains(Faltante.Instrumentos)) partes.Add(Idioma.T("at least one instrument"));
+            return Idioma.T("Incomplete setup: you still need to choose ") + Unir(partes) + ".";
         }
 
         static string MensajeRojo(ResultadoCalculo r, Configuracion config, CatalogoDatos catalogo, MisionDatos mision)
@@ -120,29 +120,29 @@ namespace SpaceMission
             var lanzador = catalogo.Lanzador(config.LanzadorId);
             var partes = new List<string>();
             if (r.LimitesSuperados.Contains(Limite.Masa))
-                partes.Add("the mass (" + r.MasaKg + " of " + lanzador.capacidadKg + " kg)");
+                partes.Add(Idioma.T("the mass (") + r.MasaKg + Idioma.T(" of ") + lanzador.capacidadKg + " kg)");
             if (r.LimitesSuperados.Contains(Limite.Potencia))
-                partes.Add("the power (" + r.PotenciaW + " of " + mision.potenciaDisponibleW + " W)");
+                partes.Add(Idioma.T("the power (") + r.PotenciaW + Idioma.T(" of ") + mision.potenciaDisponibleW + " W)");
             if (r.LimitesSuperados.Contains(Limite.Costo))
-                partes.Add("the budget (" + r.CostoCr + " of " + mision.presupuestoCr + " credits)");
+                partes.Add(Idioma.T("the budget (") + r.CostoCr + Idioma.T(" of ") + mision.presupuestoCr + Idioma.T(" credits)"));
             if (r.LimitesSuperados.Contains(Limite.Espacios))
-                partes.Add("the slots (" + r.EspaciosUsados + " of " + lanzador.espacios + ")");
-            return "Cannot launch: " + Unir(partes) + (partes.Count > 1 ? " exceed the limit." : " exceeds the limit.");
+                partes.Add(Idioma.T("the slots (") + r.EspaciosUsados + Idioma.T(" of ") + lanzador.espacios + ")");
+            return Idioma.T("Cannot launch: ") + Unir(partes) + (partes.Count > 1 ? Idioma.T(" exceed the limit.") : Idioma.T(" exceeds the limit."));
         }
 
         static string MensajeAmarillo(Evaluacion e, CatalogoDatos catalogo)
         {
-            var faltan = e.EvidenciasFaltantes.Select(id => catalogo.Instrumento(id).pistaAsociada).ToList();
-            var mensaje = "Missing " + Unir(faltan) + ".";
+            var faltan = e.EvidenciasFaltantes.Select(id => catalogo.Instrumento(id).PistaAsociada).ToList();
+            var mensaje = Idioma.T("Missing ") + Unir(faltan) + ".";
             if (e.PistasPrincipales.Count == 0)
-                mensaje += " Warning: certain failure, none of the chosen instruments can observe the main anomaly.";
+                mensaje += Idioma.T(" Warning: certain failure, none of the chosen instruments can observe the main anomaly.");
             return mensaje;
         }
 
         static string Unir(List<string> partes)
         {
             if (partes.Count <= 1) return string.Join("", partes);
-            return string.Join(", ", partes.Take(partes.Count - 1)) + " and " + partes[partes.Count - 1];
+            return string.Join(", ", partes.Take(partes.Count - 1)) + Idioma.T(" and ") + partes[partes.Count - 1];
         }
     }
 }

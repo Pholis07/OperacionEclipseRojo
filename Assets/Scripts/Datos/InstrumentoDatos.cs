@@ -27,5 +27,11 @@ namespace SpaceMission
 
         /// <summary>Consumo total. Desde la versión 5 la tormenta no suma potencia (extraTormentaW = 0): baja la de los paneles.</summary>
         public int ConsumoTotalW => potenciaNormalW + extraTormentaW;
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string Nombre => Idioma.T(nombre);
+        public string PistaAsociada => Idioma.T(pistaAsociada);
+        public string TextoAyuda => Idioma.T(textoAyuda);
+        public string DatoNasa => Idioma.Espanol && !string.IsNullOrEmpty(datoNasaEs) ? datoNasaEs : datoNasa;
     }
 }

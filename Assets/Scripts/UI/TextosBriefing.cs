@@ -8,18 +8,18 @@ namespace SpaceMission
     /// </summary>
     public static class TextosBriefing
     {
-        public static readonly string[] Requisitos =
+        public static string[] Requisitos => new[]
         {
-            "Obtain evidence of the thermal anomaly.",
-            "Obtain evidence of what lies beneath the surface.",
-            "With an elliptical orbit, also find out what the storm environment is like."
+            Idioma.T("Obtain evidence of the thermal anomaly."),
+            Idioma.T("Obtain evidence of what lies beneath the surface."),
+            Idioma.T("With an elliptical orbit, also find out what the storm environment is like.")
         };
 
-        public const string ExplicacionColores =
-            "<b><color=#9CA3AF>Grey</color></b>: you still need to choose an orbit, a launcher or at least one instrument.\n" +
-            "<b><color=#EF4444>Red</color></b>: a limit is exceeded; you cannot launch.\n" +
-            "<b><color=#EAB308>Yellow</color></b>: you can launch, but some evidence is missing.\n" +
-            "<b><color=#22C55E>Green</color></b>: the configuration covers what the mission requires.";
+        public static string ExplicacionColores =>
+            Idioma.T("<b><color=#9CA3AF>Grey</color></b>: you still need to choose an orbit, a launcher or at least one instrument.\n") +
+            Idioma.T("<b><color=#EF4444>Red</color></b>: a limit is exceeded; you cannot launch.\n") +
+            Idioma.T("<b><color=#EAB308>Yellow</color></b>: you can launch, but some evidence is missing.\n") +
+            Idioma.T("<b><color=#22C55E>Green</color></b>: the configuration covers what the mission requires.");
 
         public static string TextoRequisitos()
         {
@@ -34,13 +34,13 @@ namespace SpaceMission
             var m = nivel != null ? nivel : catalogo.mision;
             var explorador = catalogo.Lanzador("explorador");
             var titan = catalogo.Lanzador("titan");
-            return "Budget: " + Numero(m.presupuestoCr) + " credits\n" +
-                   "Available power: " + Numero(m.potenciaDisponibleW) + " W\n" +
-                   "Maximum mass by launcher: " + explorador.nombre + " " + Numero(explorador.capacidadKg) +
-                   " kg, " + titan.nombre + " " + Numero(titan.capacidadKg) + " kg\n" +
-                   "Instrument slots: " + explorador.espacios + " with " + explorador.nombre +
-                   ", " + titan.espacios + " with " + titan.nombre + "\n" +
-                   "At least one instrument is required to launch";
+            return Idioma.T("Budget: ") + Numero(m.presupuestoCr) + Idioma.T(" credits\n") +
+                   Idioma.T("Available power: ") + Numero(m.potenciaDisponibleW) + " W\n" +
+                   Idioma.T("Maximum mass by launcher: ") + explorador.Nombre + " " + Numero(explorador.capacidadKg) +
+                   " kg, " + titan.Nombre + " " + Numero(titan.capacidadKg) + " kg\n" +
+                   Idioma.T("Instrument slots: ") + explorador.espacios + Idioma.T(" with ") + explorador.Nombre +
+                   ", " + titan.espacios + Idioma.T(" with ") + titan.Nombre + "\n" +
+                   Idioma.T("At least one instrument is required to launch");
         }
 
         /// <summary>Números con coma de miles, como en los documentos del equipo (1,250).</summary>

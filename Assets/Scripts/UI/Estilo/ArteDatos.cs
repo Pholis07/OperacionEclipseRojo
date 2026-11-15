@@ -16,6 +16,7 @@ namespace SpaceMission
             public string instrumentoId;
             public Texture2D imagen;
             public string credito;
+            public string Credito => Idioma.T(credito);   // versión 5
         }
 
         [System.Serializable]

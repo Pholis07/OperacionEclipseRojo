@@ -63,17 +63,17 @@ namespace SpaceMission
         public void LlenarBriefing()
         {
             var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
-            textoObjetivo.text = nivel.objetivo;
+            textoObjetivo.text = nivel.Objetivo;
             textoRequisitos.text = TextosBriefing.TextoRequisitos();
             textoLimites.text = TextosBriefing.TextoLimites(catalogo, nivel) +
-                                "\nCampaign length: " + nivel.orbitasNavegacion + (nivel.orbitasNavegacion == 1 ? " month" : " months") +
-                                "\nSpacecraft events: " + nivel.eventosPorMision;
+                                Idioma.T("\nCampaign length: ") + nivel.orbitasNavegacion + (nivel.orbitasNavegacion == 1 ? Idioma.T(" month") : Idioma.T(" months")) +
+                                Idioma.T("\nSpacecraft events: ") + nivel.eventosPorMision;
             textoColores.text = TextosBriefing.ExplicacionColores;
             for (int i = 0; i < botonesNivel.Length; i++)
             {
                 botonesNivel[i].GetComponent<UnityEngine.UI.Image>().color =
                     i == EstadoJuego.NivelIndice ? new Color32(0xE2, 0x64, 0x3A, 0xFF) : new Color32(0x2A, 0x2A, 0x31, 0xFF);
-                botonesNivel[i].GetComponentInChildren<TMP_Text>().text = catalogo.Nivel(i).nombreNivel;
+                botonesNivel[i].GetComponentInChildren<TMP_Text>().text = catalogo.Nivel(i).NombreNivel;
             }
         }
 
@@ -89,7 +89,7 @@ namespace SpaceMission
             Mostrar(vistaBriefing);
             if (botonTutorial != null)
                 botonTutorial.GetComponentInChildren<TMP_Text>().text = TutorialUI.Completado
-                    ? "Replay Mission 0 (tutorial)" : "New? Play Mission 0 first";
+                    ? Idioma.T("Replay Mission 0 (tutorial)") : Idioma.T("New? Play Mission 0 first");
         }
 
         /// <summary>Misión 0: nave fija, sin configuración ni cinemática, directo a la Operación guiada.</summary>

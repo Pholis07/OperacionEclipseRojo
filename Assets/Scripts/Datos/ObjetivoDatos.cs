@@ -21,5 +21,8 @@ namespace SpaceMission
         public TipoObjetivo tipo;
         public int valor;
         public int puntos;
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string Texto => Idioma.T(texto);
     }
 }

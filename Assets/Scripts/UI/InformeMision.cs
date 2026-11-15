@@ -39,16 +39,16 @@ namespace SpaceMission
                 if (op == null || !op.Recibidas.Contains(id))
                 {
                     // Lo que no se observó con calidad suficiente o no se envió no cuenta como evidencia.
-                    informe.Faltantes.Add(instrumento.nombre + ": no valid evidence reached Earth.");
+                    informe.Faltantes.Add(instrumento.Nombre + Idioma.T(": no valid evidence reached Earth."));
                     continue;
                 }
-                var linea = instrumento.nombre + ": " + instrumento.pistaAsociada + ".";
+                var linea = instrumento.Nombre + ": " + instrumento.PistaAsociada + ".";
                 if (t.tipo == TipoTransmision.Principal) informe.Evidencias.Add(linea);
                 else informe.Revelaciones.Add(linea);
             }
 
             foreach (var id in e.Ausentes)
-                informe.Faltantes.Add(catalogo.Transmision(id).texto);
+                informe.Faltantes.Add(catalogo.Transmision(id).Texto);
 
             return informe;
         }
@@ -58,29 +58,29 @@ namespace SpaceMission
             var r = e.Calculo;
             var m = nivel != null ? nivel : catalogo.mision;
             var lanzador = catalogo.Lanzador(c.LanzadorId);
-            return "You used " + TextosBriefing.Numero(r.CostoCr) + " of " + TextosBriefing.Numero(m.presupuestoCr) + " credits, " +
-                   TextosBriefing.Numero(r.MasaKg) + " of " + TextosBriefing.Numero(lanzador.capacidadKg) + " kg, " +
-                   TextosBriefing.Numero(r.PotenciaW) + " of " + TextosBriefing.Numero(m.potenciaDisponibleW) + " W and " +
-                   r.EspaciosUsados + " of " + lanzador.espacios + " slots.";
+            return Idioma.T("You used ") + TextosBriefing.Numero(r.CostoCr) + Idioma.T(" of ") + TextosBriefing.Numero(m.presupuestoCr) + Idioma.T(" credits, ") +
+                   TextosBriefing.Numero(r.MasaKg) + Idioma.T(" of ") + TextosBriefing.Numero(lanzador.capacidadKg) + " kg, " +
+                   TextosBriefing.Numero(r.PotenciaW) + Idioma.T(" of ") + TextosBriefing.Numero(m.potenciaDisponibleW) + Idioma.T(" W and ") +
+                   r.EspaciosUsados + Idioma.T(" of ") + lanzador.espacios + Idioma.T(" slots.");
         }
 
         static string TextoOperacion(Operacion op)
         {
             if (op == null) return "";
-            var texto = " The mission lasted " + op.MesesResueltos + (op.MesesResueltos == 1 ? " month" : " months") + ", with " + op.MesesRestantes + " left over.";
+            var texto = Idioma.T(" The mission lasted ") + op.MesesResueltos + (op.MesesResueltos == 1 ? Idioma.T(" month") : Idioma.T(" months")) + Idioma.T(", with ") + op.MesesRestantes + Idioma.T(" left over.");
             if (op.Apagones > 0)
-                texto += " The spacecraft shut down " + (op.Apagones == 1 ? "once" : op.Apagones + " times") +
-                         " and the restarts cost " + TextosBriefing.Numero(op.CreditosPerdidos) + " credits.";
-            if (op.Satelite != null) texto += " Satellite: " + op.Satelite.nombre + ".";
+                texto += Idioma.T(" The spacecraft shut down ") + (op.Apagones == 1 ? Idioma.T("once") : op.Apagones + Idioma.T(" times")) +
+                         Idioma.T(" and the restarts cost ") + TextosBriefing.Numero(op.CreditosPerdidos) + Idioma.T(" credits.");
+            if (op.Satelite != null) texto += Idioma.T(" Satellite: ") + op.Satelite.Nombre + ".";
             if (op.CreditosCarga > 0)
-                texto += " The cargo cost " + TextosBriefing.Numero(op.CreditosCarga) + " credits.";
+                texto += Idioma.T(" The cargo cost ") + TextosBriefing.Numero(op.CreditosCarga) + Idioma.T(" credits.");
             if (op.CreditosManiobras > 0)
-                texto += " The maneuvers cost " + TextosBriefing.Numero(op.CreditosManiobras) + " credits.";
-            texto += " You had " + op.Combustible + " fuel left.";
+                texto += Idioma.T(" The maneuvers cost ") + TextosBriefing.Numero(op.CreditosManiobras) + Idioma.T(" credits.");
+            texto += Idioma.T(" You had ") + op.Combustible + Idioma.T(" fuel left.");
             if (op.Memoria.Count > 0)
-                texto += " " + op.Memoria.Count + (op.Memoria.Count == 1 ? " record was" : " records were") + " left unsent in memory.";
+                texto += " " + op.Memoria.Count + (op.Memoria.Count == 1 ? Idioma.T(" record was") : Idioma.T(" records were")) + Idioma.T(" left unsent in memory.");
             if (op.PeticionAceptada)
-                texto += op.PeticionCumplida ? " You fulfilled the NASA request." : " You did not fulfill the NASA request.";
+                texto += op.PeticionCumplida ? Idioma.T(" You fulfilled the NASA request.") : Idioma.T(" You did not fulfill the NASA request.");
             var objetivos = Objetivos.Resumen(op);
             if (objetivos.Length > 0) texto += " " + objetivos;
             return texto;
@@ -90,8 +90,8 @@ namespace SpaceMission
         public static string Encabezado(string transmisionId, int indice, int total, CatalogoDatos catalogo)
         {
             var t = catalogo.Transmision(transmisionId);
-            var origen = string.IsNullOrEmpty(t.instrumentoId) ? "Start of observation" : catalogo.Instrumento(t.instrumentoId).nombre;
-            return "Transmission " + (indice + 1) + " of " + total + "  ·  " + origen;
+            var origen = string.IsNullOrEmpty(t.instrumentoId) ? Idioma.T("Start of observation") : catalogo.Instrumento(t.instrumentoId).Nombre;
+            return Idioma.T("Transmission ") + (indice + 1) + Idioma.T(" of ") + total + "  ·  " + origen;
         }
     }
 }

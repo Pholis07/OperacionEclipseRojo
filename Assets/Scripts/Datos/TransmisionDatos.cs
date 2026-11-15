@@ -13,5 +13,8 @@ namespace SpaceMission
         public int orden;
         public TipoTransmision tipo;
         [TextArea] public string texto;
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string Texto => Idioma.T(texto);
     }
 }

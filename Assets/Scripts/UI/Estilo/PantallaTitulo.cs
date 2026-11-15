@@ -27,6 +27,7 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Graphic destello;
         [SerializeField] CanvasGroup[] entradas;
         [SerializeField] AudioClip sonidoCerrar;
+        [SerializeField] RectTransform selectorIdioma;   // versión 5: pulsarlo no cierra el título
 
         static bool yaMostrada;
         CanvasGroup grupo;
@@ -59,7 +60,7 @@ namespace SpaceMission
             if (sistema != null && sistema.currentSelectedGameObject != null) sistema.SetSelectedGameObject(null);
             // El aviso respira para indicar que espera al jugador.
             if (aviso != null && avisoListo) aviso.alpha = 0.55f + 0.45f * Mathf.Sin(Time.unscaledTime * 3f);
-            if (AlgoPulsado())
+            if (AlgoPulsado() && !SobreSelector())
             {
                 StopAllCoroutines(); // corta la entrada si aún no terminó
                 StartCoroutine(Cerrar());
@@ -73,13 +74,7 @@ namespace SpaceMission
             if (lema != null) lema.alpha = 0f;
             if (linea != null) linea.localScale = new Vector3(0f, 1f, 1f);
             if (etiqueta != null) etiqueta.alpha = 0f;
-            int letras = 0;
-            if (titulo != null)
-            {
-                titulo.ForceMeshUpdate();
-                letras = titulo.textInfo.characterCount;
-                titulo.maxVisibleCharacters = 0;
-            }
+            if (titulo != null) titulo.maxVisibleCharacters = 0;
 
             yield return Esperar(0.25f);
             if (etiqueta != null) StartCoroutine(Animar.Durante(0.7f, t => etiqueta.alpha = t));
@@ -87,7 +82,8 @@ namespace SpaceMission
             if (titulo != null)
                 StartCoroutine(Animar.Durante(1.3f, t =>
                 {
-                    titulo.maxVisibleCharacters = Mathf.CeilToInt(letras * Mathf.Clamp01(t * 1.6f));
+                    // Al terminar se quita el tope: el título cambia de largo si se cambia el idioma.
+                    titulo.maxVisibleCharacters = t >= 1f ? 99999 : Mathf.CeilToInt(titulo.textInfo.characterCount * Mathf.Clamp01(t * 1.6f));
                     titulo.characterSpacing = Mathf.Lerp(espaciadoFinal + 40f, espaciadoFinal, t);
                 }));
             yield return Esperar(1.0f);
@@ -103,6 +99,13 @@ namespace SpaceMission
             if (Preferencias.ReducirMovimiento) yield break;
             float fin = Time.unscaledTime + segundos;
             while (Time.unscaledTime < fin) yield return null;
+        }
+
+        /// <summary>El clic cae sobre el selector de idioma: elige el idioma y el título sigue abierto.</summary>
+        bool SobreSelector()
+        {
+            if (selectorIdioma == null || Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame) return false;
+            return RectTransformUtility.RectangleContainsScreenPoint(selectorIdioma, Mouse.current.position.ReadValue(), null);
         }
 
         static bool AlgoPulsado()

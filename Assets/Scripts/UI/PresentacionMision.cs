@@ -28,10 +28,10 @@ namespace SpaceMission
             bool sinCalculo = r.Estado == EstadoSemaforo.Gris; // en Gris no se calcula (diseño, casos B1, B7 y B8)
             return new[]
             {
-                Hacer("Mass", r.MasaKg, lanzador != null ? lanzador.capacidadKg : (int?)null, "kg", sinCalculo, r.LimitesSuperados.Contains(Limite.Masa)),
-                Hacer("Power", r.PotenciaW, m.potenciaDisponibleW, "W", sinCalculo, r.LimitesSuperados.Contains(Limite.Potencia)),
-                Hacer("Cost", r.CostoCr, m.presupuestoCr, "cr", sinCalculo, r.LimitesSuperados.Contains(Limite.Costo)),
-                Hacer("Slots", r.EspaciosUsados, lanzador != null ? lanzador.espacios : (int?)null, "", sinCalculo, r.LimitesSuperados.Contains(Limite.Espacios)),
+                Hacer(Idioma.T("Mass"), r.MasaKg, lanzador != null ? lanzador.capacidadKg : (int?)null, "kg", sinCalculo, r.LimitesSuperados.Contains(Limite.Masa)),
+                Hacer(Idioma.T("Power"), r.PotenciaW, m.potenciaDisponibleW, "W", sinCalculo, r.LimitesSuperados.Contains(Limite.Potencia)),
+                Hacer(Idioma.T("Cost"), r.CostoCr, m.presupuestoCr, "cr", sinCalculo, r.LimitesSuperados.Contains(Limite.Costo)),
+                Hacer(Idioma.T("Slots"), r.EspaciosUsados, lanzador != null ? lanzador.espacios : (int?)null, "", sinCalculo, r.LimitesSuperados.Contains(Limite.Espacios)),
             };
         }
 
@@ -59,10 +59,10 @@ namespace SpaceMission
         {
             switch (estado)
             {
-                case EstadoSemaforo.Verde: return "GREEN";
-                case EstadoSemaforo.Amarillo: return "YELLOW";
-                case EstadoSemaforo.Rojo: return "RED";
-                default: return "GREY";
+                case EstadoSemaforo.Verde: return Idioma.T("GREEN");
+                case EstadoSemaforo.Amarillo: return Idioma.T("YELLOW");
+                case EstadoSemaforo.Rojo: return Idioma.T("RED");
+                default: return Idioma.T("GREY");
             }
         }
 
@@ -80,42 +80,42 @@ namespace SpaceMission
 
         // El icono de cada órbita va en su color (el mismo de su línea en el planeta).
         public static string TextoOpcion(OrbitaDatos o) =>
-            Tarjeta("<color=" + Trayectoria.ColorHex(o.id) + ">" + Iconos.Orbita + "</color>", o.nombre,
+            Tarjeta("<color=" + Trayectoria.ColorHex(o.id) + ">" + Iconos.Orbita + "</color>", o.Nombre,
                 Chip(Iconos.Costo, TextosBriefing.Numero(o.costoCr) + " cr"));
 
         public static string TextoOpcion(LanzadorDatos l) =>
-            Tarjeta(Iconos.Lanzador, l.nombre, Chip(Iconos.Costo, TextosBriefing.Numero(l.costoCr) + " cr"),
-                Chip(Iconos.Masa, TextosBriefing.Numero(l.capacidadKg) + " kg"), Chip(Iconos.Espacios, l.espacios + " slots"));
+            Tarjeta(Iconos.Lanzador, l.Nombre, Chip(Iconos.Costo, TextosBriefing.Numero(l.costoCr) + " cr"),
+                Chip(Iconos.Masa, TextosBriefing.Numero(l.capacidadKg) + " kg"), Chip(Iconos.Espacios, l.espacios + Idioma.T(" slots")));
 
         public static string TextoOpcion(InstrumentoDatos i) =>
-            Tarjeta(Iconos.DeInstrumento(i.id), i.nombre, Chip(Iconos.Masa, i.masaKg + " kg"),
+            Tarjeta(Iconos.DeInstrumento(i.id), i.Nombre, Chip(Iconos.Masa, i.masaKg + " kg"),
                 Chip(Iconos.Potencia, i.ConsumoTotalW + " W"), Chip(Iconos.Costo, i.costoCr + " cr"));
 
         public static string TextoOpcion(SateliteDatos s) =>
-            Tarjeta(Iconos.Satelite, s.nombre, Chip(Iconos.Informe, s.inspiradoEn));
+            Tarjeta(Iconos.Satelite, s.Nombre, Chip(Iconos.Informe, s.inspiradoEn));
 
         static string Dato(string icono, string nombre, string valor) =>
             "\n<color=" + Cian + ">" + icono + "</color> <b>" + nombre + ":</b> " + valor;
 
         public static string Ayuda(OrbitaDatos o) =>
-            "<b>" + o.nombre + "</b>\n" + o.descripcionBreve +
-            Modificador(new SpaceMission.Modificador(true, o.ventaja)) + Modificador(new SpaceMission.Modificador(false, o.limitacion)) + Dato(Iconos.Costo, "Cost", o.costoCr + " credits") + Nasa(o.datoNasa, o.fuenteNasa);
+            "<b>" + o.Nombre + "</b>\n" + o.DescripcionBreve +
+            Modificador(new SpaceMission.Modificador(true, o.Ventaja)) + Modificador(new SpaceMission.Modificador(false, o.Limitacion)) + Dato(Iconos.Costo, Idioma.T("Cost"), o.costoCr + Idioma.T(" credits")) + Nasa(o.DatoNasa, o.fuenteNasa);
 
         public static string Ayuda(LanzadorDatos l) =>
-            "<b>" + l.nombre + "</b>\n" + l.descripcion + Dato(Iconos.Costo, "Cost", l.costoCr + " credits") +
-            Dato(Iconos.Masa, "Maximum mass", TextosBriefing.Numero(l.capacidadKg) + " kg") + Dato(Iconos.Espacios, "Slots", l.espacios.ToString()) +
-            Nasa(l.datoNasa, l.fuenteNasa);
+            "<b>" + l.Nombre + "</b>\n" + l.Descripcion + Dato(Iconos.Costo, Idioma.T("Cost"), l.costoCr + Idioma.T(" credits")) +
+            Dato(Iconos.Masa, Idioma.T("Maximum mass"), TextosBriefing.Numero(l.capacidadKg) + " kg") + Dato(Iconos.Espacios, Idioma.T("Slots"), l.espacios.ToString()) +
+            Nasa(l.DatoNasa, l.fuenteNasa);
 
         public static string Ayuda(InstrumentoDatos i) =>
-            "<b>" + i.nombre + "</b>\n" + i.textoAyuda + Dato(Iconos.Masa, "Mass", i.masaKg + " kg") +
-            Dato(Iconos.Potencia, "Power", i.ConsumoTotalW + " W") + Dato(Iconos.Costo, "Cost", i.costoCr + " credits") +
-            Nasa(i.datoNasa, i.fuenteNasa);
+            "<b>" + i.Nombre + "</b>\n" + i.TextoAyuda + Dato(Iconos.Masa, Idioma.T("Mass"), i.masaKg + " kg") +
+            Dato(Iconos.Potencia, Idioma.T("Power"), i.ConsumoTotalW + " W") + Dato(Iconos.Costo, Idioma.T("Cost"), i.costoCr + Idioma.T(" credits")) +
+            Nasa(i.DatoNasa, i.fuenteNasa);
 
         public static string Ayuda(SateliteDatos s) =>
             // Versión 5: primero lo que cambia en el juego (flechas), después el dato real. La lista ya dice en qué misión se basa.
-            "<b>" + s.nombre + "</b>" +
+            "<b>" + s.Nombre + "</b>" +
             (catalogoActual != null ? Modificadores(SpaceMission.Modificadores.DeSatelite(s, catalogoActual)) : "") +
-            Nasa(s.datoNasa, s.fuenteNasa) + "\n<size=80%><color=#94A3B8>" + s.credito + ".</color></size>";
+            Nasa(s.DatoNasa, s.fuenteNasa) + "\n<size=80%><color=#94A3B8>" + s.Credito + ".</color></size>";
 
         /// <summary>Catálogo para calcular los modificadores del satélite en su ayuda. Lo fija ConfiguracionUI.</summary>
         public static CatalogoDatos catalogoActual;
@@ -130,14 +130,14 @@ namespace SpaceMission
         public static string Modificadores(System.Collections.Generic.List<SpaceMission.Modificador> l)
         {
             if (l == null) return "";
-            if (l.Count == 0) return "\n<color=#94A3B8>No advantages or drawbacks: the reference spacecraft.</color>";
+            if (l.Count == 0) return Idioma.T("\n<color=#94A3B8>No advantages or drawbacks: the reference spacecraft.</color>");
             return string.Concat(l.OrderBy(m => m.Positivo ? 0 : 1).Select(Modificador));
         }
 
         /// <summary>El dato real de la NASA en que se basa la opción, en color de datos y con su fuente.</summary>
         public static string Nasa(string dato, string fuente) =>
             string.IsNullOrEmpty(dato) ? "" :
-            "\n<color=#75D6DF><b>NASA data:</b> " + dato + "</color>" +
+            Idioma.T("\n<color=#75D6DF><b>NASA data:</b> ") + dato + "</color>" +
             (string.IsNullOrEmpty(fuente) ? "" : " <size=80%><color=#94A3B8>(" + fuente + ")</color></size>");
 
         // ---------- Revisión ----------
@@ -146,19 +146,19 @@ namespace SpaceMission
         {
             var orbita = string.IsNullOrEmpty(c.OrbitaId) ? null : catalogo.Orbita(c.OrbitaId);
             var lanzador = string.IsNullOrEmpty(c.LanzadorId) ? null : catalogo.Lanzador(c.LanzadorId);
-            var instrumentos = c.InstrumentoIds.Select(id => catalogo.Instrumento(id).nombre).ToList();
+            var instrumentos = c.InstrumentoIds.Select(id => catalogo.Instrumento(id).Nombre).ToList();
 
             var lineas = new List<string>
             {
-                "<b>Orbit:</b> " + (orbita != null ? orbita.nombre : "not chosen"),
-                "<b>Launcher:</b> " + (lanzador != null ? lanzador.nombre : "not chosen"),
-                "<b>Instruments:</b> " + (instrumentos.Count > 0 ? string.Join(", ", instrumentos) : "none"),
+                Idioma.T("<b>Orbit:</b> ") + (orbita != null ? orbita.Nombre : Idioma.T("not chosen")),
+                Idioma.T("<b>Launcher:</b> ") + (lanzador != null ? lanzador.Nombre : Idioma.T("not chosen")),
+                Idioma.T("<b>Instruments:</b> ") + (instrumentos.Count > 0 ? string.Join(", ", instrumentos) : Idioma.T("none")),
                 ""
             };
             foreach (var b in Barras(e, c, catalogo, nivel))
                 lineas.Add("<b>" + b.Nombre + ":</b> " + (b.Excedida ? "<color=#EF4444>" + b.Texto + "</color>" : b.Texto));
             lineas.Add("");
-            lineas.Add("<b>STATUS:</b> <color=#" + ColorUtility.ToHtmlStringRGB(ColorSemaforo(e.Estado)) + ">" +
+            lineas.Add(Idioma.T("<b>STATUS:</b> <color=#") + ColorUtility.ToHtmlStringRGB(ColorSemaforo(e.Estado)) + ">" +
                        NombreEstado(e.Estado) + "</color>");
             lineas.Add(e.Mensaje);
             return string.Join("\n", lineas);

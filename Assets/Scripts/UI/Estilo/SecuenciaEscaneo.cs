@@ -105,7 +105,7 @@ namespace SpaceMission
             camara.fieldOfView = escenario.CampoAncla;
             camPos = p0; camVel = Vector3.zero;
             textoInstrumento.text = Iconos.DeInstrumento(instrumento) + "  " +
-                                    (catalogo != null ? catalogo.Instrumento(instrumento).nombre.ToUpperInvariant() : instrumento);
+                                    (catalogo != null ? catalogo.Instrumento(instrumento).Nombre.ToUpperInvariant() : instrumento);
             var color = ColorInstrumento(instrumento);
 
             // Aparece la vista sobre el mapa.
@@ -114,12 +114,12 @@ namespace SpaceMission
             yield return Fundir(0f, 1f, 0.3f);
 
             // 1) Objetivo fijado.
-            Estado("TARGET LOCKED", Cian);
+            Estado(Idioma.T("TARGET LOCKED"), Cian);
             Sonar(ArteDatos.Efecto.FijarObjetivo);
             if (completa) yield return Esperar(0.8f, objetivo, f0, null);
 
             // 2) Avance por la órbita, orientando los instrumentos hacia la región.
-            Estado("APPROACH", Cian);
+            Estado(Idioma.T("APPROACH"), Cian);
             Sonar(ArteDatos.Efecto.Servo, 0.7f);
             Sonar(ArteDatos.Efecto.Propulsores, 0.5f);
             float tAvance = completa ? 1.6f : 0.9f;
@@ -136,7 +136,7 @@ namespace SpaceMission
             escenario.ColocarSatelite(f1, objetivo);
 
             // 3) Escaneo con el efecto del instrumento.
-            Estado("SCANNING", color);
+            Estado(Idioma.T("SCANNING"), color);
             Sonar(ArteDatos.EscaneoDe(instrumento));
             float tEscaneo = completa ? 2.2f : 1.1f;
             Haz(true, objetivo, color);
@@ -193,12 +193,12 @@ namespace SpaceMission
         {
             switch (l)
             {
-                case Lectura.Encontrada: return nueva ? ("DATA RECEIVED · ANOMALY OBSERVED", new Color32(0x22, 0xC5, 0x5E, 0xFF))
-                    : ("ANOMALY OBSERVED · NO NEW EVIDENCE", new Color32(0xF4, 0xC4, 0x6A, 0xFF));   // ya estaba o le faltó calidad
-                case Lectura.Caliente: return ("READING: HOT", new Color32(0xE2, 0x64, 0x3A, 0xFF));
-                case Lectura.Tibio: return ("READING: WARM", new Color32(0xEA, 0xB3, 0x08, 0xFF));
-                case Lectura.Frio: return ("READING: COLD", new Color32(0x60, 0xA5, 0xFA, 0xFF));
-                default: return ("NO DATA · SPACECRAFT DISORIENTED", new Color32(0x9C, 0xA3, 0xAF, 0xFF));
+                case Lectura.Encontrada: return nueva ? (Idioma.T("DATA RECEIVED · ANOMALY OBSERVED"), new Color32(0x22, 0xC5, 0x5E, 0xFF))
+                    : (Idioma.T("ANOMALY OBSERVED · NO NEW EVIDENCE"), new Color32(0xF4, 0xC4, 0x6A, 0xFF));   // ya estaba o le faltó calidad
+                case Lectura.Caliente: return (Idioma.T("READING: HOT"), new Color32(0xE2, 0x64, 0x3A, 0xFF));
+                case Lectura.Tibio: return (Idioma.T("READING: WARM"), new Color32(0xEA, 0xB3, 0x08, 0xFF));
+                case Lectura.Frio: return (Idioma.T("READING: COLD"), new Color32(0x60, 0xA5, 0xFA, 0xFF));
+                default: return (Idioma.T("NO DATA · SPACECRAFT DISORIENTED"), new Color32(0x9C, 0xA3, 0xAF, 0xFF));
             }
         }
 

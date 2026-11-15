@@ -33,6 +33,7 @@ namespace SpaceMission
     public class OpcionEvento
     {
         public string texto;
+        public string Texto => Idioma.T(texto);   // versión 5: en el idioma actual
         public EfectoOpcion efecto;
         public int combustible;   // costo en combustible
         public int orbitas;       // costo en órbitas
@@ -54,5 +55,9 @@ namespace SpaceMission
 
         [Header("Decisión (versión 3)")]
         public List<OpcionEvento> opciones = new List<OpcionEvento>();
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string Nombre => Idioma.T(nombre);
+        public string Texto => Idioma.T(texto);
     }
 }

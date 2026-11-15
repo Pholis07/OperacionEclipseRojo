@@ -13,5 +13,9 @@ namespace SpaceMission
         [Header("Carga (versión 3): se paga con lo que sobra de la configuración")]
         public int costoCr;
         public int masaKg;
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string Nombre => Idioma.T(nombre);
+        public string Descripcion => Idioma.T(descripcion);
     }
 }

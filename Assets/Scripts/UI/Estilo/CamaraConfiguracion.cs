@@ -156,7 +156,7 @@ namespace SpaceMission
                 var texto = encima.GetComponentInChildren<TMPro.TMP_Text>();
                 if (texto != null)
                     foreach (var instrumento in catalogo.instrumentos)
-                        if (texto.text.Contains(instrumento.nombre) && !config.InstrumentoIds.Contains(instrumento.id))
+                        if (texto.text.Contains(instrumento.Nombre) && !config.InstrumentoIds.Contains(instrumento.id))
                         {
                             id = instrumento.id;
                             break;
@@ -179,8 +179,8 @@ namespace SpaceMission
             moduloEnFoco = modulo;
             finFoco = Time.unscaledTime + duracionModulo;
             if (textoFoco != null && catalogo != null)
-                textoFoco.text = Iconos.DeInstrumento(nuevo) + "  " + catalogo.Instrumento(nuevo).nombre.ToUpperInvariant() +
-                                 "\n<size=75%><color=#94A3B8>INSTALLED HERE</color></size>";
+                textoFoco.text = Iconos.DeInstrumento(nuevo) + "  " + catalogo.Instrumento(nuevo).Nombre.ToUpperInvariant() +
+                                 Idioma.T("\n<size=75%><color=#94A3B8>INSTALLED HERE</color></size>");
         }
 
         Encuadre EncuadreModulo(Transform modulo)

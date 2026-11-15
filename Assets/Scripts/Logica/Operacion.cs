@@ -272,9 +272,9 @@ namespace SpaceMission
 
         /// <summary>Por qué no se podría enviar este mes, o null si se puede.</summary>
         public string MotivoSinEnvio =>
-            EnvioBloqueado ? "dust is blocking the laser"
-            : !ContactoAbierto && !PuedeEnviarSinVentana ? "there is no contact with Earth this month"
-            : ConsumoBaseW + VatiosTransmisor > LimiteW ? "there is not enough power for the transmitter"
+            EnvioBloqueado ? Idioma.T("dust is blocking the laser")
+            : !ContactoAbierto && !PuedeEnviarSinVentana ? Idioma.T("there is no contact with Earth this month")
+            : ConsumoBaseW + VatiosTransmisor > LimiteW ? Idioma.T("there is not enough power for the transmitter")
             : null;
 
         // ---------- Resolver el mes ----------
@@ -284,9 +284,9 @@ namespace SpaceMission
 
         /// <summary>Por qué el plan actual no se puede resolver, o null si es válido.</summary>
         public string MotivoPlanInvalido =>
-            Terminada ? "the mission has already ended"
-            : EsperandoDecision ? "a decision is pending"
-            : ConsumoW > LimiteW ? "power draw (" + ConsumoW + " W) exceeds the limit (" + LimiteW + " W): turn off an instrument"
+            Terminada ? Idioma.T("the mission has already ended")
+            : EsperandoDecision ? Idioma.T("a decision is pending")
+            : ConsumoW > LimiteW ? Idioma.T("power draw (") + ConsumoW + Idioma.T(" W) exceeds the limit (") + LimiteW + Idioma.T(" W): turn off an instrument")
             : null;
 
         /// <summary>
@@ -296,7 +296,7 @@ namespace SpaceMission
         public ResultadoMes ResolverMes(int mes)
         {
             var r = new ResultadoMes { Mes = mes };
-            r.Motivo = mes != Mes ? "that month has already been resolved" : MotivoPlanInvalido;
+            r.Motivo = mes != Mes ? Idioma.T("that month has already been resolved") : MotivoPlanInvalido;
             if (r.Motivo != null) return r;
             r.Valido = true;
 
@@ -339,7 +339,7 @@ namespace SpaceMission
             if (TransmitirPlaneado)
             {
                 r.EnvioPedido = true;
-                r.EnvioFallido = Memoria.Count == 0 ? "there is no data in memory" : MotivoSinEnvio;
+                r.EnvioFallido = Memoria.Count == 0 ? Idioma.T("there is no data in memory") : MotivoSinEnvio;
                 if (r.EnvioFallido == null) Transmitir(r);
             }
 
@@ -408,7 +408,7 @@ namespace SpaceMission
                 Recibidas.AddRange(registro.Evidencias);
                 Memoria.Remove(registro);
             }
-            if (r.BloquesEnviados == 0) r.EnvioFallido = "the data does not fit through the constellation link";
+            if (r.BloquesEnviados == 0) r.EnvioFallido = Idioma.T("the data does not fit through the constellation link");
             if (Completa && ObservacionesAlCompletar == 0)
             {
                 ObservacionesAlCompletar = Observaciones;

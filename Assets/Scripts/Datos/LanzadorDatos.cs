@@ -17,5 +17,10 @@ namespace SpaceMission
         [TextArea] public string datoNasa;     // inglés
         [TextArea] public string datoNasaEs;   // español
         public string fuenteNasa;              // fuente corta, p. ej. «NASA/JPL (MRO)»
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string Nombre => Idioma.T(nombre);
+        public string Descripcion => Idioma.T(descripcion);
+        public string DatoNasa => Idioma.Espanol && !string.IsNullOrEmpty(datoNasaEs) ? datoNasaEs : datoNasa;
     }
 }

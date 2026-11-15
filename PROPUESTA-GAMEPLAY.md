@@ -298,3 +298,10 @@ Masa = real × 3 y potencia = real × 5 (redondeo a 5). Los créditos son moneda
 - «Resolve month» no hace nada fuera de su paso.
 - **Siempre termina en fracaso:** al resolver el mes 2, una tormenta global como la de 2018 corta el contacto antes de enviar. El fracaso no depende de lo que haga el jugador. Mensaje final del paquete: «The first mission detected the signal, but could not send enough evidence. Now we know what went wrong. Design the next mission.»
 - Se puede saltar en cualquier momento («Skip tutorial» o «End mission»). No toca récords ni créditos, guarda que se completó y deja la campaña limpia.
+
+## Bloque 5: idioma (español e inglés)
+
+- Selector «English / Español» arriba a la derecha de la pantalla de título y en Opciones. Se guarda (`PlayerPrefs` «idioma»); por defecto, inglés.
+- El cambio se ve al momento, sin recargar la escena.
+- Los ids, los datos guardados y las pruebas siguen en inglés; solo cambia lo que se muestra.
+- Las voces de las transmisiones siguen en inglés (no se generan audios nuevos).

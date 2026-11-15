@@ -75,18 +75,18 @@ namespace SpaceMission
             filas.Clear();
 
             textoRecursos.text =
-                "Cargo hold with " + catalogo.reglas.espaciosBodega + " slots. You pay with what you have left over, and free mass becomes fuel (1 per " +
+                Idioma.T("Cargo hold with ") + catalogo.reglas.espaciosBodega + Idioma.T(" slots. You pay with what you have left over, and free mass becomes fuel (1 per ") +
                 catalogo.reglas.kgPorCombustible + " kg).\n" +
-                "<b>Available credits:</b> " + TextosBriefing.Numero(Carga.CreditosDisponibles) +
-                "   <b>Free mass:</b> " + Carga.MasaLibreKg + " kg" +
-                "   <b>Free slots:</b> " + Carga.EspaciosLibres +
-                "\n<b>Fuel at departure:</b> " + Carga.Combustible;
+                Idioma.T("<b>Available credits:</b> ") + TextosBriefing.Numero(Carga.CreditosDisponibles) +
+                Idioma.T("   <b>Free mass:</b> ") + Carga.MasaLibreKg + " kg" +
+                Idioma.T("   <b>Free slots:</b> ") + Carga.EspaciosLibres +
+                Idioma.T("\n<b>Fuel at departure:</b> ") + Carga.Combustible;
             var s = Carga.Satelite;
             if (s != null)
-                textoRecursos.text += "\n<b>Satellite:</b> " + s.nombre + "<size=85%>" +
+                textoRecursos.text += Idioma.T("\n<b>Satellite:</b> ") + s.Nombre + "<size=85%>" +
                                       PresentacionMision.Modificadores(Modificadores.DeSatelite(s, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice))) + "</size>";
             if (!Carga.PuedeLanzar)
-                textoRecursos.text += "\n<color=#EF4444><b>What you have left is not enough.</b></color> Remove tools or use the MRO to launch.";
+                textoRecursos.text += Idioma.T("\n<color=#EF4444><b>What you have left is not enough.</b></color> Remove tools or use the MRO to launch.");
             botonLanzar.interactable = Carga.PuedeLanzar;
             if (botonUsarMro != null) botonUsarMro.gameObject.SetActive(!Carga.PuedeLanzar && s != null && s.id != Carga.IdMro);
 
@@ -99,8 +99,8 @@ namespace SpaceMission
                 boton.interactable = aBordo || Carga.PuedeCargar(h.id);
                 boton.GetComponent<UnityEngine.UI.Image>().color = aBordo ? ColorABordo : ColorNormal;
                 boton.GetComponentInChildren<TMP_Text>().text =
-                    (aBordo ? "ON BOARD  ·  " : "") + "<b>" + h.nombre + "</b>  ·  " + h.costoCr + " cr  ·  " + h.masaKg + " kg\n" +
-                    "<size=80%>" + h.descripcion + "</size>";
+                    (aBordo ? Idioma.T("ON BOARD  ·  ") : "") + "<b>" + h.Nombre + "</b>  ·  " + h.costoCr + " cr  ·  " + h.masaKg + " kg\n" +
+                    "<size=80%>" + h.Descripcion + "</size>";
                 boton.onClick.AddListener(() => Alternar(h.id));
                 filas.Add(boton.gameObject);
             }

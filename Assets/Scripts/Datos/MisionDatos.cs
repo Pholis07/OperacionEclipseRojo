@@ -19,5 +19,10 @@ namespace SpaceMission
         public int memoriaBloques;   // versión 3: cuántos escaneos caben en la memoria antes de enviar
         [TextArea] public string objetivo;
         [TextArea] public string narrativa;
+
+        // Versión 5: textos en el idioma actual (Idioma). Los campos guardan el inglés.
+        public string NombreNivel => Idioma.T(nombreNivel);
+        public string Objetivo => Idioma.T(objetivo);
+        public string Narrativa => Idioma.T(narrativa);
     }
 }

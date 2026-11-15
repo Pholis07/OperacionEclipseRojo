@@ -370,6 +370,7 @@ public static partial class ConstructorEscenas
             "Mass, power and cost values are fictional. Full details in CREDITOS.md.</color>",
             28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         lista.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        lista.enableAutoSizing = true; lista.fontSizeMin = 20; lista.fontSizeMax = 28;   // el español es más largo
         var cerrar = Boton(tarjeta, "BotonCerrarCreditos", "Close", true);
         panel.gameObject.SetActive(false);
         var control = panel.parent.gameObject.AddComponent<AbrirPanel>();
@@ -430,6 +431,9 @@ public static partial class ConstructorEscenas
         var voz = Deslizador(tarjeta, "Voz", SpaceMission.Iconos.Senal + "  Transmission voice");
         var silencio = Casilla(tarjeta, "Silencio", "Mute all sound");
         var movimiento = Casilla(tarjeta, "ReducirMovimiento", "Reduce motion (no shaking or cinematics)");
+        // Versión 5, bloque 5: idioma.
+        Texto(tarjeta, "EtiquetaIdioma", "Language", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
+        ConstruirSelectorIdioma(tarjeta, "SelectorIdiomaOpciones", 56);
         Alto(Vacio(tarjeta, "Espacio"), 8).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var cerrar = Boton(tarjeta, "BotonCerrarOpciones", "Done", true);
         panel.gameObject.SetActive(false);
@@ -448,6 +452,26 @@ public static partial class ConstructorEscenas
         Asignar(ui, "ambiente", ambiente);
         Asignar(ui, "silencio", silencio);
         return ui;
+    }
+
+    /// <summary>Versión 5, bloque 5: botones «English» y «Español» con SelectorIdioma.</summary>
+    static RectTransform ConstruirSelectorIdioma(Transform padre, string nombre, float alto)
+    {
+        var fila = Fila(padre, nombre, 12);
+        Alto(fila, alto);
+        var ingles = Boton(fila, "BotonIngles", "English", false);
+        var espanol = Boton(fila, "BotonEspanol", "Español", false);
+        foreach (var b in new[] { ingles, espanol })
+        {
+            var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.minHeight = alto; le.preferredHeight = alto; le.preferredWidth = -1; le.flexibleWidth = 1;
+            var t = b.GetComponentInChildren<TextMeshProUGUI>();
+            t.enableAutoSizing = true; t.fontSizeMin = 18; t.fontSizeMax = 28;
+        }
+        var ui = fila.gameObject.AddComponent<SelectorIdioma>();
+        Asignar(ui, "botonIngles", ingles);
+        Asignar(ui, "botonEspanol", espanol);
+        return fila;
     }
 
     static UnityEngine.UI.Slider Deslizador(Transform padre, string nombre, string etiqueta)
@@ -520,7 +544,7 @@ public static partial class ConstructorEscenas
         titulo.fontStyle = FontStyles.UpperCase;
         titulo.characterSpacing = 6;
         titulo.textWrappingMode = TextWrappingModes.NoWrap;
-        titulo.enableAutoSizing = true; titulo.fontSizeMin = 80; titulo.fontSizeMax = 147;
+        titulo.enableAutoSizing = true; titulo.fontSizeMin = 60; titulo.fontSizeMax = 147;
         var linea = Panel(col, "LineaTitulo", Acento);
         linea.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
         Alto(linea, 3);
@@ -532,6 +556,12 @@ public static partial class ConstructorEscenas
         var aviso = Texto(velo, "Aviso", "PRESS ANY KEY TO START", 30, Acento, FontStyles.Bold, TextAlignmentOptions.Center);
         aviso.characterSpacing = 8;
         Anclar(aviso.rectTransform, new Vector2(0.1f, 0.2f), new Vector2(0.9f, 0.27f));
+
+        // Versión 5, bloque 5: idioma, arriba a la derecha (PantallaTitulo no se cierra al pulsarlo).
+        var selector = ConstruirSelectorIdioma(velo, "SelectorIdiomaTitulo", 56);
+        selector.anchorMin = selector.anchorMax = selector.pivot = new Vector2(1, 1);
+        selector.sizeDelta = new Vector2(420, 56);
+        selector.anchoredPosition = new Vector2(-40, -36);
 
         var patrocinio = FranjaPatrocinio(velo, "Patrocinio", "SPONSORED BY", 110);
         Anclar(patrocinio, new Vector2(0.3f, 0.03f), new Vector2(0.7f, 0.17f));
@@ -553,6 +583,7 @@ public static partial class ConstructorEscenas
         Asignar(ui, "patrocinio", patrocinio.GetComponent<CanvasGroup>());
         Asignar(ui, "contenido", col);
         Asignar(ui, "destello", destello.GetComponent<UnityEngine.UI.Image>());
+        Asignar(ui, "selectorIdioma", selector);
         var grupos = new List<CanvasGroup>();
         foreach (var e in entradas)
         {

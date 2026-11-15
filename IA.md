@@ -394,3 +394,19 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Cumple TUT-01 del paquete: siempre en fracaso, se puede saltar y repetir, sin penalización, guarda que se completó.
 - Jugado entero en el navegador a 1366x768, del Briefing al final y de vuelta al Briefing, sin errores en la consola.
 - 5 pruebas nuevas en `TutorialTests.cs`. Pasan las 236 pruebas EditMode y las 19 PlayMode.
+
+## Versión 5, bloque 5: idioma (español e inglés)
+
+- `Traducciones.cs`: diccionario inglés → español (unos 700 pares). La IA lo generó a partir del commit de traducción de Diego (`a9d50e7`, que pasó el juego al inglés) más pares escritos a mano para lo nuevo.
+- `Idioma.cs`: `Idioma.T(texto)` traduce si está en español. `EspanolDe` también resuelve textos con icono delante, flecha detrás, icono con color y varias líneas.
+- Los datos (`InstrumentoDatos`, `OrbitaDatos`, etc.) tienen propiedades (`Nombre`, `Descripcion`, `DatoNasa`…) que la interfaz usa en vez de los campos; los campos guardados siguen en inglés.
+- `TraductorEscena.cs` traduce en tiempo de ejecución los textos fijos que pone el constructor y los devuelve al inglés. No corre en las pruebas EditMode.
+- `SelectorIdioma.cs` + `ConstruirSelectorIdioma` en el constructor: selector en el título y en Opciones. `PantallaTitulo` no se cierra al pulsar el selector.
+- Arreglos que salieron al probar en el navegador:
+  - El título revelaba un número fijo de letras y cortaba «ROJO».
+  - El tamaño mínimo del título no dejaba caber el español.
+  - Créditos quedaba tapado por su botón.
+  - Faltaban textos sueltos: barra de pasos, semáforo, resumen del mes, «Cómo jugar» y Créditos.
+- Comprobado en el navegador a 1366x768: título, menú, Cómo jugar, Créditos y Opciones; Briefing, Configuración, Revisión y Carga; cinemática, Operación, resumen del mes, evento con decisión e informe en español; vuelta al inglés desde Opciones. Sin errores en la consola.
+- 9 pruebas nuevas en `IdiomaTests.cs`. Pasan las 245 pruebas EditMode y las 19 PlayMode.
+- Pendiente: las voces siguen en inglés. En pantalla táctil, tocar el selector del título también cierra el título (el filtro solo mira el ratón).

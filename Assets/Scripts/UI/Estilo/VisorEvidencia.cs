@@ -46,10 +46,10 @@ namespace SpaceMission
             var instrumento = string.IsNullOrEmpty(t.instrumentoId) ? null : catalogo.Instrumento(t.instrumentoId);
             var evidencia = instrumento != null ? arte.DeInstrumento(instrumento.id) : null;
             imagen.texture = evidencia != null && evidencia.imagen != null ? evidencia.imagen : arte.imagenMision;
-            textoCredito.text = evidencia != null ? evidencia.credito : arte.creditoMision;
+            textoCredito.text = evidencia != null ? evidencia.Credito : arte.creditoMision;
             textoFuente.text = instrumento != null
-                ? Iconos.DeInstrumento(instrumento.id) + "  " + instrumento.nombre.ToUpperInvariant()
-                : Iconos.Senal + "  MISSION CONTROL";
+                ? Iconos.DeInstrumento(instrumento.id) + "  " + instrumento.Nombre.ToUpperInvariant()
+                : Iconos.Senal + Idioma.T("  MISSION CONTROL");
 
             ReproductorUI.Sonar(ArteDatos.Sonido.Senal, 0.7f);
             ReproductorUI.Hablar(arte.VozDe(t.id));

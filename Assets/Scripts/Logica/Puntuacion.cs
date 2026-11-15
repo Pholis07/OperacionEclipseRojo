@@ -33,7 +33,7 @@ namespace SpaceMission
             if (envioEvidencia && sobrante > 0)
                 lineas.Add(new Linea
                 {
-                    Concepto = "Budget left over (" + TextosBriefing.Numero(sobrante) + " credits)",
+                    Concepto = Idioma.T("Budget left over (") + TextosBriefing.Numero(sobrante) + Idioma.T(" credits)"),
                     Puntos = sobrante / reglas.creditosPorPunto
                 });
 
@@ -43,22 +43,22 @@ namespace SpaceMission
                 return !string.IsNullOrEmpty(t.instrumentoId) && t.tipo == TipoTransmision.Complementaria;
             });
             if (revelaciones > 0)
-                lineas.Add(new Linea { Concepto = "Complementary findings (" + revelaciones + ")", Puntos = revelaciones * reglas.puntosPorRevelacion });
+                lineas.Add(new Linea { Concepto = Idioma.T("Complementary findings (") + revelaciones + ")", Puntos = revelaciones * reglas.puntosPorRevelacion });
 
             if (envioEvidencia && op.MesesRestantes > 0)
-                lineas.Add(new Linea { Concepto = "Months left over (" + op.MesesRestantes + ")", Puntos = op.MesesRestantes * reglas.puntosPorOrbitaSobrante });
+                lineas.Add(new Linea { Concepto = Idioma.T("Months left over (") + op.MesesRestantes + ")", Puntos = op.MesesRestantes * reglas.puntosPorOrbitaSobrante });
 
             foreach (var o in op.Objetivos.Where(o => Objetivos.Cumplido(o, op)))
-                lineas.Add(new Linea { Concepto = "Bonus objective: " + o.texto, Puntos = o.puntos });
+                lineas.Add(new Linea { Concepto = Idioma.T("Bonus objective: ") + o.Texto, Puntos = o.puntos });
 
             if (op.PeticionCumplida)
-                lineas.Add(new Linea { Concepto = "NASA request fulfilled", Puntos = op.PuntosPeticion });
+                lineas.Add(new Linea { Concepto = Idioma.T("NASA request fulfilled"), Puntos = op.PuntosPeticion });
 
             if (envioEvidencia && op.Combustible > 0)
-                lineas.Add(new Linea { Concepto = "Fuel left over (" + op.Combustible + ")", Puntos = op.Combustible * reglas.puntosPorCombustible });
+                lineas.Add(new Linea { Concepto = Idioma.T("Fuel left over (") + op.Combustible + ")", Puntos = op.Combustible * reglas.puntosPorCombustible });
 
             if (op.Apagones > 0)
-                lineas.Add(new Linea { Concepto = "Spacecraft blackouts (" + op.Apagones + ")", Puntos = -op.Apagones * reglas.puntosPorApagon });
+                lineas.Add(new Linea { Concepto = Idioma.T("Spacecraft blackouts (") + op.Apagones + ")", Puntos = -op.Apagones * reglas.puntosPorApagon });
 
             return lineas;
         }
