@@ -510,3 +510,4 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Pruebas: 336 EditMode y 24 PlayMode. Nuevas: `TintaTests`, `ResultadoTests` y `OpcionesTests`.
 - No se gastaron créditos de ElevenLabs.
 - Lo que no se pudo comprobar: los FPS con tarjeta gráfica real.
+- Fase 2 (mismo día): Diego vio el piloto, notó que la animación casi no cambiaba y pidió extender el estilo. La IA lo llevó a los cohetes, la torre, los edificios, los árboles y el suelo, puso luz de hora dorada y acercó dos planos. Pruebas: 349 EditMode y 24 PlayMode. Detalle en `Docs/Claude/REPORTE_FASE_2.md`.
