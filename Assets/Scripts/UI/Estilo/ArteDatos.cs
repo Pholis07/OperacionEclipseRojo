@@ -23,8 +23,15 @@ namespace SpaceMission
         public class Voz
         {
             public string transmisionId;
-            public AudioClip clip;
+            public AudioClip clip;     // inglés
+            public AudioClip clipEs;   // español
+
+            /// <summary>La grabación en el idioma del juego (si falta, la otra).</summary>
+            public AudioClip EnIdioma => Idioma.Espanol ? clipEs ?? clip : clip ?? clipEs;
         }
+
+        /// <summary>De dos grabaciones de la misma frase, la del idioma del juego (si falta, la otra).</summary>
+        public static AudioClip SegunIdioma(AudioClip en, AudioClip es) => Idioma.Espanol ? es ?? en : en ?? es;
 
         public enum Sonido { Hover, Click, Elegir, Quitar, Pestana, Error, LuzVerde, LuzRoja, Lanzamiento, Senal }
 
@@ -105,6 +112,10 @@ namespace SpaceMission
         public AudioClip vozDespegue;
         public AudioClip vozSeparacion;
         public AudioClip vozOrbita;
+        public AudioClip vozEncendidoEs;
+        public AudioClip vozDespegueEs;
+        public AudioClip vozSeparacionEs;
+        public AudioClip vozOrbitaEs;
         public AudioClip pasoMes;
         public AudioClip sello;
         public AudioClip remateVictoria;
@@ -118,7 +129,7 @@ namespace SpaceMission
 
         public Evidencia DeInstrumento(string id) => evidencias.Find(e => e.instrumentoId == id);
 
-        public AudioClip VozDe(string transmisionId) => voces.Find(v => v.transmisionId == transmisionId)?.clip;
+        public AudioClip VozDe(string transmisionId) => voces.Find(v => v.transmisionId == transmisionId)?.EnIdioma;
 
         public AudioClip Clip(Sonido s)
         {
@@ -160,10 +171,10 @@ namespace SpaceMission
                 case Efecto.BrazosTorre: return brazosTorre;
                 case Efecto.SeparacionPropulsores: return separacionPropulsores != null ? separacionPropulsores : separacion;
                 case Efecto.AmbienteCosta: return ambienteCosta;
-                case Efecto.VozEncendido: return vozEncendido;
-                case Efecto.VozDespegue: return vozDespegue;
-                case Efecto.VozSeparacion: return vozSeparacion;
-                case Efecto.VozOrbita: return vozOrbita;
+                case Efecto.VozEncendido: return SegunIdioma(vozEncendido, vozEncendidoEs);
+                case Efecto.VozDespegue: return SegunIdioma(vozDespegue, vozDespegueEs);
+                case Efecto.VozSeparacion: return SegunIdioma(vozSeparacion, vozSeparacionEs);
+                case Efecto.VozOrbita: return SegunIdioma(vozOrbita, vozOrbitaEs);
                 case Efecto.PasoMes: return pasoMes;
                 case Efecto.Sello: return sello;
                 case Efecto.RemateVictoria: return remateVictoria;

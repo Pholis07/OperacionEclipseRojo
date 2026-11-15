@@ -20,6 +20,7 @@ namespace SpaceMission
         AudioSource fuenteMusica;
         AudioSource fuenteAmbiente;
         float factor;
+        float atenuacion = 1f;   // baja mientras habla una voz (Atenuacion)
 
         void Start()
         {
@@ -39,6 +40,14 @@ namespace SpaceMission
         }
 
         void OnDestroy() => Preferencias.Cambiaron -= Aplicar;
+
+        void Update()
+        {
+            var nueva = Atenuacion.Seguir(atenuacion);
+            if (nueva == atenuacion) return;
+            atenuacion = nueva;
+            Aplicar();
+        }
 
         /// <summary>Cambia de tema con un fundido corto (por ejemplo, al pasar a la Operación).</summary>
         public void Cambiar(ArteDatos.Musica nueva)
@@ -94,8 +103,8 @@ namespace SpaceMission
 
         void Aplicar()
         {
-            if (fuenteMusica != null) fuenteMusica.volume = factor * Preferencias.VolumenMusica;
-            if (fuenteAmbiente != null) fuenteAmbiente.volume = factor * Preferencias.VolumenAmbiente * 0.8f;
+            if (fuenteMusica != null) fuenteMusica.volume = factor * atenuacion * Preferencias.VolumenMusica;
+            if (fuenteAmbiente != null) fuenteAmbiente.volume = factor * atenuacion * Preferencias.VolumenAmbiente * 0.8f;
         }
     }
 }

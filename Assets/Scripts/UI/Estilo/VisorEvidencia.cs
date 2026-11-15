@@ -34,7 +34,11 @@ namespace SpaceMission
             var op = operacion != null ? operacion.Op : null;
             if (op == null || op.Recibidas.Count == 0) return;
             if (op.Recibidas.Count == recibidas) return;
+            // Si llegan varias en el mismo mes, se oyen todas en fila (ReproductorUI.Hablar no corta la anterior);
+            // la imagen muestra la última. Al abrir la vista, solo suena la última (como antes: TX-00 al empezar).
+            int desde = recibidas < 0 ? op.Recibidas.Count - 1 : recibidas;
             recibidas = op.Recibidas.Count;
+            for (int i = desde; i < op.Recibidas.Count; i++) ReproductorUI.Hablar(arte.VozDe(op.Recibidas[i]));
             var id = op.Recibidas.Last();
             if (id == mostrada) return;
             mostrada = id;
@@ -52,7 +56,6 @@ namespace SpaceMission
                 : Iconos.Senal + Idioma.T("  MISSION CONTROL");
 
             ReproductorUI.Sonar(ArteDatos.Sonido.Senal, 0.7f);
-            ReproductorUI.Hablar(arte.VozDe(t.id));
             StopAllCoroutines();
             StartCoroutine(Entrada());
         }

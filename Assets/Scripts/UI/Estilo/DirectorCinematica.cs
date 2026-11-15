@@ -122,7 +122,23 @@ namespace SpaceMission
                 fuenteVoz.volume = Preferencias.VolumenVoz;
                 fuenteVoz.Play();
             }
+            // El motor baja mientras habla control de misión (Atenuacion).
+            atenuacion = Atenuacion.Seguir(atenuacion);
+            if (fuenteBucle != null && fuenteBucle.isPlaying)
+                fuenteBucle.volume = volumenBucle * atenuacion * Preferencias.VolumenEfectos;
         }
+
+        float atenuacion = 1f;
+        float volumenBucle = 1f;
+
+        /// <summary>
+        /// Control de misión está hablando o tiene una frase en fila. Las tomas con voz duran lo que dure su frase
+        /// (en inglés o en español) hasta un tope, para que la voz no siga sonando en la toma siguiente.
+        /// </summary>
+        bool Hablando => fuenteVoz != null && (fuenteVoz.isPlaying || colaVoz.Count > 0);
+
+        /// <summary>La toma sigue mientras no llegue a su duración, o mientras hable la voz (hasta el tope).</summary>
+        bool Sigue(float t, float duracion, float tope) => !omitir && (t < duracion || (Hablando && t < tope));
 
         static readonly ArteDatos.Efecto[] Voces =
             { ArteDatos.Efecto.VozEncendido, ArteDatos.Efecto.VozDespegue, ArteDatos.Efecto.VozSeparacion, ArteDatos.Efecto.VozOrbita };
@@ -223,7 +239,7 @@ namespace SpaceMission
             Toma(2, Idioma.T("IGNITION SEQUENCE"));
             Sonar(ArteDatos.Efecto.VozEncendido);
             bool chispazo = false, encendido = false;
-            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 3.6f, 6f); t += Time.deltaTime)
             {
                 textoCuenta.text = t < 1.2f ? Idioma.T("T-02") : t < 2.4f ? Idioma.T("T-01") : "";
                 if (!chispazo && t > 0.5f)
@@ -258,7 +274,7 @@ namespace SpaceMission
             bool voz = false;
             float subida = 0f;
             var camSuelo = basePos + new Vector3(alto * 0.75f, 0.5f, -alto * 1.45f);
-            for (float t = 0f; t < 4f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 4f, 6f); t += Time.deltaTime)
             {
                 float giro = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 1.1f));
                 for (int i = 0; i < brazos.Length; i++) if (brazos[i] != null) brazos[i].localRotation = Quaternion.Euler(0f, -75f * giro, 0f);
@@ -322,7 +338,7 @@ namespace SpaceMission
                 giros[i] = propulsores[i].rotation;
             }
             bool fuera = false, separado = false;
-            for (float t = 0f; t < 3.8f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 3.8f, 7f); t += Time.deltaTime)
             {
                 var avance = puntoEspacio.position + adelante * (t * alto * 0.22f);
                 // Primero se sueltan los propulsores laterales y se alejan girando.
@@ -484,10 +500,10 @@ namespace SpaceMission
             var inicioCam = camara.transform.position;
             var inicioRot = camara.transform.rotation;
             float inicioFov = camara.fieldOfView;
-            for (float t = 0f; t < 3f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 3f, 6f); t += Time.deltaTime)
             {
-                float k = Mathf.SmoothStep(0f, 1f, t / 3f);
-                escenario.ColocarSatelite(Mathf.Lerp(fEntrada, fFinal, Animar.SalidaCubica(t / 3f)), null);
+                float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 3f));
+                escenario.ColocarSatelite(Mathf.Lerp(fEntrada, fFinal, Animar.SalidaCubica(Mathf.Clamp01(t / 3f))), null);
                 camara.transform.SetPositionAndRotation(Vector3.Lerp(inicioCam, pa, k), Quaternion.Slerp(inicioRot, ra, k));
                 camara.fieldOfView = Mathf.Lerp(inicioFov, escenario.CampoAncla, k);
                 yield return null;
@@ -719,7 +735,8 @@ namespace SpaceMission
             if (clip == null) return;
             fuenteBucle.clip = clip;
             fuenteBucle.loop = true;
-            fuenteBucle.volume = volumen * Preferencias.VolumenEfectos;
+            volumenBucle = volumen;
+            fuenteBucle.volume = volumen * atenuacion * Preferencias.VolumenEfectos;
             fuenteBucle.Play();
         }
 
@@ -771,6 +788,7 @@ namespace SpaceMission
                     fuenteVoz.playOnAwake = false;
                     fuenteVoz.spatialBlend = 0f;
                     fuenteVoz.outputAudioMixerGroup = fuente.outputAudioMixerGroup;
+                    Atenuacion.Registrar(fuenteVoz);
                 }
                 colaVoz.Enqueue(clip);
                 return;
