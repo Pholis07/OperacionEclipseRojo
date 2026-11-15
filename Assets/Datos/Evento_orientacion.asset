@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: orientacion
   nombre: "P\xE9rdida de orientaci\xF3n"
-  texto: "La nave pierde la orientaci\xF3n por un momento: el pr\xF3ximo escaneo no dar\xE1 lectura."
+  texto: "La nave pierde la orientaci\xF3n: si no se corrige, el mes siguiente no dar\xE1 lecturas."
   efecto: 3
   vatios: 0
   orbitas: 0
@@ -31,7 +31,7 @@ MonoBehaviour:
     combustible: 3
     orbitas: 0
     duracion: 0
-  - texto: "Seguir as\xED (el pr\xF3ximo escaneo no dar\xE1 lectura)"
+  - texto: "Seguir as\xED (el mes siguiente no dar\xE1 lecturas)"
     efecto: 3
     combustible: 0
     orbitas: 0

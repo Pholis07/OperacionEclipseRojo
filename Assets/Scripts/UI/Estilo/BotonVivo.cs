@@ -5,7 +5,7 @@ namespace SpaceMission
 {
     /// <summary>
     /// Respuesta de los botones: crecen un poco con el cursor o el foco del teclado, se hunden al pulsar
-    /// y suenan. No cambia lo que hace el botón.
+    /// y suenan al pulsar (pasar el cursor o recibir el foco es silencioso). No cambia lo que hace el botón.
     /// </summary>
     public class BotonVivo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
         IPointerUpHandler, ISelectHandler, IDeselectHandler, ISubmitHandler
@@ -61,7 +61,6 @@ namespace SpaceMission
         {
             if (encima == valor) return;
             encima = valor;
-            if (valor && Activo) ReproductorUI.Sonar(ArteDatos.Sonido.Hover, 0.5f);
             Escalar(valor && Activo ? escalaEncima : 1f, 0.12f);
         }
 

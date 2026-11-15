@@ -106,7 +106,13 @@ namespace SpaceMission
             terminada = false;
             omitir = false;
             // La escena de Configuración ya no se ve: su cámara deja de dibujar (rendimiento en el navegador).
-            if (Camera.main != null && Camera.main != camara) Camera.main.enabled = false;
+            // Sigue encendida pero sin capas: así nunca queda la pantalla sin cámara («No cameras rendering» en el editor).
+            if (Camera.main != null && Camera.main != camara)
+            {
+                Camera.main.cullingMask = 0;
+                Camera.main.clearFlags = CameraClearFlags.SolidColor;
+                Camera.main.backgroundColor = Color.black;
+            }
             if (Preferencias.ReducirMovimiento || !Application.isPlaying) { Final(); return; }
             rutina = StartCoroutine(Secuencia());
         }

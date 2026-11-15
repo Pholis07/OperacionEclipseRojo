@@ -24,9 +24,9 @@ namespace SpaceMission
         void Start()
         {
             if (arte == null) return;
-            if (segunResultado && EstadoJuego.Resultado?.Categoria != null)
+            if (segunResultado && EstadoJuego.CategoriaFinal != null)
             {
-                var c = EstadoJuego.Resultado.Categoria.Value;
+                var c = EstadoJuego.CategoriaFinal.Value;
                 musica = c == CategoriaResultado.Victoria ? ArteDatos.Musica.Victoria
                     : c == CategoriaResultado.Parcial ? ArteDatos.Musica.Parcial : ArteDatos.Musica.Fracaso;
                 conAmbiente = false;

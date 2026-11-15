@@ -19,7 +19,7 @@ MonoBehaviour:
   credito: "Modelo 3D: propio del equipo (hecho por c\xF3digo)"
   costoCr: 15
   masaKg: 0
-  ventaja: "Enlace por la constelaci\xF3n Globalstar: puede enviar aunque la ventana de contacto est\xE9 cerrada (fuera de la ventana cuesta 1 \xF3rbita)."
+  ventaja: "Enlace por la constelaci\xF3n Globalstar: puede enviar cualquier mes, aunque no haya contacto (sin contacto solo caben 2 bloques)."
   desventaja: "Plataforma diminuta (CubeSat 1U): 100 W menos de l\xEDmite de energ\xEDa y 1 bloque menos de memoria."
   instrumentosConAlcance: []
   factorAlcance: 1
@@ -33,4 +33,4 @@ MonoBehaviour:
   tormentaBloqueaEnvio: 0
   limiteExtraW: -100
   envioSinVentana: 1
-  orbitasEnvioSinVentana: 1
+  bloquesEnvioSinVentana: 2

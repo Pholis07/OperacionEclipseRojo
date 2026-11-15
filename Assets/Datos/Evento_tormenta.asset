@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: tormenta
   nombre: Tormenta creciendo
-  texto: La tormenta de polvo crece. Desde la altitud normal las lecturas se vuelven confusas.
+  texto: "La tormenta de polvo crece. Desde la altitud normal, los datos del mes siguiente tendr\xE1n peor calidad."
   efecto: 6
   vatios: 0
   orbitas: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
     combustible: 0
     orbitas: 0
     duracion: 0
-  - texto: "Seguir as\xED (el pr\xF3ximo escaneo puede dar una lectura falsa)"
+  - texto: "Seguir as\xED (el mes siguiente la calidad de los datos baja)"
     efecto: 3
     combustible: 0
     orbitas: 0

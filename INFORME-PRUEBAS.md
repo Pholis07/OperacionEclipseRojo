@@ -1,5 +1,34 @@
 # Informe de pruebas: Operación Eclipse Rojo
 
+## Versión 4 (Operación por meses), 2026-11-14
+
+Ejecutado en esta sesión sobre la rama `feat/meses`, commit `e9430e8` más el ajuste de marcas del mapa (`87fb996`). Unity 6000.6.9f1 en modo batch, Linux. Sustituye a los resultados de abajo para todo lo que toca la Operación: las reglas nuevas invalidan las pruebas de la v3.
+
+| Conjunto | Total | Pasan | Fallan |
+|---|---|---|---|
+| EditMode | 208 | 208 | 0 |
+| PlayMode (`RecorridoTests`, los 19 casos jugando meses con los botones reales) | 19 | 19 | 0 |
+| Build WebGL | 36.7 MB | 0 errores | |
+
+Matriz de aceptación del paquete v1.0:
+
+| Id | Estado | Dónde |
+|---|---|---|
+| MES-01, 02, 03, 06 | pasa | `MesesTests` |
+| MES-04 (omitir animación = mismo estado) | pasa por diseño | La animación solo lee `ResultadoMes`; el recorrido PlayMode cierra el resumen sin esperarla |
+| MES-05, SAV-01, SAV-02 (guardado) | no ejecutada | Fuera de esta versión |
+| MEM-01, 02, 03, 04 | pasa | `MesesTests` |
+| ORB-01, 02, 03 | pasa | `MesesTests` (ORB-01 con el contrato de `escenario_mes_01.json`) |
+| CIE-01, 02, 03, 04 | pasa | `MesesTests` |
+| EVT-01, 02 | pasa | `MesesTests` |
+| TUT-01, PRO-01, PRO-02 | no ejecutada | Fuera de esta versión |
+| UI-01 (una activación por intención) | pasa | `InvestigacionTests` (con el resumen abierto no se resuelve otra vez) |
+| AUD-01 (reconstruir no suena) | pasa | `ConfiguracionTests` |
+
+Prueba manual en el navegador (Chromium con SwiftShader, 1366×768, build servido en local): una campaña ganada en el nivel 2, caso 2. Plan con dos instrumentos, tormenta (bajar gratis), pérdida de orientación, memoria llena («sin memoria»), envío en el mes 4, subida forzada por falta de combustible, envío en el mes 6 e informe «Misión cumplida» con 1,465 puntos. Consola sin errores.
+
+No ejecutado: campañas parcial y fracasada en el navegador (sí en pruebas automáticas), 1920×1080 y 1280×720, escucha real del audio, FPS y memoria en un equipo con GPU.
+
 Fase 8 (verificación completa), 2026-11-14. Commit probado: `7bff139` más las pruebas PlayMode nuevas. Unity 6000.6.9f1, modo batch.
 
 ## Resumen

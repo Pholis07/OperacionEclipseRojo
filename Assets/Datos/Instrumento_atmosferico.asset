@@ -18,5 +18,6 @@ MonoBehaviour:
   potenciaNormalW: 60
   extraTormentaW: 10
   costoCr: 90
+  bloquesDatos: 1
   pistaAsociada: "informaci\xF3n sobre el ambiente de la tormenta"
   textoAyuda: "Mide el polvo y la temperatura del aire y aporta informaci\xF3n sobre el ambiente de la tormenta. Consumo: 70 W: 60 W normal + 10 W por la tormenta."

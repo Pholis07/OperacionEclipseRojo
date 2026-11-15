@@ -7,8 +7,9 @@ using UnityEngine.SceneManagement;
 namespace SpaceMission
 {
     /// <summary>
-    /// Vista Operación (sustituye a la Investigación): instrumentos con interruptor, energía, órbitas,
-    /// mapa para escanear, eventos y herramientas. Toda la lógica está en Operacion; aquí solo se dibuja.
+    /// Vista Operación por meses (versión 4). El jugador prepara el plan del mes (instrumentos encendidos, región
+    /// de cada uno en el mapa, maniobra y envío), ve la previsión y pulsa «Resolver mes». Después lee el resumen
+    /// y, si hubo un evento, decide. Toda la lógica está en Operacion: aquí solo se dibuja lo que devuelve.
     /// </summary>
     public class OperacionUI : MonoBehaviour
     {
@@ -17,13 +18,13 @@ namespace SpaceMission
 
         [Header("Instrumentos")]
         [SerializeField] Transform listaInstrumentos;
-        [SerializeField] UnityEngine.UI.Button plantillaInstrumento;   // fila: botón «elegir para escanear»
+        [SerializeField] UnityEngine.UI.Button plantillaInstrumento;
         [SerializeField] RectTransform rellenoEnergia;
         [SerializeField] TMP_Text textoEnergia;
-        [SerializeField] TMP_Text textoOrbitas;
+        [SerializeField] TMP_Text textoOrbitas;   // «Mes N de T»
 
         [Header("Mensajes")]
-        [SerializeField] TMP_Text textoLectura;
+        [SerializeField] TMP_Text textoLectura;   // previsión del mes y último aviso
         [SerializeField] TMP_Text textoEvento;
         [SerializeField] TMP_Text textoTransmision;
         [SerializeField] TMP_Text textoProgreso;
@@ -33,13 +34,18 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Button plantillaHerramienta;
         [SerializeField] UnityEngine.UI.Button botonTerminar;
 
-        [Header("Gameplay v3: altitud, memoria, decisiones y objetivos (opcionales en escenas viejas)")]
+        [Header("Plan del mes")]
         [SerializeField] TMP_Text textoCombustible;
-        [SerializeField] UnityEngine.UI.Button botonAltitud;
+        [SerializeField] UnityEngine.UI.Button botonAltitud;   // planear o cancelar la maniobra
         [SerializeField] TMP_Text textoMemoria;
-        [SerializeField] UnityEngine.UI.Button botonEnviar;
-        [SerializeField] UnityEngine.UI.Button botonEsperar;
+        [SerializeField] UnityEngine.UI.Button botonEnviar;    // enviar al final del mes: sí o no
+        [SerializeField] UnityEngine.UI.Button botonResolver;
         [SerializeField] TMP_Text textoObjetivos;
+
+        [Header("Resumen del mes y decisión del evento")]
+        [SerializeField] GameObject panelResumen;
+        [SerializeField] TMP_Text textoResumen;
+        [SerializeField] UnityEngine.UI.Button botonContinuar;
         [SerializeField] GameObject panelDecision;
         [SerializeField] TMP_Text textoDecision;
         [SerializeField] Transform listaOpciones;
@@ -47,38 +53,51 @@ namespace SpaceMission
 
         static readonly Color ColorNormal = new Color32(0x2A, 0x2A, 0x31, 0xFF);
         static readonly Color ColorEncendido = new Color32(0x14, 0x53, 0x2D, 0xFF);
-        static readonly Color ColorEscaner = new Color32(0x5A, 0x26, 0x14, 0xFF);
+        static readonly Color ColorElegido = new Color32(0x5A, 0x26, 0x14, 0xFF);
         static readonly Color ColorBloqueado = new Color32(0x3F, 0x3F, 0x46, 0xFF);
+        static readonly Color ColorRegion = new Color32(0xF3, 0xF4, 0xF7, 0xFF);
+        static readonly Color ColorPeticion = new Color32(0xA8, 0x55, 0xF7, 0xFF);
 
         readonly List<GameObject> filas = new List<GameObject>();
+        readonly List<Registro> historial = new List<Registro>();   // observaciones ya resueltas, para marcarlas en el mapa
         bool inicializada;
+        bool resumenPendiente;
+        Evaluacion evaluacion;
+        string aviso = "";
+
+        // Presentación (cinemática y vista 3D): el resumen y la decisión esperan a que terminen.
+        SecuenciaEscaneo secuenciaEscaneo;
+        DirectorCinematica director;
 
         /// <summary>
-        /// Después de cada escaneo válido: instrumento, punto del mapa (0 a 1), lectura y si llegó una transmisión
-        /// nueva. Solo lo usa la vista 3D (SecuenciaEscaneo); la lógica ya terminó cuando se avisa.
+        /// Tras resolver un mes con observaciones: instrumento, región, lectura y si aportó evidencia nueva, de la
+        /// observación más relevante. Solo lo usa la vista 3D (SecuenciaEscaneo); la lógica ya terminó cuando se avisa.
         /// </summary>
         public event System.Action<string, Vector2, Lectura, bool> AlEscanear;
 
         public Operacion Op { get; private set; }
+        /// <summary>Instrumento elegido: el clic en el mapa fija su región.</summary>
         public string Escaner { get; private set; }
+        public ResultadoMes UltimoResultado { get; private set; }
         public string UltimoMensaje => textoLectura.text;
+        public bool ResumenVisible => resumenPendiente;
 
-        CatalogoDatos Catalogo => catalogo;
         ReglasOperacionDatos Reglas => catalogo.reglas;
 
-        // Presentación de Diego (cinemática y vista 3D del escaneo): la ventana de decisión espera a que terminen.
-        SecuenciaEscaneo secuenciaEscaneo;
-        DirectorCinematica director;
+        void Update() => ActualizarPaneles();
 
-        void Update() => ActualizarPanelDecision();
-
-        /// <summary>La ventana de decisión se ve si hay un evento en pausa y no se está viendo una animación.</summary>
-        void ActualizarPanelDecision()
+        /// <summary>El resumen y luego la decisión se ven cuando no se está viendo una animación.</summary>
+        void ActualizarPaneles()
         {
-            if (panelDecision == null || Op == null) return;
+            if (Op == null) return;
             bool ocupada = (secuenciaEscaneo != null && secuenciaEscaneo.Activa) || (director != null && director.Reproduciendo);
-            bool ver = Op.EsperandoDecision && !ocupada;
-            if (panelDecision.activeSelf != ver) panelDecision.SetActive(ver);
+            Ver(panelResumen, resumenPendiente && !ocupada);
+            Ver(panelDecision, Op.EsperandoDecision && !resumenPendiente && !ocupada);
+        }
+
+        static void Ver(GameObject panel, bool visible)
+        {
+            if (panel != null && panel.activeSelf != visible) panel.SetActive(visible);
         }
 
         public void Inicializar()
@@ -87,60 +106,55 @@ namespace SpaceMission
             inicializada = true;
             plantillaInstrumento.gameObject.SetActive(false);
             plantillaHerramienta.gameObject.SetActive(false);
-            mapa.AlPulsar += EscanearEn;
-            botonTerminar.onClick.AddListener(Terminar);
             if (plantillaOpcion != null) plantillaOpcion.gameObject.SetActive(false);
-            if (panelDecision != null) panelDecision.SetActive(false);
-            if (botonAltitud != null) botonAltitud.onClick.AddListener(CambiarAltitud);
-            if (botonEnviar != null) botonEnviar.onClick.AddListener(Enviar);
-            if (botonEsperar != null) botonEsperar.onClick.AddListener(Esperar);
+            Ver(panelDecision, false);
+            Ver(panelResumen, false);
+            mapa.AlPulsar += FijarRegionEn;
+            botonTerminar.onClick.AddListener(Terminar);
+            botonAltitud.onClick.AddListener(AlternarManiobra);
+            botonEnviar.onClick.AddListener(AlternarEnvio);
+            botonResolver.onClick.AddListener(ResolverMes);
+            botonContinuar.onClick.AddListener(ContinuarResumen);
             secuenciaEscaneo = FindFirstObjectByType<SecuenciaEscaneo>(FindObjectsInactive.Include);
             director = FindFirstObjectByType<DirectorCinematica>(FindObjectsInactive.Include);
         }
 
-        /// <summary>Empieza la Operación sin Carga (modo anterior a la v3). La semilla fija solo la usan las pruebas.</summary>
-        public void Comenzar(Evaluacion e, int? semilla = null) => Comenzar(e, null, semilla);
-
-        /// <summary>Empieza la Operación de una misión lanzada con lo que se cargó (v3).</summary>
+        /// <summary>Empieza la Operación de una misión lanzada con lo que se cargó. La semilla fija solo la usan las pruebas.</summary>
         public void Comenzar(Evaluacion e, Carga carga, int? semilla = null)
         {
             Inicializar();
             if (e == null || !e.SePuedeLanzar) return;
             int s = semilla ?? System.Environment.TickCount;
+            evaluacion = e;
             Op = new Operacion(e, EstadoJuego.Configuracion, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice), s, carga);
             EstadoJuego.Operacion = Op;
+            EstadoJuego.CategoriaFinal = null;
+            historial.Clear();
+            resumenPendiente = false;
+            UltimoResultado = null;
             mapa.Generar(s);
-            mapa.Limpiar();
             Escaner = Op.Instrumentos.FirstOrDefault();
-            textoLectura.text = "Pulsa un instrumento para encenderlo y escanear con él; pulsa otra vez para apagarlo. " +
-                                "Después pulsa en el mapa: cada escaneo gasta " + Reglas.orbitasPorEscaneo + " órbita. " +
-                                "Si el consumo pasa del límite, la nave se apaga.";
-            if (Op.ConMemoria)
-                textoLectura.text += " Lo que encuentres queda en la memoria: envíalo a la Tierra cuando se abra la ventana de contacto.";
+            aviso = "Elige un instrumento, enciéndelo y pulsa en el mapa la región que observará. " +
+                    "Cuando el plan esté listo, pulsa «Resolver mes». Preparar el plan no gasta nada.";
             textoEvento.text = "Sin incidencias.";
             MostrarTransmision(Op.Recibidas.Last());
             Refrescar();
         }
 
-        // ---------- Acciones del jugador ----------
+        // ---------- Plan del mes (nada de esto gasta recursos) ----------
 
+        /// <summary>Clic en un instrumento: lo elige; si ya estaba elegido (o estaba apagado), lo enciende o apaga.</summary>
         public void AlternarInstrumento(string id)
         {
             if (Op == null || Op.Terminada) return;
-            if (Op.Encendidos.Contains(id))
-            {
-                Op.Apagar(id);
-            }
-            else
-            {
-                int apagones = Op.Apagones;
-                if (!Op.Encender(id))
-                    textoLectura.text = Nombre(id) + " está bloqueado por el sobrecalentamiento.";
-                else if (Op.Apagones > apagones)
-                    textoLectura.text = MensajeApagon();
-                else
-                    Escaner = id;
-            }
+            Escaner = id;
+            if (Op.Encendidos.Contains(id)) Op.Apagar(id);
+            else if (!Op.Encender(id))
+                aviso = Op.Bloqueados.ContainsKey(id)
+                    ? Nombre(id) + " está bloqueado por el sobrecalentamiento."
+                    : "No hay potencia para encender " + Nombre(id) + ": apaga otro instrumento.";
+            else if (!Op.Regiones.ContainsKey(id))
+                aviso = Nombre(id) + " encendido. Pulsa en el mapa la región que observará.";
             Refrescar();
         }
 
@@ -150,86 +164,67 @@ namespace SpaceMission
             Refrescar();
         }
 
-        public void EscanearEn(Vector2 punto)
+        /// <summary>Clic en el mapa: fija la región del instrumento elegido. No observa nada todavía.</summary>
+        public void FijarRegionEn(Vector2 punto)
         {
-            if (Op == null || Op.Terminada) return;
-            if (Escaner == null || !Op.Encendidos.Contains(Escaner))
+            if (Op == null || Op.Terminada || Op.EsperandoDecision || resumenPendiente || Escaner == null) return;
+            Op.FijarRegion(Escaner, punto);
+            aviso = "Región fijada para " + Nombre(Escaner) + "." +
+                    (Op.Encendidos.Contains(Escaner) ? "" : " Enciéndelo para que observe este mes.");
+            Refrescar();
+        }
+
+        public void AlternarManiobra()
+        {
+            if (Op == null) return;
+            if (Op.ManiobraPlaneada.HasValue) Op.CancelarManiobra();
+            else if (!Op.PlanearManiobra(Op.Altitud == Altitud.Normal ? Altitud.Baja : Altitud.Normal))
+                aviso = "No se puede maniobrar: hacen falta " + Op.CostoCambioAltitud + " de combustible y " +
+                        Reglas.creditosPorManiobra + " créditos. No se cobró nada.";
+            Refrescar();
+        }
+
+        public void AlternarEnvio()
+        {
+            if (Op == null) return;
+            Op.TransmitirPlaneado = !Op.TransmitirPlaneado;
+            Refrescar();
+        }
+
+        // ---------- Resolver ----------
+
+        /// <summary>Resuelve el mes en curso una sola vez y muestra el resumen.</summary>
+        public void ResolverMes()
+        {
+            if (Op == null || resumenPendiente) return;
+            int recibidas = Op.Recibidas.Count;
+            var r = Op.ResolverMes(Op.Mes);
+            if (!r.Valido)
             {
-                textoLectura.text = "Para escanear, enciende el instrumento elegido (" + (Escaner != null ? Nombre(Escaner) : "ninguno") + ").";
+                aviso = "<color=#F4C46A><b>No se puede resolver:</b></color> " + r.Motivo + ".";
+                Refrescar();
                 return;
             }
-
-            if (Op.EsperandoDecision) return;
-            if (Op.MemoriaLlena)
-            {
-                textoLectura.text = "<color=#EAB308><b>Memoria llena.</b></color> Envía los datos a la Tierra en la próxima ventana de contacto.";
-                return;
-            }
-
-            int recibidas = Op.Recibidas.Count, enMemoria = Op.EnMemoria.Count, apagones = Op.Apagones, eventos = Op.Eventos.Count;
-            var ultimoEvento = Op.UltimoEvento;
-            var lectura = Op.Escanear(Escaner, punto);
-            if (lectura == null) return;
-
-            mapa.Marcar(punto, ColorLectura(lectura.Value));
-            textoLectura.text = TextoLectura(lectura.Value, Escaner, Op.Recibidas.Count > recibidas || Op.EnMemoria.Count > enMemoria);
-            if (Op.EnMemoria.Count > enMemoria) textoLectura.text += " Los datos quedan en la memoria hasta que los envíes.";
+            UltimoResultado = r;
+            historial.AddRange(r.Observaciones);
+            resumenPendiente = true;
+            textoResumen.text = TextoResumen(r);
+            aviso = "";
             if (Op.Recibidas.Count > recibidas) MostrarTransmision(Op.Recibidas.Last());
-            if (Op.Eventos.Count > eventos) MostrarEvento(Op.UltimoEvento);
-            // El texto completo del evento va en la ventana de decisión: aquí solo el nombre, sin repetirlo.
-            if (Op.EsperandoDecision && Op.UltimoEvento != ultimoEvento)
-                textoEvento.text = "<b><color=#EAB308>" + Op.UltimoEvento.Datos.nombre + "</color></b>\nControl de Misión espera tu decisión.";
-            if (Op.Apagones > apagones) textoLectura.text += "\n" + MensajeApagon();
-            if (Op.Terminada) textoLectura.text += "\nSe acabaron las órbitas: lo que falte llegará con baja calidad.";
+            if (r.Evento != null) MostrarEvento(r.Evento);
             Refrescar();
-            AlEscanear?.Invoke(Escaner, punto, lectura.Value, Op.Recibidas.Count > recibidas || Op.EnMemoria.Count > enMemoria);
+
+            var destacada = r.Observaciones.OrderByDescending(o => o.Evidencias.Count)
+                .ThenByDescending(o => o.Lectura == Lectura.Encontrada).FirstOrDefault();
+            if (destacada != null)
+                AlEscanear?.Invoke(destacada.Instrumento, destacada.Region, destacada.Lectura, destacada.Evidencias.Count > 0);
         }
 
-        public void UsarHerramienta(string id)
+        /// <summary>Cierra el resumen del mes. Si hay un evento, después aparece su decisión.</summary>
+        public void ContinuarResumen()
         {
-            if (Op == null) return;
-            if (Op.UsarHerramienta(id))
-            {
-                textoEvento.text = "<b>" + Catalogo.Herramienta(id).nombre + "</b>: problema resuelto.";
-            }
-            Refrescar();
-        }
-
-        public void CambiarAltitud()
-        {
-            if (Op == null) return;
-            var nueva = Op.Altitud == Altitud.Normal ? Altitud.Baja : Altitud.Normal;
-            if (!Op.CambiarAltitud(nueva))
-                textoLectura.text = "No alcanza el combustible para cambiar de altitud (cuesta " + Op.CostoCambioAltitud + ").";
-            else
-                textoLectura.text = nueva == Altitud.Baja
-                    ? "Bajaste a la órbita baja: las lecturas alcanzan más lejos, pero el arrastre gasta " + Reglas.combustiblePorOrbitaBaja + " de combustible por órbita."
-                    : "Subiste a la órbita normal: sin arrastre.";
-            Refrescar();
-        }
-
-        public void Enviar()
-        {
-            if (Op == null) return;
-            int recibidas = Op.Recibidas.Count, apagones = Op.Apagones;
-            bool porGlobalstar = !Op.ContactoAbierto;
-            if (Op.Enviar())
-            {
-                textoLectura.text = porGlobalstar
-                    ? "<color=#22C55E><b>Enviado por Globalstar:</b></color> costó " + Op.Satelite.orbitasEnvioSinVentana + " órbita."
-                    : "<color=#22C55E><b>Datos enviados a la Tierra.</b></color> La memoria quedó libre.";
-                if (Op.Recibidas.Count > recibidas) MostrarTransmision(Op.Recibidas.Last());
-            }
-            else if (Op.Apagones > apagones)
-                textoLectura.text = "El transmisor necesita " + Op.VatiosTransmisor + " W y no cabían.\n" + MensajeApagon();
-            Refrescar();
-        }
-
-        public void Esperar()
-        {
-            if (Op == null || !Op.Esperar()) return;
-            textoLectura.text = "Dejaste pasar una órbita sin escanear.";
-            if (Op.Terminada) textoLectura.text += "\nSe acabaron las órbitas: lo que falte llegará con baja calidad.";
+            resumenPendiente = false;
+            ActualizarPaneles();
             Refrescar();
         }
 
@@ -241,13 +236,18 @@ namespace SpaceMission
             var evento = Op.Decision;
             int apagones = Op.Apagones;
             if (opcion == null || !Op.Decidir(opcion)) return;
-            textoEvento.text = "<b><color=#EAB308>" + evento.Datos.nombre + "</color></b>\nDecidiste: " + opcion.texto + ".";
+            textoEvento.text = "<b><color=#F4C46A>" + evento.Datos.nombre + "</color></b>\nDecidiste: " + opcion.texto + ".";
             if (Op.PeticionAceptada && opcion.efecto == EfectoOpcion.AceptarObjetivo)
-            {
-                mapa.Marcar(Op.PuntoPeticion, ColorPeticion);
-                textoLectura.text = "La NASA marcó un punto morado en el mapa: escanéalo para cumplir la petición.";
-            }
-            if (Op.Apagones > apagones) textoLectura.text = MensajeApagon();
+                aviso = "La NASA marcó un punto morado en el mapa: obsérvalo con cualquier instrumento para cumplir la petición.";
+            if (Op.Apagones > apagones) aviso = MensajeApagon();
+            Refrescar();
+        }
+
+        public void UsarHerramienta(string id)
+        {
+            if (Op == null) return;
+            if (Op.UsarHerramienta(id))
+                textoEvento.text = "<b>" + catalogo.Herramienta(id).nombre + "</b>: problema resuelto.";
             Refrescar();
         }
 
@@ -255,121 +255,108 @@ namespace SpaceMission
         {
             if (Op == null) return;
             Op.Terminar();
+            EstadoJuego.CategoriaFinal = ResultadoCientifico.Categoria(evaluacion, Op, catalogo);
             if (Application.isPlaying) SceneManager.LoadScene("Resultado");
         }
 
-        // ---------- Dibujo ----------
+        // ---------- Textos ----------
+
+        /// <summary>Qué decidí, qué ocurrió, qué gasté y qué sigue.</summary>
+        string TextoResumen(ResultadoMes r)
+        {
+            var decidi = new List<string>();
+            if (r.Observaciones.Count + r.SinMemoria.Count + r.SinRegion.Count > 0)
+                decidi.Add("observar con " + string.Join(", ", r.Observaciones.Select(o => o.Instrumento)
+                    .Concat(r.SinMemoria).Concat(r.SinRegion).Select(Nombre)));
+            else decidi.Add("no observar");
+            if (r.Maniobra) decidi.Add("maniobrar a la órbita " + (r.Altitud == Altitud.Baja ? "baja" : "normal"));
+            if (r.EnvioPedido) decidi.Add("enviar a la Tierra");
+
+            var ocurrio = new List<string>();
+            foreach (var o in r.Observaciones)
+                ocurrio.Add("• " + Nombre(o.Instrumento) + ": " + TextoLectura(o) + (o.Evidencias.Count > 0
+                    ? " <color=#22C55E>Evidencia válida, en memoria.</color>" : ""));
+            foreach (var id in r.SinMemoria) ocurrio.Add("• " + Nombre(id) + ": <color=#F4C46A>sin memoria</color>, no se registró nada.");
+            foreach (var id in r.SinRegion) ocurrio.Add("• " + Nombre(id) + ": encendido sin región, no observó.");
+            if (r.DiasUtiles == 0) ocurrio.Add("• El mes no tuvo días útiles: no se observó.");
+            if (r.Observaciones.Count == 0 && r.SinMemoria.Count == 0 && r.SinRegion.Count == 0 && r.DiasUtiles > 0)
+                ocurrio.Add("• Ningún instrumento observó este mes.");
+            if (r.EnvioPedido)
+                ocurrio.Add(r.EnvioFallido != null
+                    ? "• <color=#F4C46A>No se envió:</color> " + r.EnvioFallido + ". Los datos siguen en la memoria."
+                    : "• Envío: " + r.BloquesEnviados + " bloques a la Tierra" +
+                      (r.Enviadas.Count > 0 ? ", con <color=#22C55E>" + r.Enviadas.Count + " evidencia(s) recibida(s)</color>." : ", sin evidencias nuevas."));
+            if (r.SubidaForzada) ocurrio.Add("• Sin combustible para el arrastre: la nave subió sola a la órbita normal.");
+
+            var gaste = new List<string>();
+            if (r.CreditosGastados > 0) gaste.Add(r.CreditosGastados + " créditos");
+            if (r.CombustibleGastado > 0) gaste.Add(r.CombustibleGastado + " de combustible");
+            if (r.Maniobra) gaste.Add(Reglas.diasPorManiobra + " días por la maniobra");
+
+            string sigue = r.Termino ? "La campaña terminó. Pulsa «Ver informe»."
+                : "Mes " + Op.Mes + ". " + (Op.ContactoAbierto ? "Hay contacto con la Tierra." : "Contacto en " + Meses(Op.MesesParaContacto) + ".") +
+                  (r.Evento != null && Op.EsperandoDecision ? " Control de Misión espera una decisión: " + r.Evento.Datos.nombre + "." : "") +
+                  " Los instrumentos encendidos siguen encendidos.";
+
+            return "<b>Mes " + r.Mes + " resuelto</b>  ·  " + r.DiasUtiles + " días útiles\n\n" +
+                   "<b>Decidiste:</b> " + string.Join(", ", decidi) + ".\n\n" +
+                   "<b>Ocurrió:</b>\n" + string.Join("\n", ocurrio) + "\n\n" +
+                   "<b>Gastaste:</b> " + (gaste.Count > 0 ? string.Join(", ", gaste) : "nada") + ".\n\n" +
+                   "<b>Sigue:</b> " + sigue;
+        }
+
+        static string Meses(int n) => n + (n == 1 ? " mes" : " meses");
+
+        string TextoLectura(Registro o)
+        {
+            string calidad = " (calidad " + Mathf.RoundToInt(o.Calidad) + ")";
+            switch (o.Lectura)
+            {
+                case Lectura.Encontrada:
+                    return "<color=#22C55E><b>anomalía observada</b></color>" + calidad + "." +
+                           (o.Calidad < Reglas.calidadMinima ? " <color=#F4C46A>Calidad insuficiente: no vale como evidencia.</color>" : "");
+                case Lectura.Caliente: return "<color=#E2643A><b>caliente</b></color>, muy cerca" + calidad + ".";
+                case Lectura.Tibio: return "<color=#EAB308><b>tibio</b></color>, te acercas" + calidad + ".";
+                case Lectura.Frio: return "<color=#60A5FA><b>frío</b></color>, lejos de la anomalía" + calidad + ".";
+                default: return "<b>sin lectura</b>: la nave estaba desorientada.";
+            }
+        }
+
+        string TextoPrevision()
+        {
+            string motivo = Op.MotivoPlanInvalido;
+            int prevista = Op.MemoriaUsada + Op.BloquesPrevistos;
+            var t = "<b>Previsión del mes " + Op.Mes + ":</b> " + Op.DiasPrevistos + " días útiles  ·  consumo " + Op.ConsumoW + " / " + Op.LimiteW + " W" +
+                    "  ·  memoria " + prevista + " / " + Op.MemoriaCapacidad + " bloques" +
+                    (prevista > Op.MemoriaCapacidad ? " <color=#F4C46A>(no cabrá todo)</color>" : "");
+            if (Op.ManiobraPlaneada.HasValue)
+                t += "\nManiobra: " + Reglas.creditosPorManiobra + " cr, " + Op.CostoCambioAltitud + " de combustible y " + Reglas.diasPorManiobra + " días.";
+            if (Op.TransmitirPlaneado)
+                t += "\nEnvío al final del mes: " + (Op.MotivoSinEnvio == null
+                    ? "sí (los instrumentos se apagan solos durante la ventana)."
+                    : "<color=#F4C46A>no se podrá, " + Op.MotivoSinEnvio + "</color>.");
+            if (motivo != null && !Op.Terminada && !Op.EsperandoDecision) t += "\n<color=#F4C46A>" + motivo + ".</color>";
+            if (Op.Terminada) t = "La campaña terminó. Lo que no se envió no cuenta como evidencia.";
+            return t + (aviso.Length > 0 ? "\n" + aviso : "");
+        }
 
         void MostrarTransmision(string id)
         {
-            textoTransmision.text = "<b>" + Encabezado(id) + "</b>\n" + Catalogo.Transmision(id).texto;
+            var t = catalogo.Transmision(id);
+            string encabezado = string.IsNullOrEmpty(t.instrumentoId) ? "Inicio de la observación" : "Transmisión: " + Nombre(t.instrumentoId);
+            textoTransmision.text = "<b>" + encabezado + "</b>\n" + t.texto;
         }
 
         void MostrarEvento(EventoActivo e)
         {
-            if (e.EvitadoPorSatelite)
-            {
-                textoEvento.text = "<b><color=#EAB308>" + e.Datos.nombre + "</color></b>\nAl " + Op.Satelite.nombre + " no le afectó: su apunte es muy preciso.";
-                return;
-            }
-            var herramienta = string.IsNullOrEmpty(e.Datos.herramientaId) ? null : Catalogo.Herramienta(e.Datos.herramientaId);
-            textoEvento.text = "<b><color=#EAB308>" + e.Datos.nombre + "</color></b>\n" + e.Datos.texto +
-                               (herramienta != null && !e.Resuelto ? "\nSe resuelve con: " + herramienta.nombre + "." : "");
-        }
-
-        string Encabezado(string transmisionId)
-        {
-            var t = Catalogo.Transmision(transmisionId);
-            return string.IsNullOrEmpty(t.instrumentoId) ? "Inicio de la observación" : "Transmisión: " + Nombre(t.instrumentoId);
+            textoEvento.text = "<b><color=#F4C46A>" + e.Datos.nombre + "</color></b>\n" + (e.EvitadoPorSatelite
+                ? "Al " + Op.Satelite.nombre + " no le afectó: su apunte es muy preciso."
+                : "Control de Misión espera tu decisión.");
         }
 
         string MensajeApagon() =>
-            "<color=#EF4444><b>¡Apagón!</b></color> El consumo superó el límite y la nave entró en modo seguro: pierdes " +
-            Reglas.orbitasPerdidasPorApagon + " órbitas y " + Reglas.creditosPorReinicio + " créditos.";
-
-        string TextoLectura(Lectura l, string instrumento, bool nueva)
-        {
-            switch (l)
-            {
-                case Lectura.Encontrada:
-                    return nueva ? "<color=#22C55E><b>¡Encontrada!</b></color> " + Nombre(instrumento) + " observó la anomalía."
-                                 : "<color=#22C55E><b>Aquí está la anomalía.</b></color> " + Nombre(instrumento) + " no aporta nada nuevo aquí.";
-                case Lectura.Caliente: return "<color=#E2643A><b>Caliente</b></color>: muy cerca.";
-                case Lectura.Tibio: return "<color=#EAB308><b>Tibio</b></color>: te acercas.";
-                case Lectura.Frio: return "<color=#60A5FA><b>Frío</b></color>: lejos de la anomalía.";
-                default: return "<b>Sin lectura</b>: la nave estaba desorientada.";
-            }
-        }
-
-        static readonly Color ColorPeticion = new Color32(0xA8, 0x55, 0xF7, 0xFF);
-
-        string TextoDecision(EventoActivo e) =>
-            "<b><color=#EAB308>" + e.Datos.nombre + "</color></b>\n" + e.Datos.texto + "\n\n<b>Control de Misión:</b> ¿qué hacemos?";
-
-        void DibujarDecision()
-        {
-            if (panelDecision == null) return;
-            ActualizarPanelDecision();
-            if (!Op.EsperandoDecision) return;
-            textoDecision.text = TextoDecision(Op.Decision);
-            int i = 0;
-            foreach (var o in Op.Opciones.ToList())
-            {
-                int indice = i++;
-                bool puede = Op.PuedeElegir(o);
-                var boton = Instantiate(plantillaOpcion, listaOpciones);
-                boton.gameObject.SetActive(true);
-                boton.name = "Respuesta_" + indice;
-                boton.interactable = puede;
-                boton.GetComponentInChildren<TMP_Text>().text = o.texto + (puede ? "" : "  (no alcanza el combustible)");
-                boton.onClick.AddListener(() => Decidir(indice));
-                filas.Add(boton.gameObject);
-            }
-        }
-
-        void DibujarNave()
-        {
-            if (textoCombustible != null)
-                textoCombustible.text = Op.ConMemoria
-                    ? "Altitud: " + (Op.Altitud == Altitud.Baja ? "baja" : "normal") + "  ·  Combustible: " + Op.Combustible
-                    : "Altitud: normal";
-            if (botonAltitud != null)
-            {
-                botonAltitud.gameObject.SetActive(Op.ConMemoria);
-                botonAltitud.interactable = !Op.Terminada && !Op.EsperandoDecision && Op.Combustible >= Op.CostoCambioAltitud;
-                botonAltitud.GetComponentInChildren<TMP_Text>().text =
-                    (Op.Altitud == Altitud.Normal ? "Bajar a órbita baja" : "Subir a órbita normal") +
-                    " (" + Op.CostoCambioAltitud + " de combustible)";
-            }
-            if (textoMemoria != null)
-                textoMemoria.text = !Op.ConMemoria ? "" :
-                    "Memoria: " + Op.MemoriaUsada + " / " + Op.MemoriaCapacidad + " bloques  ·  " +
-                    (Op.EnvioBloqueado ? "<color=#EAB308>el polvo bloquea el láser</color>"
-                    : Op.ContactoAbierto ? "<color=#22C55E>contacto con la Tierra ABIERTO</color>"
-                        : "contacto en " + Op.OrbitasParaContacto + (Op.OrbitasParaContacto == 1 ? " órbita" : " órbitas"));
-            if (botonEnviar != null)
-            {
-                botonEnviar.gameObject.SetActive(Op.ConMemoria);
-                botonEnviar.interactable = !Op.Terminada && !Op.EsperandoDecision && (Op.ContactoAbierto || Op.PuedeEnviarSinVentana) && !Op.EnvioBloqueado && Op.MemoriaUsada > 0;
-                botonEnviar.GetComponentInChildren<TMP_Text>().text = !Op.ContactoAbierto && Op.PuedeEnviarSinVentana
-                    ? "Globalstar (+" + Op.Satelite.orbitasEnvioSinVentana + " órbita)"
-                    : "Enviar (+" + Op.VatiosTransmisor + " W)";
-            }
-            if (botonEsperar != null)
-            {
-                botonEsperar.gameObject.SetActive(Op.ConMemoria);
-                botonEsperar.interactable = !Op.Terminada && !Op.EsperandoDecision;
-                botonEsperar.GetComponentInChildren<TMP_Text>().text = "Esperar órbita";
-            }
-            if (textoObjetivos != null)
-            {
-                var lineas = Op.Objetivos.Select(o => "• " + o.texto + " (+" + o.puntos + ")").ToList();
-                if (Op.PeticionAceptada)
-                    lineas.Add("• <color=#A855F7>Petición de la NASA</color>: escanear el punto morado (+" + Op.PuntosPeticion + ")" +
-                               (Op.PeticionCumplida ? " <color=#22C55E>cumplida</color>" : ""));
-                textoObjetivos.text = lineas.Count > 0 ? "<b>Objetivos extra</b>\n" + string.Join("\n", lineas) : "";
-            }
-        }
+            "<color=#EF4444><b>Modo seguro.</b></color> El evento dejó el consumo por encima del límite: la nave apagó los instrumentos, " +
+            "el reinicio costó " + Reglas.creditosPorReinicio + " créditos y el mes siguiente pierde " + Reglas.diasPerdidosPorApagon + " días.";
 
         static Color ColorLectura(Lectura l)
         {
@@ -383,56 +370,113 @@ namespace SpaceMission
             }
         }
 
-        string Nombre(string instrumentoId) => Catalogo.Instrumento(instrumentoId).nombre;
+        string Nombre(string instrumentoId) => catalogo.Instrumento(instrumentoId).nombre;
+
+        // ---------- Dibujo ----------
 
         void Refrescar()
         {
             foreach (var f in filas) { if (Application.isPlaying) Destroy(f); else DestroyImmediate(f); }
             filas.Clear();
+            bool pausa = Op.Terminada || Op.EsperandoDecision || resumenPendiente;
 
             foreach (var id in Op.Instrumentos)
             {
-                var i = Catalogo.Instrumento(id);
+                var i = catalogo.Instrumento(id);
                 bool encendido = Op.Encendidos.Contains(id);
                 bool bloqueado = Op.Bloqueados.TryGetValue(id, out int resta);
-                string estado = bloqueado ? "BLOQUEADO (" + resta + " órbitas)" : encendido ? "ENCENDIDO" : "apagado";
+                string estado = bloqueado ? "BLOQUEADO (" + Meses(resta) + ")"
+                    : !encendido ? "apagado"
+                    : Op.Regiones.ContainsKey(id) ? "OBSERVANDO" : "ENCENDIDO, SIN REGIÓN";
                 var fila = Instantiate(plantillaInstrumento, listaInstrumentos);
                 fila.gameObject.SetActive(true);
                 fila.name = "Instrumento_" + id;
                 fila.GetComponent<UnityEngine.UI.Image>().color =
-                    bloqueado ? ColorBloqueado : Escaner == id ? ColorEscaner : encendido ? ColorEncendido : ColorNormal;
+                    bloqueado ? ColorBloqueado : Escaner == id ? ColorElegido : encendido ? ColorEncendido : ColorNormal;
                 fila.GetComponentInChildren<TMP_Text>().text =
-                    (Escaner == id ? "» " : "") + i.nombre + "  ·  " + i.ConsumoTotalW + " W  ·  " + estado;
+                    (Escaner == id ? "» " : "") + i.nombre + "  ·  " + i.ConsumoTotalW + " W  ·  " + i.bloquesDatos + " bl.  ·  " + estado;
                 fila.onClick.AddListener(() => { if (Escaner == id || !Op.Encendidos.Contains(id)) AlternarInstrumento(id); else ElegirEscaner(id); });
                 filas.Add(fila.gameObject);
             }
 
-            foreach (var h in Catalogo.herramientas.Where(x => Op.TieneHerramienta(x.id)))
+            foreach (var h in catalogo.herramientas.Where(x => Op.TieneHerramienta(x.id)))
             {
-                bool usada = Op.HerramientasUsadas.Contains(h.id);
-                bool util = Op.HerramientasUtiles.Contains(h.id);
                 var boton = Instantiate(plantillaHerramienta, listaHerramientas);
                 boton.gameObject.SetActive(true);
                 boton.name = "Herramienta_" + h.id;
-                boton.interactable = util && !Op.Terminada && !Op.EsperandoDecision;
-                boton.GetComponentInChildren<TMP_Text>().text = h.nombre + (usada ? " (usada)" : "");
+                boton.interactable = Op.HerramientasUtiles.Contains(h.id) && !pausa;
+                boton.GetComponentInChildren<TMP_Text>().text = h.nombre + (Op.HerramientasUsadas.Contains(h.id) ? " (usada)" : "");
                 boton.onClick.AddListener(() => UsarHerramienta(h.id));
                 filas.Add(boton.gameObject);
             }
+
+            // Mapa: regiones del plan (claro), encima las observaciones ya hechas (color de la lectura) y la petición (morado).
+            mapa.Limpiar();
+            foreach (var par in Op.Regiones) mapa.Marcar(par.Value, ColorRegion);
+            foreach (var o in historial) mapa.Marcar(o.Region, ColorLectura(o.Lectura));
+            if (Op.PeticionAceptada && !Op.PeticionCumplida) mapa.Marcar(Op.PuntoPeticion, ColorPeticion);
 
             int limite = Mathf.Max(1, Op.LimiteW);
             rellenoEnergia.anchorMax = new Vector2(Mathf.Clamp01((float)Op.ConsumoW / limite), 1);
             rellenoEnergia.GetComponent<UnityEngine.UI.Image>().color =
                 Op.ConsumoW > Op.LimiteW * 0.9f ? new Color32(0xEF, 0x44, 0x44, 0xFF) : new Color32(0x22, 0xC5, 0x5E, 0xFF);
-            textoEnergia.text = "Energía: " + Op.ConsumoW + " / " + Op.LimiteW + " W";
-            textoOrbitas.text = "Órbitas de navegación: " + Op.Orbitas;
+            textoEnergia.text = "Potencia: " + Op.ConsumoW + " / " + Op.LimiteW + " W";
+            textoOrbitas.text = Op.Terminada ? "Campaña terminada"
+                : "Mes " + Op.Mes + " de " + (Op.MesesResueltos + Op.MesesRestantes);
 
-            int total = Op.Recibidas.Count + Op.EnMemoria.Count + Op.Pendientes.Count + Op.BajaCalidad.Count;
-            textoProgreso.text = "Transmisiones recibidas: " + Op.Recibidas.Count + " de " + total +
-                                 (Op.EnMemoria.Count > 0 ? "  ·  " + Op.EnMemoria.Count + " en memoria" : "");
-            DibujarNave();
-            DibujarDecision();
+            textoCombustible.text = "Altitud: " + (Op.Altitud == Altitud.Baja ? "baja" : "normal") + "  ·  Combustible: " + Op.Combustible +
+                                    "  ·  Créditos: " + TextosBriefing.Numero(Op.CreditosDisponibles);
+            botonAltitud.interactable = !pausa;
+            botonAltitud.GetComponentInChildren<TMP_Text>().text = Op.ManiobraPlaneada.HasValue
+                ? "Maniobra planeada: cancelar"
+                : (Op.Altitud == Altitud.Normal ? "Bajar a órbita baja" : "Subir a órbita normal") +
+                  " (" + Reglas.creditosPorManiobra + " cr, " + Op.CostoCambioAltitud + " comb., " + Reglas.diasPorManiobra + " días)";
+
+            textoMemoria.text = "Memoria: " + Op.MemoriaUsada + " / " + Op.MemoriaCapacidad + " bloques  ·  " +
+                (Op.EnvioBloqueado ? "<color=#F4C46A>el polvo bloquea el láser</color>"
+                : Op.ContactoAbierto ? "<color=#22C55E>contacto con la Tierra este mes</color>"
+                : "contacto en " + Meses(Op.MesesParaContacto) + (Op.PuedeEnviarSinVentana ? " (Globalstar: " + Op.Satelite.bloquesEnvioSinVentana + " bloques)" : ""));
+            botonEnviar.interactable = !pausa;
+            botonEnviar.GetComponentInChildren<TMP_Text>().text = "Enviar al final del mes: " + (Op.TransmitirPlaneado ? "SÍ" : "no");
+            botonEnviar.GetComponent<UnityEngine.UI.Image>().color = Op.TransmitirPlaneado ? ColorEncendido : ColorNormal;
+
+            botonResolver.interactable = !pausa;
+            botonResolver.GetComponentInChildren<TMP_Text>().text = "Resolver mes " + (Op.Terminada ? "" : Op.Mes.ToString());
             botonTerminar.GetComponentInChildren<TMP_Text>().text = Op.Completa || Op.Terminada ? "Ver informe" : "Terminar misión";
+
+            var objetivos = Op.Objetivos.Select(o => "• " + o.texto + " (+" + o.puntos + ")").ToList();
+            if (Op.PeticionAceptada)
+                objetivos.Add("• <color=#A855F7>Petición de la NASA</color>: observar el punto morado (+" + Op.PuntosPeticion + ")" +
+                              (Op.PeticionCumplida ? " <color=#22C55E>cumplida</color>" : ""));
+            textoObjetivos.text = objetivos.Count > 0 ? "<b>Objetivos extra</b>\n" + string.Join("\n", objetivos) : "";
+
+            int enMemoria = Op.Memoria.Sum(r => r.Evidencias.Count);
+            int total = Op.Recibidas.Count + enMemoria + Op.Pendientes.Count;
+            textoProgreso.text = "Evidencias recibidas: " + Op.Recibidas.Count + " de " + total +
+                                 (enMemoria > 0 ? "  ·  " + enMemoria + " en memoria" : "");
+            textoLectura.text = TextoPrevision();
+            DibujarDecision();
+            ActualizarPaneles();
+        }
+
+        void DibujarDecision()
+        {
+            if (!Op.EsperandoDecision) return;
+            textoDecision.text = "<b><color=#F4C46A>" + Op.Decision.Datos.nombre + "</color></b>\n" + Op.Decision.Datos.texto +
+                                 "\n\n<b>Control de Misión:</b> ¿qué hacemos?";
+            int i = 0;
+            foreach (var o in Op.Opciones.ToList())
+            {
+                int indice = i++;
+                bool puede = Op.PuedeElegir(o);
+                var boton = Instantiate(plantillaOpcion, listaOpciones);
+                boton.gameObject.SetActive(true);
+                boton.name = "Respuesta_" + indice;
+                boton.interactable = puede;
+                boton.GetComponentInChildren<TMP_Text>().text = o.texto + (puede ? "" : "  (no alcanza el combustible)");
+                boton.onClick.AddListener(() => Decidir(indice));
+                filas.Add(boton.gameObject);
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: sombra
   nombre: Paso por la sombra de Marte
-  texto: "La nave entra en la sombra del planeta y los paneles dejan de recibir luz. Hay menos energ\xEDa durante unas \xF3rbitas."
+  texto: La nave entra en la sombra del planeta y los paneles dejan de recibir luz. Hay menos potencia durante unos meses.
   efecto: 0
   vatios: 150
   orbitas: 3
@@ -26,12 +26,12 @@ MonoBehaviour:
     combustible: 0
     orbitas: 0
     duracion: 0
-  - texto: "Maniobrar para salir antes de la sombra (-4 de combustible, dura 1 \xF3rbita)"
+  - texto: Maniobrar para salir antes de la sombra (-4 de combustible, dura 1 mes)
     efecto: 2
     combustible: 4
     orbitas: 0
     duracion: 1
-  - texto: "Esperar a que pase (dura 3 \xF3rbitas)"
+  - texto: Esperar a que pase (dura 3 meses)
     efecto: 3
     combustible: 0
     orbitas: 0

@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpaceMission::SpaceMission.EventoDatos
   id: peticion
   nombre: "Petici\xF3n de la NASA"
-  texto: El equipo de un rover pide observar un punto cercano para planear su ruta. Si lo escaneas, la NASA te lo agradece.
+  texto: El equipo de un rover pide observar un punto cercano para planear su ruta. Si lo observas, la NASA te lo agradece.
   efecto: 5
   vatios: 0
   orbitas: 0
   herramientaId: 
   puntos: 150
   opciones:
-  - texto: 'Aceptar: escanear el punto marcado en el mapa (+150 puntos)'
+  - texto: 'Aceptar: observar el punto marcado en el mapa (+150 puntos)'
     efecto: 6
     combustible: 0
     orbitas: 0

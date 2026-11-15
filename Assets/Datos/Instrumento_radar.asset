@@ -18,5 +18,6 @@ MonoBehaviour:
   potenciaNormalW: 180
   extraTormentaW: 20
   costoCr: 260
+  bloquesDatos: 2
   pistaAsociada: evidencia de lo que hay bajo la superficie
   textoAyuda: 'Atraviesa el polvo y la superficie y aporta evidencia de lo que hay bajo la superficie. Consumo: 200 W: 180 W normal + 20 W por la tormenta.'

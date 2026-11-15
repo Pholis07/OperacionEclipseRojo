@@ -66,7 +66,7 @@ namespace SpaceMission.Tests
             Assert.AreEqual(50, S("aquarius").consumoExtraW);
 
             Assert.AreEqual(50, S("llcd").vatiosTransmisor);
-            Assert.AreEqual(2, S("llcd").cicloContacto);
+            Assert.AreEqual(1, S("llcd").cicloContacto, "versión 4: contacto todos los meses");
             Assert.IsTrue(S("llcd").tormentaBloqueaEnvio);
         }
 
@@ -138,9 +138,9 @@ namespace SpaceMission.Tests
             Assert.AreEqual((1250 - 820 - 50) / 2, linea.Puntos);
         }
 
-        // ---------- Operación ----------
+        // ---------- Operación por meses ----------
 
-        /// <summary>Titán en elíptica, nivel 1 (sobran 370 cr y 80 kg), anomalía en el centro y térmica encendida.</summary>
+        /// <summary>Titán en elíptica, nivel 1 (sobran 370 cr y 80 kg; 800 W; sin eventos), anomalía en el centro.</summary>
         Operacion Nueva(string satelite)
         {
             var c = new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico" }) { SateliteId = satelite };
@@ -149,100 +149,116 @@ namespace SpaceMission.Tests
             var op = new Operacion(e, c, catalogo, nivel, 1, new Carga(e, c, catalogo, nivel));
             op.ProgramarEventos(new EventoDatos[0], new int[0]);
             op.PonerAnomalia(Centro);
-            op.Encender("termica");
             return op;
+        }
+
+        static void Observar(Operacion op, string id, Vector2 region)
+        {
+            if (!op.Encendidos.Contains(id)) Assert.IsTrue(op.Encender(id), "encender " + id);
+            op.FijarRegion(id, region);
+        }
+
+        static ResultadoMes Resolver(Operacion op, bool enviar = false)
+        {
+            op.TransmitirPlaneado = enviar;
+            var r = op.ResolverMes(op.Mes);
+            Assert.IsTrue(r.Valido, r.Motivo);
+            return r;
         }
 
         EventoDatos Evento(string id) => catalogo.eventos.First(x => x.id == id);
         static Vector2 A(float d) => new Vector2(0.5f + d, 0.5f);
 
         [Test]
-        public void ConElMroLaOperacionEsLaDeSiempre()
+        public void ConElMroLaOperacionEsLaNormal()
         {
             var op = Nueva("mro");
-            Assert.AreEqual(4, op.MemoriaCapacidad);
-            Assert.AreEqual(230, op.ConsumoW);
+            Assert.AreEqual(6, op.MemoriaCapacidad);
+            Assert.AreEqual(100, op.ConsumoW);
+            Assert.AreEqual(800, op.LimiteW);
             Assert.AreEqual(3, op.CostoCambioAltitud);
             Assert.AreEqual(150, op.VatiosTransmisor);
-            Assert.AreEqual(3, op.CicloContacto);
-            Assert.AreEqual(Lectura.Caliente, op.Escanear("termica", A(0.14f)), "0.14: fuera del radio de 0.12");
+            Assert.AreEqual(2, op.CicloContacto);
+            Observar(op, "termica", A(0.14f));
+            Assert.AreEqual(Lectura.Caliente, Resolver(op).Observaciones[0].Lectura, "0.14: fuera del radio de 0.12");
         }
 
         [Test]
-        public void MagellanLeeMasLejosConElRadarYCambiaDeAltitudMasBarato()
+        public void MagellanLeeMasLejosConElRadarYManiobraMasBarato()
         {
             var op = Nueva("magellan");   // 80 − 10 = 70 kg: 7 de combustible
-            Assert.AreEqual(3, op.MemoriaCapacidad, "4 − 1");
-            op.Encender("radar");
-            Assert.AreEqual(Lectura.Encontrada, op.Escanear("radar", A(0.15f)), "0.15 / 1.3 < 0.12");
-            Assert.AreEqual(Lectura.Caliente, op.Escanear("termica", A(0.15f)), "la térmica no cambia");
-            Assert.IsTrue(op.CambiarAltitud(Altitud.Baja));
-            Assert.AreEqual(5, op.Combustible);
+            Assert.AreEqual(5, op.MemoriaCapacidad, "6 − 1");
+            Observar(op, "termica", A(0.15f));
+            Observar(op, "radar", A(0.15f));
+            var r = Resolver(op);
+            Assert.AreEqual(Lectura.Caliente, r.Observaciones[0].Lectura, "la térmica no cambia");
+            Assert.AreEqual(Lectura.Encontrada, r.Observaciones[1].Lectura, "radar: 0.15 / 1.3 < 0.12");
+
+            Assert.IsTrue(op.PlanearManiobra(Altitud.Baja));
+            Resolver(op);
+            Assert.AreEqual(7 - 2 - 1, op.Combustible, "2 de la maniobra y 1 de arrastre");
         }
 
         [Test]
         public void ChandraLeeMasLejosConLasCamarasYNoSeDesorienta()
         {
             var op = Nueva("chandra");
-            Assert.AreEqual(Lectura.Encontrada, op.Escanear("termica", A(0.14f)), "0.14 / 1.2 < 0.12");
+            Assert.AreEqual(4, op.Combustible, "40 kg menos");
             op.AplicarEvento(Evento("orientacion"));
             Assert.IsFalse(op.EsperandoDecision);
             Assert.IsTrue(op.UltimoEvento.EvitadoPorSatelite);
-            Assert.AreNotEqual(Lectura.SinLectura, op.Escanear("termica", Lejos));
+            Observar(op, "termica", A(0.14f));
+            Assert.AreEqual(Lectura.Encontrada, Resolver(op).Observaciones[0].Lectura, "0.14 / 1.2 < 0.12, y con lectura");
         }
 
         [Test]
-        public void AquariusTieneMasMemoriaConsumeMasYNoSeConfundeEnLaTormenta()
+        public void AquariusTieneMasMemoriaConsumeMasYNoPierdeCalidadEnLaTormenta()
         {
             var op = Nueva("aquarius");
-            Assert.AreEqual(5, op.MemoriaCapacidad);
-            Assert.AreEqual(280, op.ConsumoW, "100 + 50 + 130");
+            Assert.AreEqual(7, op.MemoriaCapacidad);
+            Assert.AreEqual(150, op.ConsumoW, "100 de base + 50 del radiómetro");
             op.AplicarEvento(Evento("tormenta"));
             op.Decidir(op.Opciones.First(o => o.efecto == EfectoOpcion.Aguantar));
-            Assert.AreEqual(Lectura.Frio, op.Escanear("termica", Lejos), "sin lectura falsa");
+            Observar(op, "termica", Centro);
+            var r = Resolver(op);
+            Assert.AreEqual(70f, r.Observaciones[0].Calidad, 0.01f);
+            CollectionAssert.AreEqual(new[] { "TX-01" }, r.Observaciones[0].Evidencias);
         }
 
         [Test]
-        public void LlcdEnviaConMenosEnergiaYMasVentanas()
+        public void LlcdTieneContactoTodosLosMesesYTransmiteConMenosPotencia()
         {
             var op = Nueva("llcd");
             Assert.AreEqual(50, op.VatiosTransmisor);
-            Assert.AreEqual(1, op.OrbitasParaContacto, "ciclo de 2");
-            op.Escanear("termica", Centro);
-            Assert.IsTrue(op.ContactoAbierto);
-            op.AplicarEvento(Evento("micrometeorito"));
-            op.Decidir(op.Opciones.First(o => o.efecto == EfectoOpcion.Aguantar));   // límite 600
-            op.Encender("radar");
-            op.Encender("atmosferico");   // 100 + 130 + 200 + 70 = 500: con 150 W no cabría, con 50 sí
-            Assert.IsTrue(op.Enviar());
-            Assert.AreEqual(0, op.Apagones);
+            Assert.IsTrue(op.ContactoAbierto, "mes 1: con el MRO no habría contacto");
+            Observar(op, "termica", Centro);
+            var r = Resolver(op, enviar: true);
+            CollectionAssert.AreEqual(new[] { "TX-01" }, r.Enviadas, "observa y envía el mismo mes");
+            Assert.IsTrue(op.ContactoAbierto, "mes 2");
         }
 
         [Test]
-        public void ConLlcdSeguirEnLaTormentaBloqueaElEnvioEsaOrbita()
+        public void ConLlcdSeguirEnLaTormentaBloqueaElEnvioDelMesSiguiente()
         {
             var op = Nueva("llcd");
-            op.Escanear("termica", Centro);
-            Assert.IsTrue(op.ContactoAbierto);
+            Observar(op, "termica", Centro);
             op.AplicarEvento(Evento("tormenta"));
             op.Decidir(op.Opciones.First(o => o.efecto == EfectoOpcion.Aguantar));
             Assert.IsTrue(op.EnvioBloqueado);
-            Assert.IsFalse(op.Enviar());
-            op.Esperar();
-            op.Esperar();   // la siguiente ventana (ciclo de 2)
+            var r = Resolver(op, enviar: true);
+            StringAssert.Contains("láser", r.EnvioFallido);
+            Assert.AreEqual(1, op.Memoria.Count, "los datos siguen en la memoria");
             Assert.IsFalse(op.EnvioBloqueado);
-            Assert.IsTrue(op.Enviar());
+            Assert.IsNull(Resolver(op, enviar: true).EnvioFallido, "solo un mes");
         }
 
         [Test]
         public void ConLlcdBajarEnLaTormentaNoBloqueaElEnvio()
         {
             var op = Nueva("llcd");
-            op.Escanear("termica", Centro);
             op.AplicarEvento(Evento("tormenta"));
             op.Decidir(op.Opciones.First(o => o.efecto == EfectoOpcion.BajarAltitud));
             Assert.IsFalse(op.EnvioBloqueado);
-            Assert.IsTrue(op.Enviar());
         }
 
         // ---------- Pantalla de Carga ----------
@@ -290,7 +306,7 @@ namespace SpaceMission.Tests
             var a = S("aztechsat");
             Assert.AreEqual("Nanosatélite AztechSat-1", a.nombre);
             Assert.IsTrue(a.envioSinVentana);
-            Assert.AreEqual(1, a.orbitasEnvioSinVentana);
+            Assert.AreEqual(2, a.bloquesEnvioSinVentana, "versión 4: sin contacto caben 2 bloques (antes costaba 1 órbita)");
             Assert.AreEqual(-100, a.limiteExtraW);
             Assert.AreEqual(-1, a.memoriaExtra);
             Assert.AreEqual("mro", catalogo.satelites[0].id);
@@ -298,41 +314,31 @@ namespace SpaceMission.Tests
         }
 
         [Test]
-        public void ElAztechSatTieneMenosEnergiaYMemoria()
+        public void ElAztechSatTieneMenosPotenciaYMemoria()
         {
             var op = Nueva("aztechsat");
             Assert.AreEqual(700, op.LimiteW, "800 − 100");
-            Assert.AreEqual(3, op.MemoriaCapacidad, "4 − 1");
+            Assert.AreEqual(5, op.MemoriaCapacidad, "6 − 1");
             Assert.AreEqual(8, op.Combustible, "no pesa: 80 kg libres");
         }
 
         [Test]
-        public void ElAztechSatEnviaSinVentanaPagandoUnaOrbita()
+        public void ElAztechSatEnviaSinContactoPeroSoloDosBloques()
         {
             var op = Nueva("aztechsat");
-            op.Escanear("termica", Centro);   // órbita 1: la ventana normal es en 1 órbita más
-            Assert.IsFalse(op.ContactoAbierto);
-            Assert.IsTrue(op.PuedeEnviarSinVentana);
-            Assert.IsTrue(op.Enviar());
-            CollectionAssert.Contains(op.Recibidas, "TX-01");
-            Assert.AreEqual(10, op.Orbitas, "12 − 1 del escaneo − 1 del envío por la constelación");
+            Assert.IsFalse(op.ContactoAbierto, "mes 1");
+            Observar(op, "termica", Centro);   // 1 bloque
+            Observar(op, "radar", Centro);     // 2 bloques
+            var r = Resolver(op, enviar: true);
+            CollectionAssert.AreEqual(new[] { "TX-01" }, r.Enviadas, "cabe la térmica; el radar ya no (1 + 2 > 2)");
+            Assert.AreEqual(1, r.BloquesEnviados);
+            Assert.AreEqual(2, op.MemoriaUsada, "el registro del radar sigue en la memoria");
 
-            op.Escanear("termica", Lejos);    // órbita 3: ventana cerrada
-            op.Esperar();
-            op.Esperar();                     // órbita 5: ventana normal
-            Assert.IsTrue(op.ContactoAbierto);
-            Assert.AreEqual(7, op.Orbitas);
-            Assert.IsTrue(op.Enviar());
-            Assert.AreEqual(7, op.Orbitas, "con la ventana abierta no cuesta");
-        }
-
-        [Test]
-        public void SinElAztechSatNoSeEnviaConLaVentanaCerrada()
-        {
-            var op = Nueva("mro");
-            op.Escanear("termica", Centro);
-            Assert.IsFalse(op.PuedeEnviarSinVentana);
-            Assert.IsFalse(op.Enviar());
+            op.Apagar("termica");
+            op.Apagar("radar");
+            var mes2 = Resolver(op, enviar: true);   // mes par: contacto normal, sin límite
+            CollectionAssert.AreEqual(new[] { "TX-02" }, mes2.Enviadas);
+            Assert.AreEqual(0, op.MemoriaUsada);
         }
 
         [Test]

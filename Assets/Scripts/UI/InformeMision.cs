@@ -4,8 +4,8 @@ using System.Linq;
 namespace SpaceMission
 {
     /// <summary>
-    /// Arma el informe final a partir de la evaluación: conclusión, qué instrumento dio cada evidencia,
-    /// revelaciones complementarias, qué faltó y por qué, y recursos usados. Sin puntos ni calificación.
+    /// Arma el informe final: conclusión según lo que llegó a la Tierra (ResultadoCientifico), qué instrumento
+    /// dio cada evidencia recibida, revelaciones complementarias, qué faltó y por qué, y recursos usados.
     /// </summary>
     public static class InformeMision
     {
@@ -19,11 +19,11 @@ namespace SpaceMission
             public string Recursos;
         }
 
-        /// <param name="op">La Operación jugada; si es null (pruebas antiguas), todo cuenta como recibido bien.</param>
+        /// <param name="op">La Operación jugada; si es null, no se envió nada.</param>
         public static Informe Construir(Evaluacion e, Configuracion c, CatalogoDatos catalogo,
             Operacion op = null, MisionDatos nivel = null)
         {
-            var categoria = e.Categoria ?? CategoriaResultado.Fracaso;
+            var categoria = ResultadoCientifico.Categoria(e, op, catalogo);
             var informe = new Informe
             {
                 Titulo = TextosResultado.Titulo(categoria),
@@ -36,8 +36,13 @@ namespace SpaceMission
                 var t = catalogo.Transmision(id);
                 if (string.IsNullOrEmpty(t.instrumentoId)) continue; // TX-00 es de la misión
                 var instrumento = catalogo.Instrumento(t.instrumentoId);
-                var linea = instrumento.nombre + ": " + instrumento.pistaAsociada + "." +
-                            (op != null && op.BajaCalidad.Contains(id) ? " (datos de baja calidad)" : "");
+                if (op == null || !op.Recibidas.Contains(id))
+                {
+                    // Lo que no se observó con calidad suficiente o no se envió no cuenta como evidencia.
+                    informe.Faltantes.Add(instrumento.nombre + ": no llegó evidencia válida a la Tierra.");
+                    continue;
+                }
+                var linea = instrumento.nombre + ": " + instrumento.pistaAsociada + ".";
                 if (t.tipo == TipoTransmision.Principal) informe.Evidencias.Add(linea);
                 else informe.Revelaciones.Add(linea);
             }
@@ -62,21 +67,22 @@ namespace SpaceMission
         static string TextoOperacion(Operacion op)
         {
             if (op == null) return "";
-            var texto = " Te quedaron " + op.Orbitas + " órbitas de navegación.";
+            var texto = " La misión duró " + op.MesesResueltos + (op.MesesResueltos == 1 ? " mes" : " meses") + " y sobraron " + op.MesesRestantes + ".";
             if (op.Apagones > 0)
                 texto += " La nave se apagó " + op.Apagones + (op.Apagones == 1 ? " vez" : " veces") +
                          " y los reinicios costaron " + TextosBriefing.Numero(op.CreditosPerdidos) + " créditos.";
-            if (op.ConMemoria)
-            {
-                if (op.Satelite != null) texto += " Satélite: " + op.Satelite.nombre + ".";
-                if (op.CreditosCarga > 0)
-                    texto += " La carga de herramientas costó " + TextosBriefing.Numero(op.CreditosCarga) + " créditos.";
-                texto += " Te quedaron " + op.Combustible + " de combustible.";
-                if (op.PeticionAceptada)
-                    texto += op.PeticionCumplida ? " Cumpliste la petición de la NASA." : " No llegaste a cumplir la petición de la NASA.";
-                var objetivos = Objetivos.Resumen(op);
-                if (objetivos.Length > 0) texto += " " + objetivos;
-            }
+            if (op.Satelite != null) texto += " Satélite: " + op.Satelite.nombre + ".";
+            if (op.CreditosCarga > 0)
+                texto += " La carga costó " + TextosBriefing.Numero(op.CreditosCarga) + " créditos.";
+            if (op.CreditosManiobras > 0)
+                texto += " Las maniobras costaron " + TextosBriefing.Numero(op.CreditosManiobras) + " créditos.";
+            texto += " Te quedaron " + op.Combustible + " de combustible.";
+            if (op.Memoria.Count > 0)
+                texto += " Quedaron " + op.Memoria.Count + (op.Memoria.Count == 1 ? " registro" : " registros") + " sin enviar en la memoria.";
+            if (op.PeticionAceptada)
+                texto += op.PeticionCumplida ? " Cumpliste la petición de la NASA." : " No llegaste a cumplir la petición de la NASA.";
+            var objetivos = Objetivos.Resumen(op);
+            if (objetivos.Length > 0) texto += " " + objetivos;
             return texto;
         }
 

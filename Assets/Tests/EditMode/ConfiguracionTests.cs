@@ -119,5 +119,27 @@ namespace SpaceMission.Tests
             revision.Mostrar(Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo));
             Assert.AreEqual(habilitado, revision.BotonLanzar.interactable);
         }
+
+        // AUD-01 (paquete v1.0): reconstruir la vista o cambiar de pestaña no pide ningún sonido; instalar pide uno.
+        [Test]
+        public void ReconstruirLaVistaNoSuenaEInstalarSuenaUnaVez()
+        {
+            EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
+            EstadoJuego.Reiniciar();
+            var ui = Object.FindFirstObjectByType<ConfiguracionUI>(FindObjectsInactive.Include);
+            ui.Inicializar();
+
+            int antes = ReproductorUI.Peticiones;
+            ui.MostrarPestana(ConfiguracionUI.Pestana.Instrumentos);
+            ui.MostrarPestana(ConfiguracionUI.Pestana.Orbita);
+            ui.ElegirOrbita("media");
+            ui.Recalcular();
+            Assert.AreEqual(antes, ReproductorUI.Peticiones, "navegar y redibujar no suena");
+
+            ui.AlternarInstrumento("termica");
+            Assert.AreEqual(antes + 1, ReproductorUI.Peticiones, "instalar: un sonido");
+            ui.AlternarInstrumento("termica");
+            Assert.AreEqual(antes + 1, ReproductorUI.Peticiones, "quitar no añade otro");
+        }
     }
 }

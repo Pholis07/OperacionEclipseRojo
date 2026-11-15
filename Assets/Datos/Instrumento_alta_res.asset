@@ -18,5 +18,6 @@ MonoBehaviour:
   potenciaNormalW: 90
   extraTormentaW: 60
   costoCr: 130
+  bloquesDatos: 1
   pistaAsociada: "im\xE1genes de detalle de la superficie"
   textoAyuda: "Toma im\xE1genes n\xEDtidas entre el polvo y aporta im\xE1genes de detalle de la superficie. Consumo: 150 W: 90 W normal + 60 W por la tormenta."

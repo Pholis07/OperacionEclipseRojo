@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Objetivo_enviar_pronto
   m_EditorClassIdentifier: SpaceMission::SpaceMission.ObjetivoDatos
   id: enviar_pronto
-  texto: "Enviar todo antes de la \xFAltima \xF3rbita"
+  texto: "Enviar toda la evidencia antes del \xFAltimo mes"
   tipo: 3
   valor: 0
   puntos: 100

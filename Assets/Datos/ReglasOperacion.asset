@@ -12,9 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e4f74c238f71afc7b39eaf040fd26d0, type: 3}
   m_Name: ReglasOperacion
   m_EditorClassIdentifier: SpaceMission::SpaceMission.ReglasOperacionDatos
-  orbitasPerdidasPorApagon: 2
   creditosPorReinicio: 50
-  orbitasPorEscaneo: 1
+  diasPerdidosPorApagon: 15
+  diasPorMes: 30
+  creditosPorManiobra: 40
+  diasPorManiobra: 2
+  diasPerdidosPorOpcion: 10
+  diasPerdidosSinCombustible: 10
+  calidadBase: 70
+  calidadMinima: 60
+  factorCalidadTormenta: 0.8
+  factorCalidadBaja: 1.2
   radioDeteccion: 0.12
   distanciaCaliente: 0.25
   distanciaTibio: 0.45
@@ -24,7 +32,6 @@ MonoBehaviour:
   creditosPorPunto: 2
   puntosPorRevelacion: 100
   puntosPorOrbitaSobrante: 25
-  puntosPorBajaCalidad: 100
   puntosPorApagon: 50
   espaciosBodega: 2
   kgPorCombustible: 10
@@ -33,7 +40,6 @@ MonoBehaviour:
   combustiblePorCambioAltitud: 3
   factorAltitudBaja: 1.5
   combustiblePorOrbitaBaja: 1
-  orbitasPerdidasSinCombustible: 1
   puntosPorCombustible: 10
-  cicloContacto: 3
+  cicloContacto: 2
   vatiosTransmisor: 150
