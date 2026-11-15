@@ -66,6 +66,13 @@ namespace SpaceMission
         bool resumenPendiente;
         ResaltarGuia resaltado;
 
+        /// <summary>Tutorial: si devuelve un paso, la guía lo usa en vez de calcular el suyo.</summary>
+        public System.Func<PasoGuia?> GuiaForzada;
+        /// <summary>Tutorial: se llama al pulsar «Resolver mes»; si devuelve false, el mes no se resuelve.</summary>
+        public System.Func<bool> AntesDeResolver;
+        /// <summary>Tutorial: «Terminar misión» lo cierra en vez de ir al informe.</summary>
+        public System.Action TerminarForzado;
+
         /// <summary>El último paso que propuso la guía (para las pruebas).</summary>
         public PasoGuia PasoActual { get; private set; }
         Evaluacion evaluacion;
@@ -214,6 +221,7 @@ namespace SpaceMission
         public void ResolverMes()
         {
             if (Op == null || resumenPendiente) return;
+            if (AntesDeResolver != null && !AntesDeResolver()) return;
             int recibidas = Op.Recibidas.Count;
             var r = Op.ResolverMes(Op.Mes);
             if (!r.Valido)
@@ -272,6 +280,7 @@ namespace SpaceMission
         public void Terminar()
         {
             if (Op == null) return;
+            if (TerminarForzado != null) { TerminarForzado(); return; }
             Op.Terminar();
             EstadoJuego.CategoriaFinal = ResultadoCientifico.Categoria(evaluacion, Op, catalogo);
             if (Application.isPlaying) SceneManager.LoadScene("Resultado");
@@ -503,7 +512,7 @@ namespace SpaceMission
         void DibujarGuia(bool pausa)
         {
             if (textoGuia == null) return;
-            var paso = Guia.Siguiente(Op, catalogo);
+            var paso = GuiaForzada?.Invoke() ?? Guia.Siguiente(Op, catalogo);
             GameObject destino = null;
             string texto = paso.Texto;
             switch (paso.Objetivo)
@@ -527,6 +536,15 @@ namespace SpaceMission
             textoGuia.text = "<color=" + (paso.Aviso ? "#F4C46A" : "#75D6DF") + ">" + Iconos.Pista + "  " + texto + "</color>";
             ResaltarGuia.Mover(ref resaltado, destino);
         }
+
+        /// <summary>Vuelve a dibujar la pantalla (el tutorial lo pide al cambiar de paso).</summary>
+        public void Redibujar()
+        {
+            if (Op != null) Refrescar();
+        }
+
+        /// <summary>Marca un punto en el mapa (el tutorial señala dónde mirar).</summary>
+        public void MarcarEnMapa(Vector2 punto, Color color) => mapa.Marcar(punto, color);
 
         GameObject Fila(string instrumentoId) =>
             filas.FirstOrDefault(f => f != null && f.name == "Instrumento_" + instrumentoId);

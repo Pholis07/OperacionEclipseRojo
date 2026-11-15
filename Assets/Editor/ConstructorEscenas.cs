@@ -660,9 +660,14 @@ public static partial class ConstructorEscenas
         // Barra inferior: qué hacer ahora y el único botón de la pantalla.
         var pista = Texto(briefing, "Pista", "Read the objective and the requirements. Then set up your spacecraft.", 26,
             TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
-        Anclar(pista.rectTransform, new Vector2(0.05f, 0.05f), new Vector2(0.6f, 0.12f));
+        Anclar(pista.rectTransform, new Vector2(0.05f, 0.05f), new Vector2(0.42f, 0.12f));
         var continuar = Boton(briefing, "BotonContinuar", "Continue  " + SpaceMission.Iconos.Siguiente, true);
         Fijar(continuar.GetComponent<RectTransform>(), new Vector2(0.95f, 0.05f), new Vector2(1, 0), new Vector2(520, 88));
+        // Versión 5, bloque 4: la Misión 0 (tutorial), a la izquierda de «Continue». MisionUI pone el texto.
+        var botonTutorial = Boton(briefing, "BotonTutorial", "Mission 0: tutorial", false);
+        Fijar(botonTutorial.GetComponent<RectTransform>(), new Vector2(0.667f, 0.05f), new Vector2(1, 0), new Vector2(460, 88));
+        var etiquetaTutorial = botonTutorial.GetComponentInChildren<TextMeshProUGUI>();
+        etiquetaTutorial.enableAutoSizing = true; etiquetaTutorial.fontSizeMin = 20; etiquetaTutorial.fontSizeMax = 30;
         Aparecer(briefing, col, datos);
 
         var controlador = new GameObject("MisionUI").AddComponent<MisionUI>();
@@ -705,6 +710,9 @@ public static partial class ConstructorEscenas
         var investigacion = Panel(canvas, "VistaOperacion", Fondo);
         Estirar(investigacion);
         var operacionUI = ConstruirOperacion(investigacion, catalogo);
+        var tutorialUI = ConstruirTutorial(investigacion, controlador, operacionUI);
+        Asignar(controlador, "botonTutorial", botonTutorial);
+        Asignar(controlador, "tutorial", tutorialUI);
 
         var musica = CrearMusica(ArteDatos.Musica.Configuracion);
         // Cinemática Tierra → Marte al lanzar y vista orbital en cada escaneo (ConstructorEscenas.Cine.cs).
@@ -827,6 +835,41 @@ public static partial class ConstructorEscenas
         Asignar(ui, "botonVolver", volver);
         Asignar(ui, "botonLanzar", lanzar);
         Asignar(ui, "botonUsarMro", usarMro);
+        return ui;
+    }
+
+    /// <summary>
+    /// Versión 5, bloque 4: tarjeta de la Misión 0 sobre la parte baja del centro de la Operación (la anomalía del
+    /// tutorial está arriba del mapa, así que no la tapa). TutorialUI la muestra y la oculta.
+    /// </summary>
+    static TutorialUI ConstruirTutorial(RectTransform vista, MisionUI mision, OperacionUI operacion)
+    {
+        var tarjeta = Columna(vista, "PanelTutorial", 10, TextAnchor.UpperLeft, Tarjeta, 24);
+        Anclar(tarjeta, new Vector2(0.31f, 0.03f), new Vector2(0.69f, 0.36f));
+        MarcoHud(tarjeta);
+        var titulo = Texto(tarjeta, "TituloTutorial", "", 28, Cian, FontStyles.Bold, TextAlignmentOptions.Left);
+        var cuerpo = Texto(tarjeta, "TextoTutorial", "", 22, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        cuerpo.enableAutoSizing = true; cuerpo.fontSizeMin = 15; cuerpo.fontSizeMax = 22;
+        cuerpo.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var fila = Fila(tarjeta, "BotonesTutorial", 12);
+        Alto(fila, 56);
+        var saltar = BotonAccion(fila, "BotonSaltarTutorial", "Skip tutorial");
+        var siguiente = Boton(fila, "BotonSiguienteTutorial", "Start", true);
+        var le = siguiente.GetComponent<UnityEngine.UI.LayoutElement>();
+        le.minHeight = 56; le.preferredHeight = 56; le.preferredWidth = -1; le.flexibleWidth = 1;
+        siguiente.GetComponentInChildren<TextMeshProUGUI>().enableAutoSizing = true;
+        siguiente.GetComponentInChildren<TextMeshProUGUI>().fontSizeMin = 18;
+        siguiente.GetComponentInChildren<TextMeshProUGUI>().fontSizeMax = 28;
+
+        var ui = vista.gameObject.AddComponent<TutorialUI>();
+        Asignar(ui, "mision", mision);
+        Asignar(ui, "operacion", operacion);
+        Asignar(ui, "panel", tarjeta.gameObject);
+        Asignar(ui, "textoTitulo", titulo);
+        Asignar(ui, "textoCuerpo", cuerpo);
+        Asignar(ui, "botonSiguiente", siguiente);
+        Asignar(ui, "botonSaltar", saltar);
+        tarjeta.gameObject.SetActive(false);
         return ui;
     }
 

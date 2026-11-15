@@ -28,12 +28,15 @@ namespace SpaceMission
         [SerializeField] TMP_Text textoColores;
         [SerializeField] UnityEngine.UI.Button botonContinuar;
         [SerializeField] UnityEngine.UI.Button[] botonesNivel;   // 0, 1 y 2
+        [SerializeField] UnityEngine.UI.Button botonTutorial;    // versión 5: Misión 0
+        [SerializeField] TutorialUI tutorial;
 
         public CatalogoDatos Catalogo => catalogo;
 
         void Awake()
         {
             botonContinuar.onClick.AddListener(MostrarConfiguracion);
+            if (botonTutorial != null) botonTutorial.onClick.AddListener(IniciarTutorial);
             for (int i = 0; i < botonesNivel.Length; i++)
             {
                 int nivel = i;
@@ -81,7 +84,25 @@ namespace SpaceMission
             LlenarBriefing();
         }
 
-        public void MostrarBriefing() => Mostrar(vistaBriefing);
+        public void MostrarBriefing()
+        {
+            Mostrar(vistaBriefing);
+            if (botonTutorial != null)
+                botonTutorial.GetComponentInChildren<TMP_Text>().text = TutorialUI.Completado
+                    ? "Replay Mission 0 (tutorial)" : "New? Play Mission 0 first";
+        }
+
+        /// <summary>Misión 0: nave fija, sin configuración ni cinemática, directo a la Operación guiada.</summary>
+        public void IniciarTutorial()
+        {
+            if (tutorial == null) return;
+            EstadoJuego.Tutorial = true;
+            EstadoJuego.Configuracion = TutorialUI.ConfiguracionFija();
+            EstadoJuego.Resultado = Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice));
+            EstadoJuego.Carga = new Carga(EstadoJuego.Resultado, EstadoJuego.Configuracion, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice));
+            MostrarInvestigacion();
+            tutorial.Comenzar();
+        }
 
         public void MostrarConfiguracion() => Mostrar(vistaConfiguracion);
 

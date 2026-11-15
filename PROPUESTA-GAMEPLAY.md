@@ -283,3 +283,18 @@ Masa = real × 3 y potencia = real × 5 (redondeo a 5). Los créditos son moneda
   7. Pista según la última lectura: frío, tibio, caliente, sin lectura o calidad insuficiente (con la leyenda de colores del mapa).
   8. Resolver el mes.
 - El tutorial jugable (Misión 0) es el bloque 4.
+
+## Bloque 4: tutorial jugable (Misión 0)
+
+- En el Briefing, junto a «Continue»: «New? Play Mission 0 first» (o «Replay Mission 0» si ya se completó).
+- Nave fija (Explorador, órbita media, térmica, radar y MRO), sin configuración ni cinemática, sin eventos al azar y con la anomalía en un punto fijo.
+- Seis pasos, cada uno con una tarjeta que explica el concepto, más la guía y el resaltado del bloque 3:
+  1. Encender la térmica.
+  2. Marcar el punto morado en el mapa.
+  3. Resolver el mes 1.
+  4. Leer el resumen.
+  5. Activar «Send at month end», porque el mes 2 tiene contacto.
+  6. Resolver el mes 2.
+- «Resolve month» no hace nada fuera de su paso.
+- **Siempre termina en fracaso:** al resolver el mes 2, una tormenta global como la de 2018 corta el contacto antes de enviar. El fracaso no depende de lo que haga el jugador. Mensaje final del paquete: «The first mission detected the signal, but could not send enough evidence. Now we know what went wrong. Design the next mission.»
+- Se puede saltar en cualquier momento («Skip tutorial» o «End mission»). No toca récords ni créditos, guarda que se completó y deja la campaña limpia.

@@ -247,6 +247,9 @@ namespace SpaceMission
 
         // ---------- Memoria y contacto ----------
 
+        /// <summary>A esta distancia (o menos) de la anomalía, una observación la encuentra (sin contar altitud ni satélite).</summary>
+        public float RadioDeteccion => reglas.radioDeteccion;
+
         public int MemoriaCapacidad => nivel.memoriaBloques + (Satelite != null ? Satelite.memoriaExtra : 0);
         public int MemoriaUsada => Memoria.Sum(r => r.Bloques);
 

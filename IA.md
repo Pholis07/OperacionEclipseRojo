@@ -385,3 +385,12 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - Primer intento: la guía pedía enviar aunque en memoria no hubiera evidencia, y el resaltado tocaba un componente ya destruido. Las pruebas lo detectaron y se corrigió.
 - Comprobado en el navegador a 1366x768: la guía y el resaltado al empezar, al encender, tras una lectura fría y en el mes con contacto.
 - 10 pruebas nuevas en `GuiaTests.cs`. Pasan las 231 pruebas EditMode y las 19 PlayMode.
+
+## Versión 5, bloque 4: tutorial jugable (Misión 0)
+
+- `TutorialUI.cs`: pasos y textos de la Misión 0. Se engancha a `OperacionUI` con `GuiaForzada` (texto y resaltado de cada paso), `AntesDeResolver` (bloquea «Resolve month» fuera de su paso y dispara la tormenta) y `TerminarForzado` («End mission» = saltar). La lógica de la Operación no cambió.
+- `MisionUI.IniciarTutorial` monta la nave fija y abre la Operación. `EstadoJuego.Tutorial` marca la partida.
+- La tarjeta va en la parte baja del centro (la anomalía del tutorial está arriba del mapa) y se oculta durante el resumen para no tapar su botón.
+- Cumple TUT-01 del paquete: siempre en fracaso, se puede saltar y repetir, sin penalización, guarda que se completó.
+- Jugado entero en el navegador a 1366x768, del Briefing al final y de vuelta al Briefing, sin errores en la consola.
+- 5 pruebas nuevas en `TutorialTests.cs`. Pasan las 236 pruebas EditMode y las 19 PlayMode.

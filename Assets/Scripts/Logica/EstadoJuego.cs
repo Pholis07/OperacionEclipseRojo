@@ -21,6 +21,9 @@ namespace SpaceMission
         /// <summary>La operación de la última misión lanzada (para el informe y los puntos).</summary>
         public static Operacion Operacion;
 
+        /// <summary>Versión 5, bloque 4: se está jugando la Misión 0 (tutorial). No cuenta para récords ni créditos.</summary>
+        public static bool Tutorial;
+
         /// <summary>Resultado final de la misión (ResultadoCientifico). Lo fija la Operación al terminar; null si no se jugó.</summary>
         public static CategoriaResultado? CategoriaFinal;
 
@@ -35,6 +38,7 @@ namespace SpaceMission
             Carga = null;
             Operacion = null;
             CategoriaFinal = null;
+            Tutorial = false;
             EntrarEnConfiguracion = false;
             NivelIndice = 1;
         }
