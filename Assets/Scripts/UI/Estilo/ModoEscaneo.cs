@@ -132,6 +132,8 @@ namespace SpaceMission
             titulo.text = TituloDe(instrumento);
             nota.text = "";
             var leyenda = Leyenda(instrumento);
+            // Con leyenda a la derecha, el título se queda en la mitad izquierda (si no, se enciman).
+            titulo.rectTransform.anchorMax = new Vector2(leyenda != null ? 0.49f : 0.97f, 0.97f);
             foreach (var b in barras) b.gameObject.SetActive(espectro || leyenda != null);
             for (int i = 0; i < chips.Length; i++)
             {

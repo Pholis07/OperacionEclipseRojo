@@ -100,7 +100,7 @@ namespace SpaceMission
                            : c.LanzadorId == "pionero" ? Idioma.T("PIONEER\n<size=24><color=#94A3B8>Look inspired by NASA’s Jupiter-C. ")
                            : c.LanzadorId == "horizonte" ? Idioma.T("HORIZON\n<size=24><color=#94A3B8>Look inspired by NASA’s Ares I. ")
                            : c.LanzadorId == "goliat" ? Idioma.T("GOLIATH\n<size=24><color=#94A3B8>Look inspired by NASA’s Saturn V, in dark gray. ")
-                                                                   : Idioma.T("EXPLORER\n<size=24><color=#94A3B8>Like the Soyuz-Fregat. "))
+                                                                   : Idioma.T("EXPLORER\n<size=24><color=#94A3B8>Ares I look, Soyuz-Fregat payload. "))
                           + Idioma.T("Sends ") + TextosBriefing.Numero(lanzador.masaInyectadaKg) + Idioma.T(" kg toward Mars.</color></size>");
                     break;
                 case ConfiguracionUI.Pestana.Satelite:

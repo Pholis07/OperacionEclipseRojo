@@ -105,6 +105,9 @@ public static partial class ConstructorEscenas
                 ? CuerpoCubeSat(raiz.transform, "Cuerpo_" + Satelites[s].id)
                 : InstanciarModelo("NASA/" + Satelites[s].modelo, "Cuerpo_" + Satelites[s].id, raiz.transform,
                     Satelites[s].tamano, Satelites[s].giro, true);
+            // Renovación visual: paneles (o antenas, en el CubeSat) con bisagra, para que se desplieguen de verdad.
+            if (Satelites[s].modelo == null) PlegarAntenasCubeSat(cuerpos[s]);
+            else DividirPaneles(cuerpos[s], Satelites[s].id);
             cuerpos[s].SetActive(s == 0);
         }
 

@@ -133,7 +133,7 @@ public static partial class ConstructorEscenas
         CieloEstrellas(raizOrbital.transform, EscenarioMarte, 500f);
         var linea = raizOrbital.AddComponent<LineRenderer>();
         linea.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materiales/Linea_Orbita.mat");
-        linea.widthMultiplier = 0.045f;
+        linea.widthMultiplier = 0.028f;   // renovación visual: ruta fina, que no compita con la nave
         linea.startColor = linea.endColor = new Color(CianOrbita.r, CianOrbita.g, CianOrbita.b, 0.55f);
         linea.shadowCastingMode = ShadowCastingMode.Off;
         var naveOrbita = ConstruirNave(null, false);
@@ -328,6 +328,38 @@ public static partial class ConstructorEscenas
         Asignar(director, "pulsoZona", pulsoZona);
         Asignar(director, "mapaOperacion", ultimoMapa);
 
+        // ---------- «Tu nave»: vista fija de la nave en órbita, en una esquina del mapa ----------
+        // Renovación visual: durante la Operación se perdía de vista la máquina. Va antes que la vista orbital,
+        // que la tapa durante los escaneos.
+        var camaraNave = new GameObject("CamaraNave").AddComponent<Camera>();
+        camaraNave.clearFlags = CameraClearFlags.SolidColor;
+        camaraNave.backgroundColor = Hex("#020306");
+        camaraNave.fieldOfView = 38f;
+        camaraNave.farClipPlane = 400f;
+        camaraNave.enabled = false;
+        var marcoNave = Vacio(ultimoMapa.transform, "VistaNave");
+        Anclar(marcoNave, new Vector2(0.02f, 0.5f), new Vector2(0.33f, 0.81f));   // bajo el rótulo del mapa
+        var cuerpoNave = Panel(marcoNave, "Cuerpo", new Color(0.01f, 0.012f, 0.02f, 0.92f));
+        Estirar(cuerpoNave);
+        cuerpoNave.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        var pantallaNave = new GameObject("Pantalla", typeof(RectTransform), typeof(UnityEngine.UI.RawImage)).GetComponent<UnityEngine.UI.RawImage>();
+        pantallaNave.transform.SetParent(cuerpoNave, false);
+        Estirar(pantallaNave.rectTransform);
+        pantallaNave.raycastTarget = false;
+        var rotuloNave = Texto(cuerpoNave, "Rotulo", "", 20, CianOrbita, FontStyles.Bold, TextAlignmentOptions.Center);
+        Anclar(rotuloNave.rectTransform, new Vector2(0.02f, 0f), new Vector2(0.98f, 0.2f));
+        rotuloNave.enableAutoSizing = true; rotuloNave.fontSizeMin = 12; rotuloNave.fontSizeMax = 20;
+        rotuloNave.raycastTarget = false;
+        MarcoHud(cuerpoNave);
+        var cabeceraNave = Panel(marcoNave, "Cabecera", new Color(0.03f, 0.04f, 0.07f, 0.95f));
+        Anclar(cabeceraNave, new Vector2(0f, 1f), new Vector2(1f, 1.13f));
+        var textoCabecera = Texto(cabeceraNave, "Texto", "YOUR SPACECRAFT", 20, CianOrbita, FontStyles.Bold, TextAlignmentOptions.Center);
+        Estirar(textoCabecera.rectTransform);
+        textoCabecera.enableAutoSizing = true; textoCabecera.fontSizeMin = 12; textoCabecera.fontSizeMax = 20;
+        textoCabecera.raycastTarget = false;
+        var botonCabecera = cabeceraNave.gameObject.AddComponent<UnityEngine.UI.Button>();
+        botonCabecera.transition = UnityEngine.UI.Selectable.Transition.None;
+
         // ---------- Vista orbital en el lugar del mapa (cada escaneo) ----------
         var vista = Panel(ultimoMapa.transform, "VistaOrbital", Color.black);
         Estirar(vista);
@@ -369,6 +401,16 @@ public static partial class ConstructorEscenas
         fuenteEscaneo.playOnAwake = false;
         fuenteEscaneo.spatialBlend = 0f;
         var secuencia = raizOrbital.AddComponent<SecuenciaEscaneo>();
+        var vistaNave = marcoNave.gameObject.AddComponent<VistaNave>();
+        Asignar(vistaNave, "camara", camaraNave);
+        Asignar(vistaNave, "escenario", escenario);
+        Asignar(vistaNave, "pantalla", pantallaNave);
+        Asignar(vistaNave, "cuerpo", cuerpoNave.gameObject);
+        Asignar(vistaNave, "rotulo", rotuloNave);
+        Asignar(vistaNave, "cabecera", botonCabecera);
+        Asignar(vistaNave, "catalogo", catalogo);
+        Asignar(vistaNave, "director", director);
+        Asignar(vistaNave, "escaneo", secuencia);
         Asignar(secuencia, "operacion", operacion);
         Asignar(secuencia, "mapa", ultimoMapa);
         Asignar(secuencia, "escenario", escenario);
@@ -447,6 +489,7 @@ public static partial class ConstructorEscenas
         fuentePaso.playOnAwake = false;
         fuentePaso.spatialBlend = 0f;
         var transicion = raizOrbital.AddComponent<TransicionMes>();
+        Asignar(vistaNave, "transicion", transicion);
         Asignar(transicion, "operacion", operacion);
         Asignar(transicion, "director", director);
         Asignar(transicion, "escenario", escenario);

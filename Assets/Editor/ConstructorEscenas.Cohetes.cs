@@ -116,6 +116,7 @@ public static partial class ConstructorEscenas
         public Vector2[] uv;
         public List<int[]> tri = new List<int[]>();   // por submalla
         public Material[] mats;
+        public string[] nombresMats;   // los del modelo, sin prefijo
         public Bounds limites;
     }
 
@@ -137,6 +138,7 @@ public static partial class ConstructorEscenas
             }
             for (int s = 0; s < malla.subMeshCount; s++) nodo.tri.Add(malla.GetTriangles(s));
             nodo.mats = System.Array.ConvertAll(mf.GetComponent<MeshRenderer>().sharedMaterials, m => material(m));
+            nodo.nombresMats = System.Array.ConvertAll(mf.GetComponent<MeshRenderer>().sharedMaterials, m => m != null ? m.name : "");
             nodo.limites = new Bounds(nodo.v.Length > 0 ? nodo.v[0] : Vector3.zero, Vector3.zero);
             foreach (var p in nodo.v) nodo.limites.Encapsulate(p);
             // Nodo repetido: misma geometría en el mismo sitio (el Ares 1 A trae cinco conos dos veces).
@@ -330,7 +332,7 @@ public static partial class ConstructorEscenas
     /// primera etapa (en el cohete), etapa superior y la nariz en dos mitades con bisagra. Devuelve la etapa superior.
     /// </summary>
     static Transform ConstruirPorEtapas(Transform cohete, string ruta, string prefijo, float alto, float fraccionEtapa, float fraccionNariz,
-        Color? tinte = null, System.Func<string, Color?> color = null)
+        Color? tinte = null, System.Func<string, Color?> color = null, System.Func<string, Vector3, string> repintar = null)
     {
         var superior = new GameObject("EtapaSuperior").transform;
         superior.SetParent(cohete, false);
@@ -369,11 +371,21 @@ public static partial class ConstructorEscenas
                 var t = nodo.tri[s];
                 var mat = nodo.mats[Mathf.Min(s, nodo.mats.Length - 1)];
                 var doble = DobleCara(mat, mat.name + "_DobleCara");   // las mitades de la nariz se ven por dentro al abrirse
+                var matBase = mat; var dobleBase = doble;
+                string nombreMat = nodo.nombresMats[Mathf.Min(s, nodo.nombresMats.Length - 1)];
                 for (int k = 0; k < t.Length; k += 3)
                 {
                     poli.Clear();
                     for (int e = 0; e < 3; e++)
                         poli.Add(new VerticeCorte { p = nodo.v[t[k + e]], n = nodo.n[t[k + e]], uv = nodo.uv[t[k + e]], clave = ((long)(i + 1) << 32) | (uint)t[k + e] });
+                    // Pintura por zonas (franjas del Jupiter-C): el triángulo puede pasar a otro material del mismo nodo.
+                    mat = matBase; doble = dobleBase;
+                    if (repintar != null)
+                    {
+                        var otro = repintar(nombreMat, (poli[0].p + poli[1].p + poli[2].p) / 3f);
+                        int indice = otro != null ? System.Array.IndexOf(nodo.nombresMats, otro) : -1;
+                        if (indice >= 0) { mat = nodo.mats[indice]; doble = DobleCara(mat, mat.name + "_DobleCara"); }
+                    }
                     Partir(poli, p => p.y - corteEtapa, 0, abajo, arriba);
                     partes[0].Poligono(abajo, mat);
                     if (arriba.Count == 0) continue;
