@@ -726,7 +726,7 @@ namespace SpaceMission.Tests
         }
 
         [Test]
-        public void SinEvidenciaEnviadaNoSumanNiElPresupuestoNiLosMesesSobrantes()
+        public void SinEvidenciaEnviadaNoSumaNadaDeLoQueSobra()
         {
             // Abandonar en el mes 2 sin evidencia no debe acercarse a una partida jugada (antes daba 745 puntos).
             var op = Caso2();
@@ -737,7 +737,8 @@ namespace SpaceMission.Tests
             var lineas = Puntuacion.Desglose(Evaluador.Evaluar(ConfigCaso2(), catalogo), op, catalogo, null);
             Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Presupuesto")));
             Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Meses")));
-            Assert.AreEqual(100 + 3 * 10, Puntuacion.Total(lineas), "fracaso + combustible sobrante");
+            Assert.IsFalse(lineas.Any(l => l.Concepto.StartsWith("Combustible")));
+            Assert.AreEqual(100, Puntuacion.Total(lineas), "solo los puntos del fracaso");
 
             var parcial = Caso2();
             Observar(parcial, "termica", Centro);
@@ -747,6 +748,7 @@ namespace SpaceMission.Tests
             var conEvidencia = Puntuacion.Desglose(Evaluador.Evaluar(ConfigCaso2(), catalogo), parcial, catalogo, null);
             Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Presupuesto")));
             Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Meses")));
+            Assert.AreEqual(30, conEvidencia.First(l => l.Concepto.StartsWith("Combustible")).Puntos, "3 de combustible × 10");
         }
 
         [Test]

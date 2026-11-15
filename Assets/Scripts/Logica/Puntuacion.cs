@@ -26,7 +26,7 @@ namespace SpaceMission
                 : categoria == CategoriaResultado.Parcial ? reglas.puntosParcial : reglas.puntosFracaso;
             lineas.Add(new Linea { Concepto = TextosResultado.Titulo(categoria), Puntos = puntosResultado });
 
-            // Lo que sobra (presupuesto y meses) solo premia si llegó alguna evidencia: abandonar pronto no debe dar puntos.
+            // Lo que sobra (presupuesto, meses y combustible) solo premia si llegó alguna evidencia: abandonar pronto no debe dar puntos.
             bool envioEvidencia = op.Recibidas.Any(id => !string.IsNullOrEmpty(catalogo.Transmision(id).instrumentoId));
 
             int sobrante = op.CreditosDisponibles;
@@ -54,7 +54,7 @@ namespace SpaceMission
             if (op.PeticionCumplida)
                 lineas.Add(new Linea { Concepto = "Petición de la NASA cumplida", Puntos = op.PuntosPeticion });
 
-            if (op.Combustible > 0)
+            if (envioEvidencia && op.Combustible > 0)
                 lineas.Add(new Linea { Concepto = "Combustible sobrante (" + op.Combustible + ")", Puntos = op.Combustible * reglas.puntosPorCombustible });
 
             if (op.Apagones > 0)
