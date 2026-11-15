@@ -602,7 +602,7 @@ public static partial class ConstructorEscenas
 
         var col = Columna(velo, "Contenido", 14, TextAnchor.MiddleCenter);
         Anclar(col, new Vector2(0.06f, 0.3f), new Vector2(0.94f, 0.8f));
-        var etiqueta = Texto(col, "Etiqueta", "NASA SPACE APPS CHALLENGE 2026  ·  TEAM GANGBANGERS", 26, Cian,
+        var etiqueta = Texto(col, "Etiqueta", "NASA SPACE APPS CHALLENGE 2026  ·  TEAM DUALDYNAMICS", 26, Cian,
             FontStyles.Normal, TextAlignmentOptions.Center);
         etiqueta.font = ConstructorEstilo.Mono;
         etiqueta.characterSpacing = 6;

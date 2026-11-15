@@ -1,6 +1,6 @@
 # Operación Eclipse Rojo
 
-Juego de un jugador hecho para el NASA Space Apps Challenge 2026 (reto Space Mission Design Game), equipo GangBangers.
+Juego de un jugador hecho para el NASA Space Apps Challenge 2026 (reto Space Mission Design Game), equipo DualDynamics.
 
 Una señal térmica rara aparece en una región de Marte y una tormenta de polvo dificulta la investigación. El jugador diseña una misión: elige órbita, lanzador e instrumentos sin pasarse de los límites de masa, potencia, costo y espacios, y recibe un informe que explica el resultado. Los indicios del juego no son prueba de agua líquida actual ni de vida.
 

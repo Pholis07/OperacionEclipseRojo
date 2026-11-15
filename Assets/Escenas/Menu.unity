@@ -22824,7 +22824,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "NASA SPACE APPS CHALLENGE 2026  \xB7  TEAM GANGBANGERS"
+  m_text: "NASA SPACE APPS CHALLENGE 2026  \xB7  TEAM DUALDYNAMICS"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ed908cc51aa434e939ed1333df4578c6, type: 2}
   m_sharedMaterial: {fileID: -3678757595793353785, guid: ed908cc51aa434e939ed1333df4578c6, type: 2}

@@ -421,7 +421,7 @@ namespace SpaceMission
             { "Music, sound effects and voices generated with ElevenLabs.", "Música, efectos y voces generados con ElevenLabs." },
             { "Mute all sound", "Silenciar todo" },
             { "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD and Space Launch System. ", "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD y Space Launch System. " },
-            { "NASA SPACE APPS CHALLENGE 2026  ·  TEAM GANGBANGERS", "NASA SPACE APPS CHALLENGE 2026  ·  EQUIPO GANGBANGERS" },
+            { "NASA SPACE APPS CHALLENGE 2026  ·  TEAM DUALDYNAMICS", "NASA SPACE APPS CHALLENGE 2026  ·  EQUIPO DUALDYNAMICS" },
             { "NASA marked a purple point on the map: observe it with any instrument to fulfill the request.", "La NASA marcó un punto morado en el mapa: obsérvalo con cualquier instrumento para cumplir la petición." },
             { "NASA request", "Petición de la NASA" },
             { "NASA request fulfilled", "Petición de la NASA cumplida" },
