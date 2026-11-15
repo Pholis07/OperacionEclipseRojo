@@ -2281,6 +2281,12 @@ public static partial class ConstructorEscenas
         go.transform.localScale = escala;
         Object.DestroyImmediate(go.GetComponent<Collider>());
         go.GetComponent<Renderer>().sharedMaterial = material;
+        // Eclipse Ink: el contorno necesita la normal suavizada, que las primitivas de Unity no traen.
+        if (LlevaContorno(material))
+        {
+            var filtro = go.GetComponent<MeshFilter>();
+            filtro.sharedMesh = PrimitivaTinta(tipo, filtro.sharedMesh);
+        }
         return go;
     }
 
@@ -2334,6 +2340,7 @@ public static partial class ConstructorEscenas
             mat.SetColor("_EmissionColor", Color.black);
         }
         EditorUtility.SetDirty(mat);
+        Entintar(mat);   // Eclipse Ink: solo los materiales de la lista (ConstructorEscenas.Tinta.cs)
         return mat;
     }
 
@@ -2435,8 +2442,10 @@ public static partial class ConstructorEscenas
     }
 
     /// <summary>Guarda la malla en Assets/Arte/Mallas conservando el GUID si ya existía (las escenas la siguen encontrando).</summary>
-    static Mesh GuardarMalla(Mesh nueva, string nombre)
+    static Mesh GuardarMalla(Mesh nueva, string nombre, bool contorno = false)
     {
+        // Eclipse Ink: normal suavizada para el contorno de tinta (canal UV 3), solo en las mallas que lo llevan.
+        if (contorno) NormalesContorno.Preparar(nueva);
         if (!AssetDatabase.IsValidFolder("Assets/Arte/Mallas")) AssetDatabase.CreateFolder("Assets/Arte", "Mallas");
         var ruta = "Assets/Arte/Mallas/" + nombre + ".asset";
         var existente = AssetDatabase.LoadAssetAtPath<Mesh>(ruta);
@@ -2454,6 +2463,12 @@ public static partial class ConstructorEscenas
         existente.subMeshCount = nueva.subMeshCount;
         for (int s = 0; s < nueva.subMeshCount; s++) existente.SetTriangles(nueva.GetTriangles(s), s);
         existente.tangents = nueva.tangents;
+        if (contorno)
+        {
+            var suaves = new List<Vector2>();
+            nueva.GetUVs(NormalesContorno.Canal, suaves);
+            existente.SetUVs(NormalesContorno.Canal, suaves);
+        }
         existente.RecalculateBounds();
         EditorUtility.SetDirty(existente);
         return existente;

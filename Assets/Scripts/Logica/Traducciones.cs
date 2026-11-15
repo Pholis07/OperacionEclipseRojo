@@ -823,6 +823,7 @@ namespace SpaceMission
             { "Image captured: textures and fractures on the surface. An image alone does not show what lies below.", "Imagen capturada: texturas y fracturas en la superficie. Una imagen sola no muestra lo que hay debajo." },
             { "Image captured: nothing unusual at this point.", "Imagen capturada: nada fuera de lo normal en este punto." },
             { "Full screen", "Pantalla completa" },
+            { "Ink outlines", "Contornos de tinta" },
         };
     }
 }

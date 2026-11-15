@@ -43,6 +43,7 @@ namespace SpaceMission
             }
 
             CrearPantallaCompleta();
+            CrearContornos();
             botonAbrir.onClick.AddListener(() => Mostrar(true));
             botonCerrar.onClick.AddListener(() => Mostrar(false));
         }
@@ -64,6 +65,26 @@ namespace SpaceMission
             if (etiqueta != null) etiqueta.text = "Full screen";   // TraductorEscena lo pasa al español
             pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);
             pantallaCompleta.onValueChanged.AddListener(v => Screen.fullScreen = v);
+        }
+
+        UnityEngine.UI.Toggle contornos;
+
+        /// <summary>
+        /// Versión 8 (Eclipse Ink): interruptor «Contornos de tinta». Apagado es el modo ligero (sin la pasada de
+        /// contorno). Se crea por código, como «Pantalla completa», porque la escena Menu se edita a mano.
+        /// </summary>
+        void CrearContornos()
+        {
+            if (reducirMovimiento == null || contornos != null) return;
+            var despuesDe = pantallaCompleta != null ? pantallaCompleta : reducirMovimiento;
+            contornos = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
+            contornos.name = "ContornosTinta";
+            contornos.transform.SetSiblingIndex(despuesDe.transform.GetSiblingIndex() + 1);
+            contornos.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
+            var etiqueta = contornos.GetComponentInChildren<TMPro.TMP_Text>();
+            if (etiqueta != null) etiqueta.text = "Ink outlines";   // TraductorEscena lo pasa al español
+            contornos.SetIsOnWithoutNotify(Preferencias.ContornosTinta);
+            contornos.onValueChanged.AddListener(v => Preferencias.ContornosTinta = v);
         }
 
         void Mostrar(bool visible)

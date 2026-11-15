@@ -15,6 +15,7 @@ namespace SpaceMission
         const string ClaveAmbiente = "vol_ambiente";
         const string ClaveSilencio = "silencio";
         const string ClaveGuia = "guia_pantallas";
+        const string ClaveContornos = "contornos_tinta";
 
         public static float VolumenMusica { get => Leer(ClaveMusica, 0.6f); set => Escribir(ClaveMusica, value); }
         public static float VolumenEfectos { get => Leer(ClaveEfectos, 0.8f); set => Escribir(ClaveEfectos, value); }
@@ -35,6 +36,16 @@ namespace SpaceMission
         {
             get => Leer(ClaveGuia, 1f) > 0.5f;
             set => Escribir(ClaveGuia, value ? 1f : 0f);
+        }
+
+        /// <summary>
+        /// Versión 8 (Eclipse Ink): contornos de tinta en la nave y los instrumentos. Apagarlos es el modo ligero
+        /// para equipos lentos. Por defecto, encendidos.
+        /// </summary>
+        public static bool ContornosTinta
+        {
+            get => Leer(ClaveContornos, 1f) > 0.5f;
+            set => Escribir(ClaveContornos, value ? 1f : 0f);
         }
 
         public static bool ReducirMovimiento
