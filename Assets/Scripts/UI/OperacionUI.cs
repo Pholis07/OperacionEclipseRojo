@@ -410,10 +410,10 @@ namespace SpaceMission
                 filas.Add(boton.gameObject);
             }
 
-            // Mapa: observaciones ya hechas (color de la lectura), regiones del plan (claro) y la petición (morado).
+            // Mapa: regiones del plan (claro), encima las observaciones ya hechas (color de la lectura) y la petición (morado).
             mapa.Limpiar();
-            foreach (var o in historial) mapa.Marcar(o.Region, ColorLectura(o.Lectura));
             foreach (var par in Op.Regiones) mapa.Marcar(par.Value, ColorRegion);
+            foreach (var o in historial) mapa.Marcar(o.Region, ColorLectura(o.Lectura));
             if (Op.PeticionAceptada && !Op.PeticionCumplida) mapa.Marcar(Op.PuntoPeticion, ColorPeticion);
 
             int limite = Mathf.Max(1, Op.LimiteW);

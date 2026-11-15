@@ -180,3 +180,59 @@ Adrian las aprobó tal cual el 2026-11-14. El satélite no entra en el Evaluador
 - El AztechSat-1 es el único, además del MRO, que cabe en el nivel 3 con victoria en elíptica (sobran 20 cr).
 - La Revisión sigue mostrando el consumo sin el Aquarius; la Operación lo suma.
 - Diego muestra estos datos en su pestaña Satélite (campos `ventaja` y `desventaja` de `SateliteDatos`).
+
+---
+
+# Versión 4: Operación por meses (implementada en la rama `feat/meses`)
+
+Viene del paquete «Operación Eclipse Rojo» v1.0 (14 de noviembre de 2026). Adrian confirmó los dos cambios de reglas: **el resultado sale de lo enviado en la Operación** y **el escaneo por clic se sustituye por un plan mensual**. Quedaba menos de un día, así que se hicieron las fases 2, 3 y 4 del paquete. Los valores son las propuestas del paquete y viven en los datos (`DatosVersion3.cs`).
+
+## El mes
+
+1. Preparar el plan: encender o apagar instrumentos, fijar en el mapa la región de cada uno, pedir una maniobra y pedir el envío. **Nada de esto gasta.**
+2. «Resolver mes» lo calcula una sola vez, en este orden: validar → maniobrar y cobrar → días útiles → observar → almacenar → transmitir → avanzar → evento de cierre.
+3. Resumen del mes (qué decidí, qué ocurrió, qué gasté, qué sigue) y, si hubo evento, su decisión. Con una decisión pendiente no se puede resolver el mes siguiente.
+
+- Campaña de **12 meses** en los tres niveles. Eventos: 0, 3 y 5.
+- Los instrumentos encendidos y sus regiones se conservan de un mes al siguiente.
+- No se puede encender lo que no cabe en el límite de potencia. Un evento que deja el consumo por encima provoca modo seguro: se apaga todo, 50 créditos y 15 días menos el mes siguiente.
+
+## Observación y evidencia
+
+- Cada instrumento encendido con región deja un **registro** por mes: térmica 1 bloque, radar 2, alta resolución 1, atmosférico 1, espectrómetro 2. Memoria de 6 bloques. Si no cabe, no se registra y no se pisa nada.
+- Calidad = 70 × días útiles / 30, × 0.8 si se siguió en una tormenta, × 1.2 en órbita baja.
+- **Evidencia válida:** el instrumento observó la anomalía y la calidad es 60 o más. Si no, se puede volver a intentar otro mes.
+- **Contacto con la Tierra:** meses pares y siempre el último. El envío va al final del mes y no libera memoria para ese mismo mes. Los instrumentos se apagan solos durante la ventana: solo hace falta potencia para la base y el transmisor (150 W).
+
+## Resultado (`ResultadoCientifico`)
+
+| Resultado | Condición |
+|---|---|
+| Victoria | La configuración podía ganar y llegó a la Tierra la evidencia de todos los instrumentos que exige la órbita |
+| Parcial | Llegó al menos una evidencia principal (térmica o radar) |
+| Fracaso | No llegó ninguna evidencia principal |
+
+El Evaluador no cambió: sigue dando el semáforo y el máximo que permite la configuración. Lo que queda en memoria o sin observar al terminar **no cuenta** (ya no existe «baja calidad»).
+
+## Maniobra
+
+Cambiar de altitud (normal o baja): 40 créditos, 3 de combustible y 2 días de ese mes (28 útiles). Una por mes; se cobra al resolver. Destino igual al actual o sin recursos: no hay maniobra ni cobro. En baja, el arrastre gasta 1 de combustible por mes; sin combustible la nave sube sola y el mes siguiente pierde 10 días.
+
+## Lo que estaba en órbitas, convertido
+
+| Antes | Ahora |
+|---|---|
+| Sombra: 3 órbitas | 3 meses |
+| Sobrecalentamiento: bloqueo de 2 órbitas | 2 meses |
+| Desviar la corriente: −1 órbita | El mes siguiente pierde 10 días |
+| Pérdida de orientación: el próximo escaneo sin lectura | El mes siguiente sin lecturas |
+| Tormenta, seguir: lectura falsa | Calidad × 0.8 el mes siguiente |
+| Ventana despejada: +1 órbita o abrir contacto | +1 mes de campaña o contacto el mes siguiente |
+| Apagón: −2 órbitas | −15 días el mes siguiente |
+| LLCD: ventana cada 2 órbitas | Contacto todos los meses |
+| AztechSat-1: enviar sin ventana cuesta 1 órbita | Sin contacto solo caben 2 bloques por mes |
+| Puntos por órbita sobrante | Por mes sobrante |
+
+## Fuera de esta versión
+
+Las 2 órbitas nuevas y la tabla de transiciones; modos de alta precisión e hiperespectral; tutorial que termina en fracaso (confirmado por Adrian: es lo primero a retomar); progresión y supervivencia; guardar y cargar; límite de enlace y descarte de registros; storyboard nuevo del lanzamiento, ducking de la voz, volúmenes separados, teclado completo e inglés.

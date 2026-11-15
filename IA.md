@@ -309,3 +309,20 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - **Arreglo:** la textura se carga por nombre, `<modelo>_<material>.png`, la misma convención que siguen todos los `.mtl`. El importador solo se usa si no hay archivo. Se comprobó que los 58 materiales `NASA_Sat_*` quedan con su textura.
 - `Marcador_Orbita`, `Nave_Tobera` y `Plataforma_Resalte` ahora llevan la palabra clave `_EMISSION`, que es lo que pide el constructor. La versión anterior tenía el color de emisión pero sin la palabra clave, así que no brillaban.
 - El build pasa de 35.3 a 36.7 MB, porque ahora sí entran las texturas que faltaban. Pasan las 227 pruebas EditMode y las 19 PlayMode.
+
+## Versión 4: Operación por meses (rama `feat/meses`)
+
+- Adrian pasó el paquete «Operación Eclipse Rojo» v1.0 (encargo, reglas, audio, plan de pruebas, maquetas). La IA lo leyó entero y lo contrastó con el código real.
+- Antes de planificar, la IA preguntó tres cosas, porque el paquete pedía 9 fases y cambiaba reglas aprobadas el mismo día. Adrian respondió: menos de un día de plazo; sí a los dos cambios de reglas; y que la IA lo hiciera todo.
+- Con eso, la IA recortó el plan a las fases 2, 3 y 4 del paquete y dejó el resto fuera, anotado en `PROPUESTA-GAMEPLAY.md` (versión 4). Adrian aprobó el plan.
+- Decisión de diseño de la IA: no reescribir la Operación, sino convertir la «órbita» en «mes» y reutilizar memoria, contacto, eventos, decisiones, satélites y objetivos.
+- Fase A (molestias):
+  - Pasar el cursor ya no suena; el montaje de un instrumento suena una vez y tapa al clic; `ReproductorUI` deja un solo sonido por acción (120 ms, gana el más importante); la preescucha del volumen suena al soltar.
+  - La cinemática ya no apaga la cámara principal (causa de «No cameras rendering» en el editor): la deja sin capas.
+  - Los textos del informe se achican en vez de encimarse.
+- Fases B, C y D:
+  - `Operacion.ResolverMes` resuelve el mes una sola vez; `Registro` y `ResultadoMes` llevan los hechos; `ResultadoCientifico` da la categoría según lo enviado.
+  - `OperacionUI` nueva: plan del mes, previsión, «Resolver mes», resumen y decisión. La vista 3D de Diego se dispara una vez por mes.
+  - Las 5 pruebas de la v3 que las reglas nuevas invalidan están en `archivo/pruebas-v3` (fuera de `Assets`). Las sustituyen `MesesTests.cs` (con los ids del paquete: MES, ORB, MEM, CIE, EVT) y versiones nuevas de `SatelitesTests`, `InvestigacionTests` y `RecorridoTests`.
+- Fallos de las pruebas nuevas que la IA corrigió sin tocar la lógica: tres expectativas mal calculadas (un instrumento que sigue encendido vuelve a observar el mes siguiente).
+- La IA no puede escuchar: el sonido solo está comprobado por código y por una prueba que cuenta peticiones.
