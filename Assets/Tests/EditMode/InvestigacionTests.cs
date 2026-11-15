@@ -191,6 +191,36 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void ElInformeSeparaElVeredictoDelDetalle()
+        {
+            EditorSceneManager.OpenScene("Assets/Escenas/Resultado.unity");
+            var ui = Object.FindFirstObjectByType<ResultadoUI>();
+            var c = Config("titan", "polar", "alta_res+atmosferico");
+            ui.Mostrar(Evaluador.Evaluar(c, catalogo), c);
+
+            var veredicto = GameObject.Find("VistaVeredicto");
+            Assert.IsNotNull(veredicto, "el veredicto se ve al entrar");
+            Assert.IsFalse(ui.DetalleVisible, "el detalle empieza oculto");
+            var textosVeredicto = veredicto.GetComponentsInChildren<TextMeshProUGUI>(true).Select(t => t.text).ToList();
+            Assert.IsTrue(textosVeredicto.Contains("Investigation failed"));
+            Assert.IsTrue(textosVeredicto.Contains("View details"));
+            Assert.IsFalse(textosVeredicto.Any(t => t.Contains("Resources used") || t.Contains("Evidence obtained")),
+                "el veredicto no lleva recursos ni evidencias");
+
+            ui.VerDetalle();
+            Assert.IsTrue(ui.DetalleVisible);
+            Assert.IsFalse(veredicto.activeSelf);
+            var detalle = Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None).Select(t => t.text).ToList();
+            Assert.IsTrue(detalle.Any(t => t.Contains("Resources used")));
+            Assert.IsTrue(detalle.Any(t => t.Contains("Evidence obtained")));
+            Assert.IsTrue(detalle.Contains("Modify my mission"));
+
+            ui.VerVeredicto();
+            Assert.IsFalse(ui.DetalleVisible);
+            Assert.IsTrue(veredicto.activeSelf);
+        }
+
+        [Test]
         public void ModificarMiMisionConservaLasEleccionesYAbreConfiguracion()
         {
             var c = Config("explorador", "eliptica", "termica+radar");

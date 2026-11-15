@@ -5,8 +5,10 @@ using UnityEngine.SceneManagement;
 namespace SpaceMission
 {
     /// <summary>
-    /// Escena Resultado: conclusión, evidencias, revelación complementaria, lo que faltó y recursos usados.
-    /// «Modificar mi misión» vuelve a Configuración conservando las elecciones. Sin puntos ni «Nueva misión».
+    /// Escena Resultado, en dos pantallas para no saturar:
+    /// 1) Veredicto: título, conclusión, puntos y sello, con «Ver detalles».
+    /// 2) Detalle: evidencias, revelación complementaria, lo que faltó, desglose de puntos y recursos usados,
+    ///    con «Modificar mi misión» (vuelve a Configuración conservando las elecciones) y «Volver al veredicto».
     /// </summary>
     public class ResultadoUI : MonoBehaviour
     {
@@ -18,10 +20,18 @@ namespace SpaceMission
         [SerializeField] TMP_Text textoRecursos;
         [SerializeField] TMP_Text textoPuntos;
         [SerializeField] UnityEngine.UI.Button botonModificar;
+        [SerializeField] UnityEngine.UI.Button botonDetalle;
+        [SerializeField] UnityEngine.UI.Button botonVeredicto;
+        [SerializeField] GameObject vistaVeredicto;
+        [SerializeField] GameObject vistaDetalle;
+
+        public bool DetalleVisible => vistaDetalle != null && vistaDetalle.activeSelf;
 
         void Awake()
         {
             botonModificar.onClick.AddListener(ModificarMision);
+            if (botonDetalle != null) botonDetalle.onClick.AddListener(VerDetalle);
+            if (botonVeredicto != null) botonVeredicto.onClick.AddListener(VerVeredicto);
             Mostrar(EstadoJuego.Resultado, EstadoJuego.Configuracion);
         }
 
@@ -78,6 +88,19 @@ namespace SpaceMission
                 return Idioma.T("<color=#22C55E>New best score on this level!</color>");
             }
             return Idioma.T("Best score on this level: ") + TextosBriefing.Numero(mejor);
+        }
+
+        /// <summary>Pasa del veredicto al detalle (evidencias, puntos y recursos).</summary>
+        public void VerDetalle() => Cambiar(true);
+
+        /// <summary>Vuelve del detalle al veredicto.</summary>
+        public void VerVeredicto() => Cambiar(false);
+
+        void Cambiar(bool detalle)
+        {
+            if (vistaVeredicto != null) vistaVeredicto.SetActive(!detalle);
+            if (vistaDetalle != null) vistaDetalle.SetActive(detalle);
+            ReproductorUI.Sonar(ArteDatos.Sonido.Click);
         }
 
         public void ModificarMision()

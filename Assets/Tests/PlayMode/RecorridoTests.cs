@@ -140,6 +140,11 @@ namespace SpaceMission.PlayTests
             var titulo = GameObject.Find("Titulo").GetComponent<TMP_Text>().text;
             Assert.AreEqual(TextosResultado.Titulo(EstadoJuego.CategoriaFinal.Value), titulo, "título del informe del caso " + caso);
 
+            // El informe va en dos pantallas: el veredicto primero y «Modificar mi misión» en el detalle.
+            Assert.IsNull(GameObject.Find("BotonModificar"), "el veredicto no muestra todavía el detalle");
+            Pulsar("BotonDetalle");
+            yield return null;
+            Assert.IsTrue(Object.FindFirstObjectByType<ResultadoUI>().DetalleVisible, "«Ver detalles» abre el detalle");
             Pulsar("BotonModificar");
             yield return EsperarEscena("Mision");
             yield return null;

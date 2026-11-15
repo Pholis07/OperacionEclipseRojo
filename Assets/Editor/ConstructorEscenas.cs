@@ -1239,24 +1239,44 @@ public static partial class ConstructorEscenas
         grupoEstatica.alpha = 0f;
         grupoEstatica.blocksRaycasts = false;
 
-        // Izquierda: conclusión, recursos y botón.
-        var izq = Columna(canvas, "Conclusion", 26, TextAnchor.UpperLeft);
+        // El informe va en dos pantallas para no saturar:
+        // 1) VistaVeredicto: título, conclusión, puntos y sello, con «Ver detalles».
+        // 2) VistaDetalle: evidencias, lo que faltó, desglose de puntos y recursos, con «Modificar mi misión».
+        var vistaVeredicto = Vacio(canvas, "VistaVeredicto");
+        Estirar(vistaVeredicto);
+        var vistaDetalle = Vacio(canvas, "VistaDetalle");
+        Estirar(vistaDetalle);
+        vistaDetalle.gameObject.AddComponent<AparecerVista>();
+
+        // Veredicto, a la izquierda: conclusión y botón al detalle. A la derecha se ve Marte.
+        var izq = Columna(vistaVeredicto, "Conclusion", 26, TextAnchor.UpperLeft);
         Anclar(izq, new Vector2(0.05f, 0.06f), new Vector2(0.48f, 0.94f));
         Encabezado(izq, "Etiqueta", SpaceMission.Iconos.Informe + "  MISSION REPORT");
         var titulo = Texto(izq, "Titulo", "", 80, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         titulo.fontStyle = FontStyles.UpperCase;
-        var conclusion = Texto(izq, "TextoConclusion", "", 32, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        var conclusion = Texto(izq, "TextoConclusion", "", 34, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         conclusion.lineSpacing = 10;
         conclusion.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
-        var cajaRecursos = Columna(izq, "Recursos", 8, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
-        Bordes(cajaRecursos, LineaHud);
-        var recursos = Texto(cajaRecursos, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        var modificar = Boton(izq, "BotonModificar", "Modify my mission", true);
-        AjustarTexto(modificar); // texto exacto: lo comprueban las pruebas
+        var detalle = Boton(izq, "BotonDetalle", "View details", true);
+        AjustarTexto(detalle);
 
-        // Derecha: evidencias, revelación y lo que faltó.
-        var der = Columna(canvas, "Detalle", 28, TextAnchor.UpperLeft, TarjetaTranslucida, 40);
-        Anclar(der, new Vector2(0.52f, 0.13f), new Vector2(0.95f, 0.74f));
+        // Detalle, a la izquierda: recursos usados y las acciones.
+        var izqDetalle = Columna(vistaDetalle, "Acciones", 26, TextAnchor.UpperLeft);
+        Anclar(izqDetalle, new Vector2(0.05f, 0.06f), new Vector2(0.48f, 0.94f));
+        Encabezado(izqDetalle, "EtiquetaDetalle", SpaceMission.Iconos.Informe + "  MISSION DETAILS");
+        var cajaRecursos = Columna(izqDetalle, "Recursos", 8, TextAnchor.UpperLeft, TarjetaTranslucida, 28);
+        Bordes(cajaRecursos, LineaHud);
+        cajaRecursos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var recursos = Texto(cajaRecursos, "TextoRecursos", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        recursos.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var modificar = Boton(izqDetalle, "BotonModificar", "Modify my mission", true);
+        AjustarTexto(modificar); // texto exacto: lo comprueban las pruebas
+        var volver = Boton(izqDetalle, "BotonVeredicto", "Back to the verdict", false);
+        AjustarTexto(volver);
+
+        // Detalle, a la derecha: evidencias, revelación, lo que faltó y el desglose de puntos.
+        var der = Columna(vistaDetalle, "Detalle", 28, TextAnchor.UpperLeft, TarjetaTranslucida, 40);
+        Anclar(der, new Vector2(0.52f, 0.13f), new Vector2(0.95f, 0.94f));
         MarcoHud(der);
         var evidencias = Texto(der, "TextoEvidencias", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         evidencias.lineSpacing = 8;
@@ -1276,13 +1296,13 @@ public static partial class ConstructorEscenas
         Miniatura(der, "Mision", arte.imagenMision, 150, SpaceMission.Iconos.Senal + "  MARS DURING THE STORM  ·  NASA/JPL-Caltech/MSSS");
 
         // Arriba a la derecha: total de puntos (cuenta hacia arriba) y el sello del resultado.
-        var cabecera = Vacio(canvas, "Cabecera");
+        var cabecera = Vacio(vistaVeredicto, "Cabecera");
         Anclar(cabecera, new Vector2(0.52f, 0.76f), new Vector2(0.95f, 0.95f));
         var grupoCabecera = cabecera.gameObject.AddComponent<CanvasGroup>();
         var total = Texto(cabecera, "TotalPuntos", "", 84, Acento, FontStyles.Bold, TextAlignmentOptions.Left);
         Anclar(total.rectTransform, Vector2.zero, new Vector2(0.62f, 1f));
         total.textWrappingMode = TextWrappingModes.NoWrap;
-        var sello = Vacio(canvas, "Sello");
+        var sello = Vacio(vistaVeredicto, "Sello");
         sello.anchorMin = sello.anchorMax = new Vector2(0.86f, 0.855f);
         sello.sizeDelta = new Vector2(250, 250);
         sello.gameObject.AddComponent<CanvasGroup>().blocksRaycasts = false;
@@ -1325,8 +1345,7 @@ public static partial class ConstructorEscenas
         AsignarLista(animado, "pulsos", pulsos);
         AsignarLista(animado, "bloquesMemoria", bloques);
         var grupoIzq = izq.gameObject.AddComponent<CanvasGroup>();
-        var grupoDer = der.gameObject.AddComponent<CanvasGroup>();
-        AsignarLista(animado, "paneles", new Object[] { grupoIzq, grupoDer, grupoCabecera, franja.GetComponent<CanvasGroup>() });
+        AsignarLista(animado, "paneles", new Object[] { grupoIzq, grupoCabecera, franja.GetComponent<CanvasGroup>() });
         Asignar(animado, "veloInforme", grupoFondo);
         Asignar(animado, "sello", sello);
         Asignar(animado, "textoSello", textoSello);
@@ -1345,6 +1364,11 @@ public static partial class ConstructorEscenas
         Asignar(ui, "textoRecursos", recursos);
         Asignar(ui, "textoPuntos", puntos);
         Asignar(ui, "botonModificar", modificar);
+        Asignar(ui, "botonDetalle", detalle);
+        Asignar(ui, "botonVeredicto", volver);
+        Asignar(ui, "vistaVeredicto", vistaVeredicto.gameObject);
+        Asignar(ui, "vistaDetalle", vistaDetalle.gameObject);
+        vistaDetalle.gameObject.SetActive(false);
 
         EditorSceneManager.SaveScene(escena, "Assets/Escenas/Resultado.unity");
     }

@@ -342,9 +342,9 @@ namespace SpaceMission
             if (r.DiasUtiles < Reglas.diasPorMes)
                 t += " <color=" + PresentacionMision.ColorDebuff + ">" + Iconos.Baja + " × " + r.DiasUtiles + "/" + Reglas.diasPorMes + Idioma.T(" days</color>");
             if (r.FactorTormenta != 1f)
-                t += " <color=" + PresentacionMision.ColorDebuff + ">" + Iconos.Baja + " × " + r.FactorTormenta.ToString("0.#") + Idioma.T(" storm</color>");
+                t += " <color=" + PresentacionMision.ColorDebuff + ">" + Iconos.Baja + " × " + r.FactorTormenta.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + Idioma.T(" storm</color>");
             if (r.FactorAltitud != 1f)
-                t += " <color=" + PresentacionMision.ColorBuff + ">" + Iconos.Sube + " × " + r.FactorAltitud.ToString("0.#") + Idioma.T(" low orbit</color>");
+                t += " <color=" + PresentacionMision.ColorBuff + ">" + Iconos.Sube + " × " + r.FactorAltitud.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + Idioma.T(" low orbit</color>");
             float q = Mathf.Clamp(r.CalidadBase * r.DiasUtiles / Reglas.diasPorMes * r.FactorTormenta * r.FactorAltitud, 0f, 100f);
             return t + " = <b>" + Mathf.RoundToInt(q) + Idioma.T("</b> (valid evidence needs ") + Mathf.RoundToInt(Reglas.calidadMinima) + ")";
         }
