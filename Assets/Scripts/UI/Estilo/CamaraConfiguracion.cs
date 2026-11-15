@@ -25,10 +25,13 @@ namespace SpaceMission
 
         [SerializeField] ConfiguracionUI configuracion;
         [SerializeField] GameObject vistaConfiguracion;
+        [Tooltip("Versión 6: en el Briefing se ve el Marte 3D detrás del expediente (sin la nave).")]
+        [SerializeField] GameObject vistaBriefing;
 
         [Header("Encuadres")]
         [SerializeField] Encuadre nave;
         [SerializeField] Encuadre planeta;
+        [SerializeField] Encuadre briefing;
         [SerializeField] Encuadre plataforma;
         [SerializeField] Encuadre plataformaExplorador;
         [SerializeField] Encuadre plataformaTitan;
@@ -89,8 +92,11 @@ namespace SpaceMission
             else if (moduloEnFoco != null && Time.unscaledTime < finFoco) objetivo = EncuadreModulo(moduloEnFoco);
             else moduloEnFoco = null;
 
+            bool enBriefing = vistaBriefing != null && vistaBriefing.activeInHierarchy && briefing.campo > 1f;
+            if (enBriefing) objetivo = briefing;
+
             // La nave no se ve mientras se mira el planeta (estaría delante, flotando sin sentido).
-            MostrarNave(pestana != ConfiguracionUI.Pestana.Orbita);
+            MostrarNave(pestana != ConfiguracionUI.Pestana.Orbita && !enBriefing);
             GirarSatelite(enConfiguracion && pestana == ConfiguracionUI.Pestana.Satelite);
             MostrarFantasma(config, enConfiguracion && pestana == ConfiguracionUI.Pestana.Instrumentos);
 

@@ -72,6 +72,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 25fd71b1b1aa171b5aef417485a4733e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Nubes:
+        m_Texture: {fileID: 2800000, guid: 2065736be37bff3bf811e3ca36d53852, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -108,6 +112,7 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _Brillo: 1.05
+    - _BrilloHielo: 0.6
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -119,8 +124,11 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
+    - _Escarcha: 0.55
+    - _FuerzaCrepusculo: 0.22
     - _FuerzaDetalle: 0.45
     - _FuerzaNormales: 1.8
+    - _FuerzaNubes: 0.26
     - _FuerzaParche: 1.6
     - _Gamma: 1.22
     - _GlossMapScale: 0
@@ -143,6 +151,7 @@ Material:
     - _SrcBlendAlpha: 1
     - _Suavidad: 0.08
     - _Surface: 0
+    - _VelocidadNubes: 0.0015
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
@@ -151,6 +160,8 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ColorBorde: {r: 0.6, g: 0.27, b: 0.132, a: 0.6}
+    - _ColorCrepusculo: {r: 0.25, g: 0.45, b: 0.9, a: 1}
+    - _ColorNubes: {r: 0.93, g: 0.95, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RectParche: {r: 0.8728, g: 0.452, b: 0.0205, a: 0.041}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

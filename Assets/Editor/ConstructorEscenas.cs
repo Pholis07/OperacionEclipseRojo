@@ -636,10 +636,15 @@ public static partial class ConstructorEscenas
         var canvas = CrearCanvas();
         var catalogo = AssetDatabase.LoadAssetAtPath<CatalogoDatos>(RutaCatalogo);
 
-        // Vista Briefing: expediente de la misión sobre una foto real de una tormenta de polvo.
-        var briefing = Panel(canvas, "VistaBriefing", Fondo);
+        // Vista Briefing: expediente de la misión sobre el Marte 3D (versión 6: el mismo planeta del menú y de la
+        // configuración, en vez de una foto). Un velo oscuro a la izquierda deja leer el texto.
+        var briefing = Panel(canvas, "VistaBriefing", new Color(0, 0, 0, 0));
         Estirar(briefing);
-        FondoFoto(briefing, ConstructorEstilo.Imagen("Fondos/Fondo_Briefing"));
+        var velo = new GameObject("VeloBriefing", typeof(RectTransform), typeof(UnityEngine.UI.RawImage)).GetComponent<UnityEngine.UI.RawImage>();
+        velo.transform.SetParent(briefing, false);
+        velo.texture = ConstructorEstilo.Imagen("Interfaz/Degradado_Izquierda");
+        velo.raycastTarget = false;
+        Estirar(velo.rectTransform);
 
         var ruta = Texto(briefing, "Ruta", Ruta(1), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         ruta.font = ConstructorEstilo.Mono;
@@ -758,6 +763,9 @@ public static partial class ConstructorEscenas
         Asignar(camara, "vistaConfiguracion", configuracion.gameObject);
         AsignarEncuadre(camara, "nave", new Vector3(0, 0.45f, -7.4f), new Vector3(0, 0.5f, 0), 60f);
         AsignarEncuadre(camara, "planeta", marteCentro + new Vector3(0, 12f, -45f), marteCentro + new Vector3(0, 1.5f, 0), 60f);
+        // Briefing: Marte grande a la derecha, detrás del expediente.
+        AsignarEncuadre(camara, "briefing", marteCentro + new Vector3(-13f, 11f, -40f), marteCentro + new Vector3(-12f, 9f, 0), 55f);
+        Asignar(camara, "vistaBriefing", briefing.gameObject);
         AsignarEncuadre(camara, "plataforma", Plataforma + new Vector3(0, 5.3f, -17f), Plataforma + new Vector3(0, 5f, 0), 60f);
         Asignar(camara, "raizNave", nave.transform);
         // Pestaña Lanzador: sin elección los dos cohetes; con elección solo el elegido, en el centro, con un
@@ -1988,6 +1996,15 @@ public static partial class ConstructorEscenas
         mat.SetTexture("_ParcheNormal", ConstructorEstilo.Imagen("Texturas/Gale_Normal"));
         mat.SetVector("_RectParche", new Vector4(0.8728f, 0.452f, 0.0205f, 0.041f));
         mat.SetFloat("_FuerzaParche", 1.6f);
+        // Versión 6: nubes de hielo de agua (GeneradorCapasMarte), escarcha en los casquetes y crepúsculo azulado.
+        mat.SetTexture("_Nubes", ConstructorEstilo.Imagen("Texturas/Marte_Nubes"));
+        mat.SetFloat("_FuerzaNubes", 0.26f);
+        mat.SetFloat("_VelocidadNubes", 0.0015f);
+        mat.SetColor("_ColorNubes", new Color(0.93f, 0.95f, 1f));
+        mat.SetFloat("_Escarcha", 0.55f);
+        mat.SetFloat("_BrilloHielo", 0.6f);
+        mat.SetColor("_ColorCrepusculo", new Color(0.25f, 0.45f, 0.9f));
+        mat.SetFloat("_FuerzaCrepusculo", 0.22f);
         EditorUtility.SetDirty(mat);
         return mat;
     }
