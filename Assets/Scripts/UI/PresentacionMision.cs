@@ -25,13 +25,17 @@ namespace SpaceMission
             var r = e.Calculo;
             var m = nivel != null ? nivel : catalogo.mision;
             var lanzador = string.IsNullOrEmpty(c.LanzadorId) ? null : catalogo.Lanzador(c.LanzadorId);
-            bool sinCalculo = r.Estado == EstadoSemaforo.Gris; // en Gris no se calcula (diseño, casos B1, B7 y B8)
+            // Versión 6: los valores se ven desde el primer paso (parciales con lo elegido), aunque el semáforo siga gris.
+            bool conFrenado = Alcance.Activo(lanzador, catalogo.reglas);
             return new[]
             {
-                Hacer(Idioma.T("Mass"), r.MasaKg, lanzador != null ? lanzador.capacidadKg : (int?)null, "kg", sinCalculo, r.LimitesSuperados.Contains(Limite.Masa)),
-                Hacer(Idioma.T("Power"), r.PotenciaW, m.potenciaDisponibleW, "W", sinCalculo, r.LimitesSuperados.Contains(Limite.Potencia)),
-                Hacer(Idioma.T("Cost"), r.CostoCr, m.presupuestoCr, "cr", sinCalculo, r.LimitesSuperados.Contains(Limite.Costo)),
-                Hacer(Idioma.T("Slots"), r.EspaciosUsados, lanzador != null ? lanzador.espacios : (int?)null, "", sinCalculo, r.LimitesSuperados.Contains(Limite.Espacios)),
+                Hacer(Idioma.T("Mass"), r.MasaKg, lanzador != null ? lanzador.capacidadKg : (int?)null, "kg", false, r.LimitesSuperados.Contains(Limite.Masa)),
+                Hacer(Idioma.T("Power"), r.PotenciaW, m.potenciaDisponibleW, "W", false, r.LimitesSuperados.Contains(Limite.Potencia)),
+                Hacer(Idioma.T("Cost"), r.CostoCr, m.presupuestoCr, "cr", false, r.LimitesSuperados.Contains(Limite.Costo)),
+                Hacer(Idioma.T("Slots"), r.EspaciosUsados, lanzador != null ? lanzador.espacios : (int?)null, "", false, r.LimitesSuperados.Contains(Limite.Espacios)),
+                // Frenado: el que pide la órbita sobre el que tiene la nave (Alcance). Sin órbita, solo lo que tiene.
+                Hacer(Idioma.T("Braking"), r.DeltaVNecesarioMs, conFrenado ? r.DeltaVDisponibleMs : (int?)null, "m/s",
+                    !r.AlcanceCalculado, r.LimitesSuperados.Contains(Limite.Alcance)),
             };
         }
 
@@ -83,6 +87,22 @@ namespace SpaceMission
             Tarjeta("<color=" + Trayectoria.ColorHex(o.id) + ">" + Iconos.Orbita + "</color>", o.Nombre,
                 Chip(Iconos.Costo, TextosBriefing.Numero(o.costoCr) + " cr"));
 
+        /// <summary>
+        /// Versión 6: tarjeta de la órbita con su frenado y la masa con la que se llega; si no se llega, el motivo en rojo.
+        /// </summary>
+        public static string TextoOpcion(OrbitaDatos o, Alcance.Resultado a)
+        {
+            var icono = "<color=" + Trayectoria.ColorHex(o.id) + ">" + Iconos.Orbita + "</color>";
+            var costo = Chip(Iconos.Costo, TextosBriefing.Numero(o.costoCr) + " cr");
+            if (!a.Calculable) return Tarjeta(icono, o.Nombre, costo);
+            var frenado = Chip(Iconos.Lanzador, TextosBriefing.Numero(a.NecesarioMs) + " m/s");
+            if (a.Alcanza)
+                return Tarjeta(icono, o.Nombre, costo, frenado,
+                    "<color=" + ColorBuff + ">" + Iconos.Sube + Idioma.T(" up to ") + TextosBriefing.Numero(a.MasaMaximaKg) + " kg</color>");
+            return Tarjeta(icono, "<color=#94A3B8>" + o.Nombre + "</color>", costo, frenado,
+                "<color=" + ColorDebuff + ">" + Iconos.Baja + Idioma.T(" max ") + TextosBriefing.Numero(a.MasaMaximaKg) + " kg</color>");
+        }
+
         public static string TextoOpcion(LanzadorDatos l) =>
             Tarjeta(Iconos.Lanzador, l.Nombre, Chip(Iconos.Costo, TextosBriefing.Numero(l.costoCr) + " cr"),
                 Chip(Iconos.Masa, TextosBriefing.Numero(l.capacidadKg) + " kg"), Chip(Iconos.Espacios, l.espacios + Idioma.T(" slots")));
@@ -104,7 +124,43 @@ namespace SpaceMission
         public static string Ayuda(LanzadorDatos l) =>
             "<b>" + l.Nombre + "</b>\n" + l.Descripcion + Dato(Iconos.Costo, Idioma.T("Cost"), l.costoCr + Idioma.T(" credits")) +
             Dato(Iconos.Masa, Idioma.T("Maximum mass"), TextosBriefing.Numero(l.capacidadKg) + " kg") + Dato(Iconos.Espacios, Idioma.T("Slots"), l.espacios.ToString()) +
+            (l.masaInyectadaKg > 0 ? Dato(Iconos.Lanzador, Idioma.T("Sends toward Mars"), TextosBriefing.Numero(l.masaInyectadaKg) + Idioma.T(" kg (spacecraft + fuel)")) : "") +
             Nasa(l.DatoNasa, l.fuenteNasa);
+
+        /// <summary>Versión 6: ayuda de la órbita con su alcance (flecha verde si se llega, roja si no).</summary>
+        public static string Ayuda(OrbitaDatos o, Alcance.Resultado a)
+        {
+            var texto = Ayuda(o);
+            if (!a.Calculable) return texto;
+            var linea = a.Alcanza
+                ? Idioma.T("Within reach: needs ") + TextosBriefing.Numero(a.NecesarioMs) + Idioma.T(" m/s of braking, you have ") + TextosBriefing.Numero(a.DisponibleMs) + " m/s"
+                : Idioma.T("Out of reach: needs ") + TextosBriefing.Numero(a.NecesarioMs) + Idioma.T(" m/s of braking, you have ") + TextosBriefing.Numero(a.DisponibleMs) +
+                  Idioma.T(" m/s. Remove mass (satellite or instruments) or use a bigger launcher.");
+            int corte = texto.IndexOf('\n');
+            // Va justo después del nombre, antes de la descripción: es lo primero que hay que saber.
+            return texto.Substring(0, corte) + Modificador(new SpaceMission.Modificador(a.Alcanza, linea)) + texto.Substring(corte);
+        }
+
+        /// <summary>
+        /// Versión 6: cómo se calcula el alcance, con los números de la nave actual y la fuente. Va al final de la
+        /// lista de órbitas. Sin lanzador, solo la explicación.
+        /// </summary>
+        public static string NotaAlcance(Configuracion c, CatalogoDatos catalogo, MisionDatos nivel = null)
+        {
+            var reglas = catalogo.reglas;
+            var lanzador = string.IsNullOrEmpty(c.LanzadorId) ? null : catalogo.Lanzador(c.LanzadorId);
+            var texto = Idioma.T("<b>HOW FAR CAN YOU GO?</b>") +
+                        Idioma.T("\nTo stay in orbit the spacecraft must brake with its engines when it arrives. A lower, rounder orbit needs more braking; more mass means less braking.");
+            if (Alcance.Activo(lanzador, reglas))
+            {
+                int masa = Calculador.MasaSecaKg(c, catalogo, nivel);
+                texto += Idioma.T("\nYour braking = ") + reglas.impulsoEspecificoS + " s × 9.81 × ln(" +
+                         TextosBriefing.Numero(lanzador.masaInyectadaKg) + " kg ÷ " + TextosBriefing.Numero(masa) + " kg) = <b>" +
+                         TextosBriefing.Numero(Alcance.DeltaVDisponibleMs(lanzador, masa, reglas)) + " m/s</b>";
+            }
+            else texto += Idioma.T("\nChoose a launcher to see your braking.");
+            return texto + Nasa(reglas.DatoNasaAlcance, reglas.fuenteNasaAlcance);
+        }
 
         public static string Ayuda(InstrumentoDatos i) =>
             "<b>" + i.Nombre + "</b>\n" + i.TextoAyuda + Dato(Iconos.Masa, Idioma.T("Mass"), i.masaKg + " kg") +

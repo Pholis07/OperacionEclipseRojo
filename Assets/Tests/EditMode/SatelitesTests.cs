@@ -352,7 +352,7 @@ namespace SpaceMission.Tests
         }
 
         [Test]
-        public void ElSateliteNoCambiaLaEvaluacion()
+        public void ElSateliteSoloSumaSuMasa()
         {
             foreach (var s in catalogo.satelites)
             {
@@ -360,7 +360,8 @@ namespace SpaceMission.Tests
                 var e = Evaluador.Evaluar(c, catalogo);
                 Assert.AreEqual(CategoriaResultado.Victoria, e.Categoria, s.id);
                 Assert.AreEqual(820, e.Calculo.CostoCr, s.id);
-                Assert.AreEqual(430, e.Calculo.MasaKg, s.id);
+                Assert.AreEqual(430 + s.masaKg, e.Calculo.MasaKg, s.id + ": versión 6, la masa del satélite cuenta");
+                Assert.AreEqual(s.masaKg, e.Calculo.MasaSateliteKg, s.id);
                 Assert.AreEqual(220, e.Calculo.PotenciaW, s.id);
             }
         }

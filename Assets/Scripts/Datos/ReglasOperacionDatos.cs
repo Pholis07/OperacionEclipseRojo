@@ -50,6 +50,14 @@ namespace SpaceMission
         public int combustiblePorOrbitaBaja;     // arrastre, por mes
         public int puntosPorCombustible;
 
+        [Header("Alcance de las órbitas (versión 6): frenado real al llegar a Marte")]
+        public float velocidadLlegadaKmS;   // velocidad con que la nave llega a Marte (v∞)
+        public int impulsoEspecificoS;      // Isp de los motores de la nave
+        [TextArea] public string datoNasaAlcance;     // inglés
+        [TextArea] public string datoNasaAlcanceEs;   // español
+        public string fuenteNasaAlcance;
+        public string DatoNasaAlcance => Idioma.Espanol && !string.IsNullOrEmpty(datoNasaAlcanceEs) ? datoNasaAlcanceEs : datoNasaAlcance;
+
         [Header("Memoria y envío a Tierra (versión 3)")]
         public int cicloContacto;      // la ventana de contacto se abre 1 mes de cada N (con 2: los meses pares)
         public int vatiosTransmisor;   // consumo extra mientras se envía

@@ -17,7 +17,8 @@ MonoBehaviour:
   costoCr: 360
   capacidadKg: 750
   espacios: 4
+  masaInyectadaKg: 1850
   descripcion: Larger payload and higher cost
-  datoNasa: 'Inspired by NASA''s SLS Block 1: more than 27 t to the Moon. The real gap with Soyuz is over 20 times; the game keeps its own capacities.'
-  datoNasaEs: "Inspirado en el SLS Block 1 de la NASA: m\xE1s de 27 t hacia la Luna. La diferencia real con el Soyuz es de m\xE1s de 20 veces; el juego usa capacidades propias."
+  datoNasa: Looks like NASA's SLS Block 1 (more than 27 t toward the Moon). The game uses 1,850 kg toward Mars, 1.5 times the Explorer; an Atlas V sent the real MRO with 2,180 kg.
+  datoNasaEs: "Aspecto del SLS Block 1 de la NASA (m\xE1s de 27 t hacia la Luna). El juego usa 1,850 kg hacia Marte, 1.5 veces el Explorador; un Atlas V envi\xF3 al MRO real con 2,180 kg."
   fuenteNasa: NASA

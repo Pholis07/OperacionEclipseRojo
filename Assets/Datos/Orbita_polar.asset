@@ -16,6 +16,8 @@ MonoBehaviour:
   nombre: Low polar
   descripcionBreve: Passes over the poles of Mars and flies over a different region on each orbit.
   costoCr: 120
+  periapsisKm: 255
+  apoapsisKm: 320
   ventaja: Detailed observation of different regions
   limitacion: Less continuous observation of any single region
   datoNasa: "Like the Mars Reconnaissance Orbiter: 255 \xD7 320 km, 93\xB0, about 112 minutes per orbit. Low and sun-synchronous, ideal for detail."

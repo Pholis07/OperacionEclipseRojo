@@ -1384,18 +1384,18 @@ public static partial class ConstructorEscenas
         MarcoHud(izq);
         Texto(izq, "Titulo", "Set up your mission", 48, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(izq);
-        // Cuatro pestañas en dos filas, en el orden de los pasos: Órbita, Lanzador / Satélite, Instrumentos.
+        // Cuatro pestañas en dos filas, en el orden de los pasos (versión 6): Lanzador, Satélite / Instrumentos, Órbita.
         var pestanas = Columna(izq, "Pestanas", 8, TextAnchor.UpperLeft);
         Alto(pestanas, 2 * 60 + 8);
         var fila1 = Fila(pestanas, "Fila1", 10);
         Alto(fila1, 60);
         var fila2 = Fila(pestanas, "Fila2", 10);
         Alto(fila2, 60);
-        var pOrbita = Boton(fila1, "PestanaOrbita", SpaceMission.Iconos.Orbita + " Orbit", false);
         // GuiaConfiguracion añade a cada pestaña el ✓ cuando esa parte está elegida.
         var pLanzador = Boton(fila1, "PestanaLanzador", SpaceMission.Iconos.Lanzador + " Launcher", false);
-        var pSatelite = Boton(fila2, "PestanaSatelite", SpaceMission.Iconos.Satelite + " Satellite", false);
+        var pSatelite = Boton(fila1, "PestanaSatelite", SpaceMission.Iconos.Satelite + " Satellite", false);
         var pInstrumentos = Boton(fila2, "PestanaInstrumentos", SpaceMission.Iconos.Microscopio + " Instruments", false);
+        var pOrbita = Boton(fila2, "PestanaOrbita", SpaceMission.Iconos.Orbita + " Orbit", false);
         foreach (var p in new[] { pOrbita, pLanzador, pSatelite, pInstrumentos })
         {
             var le = p.GetComponent<UnityEngine.UI.LayoutElement>();
@@ -1445,7 +1445,7 @@ public static partial class ConstructorEscenas
         var filaNavegacion = Fila(izq, "Navegacion", 12);
         Alto(filaNavegacion, 64);
         var verBriefing = Boton(filaNavegacion, "BotonBriefing", SpaceMission.Iconos.Atras + "  Briefing", false);
-        var siguiente = Boton(filaNavegacion, "BotonSiguiente", "Launcher  " + SpaceMission.Iconos.Siguiente, true);
+        var siguiente = Boton(filaNavegacion, "BotonSiguiente", "Satellite  " + SpaceMission.Iconos.Siguiente, true);
         foreach (var b in new[] { verBriefing, siguiente })
         {
             var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
@@ -1461,12 +1461,13 @@ public static partial class ConstructorEscenas
         MarcoHud(der);
         Encabezado(der, "EtiquetaRecursos", "RESOURCES");
 
-        var rellenos = new RectTransform[4];
-        var textos = new TMP_Text[4];
-        string[] nombres = { "Masa", "Potencia", "Costo", "Espacios" };   // nombres de los objetos: no cambiar
-        string[] etiquetasRecursos = { "Mass", "Power", "Cost", "Slots" };
-        string[] iconos = { SpaceMission.Iconos.Masa, SpaceMission.Iconos.Potencia, SpaceMission.Iconos.Costo, SpaceMission.Iconos.Espacios };
-        for (int i = 0; i < 4; i++)
+        // Versión 6: quinta barra, el frenado (el que pide la órbita sobre el que tiene la nave).
+        var rellenos = new RectTransform[5];
+        var textos = new TMP_Text[5];
+        string[] nombres = { "Masa", "Potencia", "Costo", "Espacios", "Alcance" };   // nombres de los objetos: no cambiar
+        string[] etiquetasRecursos = { "Mass", "Power", "Cost", "Slots", "Braking" };
+        string[] iconos = { SpaceMission.Iconos.Masa, SpaceMission.Iconos.Potencia, SpaceMission.Iconos.Costo, SpaceMission.Iconos.Espacios, SpaceMission.Iconos.Lanzador };
+        for (int i = 0; i < nombres.Length; i++)
         {
             var fila = Fila(der, "Fila" + nombres[i], 12);
             Alto(fila, 40);
@@ -1524,6 +1525,9 @@ public static partial class ConstructorEscenas
         var mensaje = Texto(der, "TextoMensaje", "", 26, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
         mensaje.lineSpacing = 6;
         mensaje.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        // Con el alcance (versión 6) el mensaje rojo puede ser largo: se achica en vez de salirse.
+        mensaje.enableAutoSizing = true; mensaje.fontSizeMin = 16; mensaje.fontSizeMax = 26;
+        mensaje.overflowMode = TextOverflowModes.Truncate;
         var revisar = Boton(der, "BotonRevisar", "Review mission  " + SpaceMission.Iconos.Siguiente, true);
         AjustarTexto(revisar);
         revisar.GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = -1;

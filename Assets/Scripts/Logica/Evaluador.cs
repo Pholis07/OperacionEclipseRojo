@@ -127,7 +127,19 @@ namespace SpaceMission
                 partes.Add(Idioma.T("the budget (") + r.CostoCr + Idioma.T(" of ") + mision.presupuestoCr + Idioma.T(" credits)"));
             if (r.LimitesSuperados.Contains(Limite.Espacios))
                 partes.Add(Idioma.T("the slots (") + r.EspaciosUsados + Idioma.T(" of ") + lanzador.espacios + ")");
-            return Idioma.T("Cannot launch: ") + Unir(partes) + (partes.Count > 1 ? Idioma.T(" exceed the limit.") : Idioma.T(" exceeds the limit."));
+            var mensaje = partes.Count == 0 ? Idioma.T("Cannot launch.")
+                : Idioma.T("Cannot launch: ") + Unir(partes) + (partes.Count > 1 ? Idioma.T(" exceed the limit.") : Idioma.T(" exceeds the limit."));
+            if (r.LimitesSuperados.Contains(Limite.Alcance))
+            {
+                // Versión 6: no es «superar un límite» sino que falta frenado. Se dice cuánto y a qué órbitas sí llega.
+                mensaje += Idioma.T(" Not enough braking for this orbit: it needs ") + TextosBriefing.Numero(r.DeltaVNecesarioMs) +
+                           Idioma.T(" m/s and the spacecraft has ") + TextosBriefing.Numero(r.DeltaVDisponibleMs) + " m/s.";
+                var alcanzables = Alcance.Alcanzables(config, catalogo, mision);
+                mensaje += alcanzables.Count > 0
+                    ? Idioma.T(" Within reach: ") + Unir(alcanzables.Select(o => o.Nombre).ToList()) + "."
+                    : Idioma.T(" No orbit is within reach: remove mass or use a bigger launcher.");
+            }
+            return mensaje;
         }
 
         static string MensajeAmarillo(Evaluacion e, CatalogoDatos catalogo)

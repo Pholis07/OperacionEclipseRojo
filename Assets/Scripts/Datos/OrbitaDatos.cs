@@ -11,6 +11,10 @@ namespace SpaceMission
         public string nombre;
         [TextArea] public string descripcionBreve;
         public int costoCr;
+
+        [Tooltip("Altitudes reales de la órbita (km sobre Marte). Con ellas se calcula el frenado que pide (Alcance).")]
+        public int periapsisKm;
+        public int apoapsisKm;
         [TextArea] public string ventaja;
         [TextArea] public string limitacion;
 

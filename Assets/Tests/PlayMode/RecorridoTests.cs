@@ -185,6 +185,47 @@ namespace SpaceMission.PlayTests
             boton.onClick.Invoke();
         }
 
+        /// <summary>
+        /// Versión 6: el orden nuevo (Lanzador, Satélite, Instrumentos, Órbita) con los botones reales. Con 495 kg el
+        /// Explorador no llega a la órbita media: su tarjeta sale bloqueada, pulsarla no la elige y la elíptica sí.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator ElOrdenNuevoBloqueaLasOrbitasFueraDeAlcance()
+        {
+            SceneManager.LoadScene("Menu");
+            yield return EsperarEscena("Menu");
+            Pulsar("BotonIniciar");
+            yield return EsperarEscena("Mision");
+            Pulsar("BotonContinuar");
+            yield return null;
+
+            var configuracion = Object.FindFirstObjectByType<ConfiguracionUI>();
+            Assert.AreEqual(ConfiguracionUI.Pestana.Lanzador, configuracion.PestanaActual, "se empieza por el lanzador");
+            var catalogo = Object.FindFirstObjectByType<MisionUI>().Catalogo;
+            PulsarOpcion(catalogo.Lanzador("explorador").nombre);
+            Pulsar("BotonSiguiente");   // al satélite
+            yield return null;
+            Assert.AreEqual(ConfiguracionUI.Pestana.Satelite, configuracion.PestanaActual);
+            Pulsar("BotonSiguiente");   // a los instrumentos
+            yield return null;
+            PulsarOpcion(catalogo.Instrumento("radar").nombre);
+            PulsarOpcion(catalogo.Instrumento("espectrometro").nombre);
+            Pulsar("BotonSiguiente");   // a la órbita
+            yield return null;
+            Assert.AreEqual(ConfiguracionUI.Pestana.Orbita, configuracion.PestanaActual);
+            Assert.IsFalse(GameObject.Find("BotonSiguiente") != null && GameObject.Find("BotonSiguiente").activeInHierarchy,
+                "la órbita es el último paso");
+            Assert.IsNotNull(GameObject.Find("NotaAlcance"), "la pestaña de órbitas explica cómo se calcula el alcance");
+
+            PulsarOpcion(catalogo.Orbita("media").nombre);
+            yield return null;
+            Assert.IsNull(EstadoJuego.Configuracion.OrbitaId, "fuera de alcance: no se elige");
+            PulsarOpcion(catalogo.Orbita("eliptica").nombre);
+            yield return null;
+            Assert.AreEqual("eliptica", EstadoJuego.Configuracion.OrbitaId);
+            Assert.AreNotEqual(EstadoSemaforo.Rojo, configuracion.Ultima.Estado);
+        }
+
         static void PulsarOpcion(string texto)
         {
             var lista = GameObject.Find("ListaOpciones");

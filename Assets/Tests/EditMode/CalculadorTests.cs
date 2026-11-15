@@ -39,7 +39,7 @@ namespace SpaceMission.Tests
         [TestCase("5", "explorador", "media", "termica+atmosferico", 410, 225, 650, 2, EstadoSemaforo.Valida, "")]
         [TestCase("6", "titan", "polar", "alta_res+atmosferico", 570, 455, 870, 2, EstadoSemaforo.Valida, "")]
         [TestCase("7", "titan", "media", "termica+radar+espectrometro+atmosferico", 555, 500, 1300, 4, EstadoSemaforo.Rojo, "Costo")]
-        [TestCase("B2", "explorador", "media", "termica+alta_res+atmosferico", 605, 525, 850, 3, EstadoSemaforo.Rojo, "Masa+Espacios")]
+        [TestCase("B2", "explorador", "media", "termica+alta_res+atmosferico", 605, 525, 850, 3, EstadoSemaforo.Rojo, "Masa+Espacios+Alcance")]
         [TestCase("B4", "titan", "media", "termica+radar+alta_res+atmosferico", 650, 575, 1280, 4, EstadoSemaforo.Rojo, "Costo")]
         [TestCase("B4b", "titan", "media", "termica+alta_res+atmosferico+espectrometro", 705, 750, 1240, 4, EstadoSemaforo.Rojo, "Potencia")]
         [TestCase("B5", "titan", "eliptica", "termica+radar+espectrometro", 530, 445, 1260, 3, EstadoSemaforo.Rojo, "Costo")]
@@ -94,7 +94,7 @@ namespace SpaceMission.Tests
             Assert.AreEqual(3, c.InstrumentoIds.Count);
             Assert.AreEqual(EstadoSemaforo.Rojo, r.Estado);
             // Versión 5: la cámara de alta resolución pesa 195 kg (HiRISE) y el Explorador lleva 500 kg: falla también la masa.
-            CollectionAssert.AreEquivalent(new[] { Limite.Masa, Limite.Espacios }, r.LimitesSuperados);
+            CollectionAssert.AreEquivalent(new[] { Limite.Masa, Limite.Espacios, Limite.Alcance }, r.LimitesSuperados);
         }
 
         [Test]

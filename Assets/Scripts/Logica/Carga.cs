@@ -33,7 +33,10 @@ namespace SpaceMission
             nivel = nivel != null ? nivel : catalogo.mision;
             var lanzador = catalogo.Lanzador(config.LanzadorId);
             creditosSobrantes = System.Math.Max(0, nivel.presupuestoCr - evaluacion.Calculo.CostoCr);
-            masaLibreKg = lanzador == null ? 0 : System.Math.Max(0, lanzador.capacidadKg - evaluacion.Calculo.MasaKg);
+            // La masa del cálculo ya incluye el satélite (versión 6); aquí se descuenta aparte (MasaLibreKg),
+            // para que cambiarlo por el MRO en la Carga libere su masa sin contarla dos veces.
+            masaLibreKg = lanzador == null ? 0
+                : System.Math.Max(0, lanzador.capacidadKg - (evaluacion.Calculo.MasaKg - evaluacion.Calculo.MasaSateliteKg));
         }
 
         int CostoSatelite => Satelite != null ? Satelite.costoCr : 0;

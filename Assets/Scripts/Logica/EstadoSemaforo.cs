@@ -19,7 +19,8 @@ namespace SpaceMission
         Masa,
         Potencia,
         Costo,
-        Espacios
+        Espacios,
+        Alcance   // versión 6: la nave no tiene frenado suficiente para quedarse en la órbita elegida
     }
 
     /// <summary>Lo que le falta a una configuración para poder lanzarse.</summary>

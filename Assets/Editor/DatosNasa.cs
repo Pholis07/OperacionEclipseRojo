@@ -11,6 +11,8 @@ using SpaceMission;
 /// - La tormenta ya no suma potencia a cada instrumento (extraTormentaW = 0): en la realidad baja la de los paneles.
 /// - Explorador: 500 kg (antes 650) para que la masa siga contando. Los lanzadores conservan valores de juego.
 /// Cada opción guarda el dato real en inglés y en español, con su fuente (PROPUESTA-GAMEPLAY.md, versión 5).
+/// Versión 6 (alcance): masa que cada lanzador manda hacia Marte, altitudes reales de cada órbita, velocidad de
+/// llegada e Isp de los motores. Con ellos Alcance.cs calcula el frenado (vis-viva y ecuación del cohete).
 /// Se puede correr más de una vez. Batch: -executeMethod DatosNasa.Aplicar
 /// </summary>
 public static class DatosNasa
@@ -46,24 +48,24 @@ public static class DatosNasa
             "Basado en CRISM (MRO): 33 kg, unos 45 W, de 362 a 3920 nm a 18 m por píxel.",
             "NASA/JPL (MRO)");
 
-        Lanzador("explorador", 500,
-            "Inspired by Soyuz-Fregat, which sent ESA's Mars Express (about 1.2 t) to Mars. The game keeps its own capacities.",
-            "Inspirado en el Soyuz-Fregat, que envió a Marte la Mars Express de la ESA (~1.2 t). El juego usa capacidades propias.",
+        Lanzador("explorador", 500, 1223,
+            "Sends 1,223 kg toward Mars: the launch mass of ESA's Mars Express on a Soyuz-Fregat (2003), which also stayed in an elliptical orbit.",
+            "Envía 1,223 kg hacia Marte: la masa de lanzamiento de la Mars Express de la ESA en un Soyuz-Fregat (2003), que también se quedó en una órbita elíptica.",
             "ESA");
-        Lanzador("titan", 750,
-            "Inspired by NASA's SLS Block 1: more than 27 t to the Moon. The real gap with Soyuz is over 20 times; the game keeps its own capacities.",
-            "Inspirado en el SLS Block 1 de la NASA: más de 27 t hacia la Luna. La diferencia real con el Soyuz es de más de 20 veces; el juego usa capacidades propias.",
+        Lanzador("titan", 750, 1850,
+            "Looks like NASA's SLS Block 1 (more than 27 t toward the Moon). The game uses 1,850 kg toward Mars, 1.5 times the Explorer; an Atlas V sent the real MRO with 2,180 kg.",
+            "Aspecto del SLS Block 1 de la NASA (más de 27 t hacia la Luna). El juego usa 1,850 kg hacia Marte, 1.5 veces el Explorador; un Atlas V envió al MRO real con 2,180 kg.",
             "NASA");
 
-        Orbita("polar",
+        Orbita("polar", 255, 320,
             "Like the Mars Reconnaissance Orbiter: 255 × 320 km, 93°, about 112 minutes per orbit. Low and sun-synchronous, ideal for detail.",
             "Como el Mars Reconnaissance Orbiter: 255 × 320 km, 93°, unos 112 minutos por vuelta. Baja y heliosíncrona, ideal para el detalle.",
             "NASA/JPL (MRO)");
-        Orbita("media",
+        Orbita("media", 400, 400,
             "Like ESA's Trace Gas Orbiter: about 400 km, 74°. Its plane drifts, so it sees each region at different times of day.",
             "Como el Trace Gas Orbiter de la ESA: unos 400 km, 74°. Su plano se desplaza y ve cada región a distintas horas.",
             "ESA");
-        Orbita("eliptica",
+        Orbita("eliptica", 150, 6200,
             "Like MAVEN: 150 × 6,200 km, 75°, 4.5 hours. It dips into the upper atmosphere on every pass, which is why it needs the atmospheric sensor.",
             "Como MAVEN: 150 × 6,200 km, 75°, 4.5 horas. Baja a la alta atmósfera en cada vuelta: por eso necesita el sensor atmosférico.",
             "NASA/LASP (MAVEN)");
@@ -93,8 +95,13 @@ public static class DatosNasa
             "CubeSat 1U de ~1 kg de la UPAEP (Puebla); en 2020 probó un enlace a través de la constelación Globalstar.",
             "NASA Ames");
 
+        Reglas(2.7f, 230,
+            "Mars: GM 42,828 km³/s², radius 3,389.5 km. Hydrazine engines like MRO's (Isp about 230 s), arriving at 2.7 km/s. Engines only: the real MRO braked about 1 km/s into a 400 × 35,000 km orbit and then needed six months of aerobraking to reach 255 × 320 km.",
+            "Marte: GM 42,828 km³/s², radio 3,389.5 km. Motores de hidracina como los del MRO (Isp de unos 230 s), llegando a 2.7 km/s. Solo con motores: el MRO real frenó unos 1 km/s hasta una órbita de 400 × 35,000 km y después necesitó seis meses de aerofrenado para llegar a 255 × 320 km.",
+            "NASA NSSDC");
+
         AssetDatabase.SaveAssets();
-        Debug.Log("[DatosNasa] Datos de la versión 5 escritos.");
+        Debug.Log("[DatosNasa] Datos de la versión 6 escritos.");
     }
 
     static T Cargar<T>(string nombre) where T : Object
@@ -116,19 +123,31 @@ public static class DatosNasa
         EditorUtility.SetDirty(i);
     }
 
-    static void Lanzador(string id, int capacidad, string en, string es, string fuente)
+    static void Lanzador(string id, int capacidad, int masaInyectada, string en, string es, string fuente)
     {
         var l = Cargar<LanzadorDatos>("Lanzador_" + id);
         l.capacidadKg = capacidad;
+        l.masaInyectadaKg = masaInyectada;
         l.datoNasa = en; l.datoNasaEs = es; l.fuenteNasa = fuente;
         EditorUtility.SetDirty(l);
     }
 
-    static void Orbita(string id, string en, string es, string fuente)
+    static void Orbita(string id, int periapsis, int apoapsis, string en, string es, string fuente)
     {
         var o = Cargar<OrbitaDatos>("Orbita_" + id);
+        o.periapsisKm = periapsis;
+        o.apoapsisKm = apoapsis;
         o.datoNasa = en; o.datoNasaEs = es; o.fuenteNasa = fuente;
         EditorUtility.SetDirty(o);
+    }
+
+    static void Reglas(float velocidadLlegada, int isp, string en, string es, string fuente)
+    {
+        var r = Cargar<ReglasOperacionDatos>("ReglasOperacion");
+        r.velocidadLlegadaKmS = velocidadLlegada;
+        r.impulsoEspecificoS = isp;
+        r.datoNasaAlcance = en; r.datoNasaAlcanceEs = es; r.fuenteNasaAlcance = fuente;
+        EditorUtility.SetDirty(r);
     }
 
     static void Satelite(string id, string en, string es, string fuente)

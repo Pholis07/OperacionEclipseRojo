@@ -17,7 +17,8 @@ MonoBehaviour:
   costoCr: 190
   capacidadKg: 500
   espacios: 2
+  masaInyectadaKg: 1223
   descripcion: Light and affordable
-  datoNasa: Inspired by Soyuz-Fregat, which sent ESA's Mars Express (about 1.2 t) to Mars. The game keeps its own capacities.
-  datoNasaEs: "Inspirado en el Soyuz-Fregat, que envi\xF3 a Marte la Mars Express de la ESA (~1.2 t). El juego usa capacidades propias."
+  datoNasa: 'Sends 1,223 kg toward Mars: the launch mass of ESA''s Mars Express on a Soyuz-Fregat (2003), which also stayed in an elliptical orbit.'
+  datoNasaEs: "Env\xEDa 1,223 kg hacia Marte: la masa de lanzamiento de la Mars Express de la ESA en un Soyuz-Fregat (2003), que tambi\xE9n se qued\xF3 en una \xF3rbita el\xEDptica."
   fuenteNasa: ESA
