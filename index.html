@@ -1,30 +1,60 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
-    <title>Operación Eclipse Rojo</title>
+    <title>Operation Red Eclipse</title>
     <link rel="icon" type="image/png" href="TemplateData/favicon.png">
     <!-- Plantilla propia (basada en «Minimal» de Unity): el juego ocupa toda la ventana del navegador,
          así no se corta en pantallas más pequeñas que 1920x1080. La interfaz se adapta con el CanvasScaler. -->
     <style>
       html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0B0B10; }
       #unity-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: #0B0B10; outline: none; }
+      /* Pantalla de carga: cielo de estrellas en CSS, Marte en eclipse, barra fina y franja del patrocinador. */
       #carga { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-               gap: 18px; color: #F8FAFC; font: 600 20px/1.4 system-ui, sans-serif; letter-spacing: 0.08em; }
-      #carga .titulo { font-size: 34px; letter-spacing: 0.12em; }
-      #barra { width: min(420px, 70vw); height: 8px; background: #2A2A31; }
-      #relleno { width: 0; height: 100%; background: #E2643A; transition: width 0.2s; }
+               gap: 22px; color: #F8FAFC; font: 600 18px/1.4 "Segoe UI", system-ui, sans-serif; letter-spacing: 0.08em;
+               background: radial-gradient(ellipse at 50% 120%, #2a1209 0%, #0B0B10 55%) #0B0B10; transition: opacity 0.6s; }
+      #carga::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.85;
+               background-image:
+                 radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 78% 12%, #dfe9ff 50%, transparent 51%),
+                 radial-gradient(1.5px 1.5px at 33% 72%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 64% 38%, #ffeedd 50%, transparent 51%),
+                 radial-gradient(1px 1px at 90% 66%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 22% 48%, #cfe0ff 50%, transparent 51%),
+                 radial-gradient(1px 1px at 48% 8%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 6% 86%, #fff 50%, transparent 51%),
+                 radial-gradient(1px 1px at 56% 88%, #ffe9d6 50%, transparent 51%), radial-gradient(1.5px 1.5px at 84% 30%, #fff 50%, transparent 51%);
+               animation: titilar 4s ease-in-out infinite alternate; }
+      @keyframes titilar { from { opacity: 0.55; } to { opacity: 0.95; } }
+      #marte { width: 92px; height: 92px; border-radius: 50%; position: relative;
+               background: radial-gradient(circle at 35% 35%, #d9783f 0%, #a8471f 45%, #4a1a0b 80%);
+               box-shadow: 0 0 40px 6px rgba(226, 100, 58, 0.35); }
+      #marte::after { content: ""; position: absolute; inset: -2px; border-radius: 50%;
+               background: radial-gradient(circle at 78% 70%, rgba(11,11,16,0.95) 40%, transparent 62%); }
+      #carga .kicker { color: #5EC8E5; font: 500 14px/1 "Consolas", "IBM Plex Mono", monospace; letter-spacing: 0.3em; }
+      #carga .titulo { font-size: clamp(28px, 4.2vw, 52px); font-weight: 700; letter-spacing: 0.14em; text-align: center; }
+      #carga .titulo span { color: #E2643A; }
+      #barra { width: min(460px, 72vw); height: 3px; background: #23242C; position: relative; overflow: hidden; }
+      #relleno { width: 0; height: 100%; background: linear-gradient(90deg, #E2643A, #FF9A5C); transition: width 0.25s;
+                 box-shadow: 0 0 10px #E2643A; }
+      #estado { display: flex; gap: 14px; color: #94A3B8; font: 500 13px/1 "Consolas", monospace; letter-spacing: 0.25em; }
+      #patrocinio { position: absolute; bottom: 4vh; display: flex; align-items: center; gap: 26px; }
+      #patrocinio .etiqueta { color: #94A3B8; font: 500 12px/1.3 "Consolas", monospace; letter-spacing: 0.3em; text-align: right; }
+      #patrocinio img { height: min(92px, 11vh); width: auto; filter: drop-shadow(0 0 8px rgba(0,0,0,0.6)); }
       #error { display: none; max-width: 70vw; color: #EF4444; text-align: center; font-weight: 400; letter-spacing: 0; }
     </style>
   </head>
   <body>
     <canvas id="unity-canvas" tabindex="-1"></canvas>
     <div id="carga">
-      <div class="titulo">OPERACIÓN ECLIPSE ROJO</div>
+      <div id="marte"></div>
+      <div class="kicker">NASA SPACE APPS CHALLENGE 2026</div>
+      <div class="titulo">OPERATION <span>RED</span> ECLIPSE</div>
       <div id="barra"><div id="relleno"></div></div>
-      <div>CARGANDO MISIÓN…</div>
+      <div id="estado"><span>LOADING MISSION</span><span id="porcentaje">0 %</span></div>
       <div id="error"></div>
+      <div id="patrocinio">
+        <div class="etiqueta">SPONSORED<br>BY</div>
+        <img src="TemplateData/patrocinio_fence.png" alt="National Bulwark Services · Perimeter Electric Fence">
+        <img src="TemplateData/patrocinio_security.png" alt="National Bulwark Services · Monitored Security Systems">
+      </div>
     </div>
     <script src="Build/WebGL.loader.js"></script>
     <script>
@@ -36,16 +66,19 @@
         codeUrl: "Build/WebGL.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
-        productName: "Operación Eclipse Rojo",
+        productName: "Operation Red Eclipse",
         productVersion: "0.1.0",
       }, function (progreso) {
         document.querySelector("#relleno").style.width = (100 * progreso) + "%";
+        document.querySelector("#porcentaje").textContent = Math.round(100 * progreso) + " %";
       }).then(function () {
-        document.querySelector("#carga").style.display = "none";
+        var carga = document.querySelector("#carga");
+        carga.style.opacity = "0";
+        setTimeout(function () { carga.style.display = "none"; }, 650);
         lienzo.focus();
       }).catch(function (mensaje) {
         var error = document.querySelector("#error");
-        error.textContent = "No se pudo cargar el juego: " + mensaje;
+        error.textContent = "Could not load the game: " + mensaje;
         error.style.display = "block";
       });
     </script>
