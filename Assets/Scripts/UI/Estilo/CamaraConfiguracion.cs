@@ -33,6 +33,8 @@ namespace SpaceMission
         [SerializeField] GameObject vistaConfiguracion;
         [Tooltip("Versión 6: en el Briefing se ve el Marte 3D detrás del expediente (sin la nave).")]
         [SerializeField] GameObject vistaBriefing;
+        [Tooltip("Con la Revisión abierta se ve la nave que se va a lanzar, sea cual sea la pestaña de debajo.")]
+        [SerializeField] GameObject vistaRevision;
 
         [Header("Encuadres")]
         [SerializeField] Encuadre nave;
@@ -89,6 +91,7 @@ namespace SpaceMission
             var config = EstadoJuego.Configuracion;
             bool enConfiguracion = vistaConfiguracion != null && vistaConfiguracion.activeInHierarchy && configuracion != null;
             var pestana = enConfiguracion ? configuracion.PestanaActual : ConfiguracionUI.Pestana.Instrumentos;
+            if (vistaRevision != null && vistaRevision.activeInHierarchy) pestana = ConfiguracionUI.Pestana.Instrumentos;
 
             DetectarInstalacion(config, enConfiguracion && pestana == ConfiguracionUI.Pestana.Instrumentos);
 
@@ -246,7 +249,7 @@ namespace SpaceMission
             var modulo = raizNave.Find("Modulo_" + nuevo);
             if (modulo == null) return;
             moduloEnFoco = modulo;
-            finFoco = Time.unscaledTime + duracionModulo;
+            finFoco = Time.unscaledTime + Mathf.Max(duracionModulo, Instalacion.Duracion + 1.8f);   // el montaje entero y una pausa
             if (textoFoco != null && catalogo != null)
                 textoFoco.text = Iconos.DeInstrumento(nuevo) + "  " + catalogo.Instrumento(nuevo).Nombre.ToUpperInvariant() +
                                  Idioma.T("\n<size=75%><color=#94A3B8>INSTALLED HERE</color></size>");
@@ -261,8 +264,19 @@ namespace SpaceMission
             var fuera = punto - centro;
             if (fuera.sqrMagnitude < 0.01f) fuera = Vector3.back;
             var dir = (fuera.normalized + Vector3.back * 1.1f).normalized;
-            var mira = Vector3.Lerp(centro, punto, 0.65f);
-            return new Encuadre { posicion = mira + dir * distanciaModulo, mirarA = mira, campo = 42f };
+            // Renovación visual: de cerca, para que se vea la pieza llegar, encajar y cerrar sus fijaciones (antes
+            // la distancia era fija y el instrumento quedaba como un punto sobre un satélite grande).
+            var renderers = modulo.GetComponentsInChildren<Renderer>();
+            float tamano = 0.3f;
+            if (renderers.Length > 0)
+            {
+                var b = renderers[0].bounds;
+                foreach (var r in renderers) b.Encapsulate(r.bounds);
+                tamano = Mathf.Max(b.size.x, b.size.y, b.size.z);
+            }
+            float distancia = Mathf.Clamp(tamano * 4.2f, 1.2f, distanciaModulo);
+            var mira = Vector3.Lerp(centro, punto, 0.88f);
+            return new Encuadre { posicion = mira + dir * distancia, mirarA = mira, campo = 42f };
         }
 
         static Vector3 CentroVisual(Transform t)

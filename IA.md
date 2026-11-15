@@ -573,3 +573,13 @@ Pedido de Adrian: un informe menos saturado y un juego informativo sin ser invas
   - `ConstructorEscenas.CohetesExtra` es la tabla de modelo, cortes, tinte y posición. La cinemática usa la lista `DirectorCinematica.cohetesExtra`, y `PlataformaCohetes.Alto` da el alto de cada uno.
 - **Equipo:** el nombre cambió de GangBangers a DualDynamics en el juego, la licencia y el README.
 - Pruebas: 377/377 EditMode y 24/24 PlayMode. Build de 58 MB. Revisado en el navegador: los seis en la plataforma, candados y cinemática completa con el Pionero.
+
+## Renovación visual (15 de noviembre de 2026)
+
+Claude (Fable 5.2), a pedido de Diego. Detalle, pendientes y matriz en `Docs/Claude/RENOVACION_INFORME.md`.
+
+- Cohetes sin defectos de modelo, brazos de la torre a medida y plataforma con foso real.
+- Constructor con montaje físico, retirada visible, mecanismos por instrumento, inspección y hangar.
+- Despliegue tras la liberación y lecturas para los cinco instrumentos.
+- Pruebas: 440 EditMode y 34 PlayMode. En navegador: del menú a la Operación en español, consola limpia.
+- No cambia reglas ni resultados. No se vio en navegador ningún escaneo ni el informe final.

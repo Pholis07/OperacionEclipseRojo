@@ -503,8 +503,8 @@ namespace SpaceMission
                 // Cámara de lado, acercándose a la nariz y siguiendo luego al satélite.
                 var mira = Vector3.Lerp(centroNariz, sat.position, Mathf.Clamp01((t - 2f) / 2.5f));
                 // Cerca, a la escala de la nariz: el satélite (pequeño, cabía en la cofia) llena buena parte del cuadro.
-                // Se acerca hasta la liberación y abre un poco el plano durante el despliegue (caben los botalones).
-                var dist = radioToma * (Mathf.Lerp(10f, 4.2f, Mathf.Clamp01(t / 5.4f)) + 2.4f * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(inicioDespliegue, finDespliegue, t)));
+                // Se acerca hasta quedar junto a la nave: el despliegue y la pausa final se ven de cerca.
+                var dist = radioToma * Mathf.Lerp(10f, 3f, Mathf.Clamp01(t / 4.6f));
                 Mirar(mira + lateral * dist + Vector3.up * dist * 0.35f - adelante * dist * 0.4f, mira, 40f);
                 yield return null;
             }

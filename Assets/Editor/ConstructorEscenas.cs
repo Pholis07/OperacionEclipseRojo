@@ -835,6 +835,7 @@ public static partial class ConstructorEscenas
         Asignar(camara, "vistaBriefing", briefing.gameObject);
         AsignarEncuadre(camara, "plataforma", Plataforma + new Vector3(0, 6.3f, -21f), Plataforma + new Vector3(0, 6f, 0), 60f);
         Asignar(camara, "raizNave", nave.transform);
+        Asignar(camara, "vistaRevision", revision.gameObject);
         // Pestaña Lanzador: sin elección los dos cohetes; con elección solo el elegido, en el centro, con un
         // encuadre a su altura (Explorador 7.5, Titán 11).
         var plataformaUI = cohetes.explorador.transform.parent.gameObject.AddComponent<PlataformaCohetes>();
@@ -881,7 +882,7 @@ public static partial class ConstructorEscenas
         // central, bajo la nave. Girar y acercar se hacen arrastrando y con la rueda (CamaraConfiguracion).
         var inspeccion = new GameObject("InspeccionNave", typeof(RectTransform)).GetComponent<RectTransform>();
         inspeccion.SetParent(configuracion, false);
-        Anclar(inspeccion, new Vector2(0.375f, 0.085f), new Vector2(0.645f, 0.2f));
+        Anclar(inspeccion, new Vector2(0.375f, 0.16f), new Vector2(0.645f, 0.275f));   // sobre el rótulo de la pestaña
         var contenidoInspeccion = Columna(inspeccion, "Contenido", 6, TextAnchor.LowerCenter, new Color(0, 0, 0, 0), 0);
         Estirar(contenidoInspeccion);
         contenidoInspeccion.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
