@@ -212,9 +212,12 @@ namespace SpaceMission
         {
             if (Op == null) return;
             int recibidas = Op.Recibidas.Count, apagones = Op.Apagones;
+            bool porGlobalstar = !Op.ContactoAbierto;
             if (Op.Enviar())
             {
-                textoLectura.text = "<color=#22C55E><b>Datos enviados a la Tierra.</b></color> La memoria quedó libre.";
+                textoLectura.text = porGlobalstar
+                    ? "<color=#22C55E><b>Enviado por Globalstar:</b></color> costó " + Op.Satelite.orbitasEnvioSinVentana + " órbita."
+                    : "<color=#22C55E><b>Datos enviados a la Tierra.</b></color> La memoria quedó libre.";
                 if (Op.Recibidas.Count > recibidas) MostrarTransmision(Op.Recibidas.Last());
             }
             else if (Op.Apagones > apagones)
