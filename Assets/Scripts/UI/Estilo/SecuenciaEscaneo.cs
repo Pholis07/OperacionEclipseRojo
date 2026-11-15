@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -111,7 +112,19 @@ namespace SpaceMission
             camPos = p0; camVel = Vector3.zero;
             textoInstrumento.text = Iconos.DeInstrumento(instrumento) + "  " +
                                     (catalogo != null ? catalogo.Instrumento(instrumento).Nombre.ToUpperInvariant() : instrumento);
+            // Renovación visual: si este mes observaron más instrumentos, se nombran junto al destacado (con
+            // cuántos aportaron evidencia), para que se sepa de dónde sale cada lectura sin cinco secuencias.
+            var mes = operacion != null ? operacion.UltimoResultado : null;
+            var otras = mes != null ? mes.Observaciones.Where(o => o.Instrumento != instrumento).ToList() : null;
+            if (otras != null && otras.Count > 0)
+                textoInstrumento.text += "   <size=70%><color=#94A3B8>" + Idioma.T("ALSO THIS MONTH") + "  " +
+                    string.Join(" ", otras.Select(o => Iconos.DeInstrumento(o.Instrumento))) + "  (" +
+                    otras.Count(o => o.Evidencias.Count > 0) + " " + Idioma.T("with evidence") + ")</color></size>";
             var color = ColorInstrumento(instrumento);
+            // El instrumento que observa acciona su mecanismo: se recoge durante la aproximación y se abre al escanear.
+            var modulo = escenario.Satelite != null ? escenario.Satelite.Find("Modulo_" + instrumento) : null;
+            var mecanismo = modulo != null ? modulo.GetComponent<MecanismoInstrumento>() : null;
+            if (mecanismo != null) mecanismo.Desplegar(0.35f);
 
             // Aparece la vista sobre el mapa.
             vista.gameObject.SetActive(true);
@@ -157,6 +170,7 @@ namespace SpaceMission
             for (float t = 0f; t < 1f && !saltando; t += Time.deltaTime / tEscaneo)
             {
                 AnimarHaz(instrumento, t, objetivo, color);
+                if (mecanismo != null) mecanismo.Desplegar(Mathf.Lerp(0.35f, 1f, Mathf.Clamp01(t / 0.3f)));
                 if (modo != null)
                 {
                     int capaAntes = modo.CapaActiva;
@@ -168,6 +182,7 @@ namespace SpaceMission
                 yield return null;
             }
             Haz(false, objetivo, color);
+            if (mecanismo != null) mecanismo.Desplegar(1f);
 
             // 4) Datos: el resultado ya está en el texto de lectura; aquí solo se resume.
             var (texto, colorTexto) = Resultado(lectura, completa);
@@ -244,6 +259,12 @@ namespace SpaceMission
         {
             saltando = false;
             modo?.Ocultar();
+            // Se salte o no el escaneo, la nave queda en su pose de órbita (mecanismos desplegados).
+            if (escenario != null && escenario.Satelite != null)
+            {
+                var aspecto = escenario.Satelite.GetComponent<NaveSatelite>();
+                if (aspecto != null) aspecto.PoseDeReposo();
+            }
             if (haz != null) haz.gameObject.SetActive(false);
             if (mancha != null) mancha.gameObject.SetActive(false);
             if (fuente != null) fuente.Stop();

@@ -139,6 +139,94 @@ namespace SpaceMission.PlayTests
             }
         }
 
+        /// <summary>
+        /// Omitir en cualquier toma deja el mismo estado que ver la cinemática entera: todo en su sitio, el satélite a
+        /// su escala y desplegado, y un solo aviso de final. Se omite en un momento de cada una de las 10 tomas.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator OmitirEnCadaTomaDejaElMismoEstado()
+        {
+            Preferencias.ReducirMovimiento = false;
+            SceneManager.LoadScene("Mision");
+            int cuadros = 0;
+            while (SceneManager.GetActiveScene().name != "Mision" && cuadros++ < 600) yield return null;
+            yield return null;
+            EstadoJuego.Configuracion = new Configuracion("media", "titan", new[] { "radar", "termica" });
+            var director = Object.FindFirstObjectByType<DirectorCinematica>();
+            var escenario = Object.FindFirstObjectByType<EscenarioOrbital>(FindObjectsInactive.Include);
+            var escala = escenario.Satelite.localScale;
+            var seguidos = Object.FindObjectsByType<PerfilCohete>(FindObjectsInactive.Include, FindObjectsSortMode.None).Select(c => c.transform)
+                .Concat(Object.FindObjectsByType<BrazoTorre>(FindObjectsInactive.Include, FindObjectsSortMode.None).Select(b => b.transform)).ToArray();
+            var poses = seguidos.Select(t => (t.localPosition, t.localRotation)).ToArray();
+            int finales = 0;
+            director.AlTerminar += () => finales++;
+            Time.timeScale = 8f;
+            try
+            {
+                // Segundos de cinemática: uno dentro de cada toma (1 a 10).
+                foreach (float momento in new[] { 1.5f, 5.5f, 10f, 14.5f, 18f, 22.5f, 28f, 34f, 38.5f, 42f })
+                {
+                    int antes = finales;
+                    director.Reproducir();
+                    Assert.IsTrue(director.Reproduciendo);
+                    float inicio = Time.time;
+                    while (director.Reproduciendo && Time.time - inicio < momento) yield return null;
+                    director.Omitir();
+                    yield return null;
+                    Assert.IsFalse(director.Reproduciendo, "omitida a los " + momento + " s");
+                    Assert.AreEqual(antes + 1, finales, "un solo aviso de final (a los " + momento + " s)");
+                    Assert.AreEqual(escala, escenario.Satelite.localScale, "escala del satélite (a los " + momento + " s)");
+                    Assert.AreEqual(1f, escenario.Satelite.Find("Modulo_radar").GetComponent<MecanismoInstrumento>().Despliegue, 1e-3f, "desplegado (a los " + momento + " s)");
+                    for (int i = 0; i < seguidos.Length; i++)
+                    {
+                        Assert.Less((seguidos[i].localPosition - poses[i].localPosition).magnitude, 1e-3f, seguidos[i].name + " a los " + momento + " s");
+                        Assert.Less(Quaternion.Angle(seguidos[i].localRotation, poses[i].localRotation), 0.1f, seguidos[i].name + " a los " + momento + " s");
+                    }
+                }
+            }
+            finally { Time.timeScale = 1f; }
+        }
+
+        /// <summary>Diez escaneos seguidos: la cámara empieza siempre en el mismo encuadre y la nave vuelve a su sitio (sin deriva).</summary>
+        [UnityTest]
+        public IEnumerator DiezEscaneosSeguidosNoMuevenElEncuadre()
+        {
+            Preferencias.ReducirMovimiento = false;
+            yield return Lanzar("explorador");
+            var director = Object.FindFirstObjectByType<DirectorCinematica>();
+            director.Omitir();
+            yield return null;
+            var secuencia = Object.FindFirstObjectByType<SecuenciaEscaneo>(FindObjectsInactive.Include);
+            var escenario = Object.FindFirstObjectByType<EscenarioOrbital>(FindObjectsInactive.Include);
+            var camara = GameObject.Find("CamaraCine").GetComponent<Camera>();
+            var todo = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var escanear = typeof(SecuenciaEscaneo).GetMethod("AlEscanear", todo);
+            var saltando = typeof(SecuenciaEscaneo).GetField("saltando", todo);
+            Vector3 camInicial = Vector3.zero, satInicial = escenario.Satelite.position;
+            Quaternion giroInicial = Quaternion.identity; float campoInicial = 0f;
+            for (int i = 0; i < 10; i++)
+            {
+                escanear.Invoke(secuencia, new object[] { i % 2 == 0 ? "radar" : "termica", new Vector2(0.2f + 0.06f * i, 0.7f - 0.05f * i), i % 3 == 0 ? Lectura.Encontrada : Lectura.Frio, i % 3 == 0 });
+                yield return null; yield return null;
+                Assert.IsTrue(secuencia.Activa, "escaneo " + i);
+                if (i == 0) { camInicial = camara.transform.position; giroInicial = camara.transform.rotation; campoInicial = camara.fieldOfView; }
+                else
+                {
+                    Assert.Less((camara.transform.position - camInicial).magnitude, 0.02f, "posición de la cámara en el escaneo " + i);
+                    Assert.Less(Quaternion.Angle(camara.transform.rotation, giroInicial), 0.5f, "giro de la cámara en el escaneo " + i);
+                    Assert.AreEqual(campoInicial, camara.fieldOfView, 0.01f);
+                }
+                float fin = Time.realtimeSinceStartup + 0.6f;
+                while (Time.realtimeSinceStartup < fin) yield return null;
+                saltando.SetValue(secuencia, true);
+                fin = Time.realtimeSinceStartup + 8f;
+                while (secuencia.Activa && Time.realtimeSinceStartup < fin) yield return null;
+                Assert.IsFalse(secuencia.Activa, "el escaneo " + i + " termina al saltarlo");
+                Assert.Less((escenario.Satelite.position - satInicial).magnitude, 1e-3f, "la nave vuelve a su ancla tras el escaneo " + i);
+                Assert.AreEqual(1f, escenario.Satelite.Find("Modulo_radar").GetComponent<MecanismoInstrumento>().Despliegue, 1e-3f, "mecanismo desplegado tras el escaneo " + i);
+            }
+        }
+
         [UnityTest]
         public IEnumerator SaltarLaCinematicaCallaAControlDeMision()
         {

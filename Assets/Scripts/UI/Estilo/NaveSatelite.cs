@@ -48,6 +48,13 @@ namespace SpaceMission
         /// <summary>Despliega (0 a 1) los mecanismos de los instrumentos montados. La cinemática lo anima tras liberar la nave.</summary>
         public void Desplegar(float k)
         {
+            // Los paneles (o antenas) del cuerpo del satélite, si su modelo los tiene con bisagra.
+            if (cuerpos != null)
+                foreach (var c in cuerpos)
+                {
+                    var alas = c != null ? c.GetComponent<MecanismoInstrumento>() : null;
+                    if (alas != null) alas.Desplegar(k);
+                }
             if (modulos == null) return;
             foreach (var m in modulos)
             {

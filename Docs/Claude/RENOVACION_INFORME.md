@@ -9,9 +9,9 @@ No cambia reglas, recursos, probabilidades ni finales: todas las suites de regla
 |---|---|
 | Unity | 6000.6.9f1 |
 | Pipeline | URP 17.6. WebGL usa la calidad «Mobile» (Forward, sin textura de profundidad) |
-| Plataforma | WebGL, build de 58 MB |
-| Navegador de prueba | Chromium 151 sin cabeza, WebGL por software (SwiftShader), 1920×1080, español |
-| Pruebas | 440 de 440 EditMode y 34 de 34 PlayMode |
+| Plataforma | WebGL, build de 58.8 MB |
+| Navegador de prueba | Chromium 151 sin cabeza, WebGL por software (SwiftShader): 1920×1080 en español y 1280×720 en inglés |
+| Pruebas | 447 de 447 EditMode y 36 de 36 PlayMode |
 
 ## Qué cambió
 
@@ -39,28 +39,36 @@ No cambia reglas, recursos, probabilidades ni finales: todas las suites de regla
 - Los cinco instrumentos tienen lectura durante el escaneo (antes dos). Se añadieron la térmica (falso color, escala relativa), el radar (perfil de ecos) y el sensor atmosférico (opacidad del polvo).
 - El rasgo solo aparece si la lectura real dio con la anomalía; si no aporta evidencia, la nota lo dice.
 
+## Segunda ronda (pendientes de la primera)
+
+- **«Tu nave» en la Operación:** vista fija de la nave en órbita sobre una esquina del mapa. No tapa los clics, se puede plegar y enfoca el instrumento que se enciende o se apaga.
+- **Paneles con bisagra:** las alas de panel del MRO, el Magellan, el Chandra y el LLCD se separaron de la malla y se pliegan y despliegan; el CubeSat despliega sus cuatro antenas. Van plegados en el hangar y se abren tras la liberación.
+- **El instrumento acciona su mecanismo al escanear** y la secuencia nombra las otras lecturas del mes y cuántas aportaron evidencia.
+- **Pionero:** cuerpo a cuadros blancos y negros, como el Jupiter-C.
+- **Ruta orbital más fina** y rótulo del Explorador corregido (aspecto del Ares I, carga de un Soyuz-Fregat).
+- **Pruebas nuevas:** omitir en cada una de las 10 tomas, diez escaneos seguidos sin deriva, paneles y «Tu nave».
+
 ## Estado de los hitos
 
 | Hito | Implementado | Editor (pruebas) | Navegador | Pendiente |
 |---|---|---|---|---|
 | H0 auditoría | Sí | — | — | — |
-| H1 recorrido conectado | Sí | Sí | Hasta la Operación | Ver un escaneo y el informe final |
-| H2 constructor | Sí | Sí | Radar y térmica | Los otros tres instrumentos (nivel 1 no los abre) |
-| H3 escenario y lanzamiento | Sí | Los 6 lanzadores | Solo Explorador | Intersecciones del despliegue, omitir en cada toma |
-| H4 investigación | Parcial | Sí | No | Nave visible en la Operación; lecturas agrupadas |
-| H5 integración | Parcial | Sí | Parcial | 720p, inglés, finales, rendimiento |
+| H1 recorrido conectado | Sí | Sí | Completo, hasta «Modificar mi misión» | — |
+| H2 constructor | Sí | Sí | Tres instrumentos | Alta resolución y espectrómetro en navegador |
+| H3 escenario y lanzamiento | Sí | Los 6 lanzadores | Explorador y Coloso | Los otros cuatro en navegador |
+| H4 investigación | Sí | Sí | Lectura del radar | Las otras cuatro lecturas y un hallazgo en navegador |
+| H5 integración | Sí | Sí | es 1080p, en 720p | Rendimiento, teclado |
 
 ## Lo que no se hizo o no se comprobó
 
-- **Nave visible durante la Operación:** no se hizo. La nave se sigue viendo solo durante el escaneo.
-- **Varias lecturas en un mismo mes:** se sigue destacando una; no se añadieron fichas con las demás.
-- **El instrumento no acciona su mecanismo durante el escaneo** (ya va desplegado en órbita).
-- **Paneles solares de los satélites de la NASA:** son mallas de una pieza y no se separaron; se despliegan los mecanismos de los instrumentos, no los paneles.
-- **Franjas del Jupiter-C:** el modelo llega sin su patrón; el Pionero queda blanco con anillos.
-- **No se vio en navegador:** ningún escaneo con las lecturas nuevas, el informe final, «Modificar mi misión», inglés, 1280×720, ni los cinco lanzadores restantes.
-- **Rendimiento:** sin medir. El navegador de prueba dibuja por software.
-- **Prueba con tres personas (WOW01):** sin hacer.
-- **Sonido:** se reutilizan los efectos existentes (servo); no se revisó la mezcla de oído.
+- **Aquarius:** su modelo no da dos alas separables; queda rígido (solo se despliegan sus instrumentos).
+- **«Tu nave» tapa una esquina del mapa.** Se pliega con un clic en su cabecera, pero plegada no es el estado inicial.
+- **No se vio en navegador:** un escaneo que encuentre la anomalía, las lecturas de la térmica, la cámara, el sensor atmosférico y el espectrómetro, ni los lanzadores Pionero, Horizonte, Titán y Goliat. Están cubiertos por las pruebas automáticas.
+- **Intersecciones al desplegar:** revisadas en capturas por satélite, no con cada combinación de instrumentos.
+- **Teclado en la inspección y zoom con la rueda:** probados solo por código.
+- **Rendimiento:** sin medir. El navegador de prueba dibuja por software. «Tu nave» añade una cámara que dibuja 4 veces por segundo.
+- **Prueba con tres personas (WOW01):** sin hacer; necesita personas.
+- **Sonido:** se reutilizan los efectos existentes; la mezcla no se revisó de oído.
 
 La matriz completa está en `RENOVACION_MATRIZ.csv`.
 
@@ -72,4 +80,4 @@ No entra ningún recurso externo nuevo. Toda la geometría añadida es original,
 
 - Regenerar escenas: «Herramientas > Construir escenas (sin Menu)». `Menu.unity` no se tocó.
 - Capturas antes y después: `Docs/Claude/capturas/renovacion/`.
-- Cada bloque es un commit: cohetes (`277e1c2`), constructor (`b4e876a`), plataforma y lecturas (`1524d98`) y este último con los ajustes de cámara. Se revierten por separado con `git revert`.
+- Cada bloque es un commit: cohetes (`277e1c2`), constructor (`b4e876a`), plataforma y lecturas (`1524d98`), ajustes de cámara (`46e2d19`) y la segunda ronda. Se revierten por separado con `git revert`.

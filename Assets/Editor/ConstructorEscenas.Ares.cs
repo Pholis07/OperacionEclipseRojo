@@ -57,7 +57,8 @@ public static partial class ConstructorEscenas
         var cohete = new GameObject("Cohete_" + d.id).transform;
         cohete.SetParent(raiz, false);
         cohete.localPosition = new Vector3(d.x, 0, 0);
-        var superior = ConstruirPorEtapas(cohete, d.ruta, d.prefijo, alto, d.etapa, d.nariz, d.tinte, d.id == "horizonte" ? ColoresHorizonte : null);
+        var superior = ConstruirPorEtapas(cohete, d.ruta, d.prefijo, alto, d.etapa, d.nariz, d.tinte, d.id == "horizonte" ? ColoresHorizonte : null,
+            d.id == "pionero" ? FranjasPionero : (System.Func<string, Vector3, string>)null);
         // El logo va en la etapa superior, salvo en el Pionero: su etapa superior es un cono, así que va en el cuerpo.
         bool enCuerpo = d.id == "pionero";
         float alturaLogo = alto * (enCuerpo ? 0.6f : Mathf.Lerp(d.etapa, d.nariz, 0.45f));
@@ -88,6 +89,20 @@ public static partial class ConstructorEscenas
             case 8: return Hex("#15171B");
             default: return null;
         }
+    }
+
+    /// <summary>
+    /// El Jupiter-C llevaba el cuerpo pintado a cuadros blancos y negros (para seguir su giro en las películas del
+    /// lanzamiento). El modelo llega sin ese patrón: aquí se pinta por cuadrantes, alternados entre el tramo de
+    /// abajo y el de arriba. Los cortes caen en las aristas del cilindro (20 caras de 18°).
+    /// </summary>
+    static string FranjasPionero(string material, Vector3 centro)
+    {
+        bool arriba = material.StartsWith("jupiterc_blinn6S"), abajo = material.StartsWith("jupiterc_blinn7S");
+        if (!arriba && !abajo) return null;
+        float angulo = Mathf.Repeat(Mathf.Atan2(centro.z, centro.x) * Mathf.Rad2Deg, 360f);
+        bool par = Mathf.FloorToInt(angulo / 90f) % 2 == 0;
+        return par == arriba ? "jupiterc_blinn4S" : null;
     }
 
     /// <summary>
