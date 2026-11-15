@@ -56,6 +56,9 @@ Descargados de [science.nasa.gov/3d-resources](https://science.nasa.gov/3d-resou
 | `Sat_LLCD.*` | Lunar Laser Communications Demonstration (LLCD) | Satélite «Relé láser LLCD» |
 | `Cohete_SLS_Inferior.*`, `Cohete_SLS_Superior.*` | Space Launch System (SLS), modelo para impresión 3D, pintado por zonas | Lanzador Titán (plataforma y cinemática) |
 | `Terreno_Gusev.*` | Mars – Spirit Landing Site (cráter Gusev), modelo para impresión 3D | Importado, **sin usar todavía** |
+| `ares1b.fbx` | **NASA 3D Resources, «Ares 1 (B)»** (https://github.com/nasa/NASA-3D-Resources/tree/master/3D%20Models/Ares%201%20(B)), consultado el 2026-11-15 | Importado, **sin usar todavía** (candidato para el cohete Explorador) |
+
+Sobre `ares1b.fbx`: NASA publica estos modelos libres y sin copyright, sin una licencia formal (ver las [pautas de uso de NASA](https://www.nasa.gov/nasa-brand-center/images-and-media)). El original es un `.glb` con compresión Draco y sin texturas (solo colores planos); se revisó por dentro y desde seis ángulos y no trae logo de NASA ni banderas. Se convirtió a `.fbx` con Blender: se enderezó (alto 9.66 unidades, base en 0, centrado) y se quitaron cuatro conos duplicados que quedaban sueltos a 9.4 unidades del cuerpo. El resto de la forma y los colores no cambió.
 
 También se revisaron «Space Launch System (SLS) Block 1» (no se usa: trae la base de impresión pegada).
 
