@@ -14,6 +14,7 @@ namespace SpaceMission
         const string ClaveMovimiento = "reducir_movimiento";
         const string ClaveAmbiente = "vol_ambiente";
         const string ClaveSilencio = "silencio";
+        const string ClaveGuia = "guia_pantallas";
 
         public static float VolumenMusica { get => Leer(ClaveMusica, 0.6f); set => Escribir(ClaveMusica, value); }
         public static float VolumenEfectos { get => Leer(ClaveEfectos, 0.8f); set => Escribir(ClaveEfectos, value); }
@@ -28,6 +29,13 @@ namespace SpaceMission
         }
 
         public static void AplicarSilencio() => AudioListener.volume = Silencio ? 0f : 1f;
+
+        /// <summary>Versión 6: la guía de cada pantalla (tarjeta con el siguiente paso). Por defecto, visible.</summary>
+        public static bool GuiaActiva
+        {
+            get => Leer(ClaveGuia, 1f) > 0.5f;
+            set => Escribir(ClaveGuia, value ? 1f : 0f);
+        }
 
         public static bool ReducirMovimiento
         {

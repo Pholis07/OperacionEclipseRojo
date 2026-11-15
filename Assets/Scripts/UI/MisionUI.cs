@@ -60,6 +60,17 @@ namespace SpaceMission
 
         public bool VistaActivaEsConfiguracion => vistaConfiguracion.activeSelf && !vistaRevision.activeSelf;
 
+        /// <summary>La pantalla que se ve ahora (versión 6: la guía de cada pantalla la usa).</summary>
+        public PantallaMision PantallaActual =>
+            vistaInvestigacion.activeSelf ? PantallaMision.Operacion
+            : vistaCarga != null && vistaCarga.activeSelf ? PantallaMision.Carga
+            : vistaRevision.activeSelf ? PantallaMision.Revision
+            : vistaConfiguracion.activeSelf ? PantallaMision.Configuracion : PantallaMision.Briefing;
+
+        public GameObject Vista(PantallaMision p) =>
+            p == PantallaMision.Operacion ? vistaInvestigacion : p == PantallaMision.Carga ? vistaCarga
+            : p == PantallaMision.Revision ? vistaRevision : p == PantallaMision.Configuracion ? vistaConfiguracion : vistaBriefing;
+
         public void LlenarBriefing()
         {
             var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);

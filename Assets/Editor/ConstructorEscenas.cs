@@ -815,6 +815,9 @@ public static partial class ConstructorEscenas
         Asignar(controlador, "textoColores", semaforo);
         Asignar(controlador, "botonContinuar", continuar);
 
+        // Versión 6: guía de cada pantalla y botón «?», encima de todas las vistas.
+        ConstruirGuiaPantallas(canvas, controlador, configUI, cargaUI, Object.FindFirstObjectByType<DirectorCinematica>(FindObjectsInactive.Include), pista.gameObject);
+
         // Al abrir la escena solo se ve el Briefing (MisionUI también lo hace al empezar).
         configuracion.gameObject.SetActive(false);
         revision.gameObject.SetActive(false);
@@ -822,6 +825,85 @@ public static partial class ConstructorEscenas
         investigacion.gameObject.SetActive(false);
 
         EditorSceneManager.SaveScene(escena, "Assets/Escenas/Mision.unity");
+    }
+
+    /// <summary>
+    /// Versión 6: tarjeta de la guía (bombilla, siguiente paso y «×»), botón «?» y panel con la explicación completa de
+    /// la pantalla. GuiaPantallasUI la mueve según la pantalla.
+    /// </summary>
+    static void ConstruirGuiaPantallas(RectTransform canvas, MisionUI mision, ConfiguracionUI configuracion, CargaUI carga,
+        DirectorCinematica cinematica, GameObject pistaBriefing)
+    {
+        var raiz = Fila(canvas, "GuiaPantallas", 8);
+        var grupo = raiz.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        grupo.childForceExpandWidth = false;
+        grupo.childForceExpandHeight = false;
+        grupo.childAlignment = TextAnchor.UpperLeft;
+        Anclar(raiz, new Vector2(0.37f, 0.7f), new Vector2(0.63f, 0.81f));
+
+        var tarjeta = Fila(raiz, "TarjetaGuia", 8);
+        var fondo = tarjeta.gameObject.AddComponent<UnityEngine.UI.Image>();
+        fondo.color = new Color(Fondo.r, Fondo.g, Fondo.b, 0.9f);
+        var leTarjeta = tarjeta.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        leTarjeta.flexibleWidth = 1; leTarjeta.flexibleHeight = 1;
+        var grupoTarjeta = tarjeta.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        grupoTarjeta.padding = new RectOffset(16, 6, 8, 8);
+        grupoTarjeta.childForceExpandWidth = false;
+        Bordes(tarjeta, new Color(Cian.r, Cian.g, Cian.b, 0.6f));
+        var texto = Texto(tarjeta, "TextoGuiaPantalla", "", 22, TextoClaro, FontStyles.Normal, TextAlignmentOptions.MidlineLeft);
+        texto.enableAutoSizing = true; texto.fontSizeMin = 14; texto.fontSizeMax = 22;
+        texto.overflowMode = TextOverflowModes.Truncate;
+        texto.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+        var ocultar = Boton(tarjeta, "BotonOcultarGuia", "×", false);
+        ocultar.GetComponent<UnityEngine.UI.Image>().color = new Color(0, 0, 0, 0);   // solo la «×», sin caja
+        var textoOcultar = ocultar.GetComponentInChildren<TextMeshProUGUI>();
+        textoOcultar.fontSize = 34; textoOcultar.color = TextoSecundario; textoOcultar.characterSpacing = 0;
+        var leOcultar = ocultar.GetComponent<UnityEngine.UI.LayoutElement>();
+        leOcultar.preferredWidth = 36; leOcultar.minWidth = 36; leOcultar.minHeight = 36; leOcultar.preferredHeight = 36; leOcultar.flexibleWidth = 0;
+
+        var ayuda = Boton(raiz, "BotonAyuda", "?", true);
+        var leAyuda = ayuda.GetComponent<UnityEngine.UI.LayoutElement>();
+        leAyuda.preferredWidth = 52; leAyuda.minWidth = 52; leAyuda.minHeight = 52; leAyuda.preferredHeight = 52; leAyuda.flexibleWidth = 0;
+        ayuda.GetComponentInChildren<TextMeshProUGUI>().fontSize = 32;
+
+        // Panel de ayuda: velo que tapa todo y una tarjeta en el centro.
+        var panel = Panel(canvas, "PanelAyuda", new Color(0, 0, 0, 0.78f));
+        Estirar(panel);
+        var caja = Columna(panel, "CajaAyuda", 18, TextAnchor.UpperLeft, Tarjeta, 40);
+        Anclar(caja, new Vector2(0.22f, 0.1f), new Vector2(0.78f, 0.9f));
+        MarcoHud(caja);
+        Encabezado(caja, "EtiquetaAyuda", SpaceMission.Iconos.Pista + "  HOW TO PLAY THIS SCREEN");
+        var textoAyuda = Texto(caja, "TextoAyuda", "", 30, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        textoAyuda.lineSpacing = 10;
+        textoAyuda.enableAutoSizing = true; textoAyuda.fontSizeMin = 16; textoAyuda.fontSizeMax = 30;
+        textoAyuda.overflowMode = TextOverflowModes.Truncate;
+        textoAyuda.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var filaAyuda = Fila(caja, "BotonesAyuda", 16);
+        Alto(filaAyuda, 72);
+        var alternar = Boton(filaAyuda, "BotonAlternarGuia", "Hide tips", false);
+        var cerrar = Boton(filaAyuda, "BotonCerrarAyuda", "Close", true);
+        foreach (var b in new[] { alternar, cerrar })
+        {
+            var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.preferredWidth = -1; le.flexibleWidth = 1; le.minHeight = 72; le.preferredHeight = 72;
+        }
+
+        var ui = canvas.gameObject.AddComponent<GuiaPantallasUI>();
+        Asignar(ui, "mision", mision);
+        Asignar(ui, "configuracion", configuracion);
+        Asignar(ui, "carga", carga);
+        Asignar(ui, "cinematica", cinematica);
+        Asignar(ui, "raiz", raiz);
+        Asignar(ui, "tarjeta", tarjeta.gameObject);
+        Asignar(ui, "texto", texto);
+        Asignar(ui, "botonOcultar", ocultar);
+        Asignar(ui, "botonAyuda", ayuda);
+        Asignar(ui, "panelAyuda", panel.gameObject);
+        Asignar(ui, "textoAyuda", textoAyuda);
+        Asignar(ui, "botonAlternarGuia", alternar);
+        Asignar(ui, "botonCerrarAyuda", cerrar);
+        Asignar(ui, "pistaBriefing", pistaBriefing);
+        panel.gameObject.SetActive(false);
     }
 
     /// <summary>Vista Carga (gameplay v3): interfaz básica, misma tarjeta que la Revisión. Diego la estiliza.</summary>
@@ -1017,9 +1099,11 @@ public static partial class ConstructorEscenas
         // Centro: la guía (siguiente paso), el mapa cuadrado que se puede pulsar y la última lectura debajo.
         // Versión 5: donde antes decía «STEP 4 OF 4», la guía dice qué hacer ahora (OperacionUI.DibujarGuia).
         var paso = Texto(vista, "TextoGuia", Paso(4), 22, Cian, FontStyles.Bold, TextAlignmentOptions.Center);
-        paso.enableAutoSizing = true; paso.fontSizeMin = 15; paso.fontSizeMax = 22;
+        // Versión 6: la guía puede ocupar dos líneas (antes se cortaba); se achica antes de truncar.
+        paso.enableAutoSizing = true; paso.fontSizeMin = 13; paso.fontSizeMax = 22;
+        paso.textWrappingMode = TextWrappingModes.Normal;
         paso.overflowMode = TextOverflowModes.Truncate;
-        Anclar(paso.rectTransform, new Vector2(0.31f, 0.92f), new Vector2(0.69f, 0.975f));
+        Anclar(paso.rectTransform, new Vector2(0.31f, 0.92f), new Vector2(0.655f, 0.975f));   // a la derecha va el «?» (versión 6)
         var zonaMapa = Vacio(vista, "ZonaMapa");
         Anclar(zonaMapa, new Vector2(0.31f, 0.2f), new Vector2(0.69f, 0.915f));
         var goMapa = new GameObject("Mapa", typeof(RectTransform), typeof(UnityEngine.UI.RawImage), typeof(UnityEngine.UI.AspectRatioFitter));
