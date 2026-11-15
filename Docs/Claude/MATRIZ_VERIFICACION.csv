@@ -11,7 +11,7 @@ F3-02,Orbitas,Cero trayectorias sin seleccion,PASS,OrbitasTests (versión 7)
 F3-03,Orbitas,Cambio rapido sin ghost trail,PASS,OrbitasTests: 20 transiciones y cambios rápidos
 F3-04,Instrumentos,Cinco instrumentos siguen reglas originales,PASS,"EvaluadorTests y CalculadorTests sin cambios, en verde"
 F4-01,Investigacion,Scan con instrumento compatible,PASS,InvestigacionTests y ModoEscaneoTests en verde
-F4-02,Investigacion,Sin instrumento no hay evidencia,PASS,Operacion.Encender rechaza lo que no va a bordo (MesesTests)
+F4-02,Investigacion,Sin instrumento no hay evidencia,PASS,Operacion.Encender rechaza lo que no va a bordo (leído en el código; sin prueba propia en esta fase)
 F4-03,Investigacion,Retorno camera/satelite sin drift 10 veces,PENDIENTE,Sin prueba de 10 repeticiones; el código recoloca la cámara en cada escaneo
 F5-01,Menu,Navegacion conservada y legibilidad,PASS,RecorridoTests y OpcionesTests; casillas de Opciones arregladas
 F5-02,Audio,Lanzamiento e interfaz sound events correctos,PENDIENTE,Sin cambios de audio en esta fase; falta escucharlo
