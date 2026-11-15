@@ -27,11 +27,13 @@ namespace SpaceMission
             public AudioClip clipEs;   // español
 
             /// <summary>La grabación en el idioma del juego (si falta, la otra).</summary>
-            public AudioClip EnIdioma => Idioma.Espanol ? clipEs ?? clip : clip ?? clipEs;
+            public AudioClip EnIdioma => SegunIdioma(clip, clipEs);
         }
 
         /// <summary>De dos grabaciones de la misma frase, la del idioma del juego (si falta, la otra).</summary>
-        public static AudioClip SegunIdioma(AudioClip en, AudioClip es) => Idioma.Espanol ? es ?? en : en ?? es;
+        /// <summary>(Con el «==» de Unity: un campo sin asignar en el editor no es null para «??».)</summary>
+        public static AudioClip SegunIdioma(AudioClip en, AudioClip es) =>
+            Idioma.Espanol ? (es != null ? es : en) : (en != null ? en : es);
 
         public enum Sonido { Hover, Click, Elegir, Quitar, Pestana, Error, LuzVerde, LuzRoja, Lanzamiento, Senal }
 

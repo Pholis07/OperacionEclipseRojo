@@ -65,6 +65,10 @@ namespace SpaceMission.Tests
             StringAssert.StartsWith("Red: your spacecraft cannot reach this orbit",
                 EnConfiguracion(Config("explorador", "media", "radar+espectrometro"), ConfiguracionUI.Pestana.Orbita).Texto);
             StringAssert.StartsWith("Yellow", EnConfiguracion(Config("explorador", "eliptica", "termica+radar"), ConfiguracionUI.Pestana.Orbita).Texto);
+            // Con la nave completa manda el semáforo en cualquier pestaña (antes, en Lanzador decía «Ahora, el satélite»).
+            StringAssert.StartsWith("Red: your spacecraft cannot reach this orbit",
+                EnConfiguracion(Config("explorador", "media", "radar+espectrometro"), ConfiguracionUI.Pestana.Lanzador).Texto);
+            Assert.AreEqual("BotonRevisar", EnConfiguracion(Config("explorador", "media", "termica+radar"), ConfiguracionUI.Pestana.Satelite).Destino);
         }
 
         [Test]

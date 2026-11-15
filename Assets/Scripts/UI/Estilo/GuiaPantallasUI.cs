@@ -68,7 +68,9 @@ namespace SpaceMission
         {
             bool enCine = cinematica != null && cinematica.Reproduciendo;
             if (raiz.gameObject.activeSelf == enCine) raiz.gameObject.SetActive(!enCine);
-            if (rectAyuda != null && rectAyuda.gameObject.activeSelf == enCine) rectAyuda.gameObject.SetActive(!enCine);
+            // El «?» tampoco se ve encima de los paneles a pantalla completa de la Operación (resumen, decisión…).
+            bool ocultarAyuda = enCine || (mision.PantallaActual == PantallaMision.Operacion && mision.Operacion != null && mision.Operacion.Ocupada);
+            if (rectAyuda != null && rectAyuda.gameObject.activeSelf == ocultarAyuda) rectAyuda.gameObject.SetActive(!ocultarAyuda);
             if (enCine) { panelAyuda.SetActive(false); ResaltarGuia.Mover(ref resaltado, null); return; }
 
             var pantalla = mision.PantallaActual;

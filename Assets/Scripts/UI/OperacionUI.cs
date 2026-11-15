@@ -102,6 +102,10 @@ namespace SpaceMission
         public string UltimoMensaje => textoLectura.text;
         public bool ResumenVisible => resumenPendiente;
 
+        /// <summary>Hay algo a pantalla completa (resumen, decisión, transición de mes o vista del escaneo).</summary>
+        public bool Ocupada => Op != null && (resumenPendiente || Op.EsperandoDecision ||
+            (secuenciaEscaneo != null && secuenciaEscaneo.Activa) || (transicionMes != null && transicionMes.Activa));
+
         ReglasOperacionDatos Reglas => catalogo.reglas;
 
         void Update() => ActualizarPaneles();

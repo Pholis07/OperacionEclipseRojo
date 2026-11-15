@@ -172,7 +172,7 @@ namespace SpaceMission.Tests
             StringAssert.Contains("Your braking: <b>2,606 m/s</b>", textoNota);
             StringAssert.DoesNotContain("ln(", textoNota);
             nota.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
-            StringAssert.Contains("230 s × 9.81 × ln(1,223 kg ÷ 385 kg)", ui.TextoAyuda);
+            StringAssert.Contains("230 s × 9.807 × ln(1,223 kg ÷ 385 kg)", ui.TextoAyuda);
         }
 
         [Test]

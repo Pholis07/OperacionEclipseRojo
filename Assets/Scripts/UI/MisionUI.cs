@@ -32,6 +32,7 @@ namespace SpaceMission
         [SerializeField] TutorialUI tutorial;
 
         public CatalogoDatos Catalogo => catalogo;
+        public OperacionUI Operacion => operacion;
 
         void Awake()
         {

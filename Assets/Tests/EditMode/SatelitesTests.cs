@@ -104,11 +104,14 @@ namespace SpaceMission.Tests
         [Test]
         public void SiNoAlcanzaSeBloqueaLanzarHastaUsarElMro()
         {
-            // Radar y espectrómetro en el Explorador: 495 de 500 kg.
-            var c = new Configuracion("media", "explorador", new[] { "radar", "espectrometro" }) { SateliteId = "chandra" };
-            var carga = new Carga(Evaluador.Evaluar(c, catalogo), c, catalogo);
-            Assert.AreEqual(-35, carga.MasaLibreKg, "40 kg no caben en 5");
-            Assert.AreEqual(0, carga.Combustible);
+            // Versión 6: el satélite cuenta en la masa desde la Configuración, así que en la Carga solo puede faltar
+            // dinero. Nivel 3, Titán elíptica con térmica, radar y atmosférico: sobran 20 créditos y el Chandra cuesta 30.
+            var nivel = catalogo.Nivel(2);
+            var c = new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico" }) { SateliteId = "chandra" };
+            var e = Evaluador.Evaluar(c, catalogo, nivel);
+            Assert.IsTrue(e.SePuedeLanzar, "la configuración se puede lanzar");
+            var carga = new Carga(e, c, catalogo, nivel);
+            Assert.AreEqual(-10, carga.CreditosDisponibles, "faltan 10 créditos para el Chandra");
             Assert.IsFalse(carga.PuedeLanzar);
             Assert.IsFalse(carga.Cargar("reconfiguracion"));
 
@@ -116,7 +119,7 @@ namespace SpaceMission.Tests
             Assert.AreEqual("mro", carga.Satelite.id);
             Assert.AreEqual("mro", c.SateliteId, "la configuración también cambia");
             Assert.IsTrue(carga.PuedeLanzar);
-            Assert.AreEqual(0, carga.Combustible, "5 kg libres no dan combustible");
+            Assert.AreEqual(20, carga.CreditosDisponibles);
         }
 
         [Test]
@@ -278,10 +281,12 @@ namespace SpaceMission.Tests
         {
             UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
             EstadoJuego.Reiniciar();
-            EstadoJuego.Configuracion = new Configuracion("media", "explorador", new[] { "radar", "espectrometro" }) { SateliteId = "chandra" };
+            EstadoJuego.NivelIndice = 2;   // nivel 3: solo faltan créditos (versión 6, el satélite ya pesa en la Configuración)
+            EstadoJuego.Configuracion = new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico" }) { SateliteId = "chandra" };
             var ui = Object.FindFirstObjectByType<CargaUI>(FindObjectsInactive.Include);
             Assert.IsNotNull(ui, "Falta CargaUI en la escena Mision");
-            ui.Mostrar(Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo));
+            EstadoJuego.Resultado = Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo, catalogo.Nivel(2));
+            ui.Mostrar(EstadoJuego.Resultado);
 
             var so = new SerializedObject(ui);
             var lanzar = (UnityEngine.UI.Button)so.FindProperty("botonLanzar").objectReferenceValue;
@@ -296,6 +301,8 @@ namespace SpaceMission.Tests
             Assert.IsTrue(lanzar.interactable);
             Assert.IsFalse(usarMro.gameObject.activeSelf);
             Assert.AreEqual("mro", EstadoJuego.Configuracion.SateliteId);
+            Assert.AreEqual(455, EstadoJuego.Resultado.Calculo.MasaKg, "la evaluación guardada ya no cuenta el Chandra");
+            EstadoJuego.NivelIndice = 1;
         }
 
         [Test]

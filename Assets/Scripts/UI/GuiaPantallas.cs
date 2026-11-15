@@ -41,6 +41,8 @@ namespace SpaceMission
             if (pasado)
                 return new ConsejoPantalla(Idioma.T("A bar is in red: remove an instrument or the heavy satellite, or switch rockets."), "PanelDerecho");
 
+            // Con la nave completa manda el semáforo (abajo), esté en la pestaña que esté.
+            if (!(conInstrumentos && conOrbita))
             switch (pestana)
             {
                 case ConfiguracionUI.Pestana.Lanzador:

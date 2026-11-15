@@ -171,7 +171,7 @@ namespace SpaceMission
             if (Alcance.Activo(lanzador, reglas))
             {
                 int masa = Calculador.MasaSecaKg(c, catalogo, nivel);
-                texto += Idioma.T("\nYour braking = ") + reglas.impulsoEspecificoS + " s × 9.81 × ln(" +
+                texto += Idioma.T("\nYour braking = ") + reglas.impulsoEspecificoS + " s × 9.807 × ln(" +
                          TextosBriefing.Numero(lanzador.masaInyectadaKg) + " kg ÷ " + TextosBriefing.Numero(masa) + " kg) = <b>" +
                          TextosBriefing.Numero(Alcance.DeltaVDisponibleMs(lanzador, masa, reglas)) + " m/s</b>";
             }

@@ -59,6 +59,12 @@ namespace SpaceMission
         public void UsarMro()
         {
             Carga.UsarMro();
+            // Versión 6: el satélite cuenta en la masa. La evaluación guardada se rehace con el MRO para que el
+            // informe y las barras (al volver a la Configuración) digan la masa real.
+            var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
+            EstadoJuego.Resultado = Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo, nivel);
+            var configuracion = FindFirstObjectByType<ConfiguracionUI>(FindObjectsInactive.Include);
+            if (configuracion != null) configuracion.Recalcular();
             Refrescar();
         }
 
