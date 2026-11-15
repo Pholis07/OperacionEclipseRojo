@@ -2,7 +2,7 @@
 
 ## Versión 4 (Operación por meses), 2026-11-14
 
-Ejecutado en esta sesión sobre la rama `feat/meses`, commit `''' + '''` más el ajuste de marcas del mapa. Unity 6000.6.9f1 en modo batch, Linux. Sustituye a los resultados de abajo para todo lo que toca la Operación: las reglas nuevas invalidan las pruebas de la v3.
+Ejecutado en esta sesión sobre la rama `feat/meses`, commit `e9430e8` más el ajuste de marcas del mapa (`87fb996`). Unity 6000.6.9f1 en modo batch, Linux. Sustituye a los resultados de abajo para todo lo que toca la Operación: las reglas nuevas invalidan las pruebas de la v3.
 
 | Conjunto | Total | Pasan | Fallan |
 |---|---|---|---|
