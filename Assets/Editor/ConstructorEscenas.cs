@@ -1944,7 +1944,7 @@ public static partial class ConstructorEscenas
         explorador.localPosition = new Vector3(-3.3f, 0, 0);
         var superiorExplorador = ConstruirAres(explorador);
         // Logo del patrocinador en la etapa superior, por delante y por detrás (calcomanía curva).
-        float alturaLogoExp = AltoExplorador * 0.68f;
+        float alturaLogoExp = AltoExplorador * 0.635f;   // en la franja color espuma, bajo la banda negra
         LogoPatrocinio(superiorExplorador, "Fence", false, RadioNucleo(explorador, alturaLogoExp) + 0.012f, alturaLogoExp, 0.5f, explorador);
         explorador.gameObject.AddComponent<GiroLento>().enabled = false;
 
@@ -1961,7 +1961,19 @@ public static partial class ConstructorEscenas
         LogoPatrocinio(slsModelo.inferior != null ? slsModelo.inferior.transform : sls, "Security", true,
             RadioNucleo(sls, alturaLogo) + 0.012f, alturaLogo, 1.35f, sls);
         foreach (int lado in new[] { -1, 1 })   // brillo de los motores al pie (el Bloom lo hace resplandecer)
-            Pieza(PrimitiveType.Cylinder, "Llama", sls, new Vector3(lado * 0.7f, 0.02f, 0), Vector3.zero, new Vector3(0.3f, 0.005f, 0.3f), llama);
+            Pieza(PrimitiveType.Cylinder, "Llama", sls, new Vector3(lado * 0.7f, 0.035f, 0), Vector3.zero, new Vector3(0.3f, 0.005f, 0.3f), llama);   // sobre el foso (0.02), sin tocarlo
+        if (slsModelo.inferior != null && slsModelo.superior != null)
+        {
+            // El SLS viene en dos archivos con las bocas abiertas: se tapan el núcleo (arriba) y la etapa superior (abajo).
+            var interiorSls = CrearMaterial("NASA_Cohete_SLS_Interior", Hex("#23272E"), 0.35f, 0.3f);
+            float union = sls.InverseTransformPoint(Limites(slsModelo.superior).min).y;
+            var nucleo = slsModelo.inferior.GetComponentsInChildren<MeshFilter>(true).Where(mf => mf.name.EndsWith("_Nucleo"));
+            TaparObjeto(sls, slsModelo.inferior.transform, nucleo, union, true, interiorSls, "SLS_Tapa_Nucleo");
+            var etapa = slsModelo.superior.GetComponentsInChildren<MeshFilter>(true).Where(mf => mf.name.EndsWith("_Etapa"));
+            TaparObjeto(sls, slsModelo.superior.transform, etapa, union, false, interiorSls, "SLS_Tapa_Superior");
+        }
+        if (slsModelo.superior != null)
+            MedirCohete(sls, 11f, new[] { slsModelo.superior.transform.Find("NarizIzq"), slsModelo.superior.transform.Find("NarizDer") }, 0.47f);
         sls.gameObject.AddComponent<GiroLento>().enabled = false;
 
         // Anillos que señalan el lanzador elegido.
@@ -1998,7 +2010,7 @@ public static partial class ConstructorEscenas
         mat.EnableKeyword("_ALPHATEST_ON");
         mat.renderQueue = (int)RenderQueue.AlphaTest;
         EditorUtility.SetDirty(mat);
-        var malla = GuardarMalla(ParcheCilindro(radio, alto), "Logo_" + cual + "_" + Mathf.RoundToInt(radio * 1000));
+        var malla = GuardarMalla(ParcheCilindro(radio, alto), "Logo_" + cual + "_" + Mathf.RoundToInt(radio * 1000) + "x" + Mathf.RoundToInt(alto * 1000));   // radio y lado: dos cohetes del mismo radio no comparten parche
         referencia = referencia != null ? referencia : padre;
         foreach (var (nombre, giro) in new[] { ("LogoFrente", 0f), ("LogoDetras", 180f) })
         {
@@ -2040,7 +2052,7 @@ public static partial class ConstructorEscenas
     }
 
     /// <summary>Radio del núcleo del cohete a una altura dada (vértices cerca del eje X = 0), en su espacio local.</summary>
-    static float RadioNucleo(Transform cohete, float altura)
+    static float RadioNucleo(Transform cohete, float altura, float lado = 0.7f)
     {
         float radio = 0f;
         foreach (var mf in cohete.GetComponentsInChildren<MeshFilter>())
@@ -2049,7 +2061,7 @@ public static partial class ConstructorEscenas
             foreach (var vert in mf.sharedMesh.vertices)
             {
                 var p = cohete.InverseTransformPoint(mf.transform.TransformPoint(vert));
-                if (Mathf.Abs(p.y - altura) < 0.35f && Mathf.Abs(p.x) < 0.12f) radio = Mathf.Max(radio, Mathf.Abs(p.z));
+                if (Mathf.Abs(p.y - altura) < lado * 0.5f && Mathf.Abs(p.x) < 0.12f) radio = Mathf.Max(radio, Mathf.Abs(p.z));
             }
         }
         return radio > 0.05f ? radio : 0.47f;

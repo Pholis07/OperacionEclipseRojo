@@ -301,8 +301,7 @@ namespace SpaceMission
             var camSuelo = basePos + new Vector3(alto * 0.75f, 0.5f, -alto * 1.45f);
             for (float t = 0f; Sigue(t, 4f, 6f); t += Time.deltaTime)
             {
-                float giro = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 1.1f));
-                for (int i = 0; i < brazos.Length; i++) if (brazos[i] != null) brazos[i].localRotation = Quaternion.Euler(0f, -75f * giro, 0f);
+                RetirarBrazos(Mathf.Clamp01(t / 1.1f));
                 if (t > 1.1f)
                 {
                     float u = t - 1.1f;
@@ -410,7 +409,13 @@ namespace SpaceMission
             var escalaSat = sat.localScale;
             var nariz = Vector3.zero;
             foreach (var c in cofia) nariz += CentroVisual(c) / cofia.Length;
-            var radioNariz = alto * 0.028f;   // nariz del SLS y del Ares: misma proporción
+            // El radio libre de la cofia se mide en cada cohete (antes era una proporción fija del SLS y el Ares).
+            var perfilCohete = cohete.GetComponent<PerfilCohete>();
+            var radioNariz = perfilCohete != null ? perfilCohete.RadioCarga : alto * 0.028f;
+            // La carga va en la parte ancha de la cofia (a un tercio de su altura), no en su centro: ahí cabe.
+            if (perfilCohete != null) nariz -= adelante * perfilCohete.AltoCofia * 0.2f;
+            // La cámara no se acerca más que esto, aunque la cofia sea muy fina (plano cercano de la cámara).
+            float radioToma = Mathf.Max(radioNariz, alto * 0.016f);
             // El satélite viaja dentro de la cofia, a una escala que cabe en ella.
             sat.localScale = escalaSat;
             float tamano = Mathf.Max(0.01f, TamanoVisual(sat));
@@ -481,7 +486,7 @@ namespace SpaceMission
                 // Cámara de lado, acercándose a la nariz y siguiendo luego al satélite.
                 var mira = Vector3.Lerp(centroNariz, sat.position, Mathf.Clamp01((t - 2f) / 2.5f));
                 // Cerca, a la escala de la nariz: el satélite (pequeño, cabía en la cofia) llena buena parte del cuadro.
-                var dist = radioNariz * Mathf.Lerp(10f, 4.2f, Mathf.Clamp01(t / 5.4f));
+                var dist = radioToma * Mathf.Lerp(10f, 4.2f, Mathf.Clamp01(t / 5.4f));
                 Mirar(mira + lateral * dist + Vector3.up * dist * 0.35f - adelante * dist * 0.4f, mira, 40f);
                 yield return null;
             }
@@ -718,17 +723,33 @@ namespace SpaceMission
             foreach (var c in cohetesExtra) { Mostrar(c.llamas, false); Mostrar(c.llamaSuperior, false); }
             if (luzMotores != null) luzMotores.enabled = false;
             if (destello != null) destello.alpha = 0f;
-            // Los brazos de la torre, a la altura del cohete elegido y pegados a él.
+            // Los brazos de la torre, a la altura del cohete elegido y con el largo justo para tocar su costado.
+            var perfil = cohete != null ? cohete.GetComponent<PerfilCohete>() : null;
             for (int i = 0; i < brazos.Length; i++)
             {
                 if (brazos[i] == null) continue;
                 var p = brazos[i].localPosition;
-                brazos[i].localPosition = new Vector3(p.x, alto * (0.3f + 0.22f * i), p.z);
+                float altura = alto * (0.3f + 0.22f * i);
+                brazos[i].localPosition = new Vector3(p.x, altura, p.z);
                 brazos[i].localRotation = Quaternion.identity;
+                var brazo = brazos[i].GetComponent<BrazoTorre>();
+                if (brazo != null) brazo.Ajustar(perfil != null ? perfil.HaciaTorre(altura - 0.3f, altura + 0.3f) : alto * 0.04f);
             }
             foreach (var ps in new[] { chispas, vapor, estela, aves, pirotecnia, gasFrio })
                 if (ps != null) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        /// <summary>0 = brazos apoyados en el cohete; 1 = retirados (primero sueltan los umbilicales).</summary>
+        void RetirarBrazos(float k)
+        {
+            foreach (var b in brazos)
+            {
+                if (b == null) continue;
+                var brazo = b.GetComponent<BrazoTorre>();
+                if (brazo != null) brazo.Retirar(k);
+                else b.localRotation = Quaternion.Euler(0f, 75f * Mathf.SmoothStep(0f, 1f, k), 0f);
+            }
         }
 
         /// <summary>Guarda la pose de todo lo que la cinemática mueve, para dejarlo igual al terminar u omitir.</summary>

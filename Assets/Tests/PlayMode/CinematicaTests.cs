@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -88,6 +89,50 @@ namespace SpaceMission.PlayTests
             Assert.IsNotNull(voz, "la transmisión inicial suena al terminar la cinemática");
             Assert.AreEqual(!espanol, voz.name.EndsWith("_en"), "la voz va en el idioma del juego: " + voz.name);
             Assert.LessOrEqual(Atenuacion.VocesSonando, 1);
+        }
+
+        /// <summary>
+        /// Renovación visual: la cinemática termina con los seis lanzadores (a tiempo acelerado) y deja todo como
+        /// estaba: cohete y brazos en su sitio y el satélite a su escala. Un error en el registro hace fallar la prueba.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator LaCinematicaTerminaConCadaLanzador(
+            [Values("pionero", "explorador", "horizonte", "titan", "goliat", "coloso")] string lanzador)
+        {
+            Preferencias.ReducirMovimiento = false;
+            SceneManager.LoadScene("Mision");
+            int cuadros = 0;
+            while (SceneManager.GetActiveScene().name != "Mision" && cuadros++ < 600) yield return null;
+            yield return null;
+            EstadoJuego.Configuracion = new Configuracion("media", lanzador, new[] { "radar" });
+            var director = Object.FindFirstObjectByType<DirectorCinematica>();
+            var escenario = Object.FindFirstObjectByType<EscenarioOrbital>(FindObjectsInactive.Include);
+            var escala = escenario.Satelite.localScale;
+            var brazos = Object.FindObjectsByType<BrazoTorre>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            Assert.AreEqual(3, brazos.Length);
+            var cohetes = Object.FindObjectsByType<PerfilCohete>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var poses = cohetes.Select(c => (c.transform, c.transform.localPosition, c.transform.localRotation)).ToArray();
+            int finales = 0;
+            director.AlTerminar += () => finales++;
+            Time.timeScale = 6f;
+            try
+            {
+                director.Reproducir();
+                Assert.IsTrue(director.Reproduciendo);
+                float inicio = Time.realtimeSinceStartup;
+                while (director.Reproduciendo && Time.realtimeSinceStartup - inicio < 60f) yield return null;
+                Assert.IsFalse(director.Reproduciendo, "la cinemática no terminó");
+            }
+            finally { Time.timeScale = 1f; }
+            yield return null;
+            Assert.AreEqual(1, finales, "el final se avisa una sola vez");
+            Assert.AreEqual(escala, escenario.Satelite.localScale, "el satélite vuelve a su escala");
+            foreach (var b in brazos) Assert.Less(Quaternion.Angle(Quaternion.identity, b.transform.localRotation), 0.1f, "los brazos vuelven a su sitio");
+            foreach (var (t, p, r) in poses)
+            {
+                Assert.Less((t.localPosition - p).magnitude, 1e-3f, t.name + " vuelve a su posición");
+                Assert.Less(Quaternion.Angle(t.localRotation, r), 0.1f, t.name + " vuelve a su giro");
+            }
         }
 
         [UnityTest]

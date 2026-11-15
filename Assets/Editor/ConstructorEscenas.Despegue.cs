@@ -110,17 +110,12 @@ public static partial class ConstructorEscenas
         }
         Pieza(PrimitiveType.Cube, "Cima", torre, new Vector3(0, altoTorre + 0.2f, 0), Vector3.zero, new Vector3(lado + 0.3f, 0.4f, lado + 0.3f), matTorreAcento);
         Pieza(PrimitiveType.Cylinder, "Antena", torre, new Vector3(0, altoTorre + 2.4f, 0), Vector3.zero, new Vector3(0.12f, 2f, 0.12f), matTorre);
-        // Brazos: el pivote en la cara de la torre; giran hacia un lado para soltar el cohete.
+        // Brazos telescópicos: el pivote en la esquina de la torre, apuntando al eje del cohete. La cinemática los
+        // ajusta al cohete elegido (BrazoTorre.Ajustar) y los retira girándolos lejos de él.
+        var matCable = CrearMaterial("Torre_Cable", Hex("#22262C"), 0.2f, 0.3f);
         var brazos = new List<Transform>();
         for (int i = 0; i < 3; i++)
-        {
-            var pivote = new GameObject("Brazo" + i).transform;
-            pivote.SetParent(torre, false);
-            pivote.localPosition = new Vector3(-lado / 2, 3f + i * 2.5f, -lado / 2);
-            Pieza(PrimitiveType.Cube, "Viga", pivote, new Vector3(0.6f, 0f, -1.1f), Vector3.zero, new Vector3(0.35f, 0.3f, 2.4f), matTorreAcento);
-            Pieza(PrimitiveType.Cube, "Baranda", pivote, new Vector3(0.6f, 0.35f, -1.1f), Vector3.zero, new Vector3(0.36f, 0.05f, 2.4f), matTorre);
-            brazos.Add(pivote);
-        }
+            brazos.Add(ConstruirBrazo(torre, "Brazo" + i, new Vector3(PivoteBrazo.x, 3f + i * 2.5f, PivoteBrazo.z - 3.4f), matTorre, matTorreAcento, matCable).transform);
         c.brazos = brazos.ToArray();
 
         // ----- Pararrayos, torre de agua, reflectores y edificios -----
