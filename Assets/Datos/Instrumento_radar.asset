@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: Instrumento_radar
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: radar
-  nombre: "Subsurface radar"
-  masaKg: 170
-  potenciaNormalW: 180
-  extraTormentaW: 20
+  nombre: Subsurface radar
+  masaKg: 45
+  potenciaNormalW: 50
+  extraTormentaW: 0
   costoCr: 260
   bloquesDatos: 2
-  pistaAsociada: "evidence of what lies beneath the surface"
-  textoAyuda: "Penetrates the dust and the surface and provides evidence of what lies beneath the surface. Power: 200 W: 180 W normal + 20 W due to the storm."
+  pistaAsociada: evidence of what lies beneath the surface
+  textoAyuda: Penetrates the dust and the surface and provides evidence of what lies beneath the surface.
+  datoNasa: 'Based on SHARAD (MRO): 15 kg, 10 W of transmitted power, sees down to about 1 km below the surface.'
+  datoNasaEs: 'Basado en SHARAD (MRO): 15 kg, 10 W de potencia emitida, ve hasta ~1 km bajo la superficie.'
+  fuenteNasa: NASA/JPL (MRO)

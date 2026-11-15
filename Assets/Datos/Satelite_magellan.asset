@@ -17,6 +17,9 @@ MonoBehaviour:
   inspiradoEn: Magellan (1989)
   descripcion: Mapped almost the entire surface of Venus by radar. Its large antenna also served as the radar.
   credito: '3D model: NASA 3D Resources'
+  datoNasa: "Mapped 98% of Venus with radar (120\u2013300 m resolution) and was the first planetary spacecraft to use aerobraking."
+  datoNasaEs: "Cartografi\xF3 el 98% de Venus con radar (resoluci\xF3n de 120 a 300 m) y fue la primera nave planetaria en usar aerofrenado."
+  fuenteNasa: NASA
   costoCr: 30
   masaKg: 10
   ventaja: 'The subsurface radar reads 30% farther. Aerobraking pioneer: changing altitude costs 2 fuel.'

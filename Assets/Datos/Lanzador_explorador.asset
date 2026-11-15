@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Lanzador_explorador
   m_EditorClassIdentifier: SpaceMission::SpaceMission.LanzadorDatos
   id: explorador
-  nombre: "Explorer"
+  nombre: Explorer
   costoCr: 190
-  capacidadKg: 650
+  capacidadKg: 500
   espacios: 2
-  descripcion: "Light and affordable"
+  descripcion: Light and affordable
+  datoNasa: Inspired by Soyuz-Fregat, which sent ESA's Mars Express (about 1.2 t) to Mars. The game keeps its own capacities.
+  datoNasaEs: "Inspirado en el Soyuz-Fregat, que envi\xF3 a Marte la Mars Express de la ESA (~1.2 t). El juego usa capacidades propias."
+  fuenteNasa: ESA

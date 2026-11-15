@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: Instrumento_atmosferico
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: atmosferico
-  nombre: "Atmospheric sensor"
-  masaKg: 50
-  potenciaNormalW: 60
-  extraTormentaW: 10
+  nombre: Atmospheric sensor
+  masaKg: 25
+  potenciaNormalW: 55
+  extraTormentaW: 0
   costoCr: 90
   bloquesDatos: 1
-  pistaAsociada: "information about the storm's environment"
-  textoAyuda: "Measures the dust and the air temperature and provides information about the storm's environment. Power: 70 W: 60 W normal + 10 W due to the storm."
+  pistaAsociada: information about the storm's environment
+  textoAyuda: Measures the dust and the air temperature and provides information about the storm's environment.
+  datoNasa: "Based on the Mars Climate Sounder (MRO): 9 kg, 11 W, 9 channels from 0.3 to 45 \xB5m, one reading every 5 km in height."
+  datoNasaEs: "Basado en el Mars Climate Sounder (MRO): 9 kg, 11 W, 9 canales de 0.3 a 45 \xB5m, un dato cada 5 km de altura."
+  fuenteNasa: NASA/JPL (MRO)

@@ -357,3 +357,14 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - La IA recortó los logos con un script propio (se conserva el blanco interior del toro), hizo el mapa de Marte de 8K en dos mitades de 4096 para WebGL, shaders propios (`Planeta`, `Cielo`, `Llama`, `Aditivo`), el complejo de lanzamiento por código, la transición de meses, el final animado y 18 audios con ElevenLabs (unos 644 créditos).
 - Único cambio en código de Adrian: el evento `OperacionUI.AlResolverMes` y la transición en la condición que retrasa el dibujo del resumen. La lógica sigue igual y en el mismo cuadro.
 - Detalle completo en `ECLIPSE-IMPLEMENTACION.md` (sección «Pulido de presentación»).
+
+## Versión 5, bloque 1: valores basados en datos de la NASA
+
+- Adrian pidió que todo se base en datos de la NASA. La IA lanzó dos investigaciones con fuentes (instrumentos, naves y lanzadores; órbitas, comunicaciones y texturas) y preguntó el alcance. Adrian eligió el modo mixto: proporciones reales con números ajustados al juego.
+- La IA buscó un factor que conservara el resultado de los 19 casos y lo comprobó con un cálculo antes de proponerlo: masa × 3 y potencia × 5 de THEMIS, SHARAD, HiRISE, MCS y CRISM. Solo cambian el costo de la alta resolución (200) y la capacidad del Explorador (500 kg). Adrian lo aprobó.
+- `DatosNasa.cs` escribe los valores y el dato real (inglés y español, con fuente) de instrumentos, órbitas, lanzadores y satélites. La ayuda de cada opción lo muestra como «NASA data: …».
+- Las pruebas que fijaban los números viejos se actualizaron:
+  - Las tablas de los 19 casos se recalcularon con un script.
+  - Las pruebas que dependían de poco combustible usan ahora naves más cargadas (radar con espectrómetro, o el Titán con alta resolución).
+  - Prueba nueva: cada opción tiene su dato NASA en los dos idiomas.
+- Pasan las 213 pruebas EditMode y las 19 PlayMode.

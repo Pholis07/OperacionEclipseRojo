@@ -17,6 +17,9 @@ MonoBehaviour:
   inspiradoEn: Chandra (1999)
   descripcion: 'X-ray space telescope: a very long optical tube with two wings of solar panels.'
   credito: '3D model: NASA 3D Resources'
+  datoNasa: 4,790 kg and very precise pointing, but only 1.8 Gb of onboard storage (MRO has 160 Gb).
+  datoNasaEs: 4,790 kg y un apunte muy preciso, pero solo 1.8 Gb de memoria a bordo (el MRO tiene 160 Gb).
+  fuenteNasa: NASA NSSDC / Harvard-Smithsonian
   costoCr: 30
   masaKg: 40
   ventaja: 'Very precise pointing: loss of orientation does not affect it, and the thermal and high-resolution cameras read 20% farther.'

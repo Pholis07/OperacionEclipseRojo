@@ -74,7 +74,7 @@ namespace SpaceMission.Tests
 
         Carga CargaCaso2(string satelite, MisionDatos nivel = null)
         {
-            var c = new Configuracion("media", "explorador", new[] { "termica", "radar" }) { SateliteId = satelite };   // sobran 430 cr y 30 kg
+            var c = new Configuracion("media", "explorador", new[] { "termica", "radar" }) { SateliteId = satelite };   // sobran 430 cr y 70 kg
             return new Carga(Evaluador.Evaluar(c, catalogo, nivel), c, catalogo, nivel);
         }
 
@@ -84,7 +84,7 @@ namespace SpaceMission.Tests
             var carga = CargaCaso2(null);
             Assert.AreEqual("mro", carga.Satelite.id);
             Assert.AreEqual(430, carga.CreditosDisponibles);
-            Assert.AreEqual(3, carga.Combustible);
+            Assert.AreEqual(7, carga.Combustible);
             Assert.IsTrue(carga.PuedeLanzar);
         }
 
@@ -93,19 +93,20 @@ namespace SpaceMission.Tests
         {
             var carga = CargaCaso2("magellan");
             Assert.AreEqual(400, carga.CreditosDisponibles);
-            Assert.AreEqual(20, carga.MasaLibreKg);
-            Assert.AreEqual(2, carga.Combustible);
+            Assert.AreEqual(60, carga.MasaLibreKg);
+            Assert.AreEqual(6, carga.Combustible);
             Assert.IsTrue(carga.Cargar("bateria"));
-            Assert.AreEqual(0, carga.Combustible);
+            Assert.AreEqual(4, carga.Combustible);
             Assert.AreEqual(70, carga.CreditosGastados);
         }
 
         [Test]
         public void SiNoAlcanzaSeBloqueaLanzarHastaUsarElMro()
         {
-            var c = new Configuracion("media", "explorador", new[] { "termica", "radar" }) { SateliteId = "chandra" };
+            // Radar y espectrómetro en el Explorador: 495 de 500 kg.
+            var c = new Configuracion("media", "explorador", new[] { "radar", "espectrometro" }) { SateliteId = "chandra" };
             var carga = new Carga(Evaluador.Evaluar(c, catalogo), c, catalogo);
-            Assert.AreEqual(-10, carga.MasaLibreKg, "40 kg no caben en 30");
+            Assert.AreEqual(-35, carga.MasaLibreKg, "40 kg no caben en 5");
             Assert.AreEqual(0, carga.Combustible);
             Assert.IsFalse(carga.PuedeLanzar);
             Assert.IsFalse(carga.Cargar("reconfiguracion"));
@@ -114,7 +115,7 @@ namespace SpaceMission.Tests
             Assert.AreEqual("mro", carga.Satelite.id);
             Assert.AreEqual("mro", c.SateliteId, "la configuración también cambia");
             Assert.IsTrue(carga.PuedeLanzar);
-            Assert.AreEqual(3, carga.Combustible);
+            Assert.AreEqual(0, carga.Combustible, "5 kg libres no dan combustible");
         }
 
         [Test]
@@ -148,7 +149,7 @@ namespace SpaceMission.Tests
 
         // ---------- Operación por meses ----------
 
-        /// <summary>Titán en elíptica, nivel 1 (sobran 370 cr y 80 kg; 800 W; sin eventos), anomalía en el centro.</summary>
+        /// <summary>Titán en elíptica, nivel 1 (sobran 370 cr y 295 kg: 20 de combustible, el tope; 800 W; sin eventos), anomalía en el centro.</summary>
         Operacion Nueva(string satelite)
         {
             var c = new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico" }) { SateliteId = satelite };
@@ -204,14 +205,14 @@ namespace SpaceMission.Tests
 
             Assert.IsTrue(op.PlanearManiobra(Altitud.Baja));
             Resolver(op);
-            Assert.AreEqual(7 - 2 - 1, op.Combustible, "2 de la maniobra y 1 de arrastre");
+            Assert.AreEqual(20 - 2 - 1, op.Combustible, "2 de la maniobra y 1 de arrastre");
         }
 
         [Test]
         public void ChandraLeeMasLejosConLasCamarasYNoSeDesorienta()
         {
             var op = Nueva("chandra");
-            Assert.AreEqual(4, op.Combustible, "40 kg menos");
+            Assert.AreEqual(20, op.Combustible, "255 kg libres: sigue en el tope (el peso del Chandra se nota en naves más cargadas)");
             op.AplicarEvento(Evento("orientacion"));
             Assert.IsFalse(op.EsperandoDecision);
             Assert.IsTrue(op.UltimoEvento.EvitadoPorSatelite);
@@ -276,7 +277,7 @@ namespace SpaceMission.Tests
         {
             UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
             EstadoJuego.Reiniciar();
-            EstadoJuego.Configuracion = new Configuracion("media", "explorador", new[] { "termica", "radar" }) { SateliteId = "chandra" };
+            EstadoJuego.Configuracion = new Configuracion("media", "explorador", new[] { "radar", "espectrometro" }) { SateliteId = "chandra" };
             var ui = Object.FindFirstObjectByType<CargaUI>(FindObjectsInactive.Include);
             Assert.IsNotNull(ui, "Falta CargaUI en la escena Mision");
             ui.Mostrar(Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo));
@@ -327,7 +328,7 @@ namespace SpaceMission.Tests
             var op = Nueva("aztechsat");
             Assert.AreEqual(700, op.LimiteW, "800 − 100");
             Assert.AreEqual(5, op.MemoriaCapacidad, "6 − 1");
-            Assert.AreEqual(8, op.Combustible, "no pesa: 80 kg libres");
+            Assert.AreEqual(20, op.Combustible, "no pesa: el tope de 20");
         }
 
         [Test]
@@ -358,8 +359,8 @@ namespace SpaceMission.Tests
                 var e = Evaluador.Evaluar(c, catalogo);
                 Assert.AreEqual(CategoriaResultado.Victoria, e.Categoria, s.id);
                 Assert.AreEqual(820, e.Calculo.CostoCr, s.id);
-                Assert.AreEqual(620, e.Calculo.MasaKg, s.id);
-                Assert.AreEqual(430, e.Calculo.PotenciaW, s.id);
+                Assert.AreEqual(430, e.Calculo.MasaKg, s.id);
+                Assert.AreEqual(220, e.Calculo.PotenciaW, s.id);
             }
         }
     }

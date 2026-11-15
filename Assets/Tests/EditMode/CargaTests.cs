@@ -55,8 +55,8 @@ namespace SpaceMission.Tests
         {
             var carga = NuevaCarga(Caso2());
             Assert.AreEqual(430, carga.CreditosDisponibles);
-            Assert.AreEqual(30, carga.MasaLibreKg);
-            Assert.AreEqual(3, carga.Combustible);
+            Assert.AreEqual(70, carga.MasaLibreKg, "versión 5: 430 kg en un Explorador de 500");
+            Assert.AreEqual(7, carga.Combustible);
         }
 
         [Test]
@@ -65,12 +65,12 @@ namespace SpaceMission.Tests
             var carga = NuevaCarga(Caso2());
             Assert.IsTrue(carga.Cargar("bateria"));
             Assert.AreEqual(390, carga.CreditosDisponibles);
-            Assert.AreEqual(1, carga.Combustible, "quedan 10 kg libres");
-            Assert.IsFalse(carga.Cargar("refrigeracion"), "15 kg no caben en 10 kg");
-            Assert.IsTrue(carga.Cargar("reconfiguracion"));
-            Assert.AreEqual(0, carga.Combustible);
+            Assert.AreEqual(5, carga.Combustible, "quedan 50 kg libres");
+            Assert.IsTrue(carga.Cargar("refrigeracion"));
+            Assert.AreEqual(3, carga.Combustible, "quedan 35 kg libres");
+            Assert.IsFalse(carga.Cargar("reconfiguracion"), "la bodega solo tiene dos espacios");
             carga.Quitar("bateria");
-            Assert.AreEqual(2, carga.Combustible);
+            Assert.AreEqual(5, carga.Combustible);
             Assert.AreEqual(400, carga.CreditosDisponibles);
         }
 
@@ -78,7 +78,7 @@ namespace SpaceMission.Tests
         public void LaBodegaSoloTieneDosEspacios()
         {
             var carga = NuevaCarga(TitanEliptica(), catalogo.Nivel(0));   // 1,500 cr: sobra para todo
-            Assert.AreEqual(8, carga.Combustible);
+            Assert.AreEqual(20, carga.Combustible, "455 kg en 750: el tope de 20");
             Assert.IsTrue(carga.Cargar("reconfiguracion"));
             Assert.IsTrue(carga.Cargar("giroscopio"));
             Assert.AreEqual(0, carga.EspaciosLibres);
@@ -110,7 +110,7 @@ namespace SpaceMission.Tests
             carga.Cargar("bateria");
             var op = new Operacion(e, c, catalogo, null, 1, carga);
             op.ProgramarEventos(new EventoDatos[0], new int[0]);
-            Assert.AreEqual(1, op.Combustible);
+            Assert.AreEqual(5, op.Combustible);
 
             op.AplicarEvento(catalogo.eventos.First(x => x.id == "micrometeorito"));
             Assert.IsFalse(op.Opciones.Any(o => o.efecto == EfectoOpcion.UsarHerramienta), "la reconfiguración no subió");

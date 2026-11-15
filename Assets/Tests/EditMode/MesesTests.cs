@@ -37,10 +37,10 @@ namespace SpaceMission.Tests
 
         static Configuracion ConfigCaso2() => new Configuracion("media", "explorador", new[] { "termica", "radar" });
 
-        /// <summary>Caso 2 en el nivel 2: sobran 430 cr y 3 de combustible; límite de 700 W; exige térmica y radar.</summary>
+        /// <summary>Caso 2 en el nivel 2: sobran 430 cr y 7 de combustible (70 kg libres); límite de 700 W; exige térmica y radar.</summary>
         Operacion Caso2(params string[] herramientas) => Nueva(ConfigCaso2(), null, herramientas);
 
-        /// <summary>Titán en elíptica, nivel 1: sobran 370 cr y 8 de combustible; límite de 800 W; sin eventos.</summary>
+        /// <summary>Titán en elíptica, nivel 1: sobran 370 cr y 20 de combustible (el tope); límite de 800 W; sin eventos.</summary>
         Operacion Titan(params string[] herramientas) =>
             Nueva(new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico" }), catalogo.Nivel(0), herramientas);
 
@@ -175,13 +175,14 @@ namespace SpaceMission.Tests
         [Test]
         public void NoSePuedeEncenderLoQueNoCabeEnElLimiteDePotencia()
         {
-            var op = Caso2("bateria");   // límite de 700 W
+            // Térmica y alta resolución en el Titán (versión 5: la alta resolución gasta 300 W, como HiRISE en proporción).
+            var op = Nueva(new Configuracion("media", "titan", new[] { "termica", "alta_res" }), null, "bateria");   // límite de 700 W
             op.AplicarEvento(Evento("micrometeorito"));
             op.Decidir(Con(op, EfectoOpcion.Aguantar));   // 500 W
             op.AplicarEvento(Evento("sombra"));
             op.Decidir(Con(op, EfectoOpcion.Aguantar));   // 350 W
-            Assert.IsTrue(op.Encender("termica"), "100 + 130 = 230 W");
-            Assert.IsFalse(op.Encender("radar"), "230 + 200 = 430 W no caben en 350");
+            Assert.IsTrue(op.Encender("termica"), "100 + 70 = 170 W");
+            Assert.IsFalse(op.Encender("alta_res"), "170 + 300 = 470 W no caben en 350");
             Assert.AreEqual(0, op.Apagones, "un plan imposible se bloquea: no hay modo seguro");
         }
 
@@ -226,7 +227,9 @@ namespace SpaceMission.Tests
         [Test]
         public void ORB02_UnaManiobraInvalidaNoCobraNiCambiaLaOrbita()
         {
-            var op = Caso2("bateria", "reconfiguracion");   // 0 kg libres: sin combustible
+            // Radar y espectrómetro en el Explorador: 495 de 500 kg, sin combustible.
+            var op = Nueva(new Configuracion("media", "explorador", new[] { "radar", "espectrometro" }), null);
+            Assert.AreEqual(0, op.Combustible);
             int creditos = op.CreditosDisponibles;
             Assert.IsFalse(op.PlanearManiobra(Altitud.Baja));
             Assert.IsNull(op.ManiobraPlaneada);
@@ -244,7 +247,7 @@ namespace SpaceMission.Tests
             Assert.IsFalse(op.PlanearManiobra(Altitud.Normal));
             var r = Resolver(op);
             Assert.IsFalse(r.Maniobra);
-            Assert.AreEqual(8, op.Combustible);
+            Assert.AreEqual(20, op.Combustible);
             Assert.AreEqual(370, op.CreditosDisponibles);
         }
 
@@ -256,16 +259,17 @@ namespace SpaceMission.Tests
             Observar(op, "termica", Lejos);
             var r = Resolver(op);
             Assert.AreEqual(70f * 28 / 30 * 1.2f, r.Observaciones[0].Calidad, 0.01f);
-            Assert.AreEqual(4, op.Combustible, "8 − 3 de la maniobra − 1 de arrastre");
+            Assert.AreEqual(16, op.Combustible, "20 − 3 de la maniobra − 1 de arrastre");
             Resolver(op);
-            Assert.AreEqual(3, op.Combustible);
+            Assert.AreEqual(15, op.Combustible);
         }
 
         [Test]
         public void SinCombustibleEnBajaLaNaveSubeSolaYElMesSiguientePierdeDias()
         {
-            var op = Caso2();                 // 3 de combustible
-            op.PlanearManiobra(Altitud.Baja); // 3 − 3 = 0
+            var op = Caso2("bateria", "refrigeracion");   // 35 kg libres: 3 de combustible
+            Assert.AreEqual(3, op.Combustible);
+            op.PlanearManiobra(Altitud.Baja);              // 3 − 3 = 0
             var r = Resolver(op);
             Assert.IsTrue(r.SubidaForzada);
             Assert.AreEqual(Altitud.Normal, op.Altitud);
@@ -505,10 +509,12 @@ namespace SpaceMission.Tests
         [Test]
         public void UnEventoQueDejaElConsumoPorEncimaDelLimiteProvocaModoSeguro()
         {
-            var op = Titan();
+            // Titán en elíptica con alta resolución, nivel 1: 575 W de 800 y sobran 170 cr.
+            var op = Nueva(new Configuracion("eliptica", "titan", new[] { "termica", "radar", "atmosferico", "alta_res" }), catalogo.Nivel(0));
             Observar(op, "termica", Lejos);
             Observar(op, "radar", Lejos);
-            Observar(op, "atmosferico", Lejos);            // 500 W de 800
+            Observar(op, "atmosferico", Lejos);
+            Observar(op, "alta_res", Lejos);               // 575 W de 800
             op.AplicarEvento(Evento("sombra"));
             op.Decidir(Con(op, EfectoOpcion.Aguantar));    // 650: todavía cabe
             Assert.AreEqual(0, op.Apagones);
@@ -517,7 +523,7 @@ namespace SpaceMission.Tests
 
             Assert.AreEqual(1, op.Apagones);
             CollectionAssert.IsEmpty(op.Encendidos);
-            Assert.AreEqual(370 - 50, op.CreditosDisponibles);
+            Assert.AreEqual(170 - 50, op.CreditosDisponibles);
             Assert.AreEqual(15, Resolver(op).DiasUtiles, "el mes siguiente pierde 15 días");
             Assert.IsFalse(op.Terminada, "un modo seguro no termina la misión");
         }
@@ -571,10 +577,13 @@ namespace SpaceMission.Tests
         [Test]
         public void LaRespuestaDeHerramientaSoloApareceSiSeCargo()
         {
-            var sin = Caso2();
+            var sin = Caso2("refrigeracion", "giroscopio");   // 40 kg libres: 4 de combustible, sin batería
             sin.AplicarEvento(Evento("sombra"));
             Assert.IsFalse(sin.Opciones.Any(o => o.efecto == EfectoOpcion.UsarHerramienta));
-            Assert.IsFalse(sin.PuedeElegir(Con(sin, EfectoOpcion.Acortar)), "pide 4 de combustible y hay 3");
+            Assert.IsTrue(sin.PuedeElegir(Con(sin, EfectoOpcion.Acortar)), "pide 4 de combustible y hay 4");
+            var pobre = Nueva(new Configuracion("media", "explorador", new[] { "radar", "espectrometro" }), null);   // 0 de combustible
+            pobre.AplicarEvento(Evento("sombra"));
+            Assert.IsFalse(pobre.PuedeElegir(Con(pobre, EfectoOpcion.Acortar)), "pide 4 de combustible y no hay");
 
             var con = Caso2("bateria");
             con.AplicarEvento(Evento("sombra"));
@@ -591,7 +600,7 @@ namespace SpaceMission.Tests
             op.AplicarEvento(Evento("tormenta"));
             op.Decidir(Con(op, EfectoOpcion.BajarAltitud));
             Assert.AreEqual(Altitud.Baja, op.Altitud);
-            Assert.AreEqual(8, op.Combustible);
+            Assert.AreEqual(20, op.Combustible);
             Assert.AreEqual(370, op.CreditosDisponibles);
         }
 
@@ -711,8 +720,8 @@ namespace SpaceMission.Tests
             var op = Ganada();
             var e = Evaluador.Evaluar(ConfigCaso2(), catalogo);
             var lineas = Puntuacion.Desglose(e, op, catalogo, null);
-            // 1,000 de victoria + 430 / 2 + 10 meses × 25 + 3 de combustible × 10
-            Assert.AreEqual(1000 + 215 + 250 + 30, Puntuacion.Total(lineas));
+            // 1,000 de victoria + 430 / 2 + 10 meses × 25 + 7 de combustible × 10
+            Assert.AreEqual(1000 + 215 + 250 + 70, Puntuacion.Total(lineas));
             Assert.IsFalse(lineas.Any(l => l.Concepto.Contains("low quality")));
         }
 
@@ -748,7 +757,7 @@ namespace SpaceMission.Tests
             var conEvidencia = Puntuacion.Desglose(Evaluador.Evaluar(ConfigCaso2(), catalogo), parcial, catalogo, null);
             Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Budget")));
             Assert.IsTrue(conEvidencia.Any(l => l.Concepto.StartsWith("Months")));
-            Assert.AreEqual(30, conEvidencia.First(l => l.Concepto.StartsWith("Fuel")).Puntos, "3 de combustible × 10");
+            Assert.AreEqual(70, conEvidencia.First(l => l.Concepto.StartsWith("Fuel")).Puntos, "7 de combustible × 10");
         }
 
         [Test]
@@ -774,7 +783,7 @@ namespace SpaceMission.Tests
             Assert.IsTrue(Objetivos.Cumplido(O("sin_apagones"), op));
             Assert.IsTrue(Objetivos.Cumplido(O("sin_herramientas"), op));
             Assert.IsTrue(Objetivos.Cumplido(O("enviar_pronto"), op), "quedaban 10 meses");
-            Assert.IsFalse(Objetivos.Cumplido(O("combustible"), op), "3 de combustible no llegan a 5");
+            Assert.IsTrue(Objetivos.Cumplido(O("combustible"), op), "7 de combustible llegan a 5");
 
             var sinEnviar = Caso2();
             Observar(sinEnviar, "termica", Centro);
@@ -793,8 +802,13 @@ namespace SpaceMission.Tests
             {
                 var op = new Operacion(e, c, catalogo, null, semilla, new Carga(e, c, catalogo));
                 Assert.AreEqual(2, op.Objetivos.Distinct().Count());
-                Assert.IsFalse(op.Objetivos.Any(o => o.tipo == TipoObjetivo.CombustibleMinimo), "con 3 de combustible es imposible");
             }
+            // Con menos de 5 de combustible al salir, el objetivo de combustible no sale: sería imposible.
+            var c2 = new Configuracion("media", "explorador", new[] { "radar", "espectrometro" });   // 0 de combustible
+            var e2 = Evaluador.Evaluar(c2, catalogo);
+            for (int semilla = 0; semilla < 20; semilla++)
+                Assert.IsFalse(new Operacion(e2, c2, catalogo, null, semilla, new Carga(e2, c2, catalogo)).Objetivos
+                    .Any(o => o.tipo == TipoObjetivo.CombustibleMinimo), "semilla " + semilla);
         }
 
         [Test]

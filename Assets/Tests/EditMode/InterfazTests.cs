@@ -43,7 +43,7 @@ namespace SpaceMission.Tests
             var texto = TextosBriefing.TextoLimites(catalogo);
             StringAssert.Contains("1,250 credits", texto);
             StringAssert.Contains("700 W", texto);
-            StringAssert.Contains("Explorer 650 kg", texto);
+            StringAssert.Contains("Explorer 500 kg", texto);
             StringAssert.Contains("Titan 750 kg", texto);
             StringAssert.DoesNotContain("1,100", texto);
             StringAssert.Contains("2 with Explorer", texto);

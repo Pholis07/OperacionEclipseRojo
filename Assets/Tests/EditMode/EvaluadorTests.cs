@@ -80,11 +80,15 @@ namespace SpaceMission.Tests
         [Test]
         public void ElMensajeRojoDiceCadaLimiteSuperado()
         {
+            // Versión 5 (valores NASA escalados): el caso 7 solo supera el presupuesto, B2 la masa y los espacios, B4b la potencia.
             var e = Evaluar("titan", "media", "termica+radar+espectrometro+atmosferico");
-            StringAssert.Contains("mass", e.Mensaje);
-            StringAssert.Contains("power", e.Mensaje);
             StringAssert.Contains("budget", e.Mensaje);
+            StringAssert.DoesNotContain("mass", e.Mensaje);
             StringAssert.DoesNotContain("slots", e.Mensaje);
+            var b2 = Evaluar("explorador", "media", "termica+alta_res+atmosferico");
+            StringAssert.Contains("mass", b2.Mensaje);
+            StringAssert.Contains("slots", b2.Mensaje);
+            StringAssert.Contains("power", Evaluar("titan", "media", "termica+alta_res+atmosferico+espectrometro").Mensaje);
         }
 
         [Test]
@@ -99,11 +103,11 @@ namespace SpaceMission.Tests
         [Test]
         public void LaLineaDeRegistroLlevaElResultado()
         {
-            Assert.AreEqual("[Misión] masa=620 potencia=430 costo=850 semáforo=VERDE resultado=VICTORIA",
+            Assert.AreEqual("[Misión] masa=430 potencia=220 costo=850 semáforo=VERDE resultado=VICTORIA",
                 Evaluar("explorador", "polar", "termica+radar").LineaRegistro);
-            Assert.AreEqual("[Misión] masa=485 potencia=320 costo=800 semáforo=AMARILLO resultado=FRACASO",
+            Assert.AreEqual("[Misión] masa=570 potencia=455 costo=870 semáforo=AMARILLO resultado=FRACASO",
                 Evaluar("titan", "polar", "alta_res+atmosferico").LineaRegistro);
-            Assert.AreEqual("[Misión] masa=780 potencia=760 costo=1300 semáforo=ROJO resultado=-",
+            Assert.AreEqual("[Misión] masa=555 potencia=500 costo=1300 semáforo=ROJO resultado=-",
                 Evaluar("titan", "media", "termica+radar+espectrometro+atmosferico").LineaRegistro);
         }
     }

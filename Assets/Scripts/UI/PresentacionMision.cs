@@ -99,19 +99,27 @@ namespace SpaceMission
 
         public static string Ayuda(OrbitaDatos o) =>
             "<b>" + o.nombre + "</b>\n" + o.descripcionBreve + "\n<b>Advantage:</b> " + o.ventaja +
-            "\n<b>Limitation:</b> " + o.limitacion + Dato(Iconos.Costo, "Cost", o.costoCr + " credits");
+            "\n<b>Limitation:</b> " + o.limitacion + Dato(Iconos.Costo, "Cost", o.costoCr + " credits") + Nasa(o.datoNasa, o.fuenteNasa);
 
         public static string Ayuda(LanzadorDatos l) =>
             "<b>" + l.nombre + "</b>\n" + l.descripcion + Dato(Iconos.Costo, "Cost", l.costoCr + " credits") +
-            Dato(Iconos.Masa, "Maximum mass", TextosBriefing.Numero(l.capacidadKg) + " kg") + Dato(Iconos.Espacios, "Slots", l.espacios.ToString());
+            Dato(Iconos.Masa, "Maximum mass", TextosBriefing.Numero(l.capacidadKg) + " kg") + Dato(Iconos.Espacios, "Slots", l.espacios.ToString()) +
+            Nasa(l.datoNasa, l.fuenteNasa);
 
         public static string Ayuda(InstrumentoDatos i) =>
             "<b>" + i.nombre + "</b>\n" + i.textoAyuda + Dato(Iconos.Masa, "Mass", i.masaKg + " kg") +
-            Dato(Iconos.Costo, "Cost", i.costoCr + " credits");
+            Dato(Iconos.Potencia, "Power", i.ConsumoTotalW + " W") + Dato(Iconos.Costo, "Cost", i.costoCr + " credits") +
+            Nasa(i.datoNasa, i.fuenteNasa);
 
         public static string Ayuda(SateliteDatos s) =>
-            "<b>" + s.nombre + "</b>\n" + s.descripcion + Dato(Iconos.Informe, "Based on", s.inspiradoEn) +
+            "<b>" + s.nombre + "</b>\n" + s.descripcion + Dato(Iconos.Informe, "Based on", s.inspiradoEn) + Nasa(s.datoNasa, s.fuenteNasa) +
             "\n<size=85%><color=#94A3B8>" + s.credito + ". Advantage and drawback: see Cargo.</color></size>";
+
+        /// <summary>El dato real de la NASA en que se basa la opción, en color de datos y con su fuente.</summary>
+        public static string Nasa(string dato, string fuente) =>
+            string.IsNullOrEmpty(dato) ? "" :
+            "\n<color=#75D6DF><b>NASA data:</b> " + dato + "</color>" +
+            (string.IsNullOrEmpty(fuente) ? "" : " <size=80%><color=#94A3B8>(" + fuente + ")</color></size>");
 
         // ---------- Revisión ----------
 

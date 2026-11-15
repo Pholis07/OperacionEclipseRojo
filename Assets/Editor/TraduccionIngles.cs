@@ -95,35 +95,35 @@ public static class TraduccionIngles
             var a = Cargar<InstrumentoDatos>("Instrumento_alta_res");
             a.nombre = "High-resolution camera";
             a.pistaAsociada = "detail images of the surface";
-            a.textoAyuda = "Takes sharp images through the dust and provides detail images of the surface. Power: 150 W: 90 W normal + 60 W due to the storm.";
+            a.textoAyuda = "Takes sharp images through the dust and provides detail images of the surface.";
             EditorUtility.SetDirty(a);
         }
         {
             var a = Cargar<InstrumentoDatos>("Instrumento_atmosferico");
             a.nombre = "Atmospheric sensor";
             a.pistaAsociada = "information about the storm's environment";
-            a.textoAyuda = "Measures the dust and the air temperature and provides information about the storm's environment. Power: 70 W: 60 W normal + 10 W due to the storm.";
+            a.textoAyuda = "Measures the dust and the air temperature and provides information about the storm's environment.";
             EditorUtility.SetDirty(a);
         }
         {
             var a = Cargar<InstrumentoDatos>("Instrumento_espectrometro");
             a.nombre = "Mineralogical spectrometer";
             a.pistaAsociada = "information about the surface composition";
-            a.textoAyuda = "Analyzes the light reflected by the surface and provides information about its composition. Power: 260 W: 130 W normal + 130 W due to the storm.";
+            a.textoAyuda = "Analyzes the light reflected by the surface and provides information about its composition.";
             EditorUtility.SetDirty(a);
         }
         {
             var a = Cargar<InstrumentoDatos>("Instrumento_radar");
             a.nombre = "Subsurface radar";
             a.pistaAsociada = "evidence of what lies beneath the surface";
-            a.textoAyuda = "Penetrates the dust and the surface and provides evidence of what lies beneath the surface. Power: 200 W: 180 W normal + 20 W due to the storm.";
+            a.textoAyuda = "Penetrates the dust and the surface and provides evidence of what lies beneath the surface.";
             EditorUtility.SetDirty(a);
         }
         {
             var a = Cargar<InstrumentoDatos>("Instrumento_termica");
             a.nombre = "Infrared thermal camera";
             a.pistaAsociada = "evidence of the thermal anomaly";
-            a.textoAyuda = "Measures the ground temperature and provides evidence of the thermal anomaly. Power: 130 W: 100 W normal + 30 W due to the storm.";
+            a.textoAyuda = "Measures the ground temperature and provides evidence of the thermal anomaly.";
             EditorUtility.SetDirty(a);
         }
         {

@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Lanzador_titan
   m_EditorClassIdentifier: SpaceMission::SpaceMission.LanzadorDatos
   id: titan
-  nombre: "Titan"
+  nombre: Titan
   costoCr: 360
   capacidadKg: 750
   espacios: 4
-  descripcion: "Larger payload and higher cost"
+  descripcion: Larger payload and higher cost
+  datoNasa: 'Inspired by NASA''s SLS Block 1: more than 27 t to the Moon. The real gap with Soyuz is over 20 times; the game keeps its own capacities.'
+  datoNasaEs: "Inspirado en el SLS Block 1 de la NASA: m\xE1s de 27 t hacia la Luna. La diferencia real con el Soyuz es de m\xE1s de 20 veces; el juego usa capacidades propias."
+  fuenteNasa: NASA

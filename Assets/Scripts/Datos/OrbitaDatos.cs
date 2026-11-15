@@ -14,6 +14,11 @@ namespace SpaceMission
         [TextArea] public string ventaja;
         [TextArea] public string limitacion;
 
+        [Header("Dato real de la NASA en que se basa (versión 5)")]
+        [TextArea] public string datoNasa;     // inglés
+        [TextArea] public string datoNasaEs;   // español
+        public string fuenteNasa;              // fuente corta, p. ej. «NASA/JPL (MRO)»
+
         /// <summary>Ids de instrumento que hacen falta para la victoria completa.</summary>
         public List<string> requisitoDeVictoria = new List<string>();
 

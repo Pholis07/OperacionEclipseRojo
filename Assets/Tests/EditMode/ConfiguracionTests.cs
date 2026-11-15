@@ -27,19 +27,19 @@ namespace SpaceMission.Tests
         }
 
         // Caso, lanzador, órbita, instrumentos, barras (masa | potencia | costo | espacios), semáforo
-        [TestCase("1", "explorador", "polar", "termica+radar", "620 / 650 kg|430 / 700 W|850 / 1,250 cr|2 / 2", EstadoSemaforo.Verde)]
-        [TestCase("2", "explorador", "media", "termica+radar", "620 / 650 kg|430 / 700 W|820 / 1,250 cr|2 / 2", EstadoSemaforo.Verde)]
-        [TestCase("3", "explorador", "eliptica", "termica+radar", "620 / 650 kg|430 / 700 W|870 / 1,250 cr|2 / 2", EstadoSemaforo.Amarillo)]
-        [TestCase("4", "titan", "eliptica", "termica+radar+atmosferico", "670 / 750 kg|500 / 700 W|1,130 / 1,250 cr|3 / 4", EstadoSemaforo.Verde)]
-        [TestCase("5", "explorador", "media", "termica+atmosferico", "500 / 650 kg|300 / 700 W|650 / 1,250 cr|2 / 2", EstadoSemaforo.Amarillo)]
-        [TestCase("6", "titan", "polar", "alta_res+atmosferico", "485 / 750 kg|320 / 700 W|800 / 1,250 cr|2 / 4", EstadoSemaforo.Amarillo)]
-        [TestCase("7", "titan", "media", "termica+radar+espectrometro+atmosferico", "780 / 750 kg|760 / 700 W|1,300 / 1,250 cr|4 / 4", EstadoSemaforo.Rojo)]
+        [TestCase("1", "explorador", "polar", "termica+radar", "430 / 500 kg|220 / 700 W|850 / 1,250 cr|2 / 2", EstadoSemaforo.Verde)]
+        [TestCase("2", "explorador", "media", "termica+radar", "430 / 500 kg|220 / 700 W|820 / 1,250 cr|2 / 2", EstadoSemaforo.Verde)]
+        [TestCase("3", "explorador", "eliptica", "termica+radar", "430 / 500 kg|220 / 700 W|870 / 1,250 cr|2 / 2", EstadoSemaforo.Amarillo)]
+        [TestCase("4", "titan", "eliptica", "termica+radar+atmosferico", "455 / 750 kg|275 / 700 W|1,130 / 1,250 cr|3 / 4", EstadoSemaforo.Verde)]
+        [TestCase("5", "explorador", "media", "termica+atmosferico", "410 / 500 kg|225 / 700 W|650 / 1,250 cr|2 / 2", EstadoSemaforo.Amarillo)]
+        [TestCase("6", "titan", "polar", "alta_res+atmosferico", "570 / 750 kg|455 / 700 W|870 / 1,250 cr|2 / 4", EstadoSemaforo.Amarillo)]
+        [TestCase("7", "titan", "media", "termica+radar+espectrometro+atmosferico", "555 / 750 kg|500 / 700 W|1,300 / 1,250 cr|4 / 4", EstadoSemaforo.Rojo)]
         [TestCase("B1", "titan", "media", "", "— / 750 kg|— / 700 W|— / 1,250 cr|— / 4", EstadoSemaforo.Gris)]
-        [TestCase("B2", "explorador", "media", "termica+alta_res+atmosferico", "585 / 650 kg|450 / 700 W|780 / 1,250 cr|3 / 2", EstadoSemaforo.Rojo)]
-        [TestCase("B4", "titan", "media", "termica+radar+alta_res+atmosferico", "755 / 750 kg|650 / 700 W|1,210 / 1,250 cr|4 / 4", EstadoSemaforo.Rojo)]
-        [TestCase("B4b", "titan", "media", "termica+alta_res+atmosferico+espectrometro", "695 / 750 kg|710 / 700 W|1,170 / 1,250 cr|4 / 4", EstadoSemaforo.Rojo)]
-        [TestCase("B5", "titan", "eliptica", "termica+radar+espectrometro", "730 / 750 kg|690 / 700 W|1,260 / 1,250 cr|3 / 4", EstadoSemaforo.Rojo)]
-        [TestCase("B6", "explorador", "media", "radar", "520 / 650 kg|300 / 700 W|640 / 1,250 cr|1 / 2", EstadoSemaforo.Amarillo)]
+        [TestCase("B2", "explorador", "media", "termica+alta_res+atmosferico", "605 / 500 kg|525 / 700 W|850 / 1,250 cr|3 / 2", EstadoSemaforo.Rojo)]
+        [TestCase("B4", "titan", "media", "termica+radar+alta_res+atmosferico", "650 / 750 kg|575 / 700 W|1,280 / 1,250 cr|4 / 4", EstadoSemaforo.Rojo)]
+        [TestCase("B4b", "titan", "media", "termica+alta_res+atmosferico+espectrometro", "705 / 750 kg|750 / 700 W|1,240 / 1,250 cr|4 / 4", EstadoSemaforo.Rojo)]
+        [TestCase("B5", "titan", "eliptica", "termica+radar+espectrometro", "530 / 750 kg|445 / 700 W|1,260 / 1,250 cr|3 / 4", EstadoSemaforo.Rojo)]
+        [TestCase("B6", "explorador", "media", "radar", "395 / 500 kg|150 / 700 W|640 / 1,250 cr|1 / 2", EstadoSemaforo.Amarillo)]
         [TestCase("B7", "titan", null, "termica+radar", "— / 750 kg|— / 700 W|— / 1,250 cr|— / 4", EstadoSemaforo.Gris)]
         [TestCase("B8", null, "media", "termica+radar", "— / — kg|— / 700 W|— / 1,250 cr|— / —", EstadoSemaforo.Gris)]
         public void LosCasosDanLosValoresYColoresDeLaTabla(string caso, string lanzador, string orbita, string instrumentos,
@@ -80,7 +80,7 @@ namespace SpaceMission.Tests
             foreach (var id in new[] { "termica", "radar", "espectrometro", "atmosferico" }) ui.AlternarInstrumento(id);
             ui.ElegirLanzador("titan");
             Assert.AreEqual(EstadoSemaforo.Rojo, ui.Ultima.Estado);
-            Assert.AreEqual("Mass: 780 / 750 kg", ui.TextosBarra[0].text);
+            Assert.AreEqual("Mass: 555 / 750 kg", ui.TextosBarra[0].text);
             Assert.AreEqual(PresentacionMision.ColorSemaforo(EstadoSemaforo.Rojo), ui.LuzEstado.color);
 
             // Quitar dos instrumentos y pasar a Explorador: no se borran los que quedan (caso 2).

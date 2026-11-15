@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: Instrumento_termica
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: termica
-  nombre: "Infrared thermal camera"
-  masaKg: 100
-  potenciaNormalW: 100
-  extraTormentaW: 30
+  nombre: Infrared thermal camera
+  masaKg: 35
+  potenciaNormalW: 70
+  extraTormentaW: 0
   costoCr: 180
   bloquesDatos: 1
-  pistaAsociada: "evidence of the thermal anomaly"
-  textoAyuda: "Measures the ground temperature and provides evidence of the thermal anomaly. Power: 130 W: 100 W normal + 30 W due to the storm."
+  pistaAsociada: evidence of the thermal anomaly
+  textoAyuda: Measures the ground temperature and provides evidence of the thermal anomaly.
+  datoNasa: 'Based on THEMIS (Mars Odyssey): 11.2 kg, 14 W, thermal images at 100 m per pixel.'
+  datoNasaEs: "Basada en THEMIS (Mars Odyssey): 11.2 kg, 14 W, im\xE1genes t\xE9rmicas de 100 m por p\xEDxel."
+  fuenteNasa: ASU / NASA

@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: Orbita_media
   m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
   id: media
-  nombre: "Mid inclined"
-  descripcionBreve: "Inclined orbit at intermediate altitude that keeps passing over the anomaly."
+  nombre: Mid inclined
+  descripcionBreve: Inclined orbit at intermediate altitude that keeps passing over the anomaly.
   costoCr: 90
-  ventaja: "Repeated tracking of the anomaly"
-  limitacion: "Less surface detail in the game's simplified model"
+  ventaja: Repeated tracking of the anomaly
+  limitacion: Less surface detail in the game's simplified model
+  datoNasa: "Like ESA's Trace Gas Orbiter: about 400 km, 74\xB0. Its plane drifts, so it sees each region at different times of day."
+  datoNasaEs: "Como el Trace Gas Orbiter de la ESA: unos 400 km, 74\xB0. Su plano se desplaza y ve cada regi\xF3n a distintas horas."
+  fuenteNasa: ESA
   requisitoDeVictoria:
   - termica
   - radar

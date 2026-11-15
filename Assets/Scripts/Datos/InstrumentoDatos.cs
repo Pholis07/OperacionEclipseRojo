@@ -20,7 +20,12 @@ namespace SpaceMission
         /// <summary>Ayuda contextual: qué evidencia aporta y el desglose del consumo.</summary>
         [TextArea] public string textoAyuda;
 
-        /// <summary>Consumo de diseño total: normal más extra de tormenta.</summary>
+        [Header("Dato real de la NASA en que se basa (versión 5)")]
+        [TextArea] public string datoNasa;     // inglés
+        [TextArea] public string datoNasaEs;   // español
+        public string fuenteNasa;              // fuente corta, p. ej. «NASA/JPL (MRO)»
+
+        /// <summary>Consumo total. Desde la versión 5 la tormenta no suma potencia (extraTormentaW = 0): baja la de los paneles.</summary>
         public int ConsumoTotalW => potenciaNormalW + extraTormentaW;
     }
 }

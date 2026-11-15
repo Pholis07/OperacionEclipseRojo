@@ -18,6 +18,11 @@ namespace SpaceMission
         [Tooltip("Crédito del modelo 3D.")]
         public string credito = "3D model: NASA 3D Resources";
 
+        [Header("Dato real de la NASA en que se basa (versión 5)")]
+        [TextArea] public string datoNasa;     // inglés
+        [TextArea] public string datoNasaEs;   // español
+        public string fuenteNasa;              // fuente corta, p. ej. «NASA/JPL (MRO)»
+
         [Header("Mecánicas: se pagan en la Carga")]
         public int costoCr;
         public int masaKg;

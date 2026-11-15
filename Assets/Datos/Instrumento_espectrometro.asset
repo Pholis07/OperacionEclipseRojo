@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: Instrumento_espectrometro
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: espectrometro
-  nombre: "Mineralogical spectrometer"
-  masaKg: 110
-  potenciaNormalW: 130
-  extraTormentaW: 130
+  nombre: Mineralogical spectrometer
+  masaKg: 100
+  potenciaNormalW: 225
+  extraTormentaW: 0
   costoCr: 220
   bloquesDatos: 2
-  pistaAsociada: "information about the surface composition"
-  textoAyuda: "Analyzes the light reflected by the surface and provides information about its composition. Power: 260 W: 130 W normal + 130 W due to the storm."
+  pistaAsociada: information about the surface composition
+  textoAyuda: Analyzes the light reflected by the surface and provides information about its composition.
+  datoNasa: "Based on CRISM (MRO): 33 kg, about 45 W, 362\u20133920 nm at 18 m per pixel."
+  datoNasaEs: "Basado en CRISM (MRO): 33 kg, unos 45 W, de 362 a 3920 nm a 18 m por p\xEDxel."
+  fuenteNasa: NASA/JPL (MRO)

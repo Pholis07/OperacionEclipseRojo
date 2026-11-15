@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: Orbita_eliptica
   m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
   id: eliptica
-  nombre: "Elliptical"
-  descripcionBreve: "Elongated orbit that gives a panoramic view and measures environmental conditions."
+  nombre: Elliptical
+  descripcionBreve: Elongated orbit that gives a panoramic view and measures environmental conditions.
   costoCr: 140
-  ventaja: "Panoramic context and environmental conditions"
-  limitacion: "Full victory also requires the atmospheric sensor"
+  ventaja: Panoramic context and environmental conditions
+  limitacion: Full victory also requires the atmospheric sensor
+  datoNasa: "Like MAVEN: 150 \xD7 6,200 km, 75\xB0, 4.5 hours. It dips into the upper atmosphere on every pass, which is why it needs the atmospheric sensor."
+  datoNasaEs: "Como MAVEN: 150 \xD7 6,200 km, 75\xB0, 4.5 horas. Baja a la alta atm\xF3sfera en cada vuelta: por eso necesita el sensor atmosf\xE9rico."
+  fuenteNasa: NASA/LASP (MAVEN)
   requisitoDeVictoria:
   - termica
   - radar

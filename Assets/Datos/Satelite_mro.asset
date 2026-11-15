@@ -17,6 +17,9 @@ MonoBehaviour:
   inspiradoEn: Mars Reconnaissance Orbiter (2005)
   descripcion: Has studied Mars since 2006 with cameras, radar and a spectrometer. Large antenna and two wide solar panels.
   credito: '3D model: NASA 3D Resources'
+  datoNasa: 'Reference spacecraft: 1,031 kg dry, about 1,000 W at Mars, 160 Gb of storage, up to 6 Mbps to Earth.'
+  datoNasaEs: 'Nave de referencia: 1,031 kg en seco, unos 1,000 W en Marte, 160 Gb de memoria, hasta 6 Mbps hacia la Tierra.'
+  fuenteNasa: NASA NSSDC
   costoCr: 0
   masaKg: 0
   ventaja: 'Balanced: no advantages or disadvantages.'

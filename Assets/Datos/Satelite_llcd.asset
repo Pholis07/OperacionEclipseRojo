@@ -17,6 +17,9 @@ MonoBehaviour:
   inspiradoEn: LLCD (2013)
   descripcion: Demonstrated laser communications from lunar orbit. Platform with large solar panels.
   credito: '3D model: NASA 3D Resources'
+  datoNasa: The LLCD laser terminal on LADEE sent data from the Moon at 622 Mbps, about 100 times MRO's radio link.
+  datoNasaEs: "El terminal l\xE1ser LLCD de LADEE envi\xF3 datos desde la Luna a 622 Mbps, unas 100 veces el enlace de radio del MRO."
+  fuenteNasa: NASA
   costoCr: 50
   masaKg: 10
   ventaja: 'Laser communication: the transmitter uses 50 W and there is contact with Earth every month.'

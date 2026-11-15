@@ -17,6 +17,9 @@ MonoBehaviour:
   inspiradoEn: Aquarius / SAC-D (2011)
   descripcion: Measured ocean salinity from Earth orbit, with a large antenna reflector.
   credito: '3D model: NASA 3D Resources'
+  datoNasa: Its microwave radiometer measured ocean salinity through clouds; the platform generated about 1,360 W.
+  datoNasaEs: "Su radi\xF3metro de microondas med\xEDa la salinidad del oc\xE9ano a trav\xE9s de las nubes; la plataforma generaba unos 1,360 W."
+  fuenteNasa: NASA/JPL
   costoCr: 40
   masaKg: 20
   ventaja: 'Microwave radiometer: +1 memory block, and the growing storm does not lower its data quality.'

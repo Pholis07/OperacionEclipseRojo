@@ -32,22 +32,22 @@ namespace SpaceMission.Tests
         }
 
         // Caso, lanzador, órbita, instrumentos, masa, potencia, costo, espacios, estado, límites superados
-        [TestCase("1", "explorador", "polar", "termica+radar", 620, 430, 850, 2, EstadoSemaforo.Valida, "")]
-        [TestCase("2", "explorador", "media", "termica+radar", 620, 430, 820, 2, EstadoSemaforo.Valida, "")]
-        [TestCase("3", "explorador", "eliptica", "termica+radar", 620, 430, 870, 2, EstadoSemaforo.Valida, "")]
-        [TestCase("4", "titan", "eliptica", "termica+radar+atmosferico", 670, 500, 1130, 3, EstadoSemaforo.Valida, "")]
-        [TestCase("5", "explorador", "media", "termica+atmosferico", 500, 300, 650, 2, EstadoSemaforo.Valida, "")]
-        [TestCase("6", "titan", "polar", "alta_res+atmosferico", 485, 320, 800, 2, EstadoSemaforo.Valida, "")]
-        [TestCase("7", "titan", "media", "termica+radar+espectrometro+atmosferico", 780, 760, 1300, 4, EstadoSemaforo.Rojo, "Masa+Potencia+Costo")]
-        [TestCase("B2", "explorador", "media", "termica+alta_res+atmosferico", 585, 450, 780, 3, EstadoSemaforo.Rojo, "Espacios")]
-        [TestCase("B4", "titan", "media", "termica+radar+alta_res+atmosferico", 755, 650, 1210, 4, EstadoSemaforo.Rojo, "Masa")]
-        [TestCase("B4b", "titan", "media", "termica+alta_res+atmosferico+espectrometro", 695, 710, 1170, 4, EstadoSemaforo.Rojo, "Potencia")]
-        [TestCase("B5", "titan", "eliptica", "termica+radar+espectrometro", 730, 690, 1260, 3, EstadoSemaforo.Rojo, "Costo")]
-        [TestCase("B6", "explorador", "media", "radar", 520, 300, 640, 1, EstadoSemaforo.Valida, "")]
-        [TestCase("RV1", "titan", "polar", "termica+alta_res+espectrometro", 645, 640, 1110, 3, EstadoSemaforo.Valida, "")]
-        [TestCase("RV2", "titan", "media", "termica+espectrometro+atmosferico", 610, 560, 1040, 3, EstadoSemaforo.Valida, "")]
-        [TestCase("RV3", "titan", "eliptica", "termica+alta_res+atmosferico", 585, 450, 1000, 3, EstadoSemaforo.Valida, "")]
-        [TestCase("RV4", "explorador", "polar", "termica+atmosferico", 500, 300, 680, 2, EstadoSemaforo.Valida, "")]
+        [TestCase("1", "explorador", "polar", "termica+radar", 430, 220, 850, 2, EstadoSemaforo.Valida, "")]
+        [TestCase("2", "explorador", "media", "termica+radar", 430, 220, 820, 2, EstadoSemaforo.Valida, "")]
+        [TestCase("3", "explorador", "eliptica", "termica+radar", 430, 220, 870, 2, EstadoSemaforo.Valida, "")]
+        [TestCase("4", "titan", "eliptica", "termica+radar+atmosferico", 455, 275, 1130, 3, EstadoSemaforo.Valida, "")]
+        [TestCase("5", "explorador", "media", "termica+atmosferico", 410, 225, 650, 2, EstadoSemaforo.Valida, "")]
+        [TestCase("6", "titan", "polar", "alta_res+atmosferico", 570, 455, 870, 2, EstadoSemaforo.Valida, "")]
+        [TestCase("7", "titan", "media", "termica+radar+espectrometro+atmosferico", 555, 500, 1300, 4, EstadoSemaforo.Rojo, "Costo")]
+        [TestCase("B2", "explorador", "media", "termica+alta_res+atmosferico", 605, 525, 850, 3, EstadoSemaforo.Rojo, "Masa+Espacios")]
+        [TestCase("B4", "titan", "media", "termica+radar+alta_res+atmosferico", 650, 575, 1280, 4, EstadoSemaforo.Rojo, "Costo")]
+        [TestCase("B4b", "titan", "media", "termica+alta_res+atmosferico+espectrometro", 705, 750, 1240, 4, EstadoSemaforo.Rojo, "Potencia")]
+        [TestCase("B5", "titan", "eliptica", "termica+radar+espectrometro", 530, 445, 1260, 3, EstadoSemaforo.Rojo, "Costo")]
+        [TestCase("B6", "explorador", "media", "radar", 395, 150, 640, 1, EstadoSemaforo.Valida, "")]
+        [TestCase("RV1", "titan", "polar", "termica+alta_res+espectrometro", 680, 695, 1180, 3, EstadoSemaforo.Valida, "")]
+        [TestCase("RV2", "titan", "media", "termica+espectrometro+atmosferico", 510, 450, 1040, 3, EstadoSemaforo.Valida, "")]
+        [TestCase("RV3", "titan", "eliptica", "termica+alta_res+atmosferico", 605, 525, 1070, 3, EstadoSemaforo.Valida, "")]
+        [TestCase("RV4", "explorador", "polar", "termica+atmosferico", 410, 225, 680, 2, EstadoSemaforo.Valida, "")]
         public void CasosCompletos(string caso, string lanzador, string orbita, string instrumentos,
             int masa, int potencia, int costo, int espacios, EstadoSemaforo estado, string limites)
         {
@@ -93,7 +93,8 @@ namespace SpaceMission.Tests
 
             Assert.AreEqual(3, c.InstrumentoIds.Count);
             Assert.AreEqual(EstadoSemaforo.Rojo, r.Estado);
-            CollectionAssert.AreEqual(new[] { Limite.Espacios }, r.LimitesSuperados);
+            // Versión 5: la cámara de alta resolución pesa 195 kg (HiRISE) y el Explorador lleva 500 kg: falla también la masa.
+            CollectionAssert.AreEquivalent(new[] { Limite.Masa, Limite.Espacios }, r.LimitesSuperados);
         }
 
         [Test]
@@ -101,18 +102,18 @@ namespace SpaceMission.Tests
         {
             var r = Calculador.Calcular(Config("explorador", "media", "radar+radar"), catalogo);
             Assert.AreEqual(1, r.EspaciosUsados);
-            Assert.AreEqual(520, r.MasaKg);
+            Assert.AreEqual(395, r.MasaKg);
         }
 
         [Test]
         public void ValoresIgualesAlLimiteNoBloquean()
         {
-            // Copias en memoria: los assets no se tocan. El caso 1 da 620 kg, 430 W y 850 cr.
+            // Copias en memoria: los assets no se tocan. El caso 1 da 430 kg, 220 W y 850 cr.
             var mision = Object.Instantiate(catalogo.mision);
-            mision.potenciaDisponibleW = 430;
+            mision.potenciaDisponibleW = 220;
             mision.presupuestoCr = 850;
             var explorador = Object.Instantiate(catalogo.Lanzador("explorador"));
-            explorador.capacidadKg = 620;
+            explorador.capacidadKg = 430;
             var copia = Object.Instantiate(catalogo);
             copia.mision = mision;
             copia.lanzadores = copia.lanzadores.Select(l => l.id == "explorador" ? explorador : l).ToList();
@@ -134,8 +135,8 @@ namespace SpaceMission.Tests
         public void LaLineaDeRegistroTieneElFormatoAcordado()
         {
             var r = Calculador.Calcular(Config("explorador", "polar", "termica+radar"), catalogo);
-            Assert.AreEqual("[Misión] masa=620 potencia=430 costo=850 semáforo=VALIDA resultado=-", Calculador.LineaRegistro(r));
-            Assert.AreEqual("[Misión] masa=620 potencia=430 costo=850 semáforo=VERDE resultado=VICTORIA",
+            Assert.AreEqual("[Misión] masa=430 potencia=220 costo=850 semáforo=VALIDA resultado=-", Calculador.LineaRegistro(r));
+            Assert.AreEqual("[Misión] masa=430 potencia=220 costo=850 semáforo=VERDE resultado=VICTORIA",
                 Calculador.LineaRegistro(r, EstadoSemaforo.Verde, "VICTORIA"));
 
             var gris = Calculador.Calcular(Config("titan", "media", ""), catalogo);

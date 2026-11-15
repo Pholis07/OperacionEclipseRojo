@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: Instrumento_alta_res
   m_EditorClassIdentifier: SpaceMission::SpaceMission.InstrumentoDatos
   id: alta_res
-  nombre: "High-resolution camera"
-  masaKg: 85
-  potenciaNormalW: 90
-  extraTormentaW: 60
-  costoCr: 130
+  nombre: High-resolution camera
+  masaKg: 195
+  potenciaNormalW: 300
+  extraTormentaW: 0
+  costoCr: 200
   bloquesDatos: 1
-  pistaAsociada: "detail images of the surface"
-  textoAyuda: "Takes sharp images through the dust and provides detail images of the surface. Power: 150 W: 90 W normal + 60 W due to the storm."
+  pistaAsociada: detail images of the surface
+  textoAyuda: Takes sharp images through the dust and provides detail images of the surface.
+  datoNasa: 'Based on HiRISE (MRO): about 65 kg, 60 W, resolves objects about 1 m across. The heaviest camera ever sent to Mars.'
+  datoNasaEs: "Basada en HiRISE (MRO): unos 65 kg, 60 W, distingue objetos de ~1 m. La c\xE1mara m\xE1s pesada enviada a Marte."
+  fuenteNasa: NASA/JPL (MRO)

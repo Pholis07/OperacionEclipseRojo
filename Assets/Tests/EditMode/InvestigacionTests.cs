@@ -155,7 +155,7 @@ namespace SpaceMission.Tests
             var informe = InformeMision.Construir(Evaluador.Evaluar(c, catalogo), c, catalogo, Jugada(c));
 
             Assert.AreEqual("Mission accomplished", informe.Titulo);
-            StringAssert.StartsWith("You used 820 of 1,250 credits, 620 of 650 kg, 430 of 700 W and 2 of 2 slots.", informe.Recursos);
+            StringAssert.StartsWith("You used 820 of 1,250 credits, 430 of 500 kg, 220 of 700 W and 2 of 2 slots.", informe.Recursos);
             CollectionAssert.IsEmpty(informe.Faltantes);
             CollectionAssert.AreEqual(new[]
             {

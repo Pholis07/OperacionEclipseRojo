@@ -61,11 +61,12 @@ namespace SpaceMission.Tests
             CollectionAssert.AreEquivalent(new[] { "atmosferico" }, catalogo.Orbita("eliptica").revelacionesDesbloqueadas);
         }
 
-        [TestCase("termica", 100, 100, 30, 130, 180)]
-        [TestCase("radar", 170, 180, 20, 200, 260)]
-        [TestCase("alta_res", 85, 90, 60, 150, 130)]
-        [TestCase("atmosferico", 50, 60, 10, 70, 90)]
-        [TestCase("espectrometro", 110, 130, 130, 260, 220)]
+        // Versión 5: masa = real × 3 y potencia = real × 5 (THEMIS, SHARAD, HiRISE, MCS, CRISM); la tormenta ya no suma potencia.
+        [TestCase("termica", 35, 70, 0, 70, 180)]
+        [TestCase("radar", 45, 50, 0, 50, 260)]
+        [TestCase("alta_res", 195, 300, 0, 300, 200)]
+        [TestCase("atmosferico", 25, 55, 0, 55, 90)]
+        [TestCase("espectrometro", 100, 225, 0, 225, 220)]
         public void LosInstrumentosCoincidenConLaTabla(string id, int masa, int normal, int extra, int total, int costo)
         {
             var i = catalogo.Instrumento(id);
@@ -81,15 +82,35 @@ namespace SpaceMission.Tests
         [TestCase("alta_res")]
         [TestCase("atmosferico")]
         [TestCase("espectrometro")]
-        public void LaAyudaDeCadaInstrumentoMuestraElDesgloseDelConsumo(string id)
+        public void LaAyudaDeCadaInstrumentoMuestraSuConsumoYElDatoDeLaNasa(string id)
         {
             var i = catalogo.Instrumento(id);
-            var desglose = i.ConsumoTotalW + " W: " + i.potenciaNormalW + " W normal + " + i.extraTormentaW + " W due to the storm";
-            StringAssert.Contains(desglose, i.textoAyuda);
+            var ayuda = PresentacionMision.Ayuda(i);
+            StringAssert.Contains("Power:</b> " + i.ConsumoTotalW + " W", ayuda);
+            StringAssert.Contains("NASA data:", ayuda);
+            Assert.IsNotEmpty(i.datoNasaEs, "Falta el dato NASA en español de " + id);
+            Assert.IsNotEmpty(i.fuenteNasa, "Falta la fuente de " + id);
             Assert.IsNotEmpty(i.pistaAsociada, "Falta la evidencia que aporta " + id);
         }
 
-        [TestCase("explorador", 190, 650, 2)]
+        [Test]
+        public void CadaOrbitaLanzadorYSateliteTieneSuDatoNasaEnLosDosIdiomas()
+        {
+            foreach (var o in catalogo.orbitas) Comprobar(o.id, o.datoNasa, o.datoNasaEs, o.fuenteNasa);
+            foreach (var l in catalogo.lanzadores) Comprobar(l.id, l.datoNasa, l.datoNasaEs, l.fuenteNasa);
+            foreach (var s in catalogo.satelites) Comprobar(s.id, s.datoNasa, s.datoNasaEs, s.fuenteNasa);
+            foreach (var i in catalogo.instrumentos) Comprobar(i.id, i.datoNasa, i.datoNasaEs, i.fuenteNasa);
+        }
+
+        static void Comprobar(string id, string en, string es, string fuente)
+        {
+            Assert.IsNotEmpty(en, "falta el dato NASA en inglés de " + id);
+            Assert.IsNotEmpty(es, "falta el dato NASA en español de " + id);
+            Assert.IsNotEmpty(fuente, "falta la fuente de " + id);
+            Assert.AreNotEqual(en, es, "el dato NASA de " + id + " no está traducido");
+        }
+
+        [TestCase("explorador", 190, 500, 2)]
         [TestCase("titan", 360, 750, 4)]
         public void LosLanzadoresCoincidenConLaTabla(string id, int costo, int kg, int espacios)
         {

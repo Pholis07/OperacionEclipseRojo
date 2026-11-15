@@ -236,3 +236,28 @@ Cambiar de altitud (normal o baja): 40 créditos, 3 de combustible y 2 días de 
 ## Fuera de esta versión
 
 Las 2 órbitas nuevas y la tabla de transiciones; modos de alta precisión e hiperespectral; tutorial que termina en fracaso (confirmado por Adrian: es lo primero a retomar); progresión y supervivencia; guardar y cargar; límite de enlace y descarte de registros; storyboard nuevo del lanzamiento, ducking de la voz, volúmenes separados, teclado completo e inglés.
+
+---
+
+# Versión 5: datos de la NASA, buffs y debuffs visibles, guía (aprobada el 2026-11-15)
+
+Adrian pidió que todo se base en datos de la NASA (eligió el modo mixto: proporciones reales, números ajustados para el juego), que los buffs y debuffs se vean claros, más guía para el jugador (tutorial jugable), mejores texturas y skybox, y el juego en español e inglés. Aprobó la propuesta tal cual; se hace por bloques: 1 valores, 2 buffs y debuffs, 3 guía, 4 tutorial, 5 idioma, 6 texturas.
+
+## Bloque 1: valores NASA escalados
+
+Masa = real × 3 y potencia = real × 5 (redondeo a 5). Los créditos son moneda de juego.
+
+| Instrumento | Real (fuente) | Masa | Potencia | Costo |
+|---|---|---|---|---|
+| Cámara térmica | THEMIS (Odyssey): 11.2 kg, 14 W | 35 kg | 70 W | 180 |
+| Radar de subsuelo | SHARAD (MRO): 15 kg, 10 W | 45 kg | 50 W | 260 |
+| Alta resolución | HiRISE (MRO): ~65 kg, 60 W | 195 kg | 300 W | 200 |
+| Sensor atmosférico | Mars Climate Sounder (MRO): 9 kg, 11 W | 25 kg | 55 W | 90 |
+| Espectrómetro | CRISM (MRO): 33 kg, ~45 W | 100 kg | 225 W | 220 |
+
+- La tormenta ya no suma potencia a cada instrumento (`extraTormentaW = 0`).
+- Explorador 500 kg (antes 650); Titán 750 kg. Lanzadores con valores de juego: la proporción real Soyuz/SLS (1 a más de 20) rompería el juego.
+- Órbitas con su misión real: polar baja = MRO (255 × 320 km, 93°), media = TGO (400 km, 74°), elíptica = MAVEN (150 × 6,200 km, 75°).
+- Cada instrumento, órbita, lanzador y satélite guarda el dato real en inglés y en español, con su fuente (`DatosNasa.cs`), y la ayuda lo muestra.
+- **Los 19 casos conservan su resultado** (verde, amarillo, rojo o gris); solo cambian masa, potencia y costo. Algunos rojos lo son por otro límite: 7, B4 y B5 por costo, B4b por potencia, B2 por masa y espacios.
+- Con menos masa, la nave sale con más combustible: 7 en el caso 2 (antes 3) y el tope de 20 con el Titán.

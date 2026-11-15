@@ -17,6 +17,9 @@ MonoBehaviour:
   inspiradoEn: AztechSat-1 (UPAEP, 2019)
   descripcion: 1U CubeSat from UPAEP (Puebla, Mexico). Released from the Space Station in 2020, it tested communicating through the Globalstar constellation.
   credito: '3D model: made by the team (built in code)'
+  datoNasa: 1U CubeSat of about 1 kg built by UPAEP (Puebla); in 2020 it tested a link through the Globalstar constellation.
+  datoNasaEs: "CubeSat 1U de ~1 kg de la UPAEP (Puebla); en 2020 prob\xF3 un enlace a trav\xE9s de la constelaci\xF3n Globalstar."
+  fuenteNasa: NASA Ames
   costoCr: 15
   masaKg: 0
   ventaja: 'Link through the Globalstar constellation: it can send in any month, even without contact (without contact only 2 blocks fit).'
