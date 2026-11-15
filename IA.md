@@ -552,3 +552,18 @@ Pedido de Adrian: un informe menos saturado y un juego informativo sin ser invas
   - Ayuda abierta sola la primera vez.
   - Efecto al encender el radar.
   - Cancelación al cerrar el mes 6 e informe de la misión cancelada.
+
+## Versión 9: semáforo, Opciones, Coloso (Saturn V) y desbloqueos (2026-11-15)
+
+- **Semáforo:** un límite superado se ve en rojo aunque falte la órbita (antes, con todos los instrumentos, salía gris). El mensaje dice el límite y lo que falta.
+- **Opciones:** dos columnas (Sonido y Progreso | Pantalla, Ayuda e Idioma), volúmenes en una fila y casillas con borde cian y ✓.
+- **Coloso:** tercer lanzador con el Saturn V de NASA 3D Resources.
+  - La IA lo convirtió con Blender (`scratchpad`, sin guardar el script en el repo) y quitó las texturas con «USA», «United States» y banderas.
+  - `ConstruirPorEtapas` generaliza lo del Ares (cortes en 0.62 y 0.79 del alto) y la cinemática lo trata como el Explorador: cae la primera etapa entera.
+  - Datos en `DatosVersion9.cs`: 520 cr, 950 kg, 5 espacios, 2,600 kg hacia Marte. Son valores de juego.
+- **Desbloqueos (`Progreso`):**
+  - Al empezar solo hay lo básico. Ganar el nivel 1 abre el nivel 2, Titán, Magellan, Chandra, Aquarius, alta resolución, sensor atmosférico y elíptica. Ganar el nivel 2 abre el nivel 3 y el resto.
+  - Lo bloqueado sale con candado y dice qué nivel ganar; el veredicto anuncia lo desbloqueado.
+  - Opciones tiene «Unlock everything» (jurado) y «Reset progress». Las pruebas corren con todo abierto (`ProgresoAbierto`).
+- Pruebas: 373/373 EditMode y 24/24 PlayMode. Build WebGL correcto.
+- Comprobado en el navegador a 1366x768: candados en el Briefing y en la pestaña Lanzador, desbloquear todo desde Opciones y cinemática completa con el Coloso.

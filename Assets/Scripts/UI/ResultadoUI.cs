@@ -74,7 +74,7 @@ namespace SpaceMission
             var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
             var informe = Informe = InformeMision.Construir(e, c, catalogo, op, nivel);
             textoTitulo.text = informe.Titulo;
-            textoConclusion.text = informe.Texto;
+            textoConclusion.text = informe.Texto + TextoDesbloqueos(e, op);
             Poner(textoResumen, string.Join("\n", informe.Filas.Select(f => Marca(f.Llego) + "  " + Iconos.DeInstrumento(f.InstrumentoId) + " " + f.Nombre)));
             Poner(textoNivel, nivel != null ? nivel.NombreNivel : "");
 
@@ -117,6 +117,34 @@ namespace SpaceMission
         }
 
         static void Poner(TMP_Text t, string texto) { if (t != null) t.text = texto; }
+
+        /// <summary>Lo que se desbloqueó con esta victoria (versión 9). Vacío si no hubo victoria o si ya estaba.</summary>
+        public System.Collections.Generic.List<string> Desbloqueados { get; private set; } = new System.Collections.Generic.List<string>();
+
+        /// <summary>
+        /// Versión 9: una victoria (fuera de la Misión 0) abre el siguiente nivel y lo de su lista (Progreso). Se avisa
+        /// en el veredicto con un trofeo y los nombres; el próximo informe de la misma partida no vuelve a contarlo.
+        /// </summary>
+        string TextoDesbloqueos(Evaluacion e, Operacion op)
+        {
+            Desbloqueados = new System.Collections.Generic.List<string>();
+            if (op == null || EstadoJuego.Tutorial || ResultadoCientifico.Categoria(e, op, catalogo) != CategoriaResultado.Victoria) return "";
+            int nivel = EstadoJuego.NivelIndice;
+            Desbloqueados = Progreso.RegistrarVictoria(nivel);
+            if (Desbloqueados.Count == 0) return "";
+            var nombres = new System.Collections.Generic.List<string>();
+            if (nivel + 1 < 3) nombres.Add(catalogo.Nivel(nivel + 1).NombreNivel);
+            foreach (var id in Desbloqueados) nombres.Add(Nombre(id));
+            return "\n\n<color=#F4C46A><b>" + Iconos.Trofeo + "  " + Idioma.T("Unlocked:") + "</b> " + string.Join(", ", nombres) + "</color>";
+        }
+
+        string Nombre(string id)
+        {
+            var l = catalogo.Lanzador(id); if (l != null) return l.Nombre;
+            var s = catalogo.Satelite(id); if (s != null) return s.Nombre;
+            var i = catalogo.Instrumento(id); if (i != null) return i.Nombre;
+            var o = catalogo.Orbita(id); return o != null ? o.Nombre : id;
+        }
 
         /// <summary>✓ en verde o aviso en rojo: el estado se lee por la forma del icono, no solo por el color.</summary>
         public static string Marca(bool bien) =>

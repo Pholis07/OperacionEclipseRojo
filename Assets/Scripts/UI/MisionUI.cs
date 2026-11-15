@@ -83,6 +83,8 @@ namespace SpaceMission
 
         public void LlenarBriefing()
         {
+            // Versión 9: los niveles se abren en orden (Progreso). Si el elegido aún no está abierto, el último abierto.
+            if (!Progreso.NivelDisponible(EstadoJuego.NivelIndice)) EstadoJuego.NivelIndice = Mathf.Min(Progreso.NivelesGanados, botonesNivel.Length - 1);
             var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
             textoObjetivo.text = nivel.Objetivo;
             textoRequisitos.text = TextosBriefing.TextoRequisitos();
@@ -94,13 +96,17 @@ namespace SpaceMission
             {
                 botonesNivel[i].GetComponent<UnityEngine.UI.Image>().color =
                     i == EstadoJuego.NivelIndice ? new Color32(0xE2, 0x64, 0x3A, 0xFF) : new Color32(0x2A, 0x2A, 0x31, 0xFF);
-                botonesNivel[i].GetComponentInChildren<TMP_Text>().text = catalogo.Nivel(i).NombreNivel;
+                bool abierto = Progreso.NivelDisponible(i);
+                botonesNivel[i].interactable = abierto;
+                botonesNivel[i].GetComponentInChildren<TMP_Text>().text = abierto ? catalogo.Nivel(i).NombreNivel
+                    : "<color=#64748B>" + Iconos.Candado + "  " + catalogo.Nivel(i).NombreNivel + "</color>";
             }
         }
 
         /// <summary>Cambia el nivel (solo desde el Briefing) y actualiza los límites que se muestran.</summary>
         public void ElegirNivel(int indice)
         {
+            if (!Progreso.NivelDisponible(indice)) return;
             EstadoJuego.NivelIndice = indice;
             LlenarBriefing();
         }

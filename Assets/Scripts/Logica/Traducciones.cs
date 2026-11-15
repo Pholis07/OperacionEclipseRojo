@@ -865,6 +865,16 @@ namespace SpaceMission
             { "Sound", "Sonido" },
             { "Display", "Pantalla" },
             { "Help", "Ayuda" },
+            { "Colossus", "Coloso" },
+            { "Huge payload and very high cost", "Carga enorme y costo muy alto" },
+            { "COLOSSUS\n<size=24><color=#94A3B8>Look inspired by NASA’s Saturn V. ", "COLOSO\n<size=24><color=#94A3B8>Aspecto inspirado en el Saturn V de la NASA. " },
+            { "Unlocked:", "Desbloqueado:" },
+            { "Win level {0} to unlock it.", "Gana el nivel {0} para desbloquearlo." },
+            { "Locked. Win level {0} ({1}) to unlock it. Every level you win unlocks new rockets, satellites, instruments and orbits.", "Bloqueado. Gana el nivel {0} ({1}) para desbloquearlo. Cada nivel que ganas desbloquea cohetes, satélites, instrumentos y órbitas nuevos." },
+            { "Progress", "Progreso" },
+            { "Unlock everything", "Desbloquear todo" },
+            { "Reset progress", "Reiniciar progreso" },
+            { "Levels won: {0} of 3. Each win unlocks the next level and new equipment.", "Niveles ganados: {0} de 3. Cada victoria desbloquea el siguiente nivel y equipo nuevo." },
         };
     }
 }

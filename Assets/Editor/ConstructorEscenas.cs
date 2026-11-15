@@ -431,6 +431,11 @@ public static partial class ConstructorEscenas
         columnas.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var izq = Columna(columnas, "Sonido", 14, TextAnchor.UpperLeft);
         var der = Columna(columnas, "Pantalla", 14, TextAnchor.UpperLeft);
+        foreach (var col in new[] { izq, der })   // mismo ancho: el texto largo no ensancha una columna
+        {
+            var le = col.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+            le.preferredWidth = 1; le.flexibleWidth = 1;
+        }
 
         Subtitulo(izq, "TituloSonido", "Sound");
         var musica = Deslizador(izq, "Musica", SpaceMission.Iconos.Volumen + "  Music");
@@ -439,6 +444,21 @@ public static partial class ConstructorEscenas
         var voz = Deslizador(izq, "Voz", SpaceMission.Iconos.Senal + "  Transmission voice");
         Alto(Vacio(izq, "EspacioSonido"), 4);
         var silencio = Casilla(izq, "Silencio", "Mute all sound");
+        // Versión 9: progreso de desbloqueos (Progreso). «Unlock everything» sirve para el jurado y las demostraciones.
+        Alto(Vacio(izq, "EspacioProgreso"), 6);
+        Subtitulo(izq, "TituloProgreso", "Progress");
+        var estadoProgreso = Texto(izq, "TextoProgreso", "", 22, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
+        var filaProgreso = Fila(izq, "BotonesProgreso", 12);
+        Alto(filaProgreso, 52);
+        var desbloquear = Boton(filaProgreso, "BotonDesbloquearTodo", "Unlock everything", false);
+        var reiniciar = Boton(filaProgreso, "BotonReiniciarProgreso", "Reset progress", false);
+        foreach (var b in new[] { desbloquear, reiniciar })
+        {
+            var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
+            le.minHeight = 52; le.preferredHeight = 52; le.preferredWidth = -1; le.flexibleWidth = 1;
+            var t = b.GetComponentInChildren<TextMeshProUGUI>();
+            t.enableAutoSizing = true; t.fontSizeMin = 14; t.fontSizeMax = 22;
+        }
 
         Subtitulo(der, "TituloPantalla", "Display");
         var movimiento = Casilla(der, "ReducirMovimiento", "Reduce motion (no shaking or cinematics)");
@@ -473,6 +493,9 @@ public static partial class ConstructorEscenas
         Asignar(ui, "pantallaCompleta", pantallaCompleta);
         Asignar(ui, "contornos", contornos);
         Asignar(ui, "consejos", consejos);
+        Asignar(ui, "textoProgreso", estadoProgreso);
+        Asignar(ui, "botonDesbloquearTodo", desbloquear);
+        Asignar(ui, "botonReiniciarProgreso", reiniciar);
         return ui;
     }
 
@@ -800,7 +823,7 @@ public static partial class ConstructorEscenas
         // Briefing: Marte grande a la derecha, detrás del expediente.
         AsignarEncuadre(camara, "briefing", marteCentro + new Vector3(-13f, 11f, -40f), marteCentro + new Vector3(-12f, 9f, 0), 55f);
         Asignar(camara, "vistaBriefing", briefing.gameObject);
-        AsignarEncuadre(camara, "plataforma", Plataforma + new Vector3(0, 5.3f, -17f), Plataforma + new Vector3(0, 5f, 0), 60f);
+        AsignarEncuadre(camara, "plataforma", Plataforma + new Vector3(0, 6.3f, -19f), Plataforma + new Vector3(0, 6f, 0), 60f);
         Asignar(camara, "raizNave", nave.transform);
         // Pestaña Lanzador: sin elección los dos cohetes; con elección solo el elegido, en el centro, con un
         // encuadre a su altura (Explorador 7.5, Titán 11).
@@ -809,8 +832,11 @@ public static partial class ConstructorEscenas
         Asignar(plataformaUI, "titan", cohetes.titan.transform);
         Asignar(plataformaUI, "resalteExplorador", cohetes.resaltadoExplorador.transform);
         Asignar(plataformaUI, "resalteTitan", cohetes.resaltadoTitan.transform);
+        Asignar(plataformaUI, "coloso", cohetes.coloso.transform);
+        Asignar(plataformaUI, "resalteColoso", cohetes.resaltadoColoso.transform);
         AsignarEncuadre(camara, "plataformaExplorador", Plataforma + new Vector3(2.7f, 4.4f, -12.9f), Plataforma + new Vector3(0, 4.05f, 0), 55f);
         AsignarEncuadre(camara, "plataformaTitan", Plataforma + new Vector3(3.2f, 6.2f, -17.5f), Plataforma + new Vector3(0, 5.8f, 0), 55f);
+        AsignarEncuadre(camara, "plataformaColoso", Plataforma + new Vector3(3.6f, 7f, -19.5f), Plataforma + new Vector3(0, 6.5f, 0), 55f);
         Asignar(camara, "catalogo", catalogo);
         // Etiqueta del módulo instalado: línea guía y punto sobre el módulo (debajo de la etiqueta).
         var guia = Panel(configuracion, "GuiaInstalado", new Color(Cian.r, Cian.g, Cian.b, 0.85f));
@@ -1900,7 +1926,7 @@ public static partial class ConstructorEscenas
     ///   blancos, toberas oscuras), separado en etapa inferior y superior.
     /// Debajo de cada uno, un anillo de acento que se enciende cuando ese lanzador está elegido.
     /// </summary>
-    static (GameObject explorador, GameObject titan, GameObject resaltadoExplorador, GameObject resaltadoTitan) ConstruirCohetes(Vector3 plataforma)
+    static (GameObject explorador, GameObject titan, GameObject resaltadoExplorador, GameObject resaltadoTitan, GameObject coloso, GameObject resaltadoColoso) ConstruirCohetes(Vector3 plataforma)
     {
         var llama = CrearMaterial("Nave_Tobera", Hex("#FF8A3D"), 0f, 0.2f, null, Vector2.one, Hex("#FF8A3D") * 3.5f);
         var suelo = CrearMaterial("Plataforma", Hex("#3A3F47"), 0.3f, 0.35f);
@@ -1908,12 +1934,12 @@ public static partial class ConstructorEscenas
 
         var raiz = new GameObject("PlataformaLanzamiento").transform;
         raiz.position = plataforma;
-        Pieza(PrimitiveType.Cylinder, "Suelo", raiz, new Vector3(0, -0.06f, 0), Vector3.zero, new Vector3(9f, 0.06f, 4.5f), suelo);
+        Pieza(PrimitiveType.Cylinder, "Suelo", raiz, new Vector3(0, -0.06f, 0), Vector3.zero, new Vector3(11f, 0.06f, 4.5f), suelo);
 
         // ----- Explorador (Ares 1 B de NASA 3D Resources; ver ConstructorEscenas.Ares.cs) -----
         var explorador = new GameObject("Cohete_explorador").transform;
         explorador.SetParent(raiz, false);
-        explorador.localPosition = new Vector3(-2.1f, 0, 0);
+        explorador.localPosition = new Vector3(-3.3f, 0, 0);
         var superiorExplorador = ConstruirAres(explorador);
         // Logo del patrocinador en la etapa superior, por delante y por detrás (calcomanía curva).
         float alturaLogoExp = AltoExplorador * 0.68f;
@@ -1923,7 +1949,7 @@ public static partial class ConstructorEscenas
         // ----- Titán (SLS, modelo de NASA 3D Resources) -----
         var sls = new GameObject("Cohete_titan").transform;
         sls.SetParent(raiz, false);
-        sls.localPosition = new Vector3(2.1f, 0, 0);
+        sls.localPosition = new Vector3(0f, 0, 0);
         var slsModelo = ConstruirSls(sls, 11f);
         DividirSls(slsModelo.inferior);   // propulsores laterales aparte (se sueltan en la cinemática)
         DividirNarizSls(slsModelo.superior);   // la nariz en dos mitades (se abren para liberar el satélite)
@@ -1936,6 +1962,15 @@ public static partial class ConstructorEscenas
             Pieza(PrimitiveType.Cylinder, "Llama", sls, new Vector3(lado * 0.7f, 0.02f, 0), Vector3.zero, new Vector3(0.3f, 0.005f, 0.3f), llama);
         sls.gameObject.AddComponent<GiroLento>().enabled = false;
 
+        // ----- Coloso (versión 9: Saturn V de NASA 3D Resources; se desbloquea al ganar el nivel 2) -----
+        var coloso = new GameObject("Cohete_coloso").transform;
+        coloso.SetParent(raiz, false);
+        coloso.localPosition = new Vector3(3.5f, 0, 0);
+        var superiorColoso = ConstruirColoso(coloso);
+        float alturaLogoColoso = AltoColoso * 0.7f;
+        LogoPatrocinio(superiorColoso, "Fence", false, RadioNucleo(coloso, alturaLogoColoso) + 0.012f, alturaLogoColoso, 0.55f, coloso);
+        coloso.gameObject.AddComponent<GiroLento>().enabled = false;
+
         // Anillos que señalan el lanzador elegido.
         GameObject Resalte(string nombre, Vector3 x)
         {
@@ -1946,7 +1981,8 @@ public static partial class ConstructorEscenas
         }
         var rExp = Resalte("ElegidoExplorador", explorador.localPosition);
         var rTit = Resalte("ElegidoTitan", sls.localPosition);
-        return (explorador.gameObject, sls.gameObject, rExp, rTit);
+        var rCol = Resalte("ElegidoColoso", coloso.localPosition);
+        return (explorador.gameObject, sls.gameObject, rExp, rTit, coloso.gameObject, rCol);
     }
 
     static Vector2 P(float radio, float alto) => new Vector2(radio, alto);

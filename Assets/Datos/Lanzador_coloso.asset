@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d38269f3749e294185c3bd9ede73ef6, type: 3}
+  m_Name: Lanzador_coloso
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.LanzadorDatos
+  id: coloso
+  nombre: Colossus
+  costoCr: 520
+  capacidadKg: 950
+  espacios: 5
+  masaInyectadaKg: 2600
+  descripcion: Huge payload and very high cost
+  datoNasa: Looks like NASA's Saturn V, which sent Apollo (about 45 t) toward the Moon. The game uses 2,600 kg toward Mars, 1.4 times the Titan.
+  datoNasaEs: "Aspecto del Saturn V de la NASA, que envi\xF3 el Apollo (unas 45 t) hacia la Luna. El juego usa 2,600 kg hacia Marte, 1.4 veces el Tit\xE1n."
+  fuenteNasa: NASA

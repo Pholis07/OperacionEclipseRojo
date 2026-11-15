@@ -1,10 +1,11 @@
+using System.Linq;
 using UnityEngine;
 
 namespace SpaceMission
 {
     /// <summary>
     /// Plataforma de la pestaña Lanzador:
-    /// - Sin lanzador elegido: los dos cohetes, uno a cada lado, para comparar.
+    /// - Sin lanzador elegido: los tres cohetes en fila, para comparar.
     /// - Con uno elegido: solo ese, en el centro de la plataforma, con una entrada corta (sube desde el foso y se
     ///   asienta) y girando despacio. El otro se oculta y vuelve a su giro inicial.
     /// Solo presentación: lee EstadoJuego.Configuracion.LanzadorId.
@@ -15,19 +16,22 @@ namespace SpaceMission
         [SerializeField] Transform titan;
         [SerializeField] Transform resalteExplorador;
         [SerializeField] Transform resalteTitan;
+        [SerializeField] Transform coloso;           // versión 9 (Saturn V)
+        [SerializeField] Transform resalteColoso;
         [SerializeField] float subida = 1.2f;
 
-        Vector3 posExplorador, posTitan;
-        Quaternion rotExplorador, rotTitan;
+        (string id, Transform cohete, Transform resalte, Vector3 pos, Quaternion rot)[] cohetes;
         string mostrado = "-";
         Coroutine entrada;
 
         public static bool EsTitan(string lanzadorId) => lanzadorId == "titan";
+        public static bool EsColoso(string lanzadorId) => lanzadorId == "coloso";
 
         void Awake()
         {
-            if (explorador != null) { posExplorador = explorador.localPosition; rotExplorador = explorador.localRotation; }
-            if (titan != null) { posTitan = titan.localPosition; rotTitan = titan.localRotation; }
+            cohetes = new[] { ("explorador", explorador, resalteExplorador), ("titan", titan, resalteTitan), ("coloso", coloso, resalteColoso) }
+                .Where(c => c.Item2 != null)
+                .Select(c => (c.Item1, c.Item2, c.Item3, c.Item2.localPosition, c.Item2.localRotation)).ToArray();
         }
 
         void Update()
@@ -41,11 +45,15 @@ namespace SpaceMission
         void Mostrar(string id)
         {
             bool ninguno = string.IsNullOrEmpty(id);
-            bool esTitan = EsTitan(id);
-            Preparar(explorador, posExplorador, rotExplorador, resalteExplorador, ninguno || !esTitan, !ninguno && !esTitan);
-            Preparar(titan, posTitan, rotTitan, resalteTitan, ninguno || esTitan, !ninguno && esTitan);
-            if (ninguno) return;
-            var elegido = esTitan ? titan : explorador;
+            // Sin elección se ven todos; un lanzador sin modelo propio se muestra con el Explorador.
+            string visto = ninguno || cohetes.Any(c => c.id == id) ? id : "explorador";
+            Transform elegido = null;
+            foreach (var c in cohetes)
+            {
+                bool esEste = !ninguno && c.id == visto;
+                Preparar(c.cohete, c.pos, c.rot, c.resalte, ninguno || esEste, esEste);
+                if (esEste) elegido = c.cohete;
+            }
             if (elegido == null) return;
             if (entrada != null) StopCoroutine(entrada);
             if (isActiveAndEnabled) entrada = StartCoroutine(Animar.Durante(0.6f, t =>

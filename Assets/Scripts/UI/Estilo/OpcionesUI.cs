@@ -18,6 +18,9 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Toggle pantallaCompleta;
         [SerializeField] UnityEngine.UI.Toggle contornos;
         [SerializeField] UnityEngine.UI.Toggle consejos;
+        [SerializeField] TMPro.TMP_Text textoProgreso;                    // versión 9: niveles ganados
+        [SerializeField] UnityEngine.UI.Button botonDesbloquearTodo;
+        [SerializeField] UnityEngine.UI.Button botonReiniciarProgreso;
 
         void Awake()
         {
@@ -50,6 +53,8 @@ namespace SpaceMission
             CrearContornos();
             CrearConsejos();
             foreach (var casilla in panel.GetComponentsInChildren<UnityEngine.UI.Toggle>(true)) ArreglarMarca(casilla);
+            if (botonDesbloquearTodo != null) botonDesbloquearTodo.onClick.AddListener(() => { Progreso.DesbloquearTodo(); PintarProgreso(); });
+            if (botonReiniciarProgreso != null) botonReiniciarProgreso.onClick.AddListener(() => { Progreso.Reiniciar(); PintarProgreso(); });
             botonAbrir.onClick.AddListener(() => Mostrar(true));
             botonCerrar.onClick.AddListener(() => Mostrar(false));
         }
@@ -127,8 +132,15 @@ namespace SpaceMission
             consejos.onValueChanged.AddListener(v => Preferencias.GuiaActiva = v);
         }
 
+        void PintarProgreso()
+        {
+            if (textoProgreso == null) return;
+            textoProgreso.text = string.Format(Idioma.T("Levels won: {0} of 3. Each win unlocks the next level and new equipment."), Progreso.NivelesGanados);
+        }
+
         void Mostrar(bool visible)
         {
+            if (visible) PintarProgreso();
             if (visible && consejos != null) consejos.SetIsOnWithoutNotify(Preferencias.GuiaActiva);   // pudo cambiar en el juego
             if (visible && pantallaCompleta != null) pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);   // pudo cambiar con Esc o F11
             panel.SetActive(visible);

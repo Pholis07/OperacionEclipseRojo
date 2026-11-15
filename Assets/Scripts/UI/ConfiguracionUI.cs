@@ -210,6 +210,7 @@ namespace SpaceMission
                     int capacidad = lanzadorElegido != null ? lanzadorElegido.capacidadKg : int.MaxValue;
                     foreach (var o in catalogo.orbitas)
                     {
+                        if (CrearCandado(o.id, o.Nombre)) continue;
                         var alcance = Alcance.Evaluar(Config, o, catalogo, Nivel);
                         CrearOpcion(PresentacionMision.TextoOpcion(o, alcance, capacidad), Config.OrbitaId == o.id, () => ElegirOrbita(o.id), !alcance.Alcanza);
                     }
@@ -217,15 +218,15 @@ namespace SpaceMission
                     break;
                 case Pestana.Lanzador:
                     foreach (var l in catalogo.lanzadores)
-                        CrearOpcion(PresentacionMision.TextoOpcion(l), Config.LanzadorId == l.id, () => ElegirLanzador(l.id));
+                        if (!CrearCandado(l.id, l.Nombre)) CrearOpcion(PresentacionMision.TextoOpcion(l), Config.LanzadorId == l.id, () => ElegirLanzador(l.id));
                     break;
                 case Pestana.Satelite:
                     foreach (var s in catalogo.satelites)
-                        CrearOpcion(PresentacionMision.TextoOpcion(s), Config.SateliteId == s.id, () => ElegirSatelite(s.id));
+                        if (!CrearCandado(s.id, s.Nombre)) CrearOpcion(PresentacionMision.TextoOpcion(s), Config.SateliteId == s.id, () => ElegirSatelite(s.id));
                     break;
                 default:
                     foreach (var i in catalogo.instrumentos)
-                        CrearOpcion(PresentacionMision.TextoOpcion(i), Config.InstrumentoIds.Contains(i.id), () => AlternarInstrumento(i.id));
+                        if (!CrearCandado(i.id, i.Nombre)) CrearOpcion(PresentacionMision.TextoOpcion(i), Config.InstrumentoIds.Contains(i.id), () => AlternarInstrumento(i.id));
                     break;
             }
         }
@@ -247,6 +248,31 @@ namespace SpaceMission
             boton.GetComponentInChildren<TMP_Text>().text = casilla + "</color>" + texto;
             boton.onClick.AddListener(alPulsar);
             opciones.Add(boton.gameObject);
+        }
+
+        /// <summary>
+        /// Versión 9: si la opción aún no está desbloqueada (Progreso), la dibuja apagada con candado y dice qué nivel
+        /// hay que ganar; al pulsarla lo explica en la caja de ayuda. Devuelve true si la dibujó así.
+        /// </summary>
+        bool CrearCandado(string id, string nombre)
+        {
+            if (Progreso.Desbloqueado(id)) return false;
+            int nivel = Progreso.NivelParaDesbloquear(id);
+            var boton = Instantiate(plantillaOpcion, listaOpciones);
+            boton.gameObject.SetActive(true);
+            boton.gameObject.name = "Bloqueado_" + id;
+            boton.GetComponent<UnityEngine.UI.Image>().color = ColorBloqueada;
+            boton.GetComponentInChildren<TMP_Text>().text = "<color=#64748B>" + Iconos.Candado + "  " + nombre + "</color>\n<size=80%><color=#94A3B8>" +
+                string.Format(Idioma.T("Win level {0} to unlock it."), nivel) + "</color></size>";
+            boton.onClick.AddListener(() =>
+            {
+                ReproductorUI.Sonar(ArteDatos.Sonido.Error);
+                MostrarAyuda("<b>" + Iconos.Candado + "  " + nombre + "</b>\n" +
+                    string.Format(Idioma.T("Locked. Win level {0} ({1}) to unlock it. Every level you win unlocks new rockets, satellites, instruments and orbits."),
+                        nivel, catalogo.Nivel(nivel - 1).NombreNivel), null);
+            });
+            opciones.Add(boton.gameObject);
+            return true;
         }
 
         /// <summary>Texto que no se elige (la explicación del alcance), con la misma plantilla y más alto.</summary>

@@ -21,17 +21,35 @@ public static partial class ConstructorEscenas
     // empieza en 7.6.
     const float CorteEtapaAres = 0.575f, CorteNarizAres = 0.787f;
 
+    /// <summary>Alto del Coloso (Saturn V) en la escena: el más alto de los tres. Igual en DirectorCinematica.</summary>
+    public const float AltoColoso = 12.5f;
+
+    // Saturn V (alto 12.99 en el FBX): el S-II termina en 0.62 (el radio pasa de 0.62 a 0.43) y el adaptador con el
+    // Apollo empieza en 0.79.
+    const float CorteEtapaColoso = 0.62f, CorteNarizColoso = 0.79f;
+
     /// <summary>Monta el Ares en «cohete» (base en su origen) y devuelve la etapa superior.</summary>
-    static Transform ConstruirAres(Transform cohete)
+    static Transform ConstruirAres(Transform cohete) =>
+        ConstruirPorEtapas(cohete, "NASA/ares1b.fbx", "Ares", AltoExplorador, CorteEtapaAres, CorteNarizAres);
+
+    /// <summary>Versión 9: el Coloso con el Saturn V de NASA 3D Resources (sin las banderas ni el «USA» del original).</summary>
+    static Transform ConstruirColoso(Transform cohete) =>
+        ConstruirPorEtapas(cohete, "NASA/saturnv.fbx", "SaturnV", AltoColoso, CorteEtapaColoso, CorteNarizColoso);
+
+    /// <summary>
+    /// Instancia un modelo de una pieza, lo escala a «alto», lo apoya en el origen de «cohete» y lo parte por altura:
+    /// primera etapa (en el cohete), etapa superior y la nariz en dos mitades con bisagra. Devuelve la etapa superior.
+    /// </summary>
+    static Transform ConstruirPorEtapas(Transform cohete, string ruta, string prefijo, float alto, float fraccionEtapa, float fraccionNariz)
     {
         var superior = new GameObject("EtapaSuperior").transform;
         superior.SetParent(cohete, false);
-        var asset = AssetDatabase.LoadAssetAtPath<GameObject>(RutaModelos + "NASA/ares1b.fbx");
-        if (asset == null) { Debug.LogError("Falta el modelo NASA/ares1b.fbx"); return superior; }
+        var asset = AssetDatabase.LoadAssetAtPath<GameObject>(RutaModelos + ruta);
+        if (asset == null) { Debug.LogError("Falta el modelo " + ruta); return superior; }
         var modelo = Object.Instantiate(asset, cohete, false);
-        modelo.name = "Ares_NASA";
+        modelo.name = prefijo + "_NASA";
         var b = Limites(modelo);
-        modelo.transform.localScale *= AltoExplorador / b.size.y;
+        modelo.transform.localScale *= alto / b.size.y;
         b = Limites(modelo);
         modelo.transform.position += new Vector3(cohete.position.x - b.center.x, cohete.position.y - b.min.y, cohete.position.z - b.center.z);
 
@@ -42,13 +60,13 @@ public static partial class ConstructorEscenas
             t.SetParent(superior, false);
             mitades[lado] = t;
         }
-        float corteEtapa = CorteEtapaAres * AltoExplorador, corteNariz = CorteNarizAres * AltoExplorador;
+        float corteEtapa = fraccionEtapa * alto, corteNariz = fraccionNariz * alto;
         var nuevas = new List<(Transform destino, Mesh malla, Material[] mats, Transform origen)>();
         foreach (var mf in modelo.GetComponentsInChildren<MeshFilter>(true))
         {
             var malla = mf.sharedMesh;
             var vs = malla.vertices;
-            var mats = System.Array.ConvertAll(mf.GetComponent<MeshRenderer>().sharedMaterials, m => MaterialNasa("Cohete_Ares", m));
+            var mats = System.Array.ConvertAll(mf.GetComponent<MeshRenderer>().sharedMaterials, m => MaterialNasa("Cohete_" + prefijo, m));
             // 0 = primera etapa, 1 = etapa superior, -1/1+1 = mitades de la nariz (por el lado en X).
             var partes = new Dictionary<int, List<int>[]>();
             for (int s = 0; s < malla.subMeshCount; s++)
@@ -69,7 +87,7 @@ public static partial class ConstructorEscenas
             }
             foreach (var par in partes)
             {
-                var nombre = "Ares_" + mf.name + "_" + new[] { "Etapa1", "Etapa2", "NarizFrente", "NarizDetras" }[par.Key];
+                var nombre = prefijo + "_" + mf.name + "_" + new[] { "Etapa1", "Etapa2", "NarizFrente", "NarizDetras" }[par.Key];
                 var guardada = GuardarMalla(Compactar(malla, par.Value), nombre);
                 // Las mitades de la nariz se ven por dentro al abrirse: material de doble cara.
                 var usar = par.Key < 2 ? mats : System.Array.ConvertAll(mats, x => DobleCara(x, x.name + "_DobleCara"));

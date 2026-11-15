@@ -35,6 +35,7 @@ namespace SpaceMission
         [SerializeField] Encuadre plataforma;
         [SerializeField] Encuadre plataformaExplorador;
         [SerializeField] Encuadre plataformaTitan;
+        [SerializeField] Encuadre plataformaColoso;
         [SerializeField] float suavizado = 0.45f;
         [Tooltip("Campo de visión en la pestaña Satélite (más cerca que en Instrumentos).")]
         [SerializeField] float campoSatelite = 44f;
@@ -87,7 +88,8 @@ namespace SpaceMission
             if (pestana == ConfiguracionUI.Pestana.Orbita) objetivo = EncajarOrbita(planeta, config.OrbitaId);
             else if (pestana == ConfiguracionUI.Pestana.Lanzador)
                 objetivo = string.IsNullOrEmpty(config.LanzadorId) || plataformaExplorador.campo <= 1f ? plataforma
-                         : PlataformaCohetes.EsTitan(config.LanzadorId) ? plataformaTitan : plataformaExplorador;
+                         : PlataformaCohetes.EsTitan(config.LanzadorId) ? plataformaTitan
+                         : PlataformaCohetes.EsColoso(config.LanzadorId) && plataformaColoso.campo > 1f ? plataformaColoso : plataformaExplorador;
             else if (pestana == ConfiguracionUI.Pestana.Satelite) { objetivo = nave; objetivo.campo = campoSatelite; }
             else if (moduloEnFoco != null && Time.unscaledTime < finFoco) objetivo = EncuadreModulo(moduloEnFoco);
             else moduloEnFoco = null;

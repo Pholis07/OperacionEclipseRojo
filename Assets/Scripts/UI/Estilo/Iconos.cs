@@ -33,12 +33,14 @@ namespace SpaceMission
         public const string Sube = "\ue04a";             // arrow-up: buff (versión 5)
         public const string Baja = "\ue042";             // arrow-down: debuff
         public const string Pista = "\ue1c2";            // lightbulb: guía del siguiente paso
+        public const string Candado = "\ue10b";          // lock: bloqueado hasta ganar un nivel (versión 9)
+        public const string Trofeo = "\ue373";           // trophy: lo que se acaba de desbloquear
         public const string Atras = "";       // arrow-left
 
         /// <summary>Todos los iconos, para generar el atlas de la fuente.</summary>
         public static readonly string Todos = Masa + Potencia + Costo + Espacios + Orbita + Lanzador + Instrumentos +
             Elegido + SinElegir + Gris + Rojo + Amarillo + Verde + Senal + Objetivo + Informe + Ajustes + Volumen +
-            Siguiente + Atras + Microscopio + Mira + Omitir + Sube + Baja + Pista + "";
+            Siguiente + Atras + Microscopio + Mira + Omitir + Sube + Baja + Pista + Candado + Trofeo + "";
 
         public static string DeInstrumento(string id)
         {
