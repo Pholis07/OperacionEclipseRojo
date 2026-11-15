@@ -841,6 +841,10 @@ namespace SpaceMission
             { "Total", "Total" },
             { "Nothing: the mission covered everything its orbit required.", "Nada: la misión cubrió todo lo que pedía su órbita." },
             { "  MARS: NASA/JPL-Caltech/MSSS (MARCI, 2018)", "  MARTE: NASA/JPL-Caltech/MSSS (MARCI, 2018)" },
+            { "OUT OF RANGE", "FUERA DE ALCANCE" },
+            { " cannot work from this orbit: it gives no evidence here.", " no puede trabajar desde esta órbita: aquí no da evidencia." },
+            { "Choose a launcher to see your braking.", "Elige un lanzador para ver tu frenado." },
+            { "too heavy to reach the orbit", "demasiado pesada para llegar a la órbita" },
         };
     }
 }

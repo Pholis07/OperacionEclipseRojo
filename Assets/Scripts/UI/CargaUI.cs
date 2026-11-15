@@ -105,7 +105,8 @@ namespace SpaceMission
                 boton.interactable = aBordo || Carga.PuedeCargar(h.id);
                 boton.GetComponent<UnityEngine.UI.Image>().color = aBordo ? ColorABordo : ColorNormal;
                 boton.GetComponentInChildren<TMP_Text>().text =
-                    (aBordo ? Idioma.T("ON BOARD  ·  ") : "") + "<b>" + h.Nombre + "</b>  ·  " + h.costoCr + " cr  ·  " + h.masaKg + " kg\n" +
+                    (aBordo ? Idioma.T("ON BOARD  ·  ") : "") + "<b>" + h.Nombre + "</b>  ·  " + h.costoCr + " cr  ·  " + h.masaKg + " kg" +
+                    (!aBordo && !Carga.AlcanzaCon(h.masaKg) ? "  ·  <color=#EF4444>" + Idioma.T("too heavy to reach the orbit") + "</color>" : "") + "\n" +
                     "<size=80%>" + h.Descripcion + "</size>";
                 boton.onClick.AddListener(() => Alternar(h.id));
                 filas.Add(boton.gameObject);

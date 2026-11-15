@@ -178,7 +178,9 @@ namespace SpaceMission
             Escaner = id;
             if (Op.Encendidos.Contains(id)) Op.Apagar(id);
             else if (!Op.Encender(id))
-                aviso = Op.Bloqueados.ContainsKey(id)
+                aviso = Op.SinAlcance(id)
+                    ? Nombre(id) + Idioma.T(" cannot work from this orbit: it gives no evidence here.")
+                    : Op.Bloqueados.ContainsKey(id)
                     ? Nombre(id) + Idioma.T(" is locked out by overheating.")
                     : Idioma.T("Not enough power to turn on ") + Nombre(id) + Idioma.T(": turn off another instrument.");
             else if (!Op.Regiones.ContainsKey(id))
@@ -431,7 +433,8 @@ namespace SpaceMission
                 var i = catalogo.Instrumento(id);
                 bool encendido = Op.Encendidos.Contains(id);
                 bool bloqueado = Op.Bloqueados.TryGetValue(id, out int resta);
-                string estado = bloqueado ? Idioma.T("LOCKED (") + Meses(resta) + ")"
+                string estado = Op.SinAlcance(id) ? Idioma.T("OUT OF RANGE")
+                    : bloqueado ? Idioma.T("LOCKED (") + Meses(resta) + ")"
                     : !encendido ? Idioma.T("OFF")
                     : Op.Regiones.ContainsKey(id) ? Idioma.T("OBSERVING") : Idioma.T("ON, NO REGION");
                 var fila = Instantiate(plantillaInstrumento, listaInstrumentos);

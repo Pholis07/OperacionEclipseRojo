@@ -15,6 +15,7 @@ namespace SpaceMission
         readonly int creditosSobrantes;
         readonly int masaLibreKg;
         readonly Configuracion config;
+        readonly MisionDatos nivel;
 
         public const string IdMro = "mro";
 
@@ -31,6 +32,7 @@ namespace SpaceMission
             Satelite = (!string.IsNullOrEmpty(config.SateliteId) ? catalogo.Satelite(config.SateliteId) : null)
                        ?? catalogo.Satelite(IdMro);
             nivel = nivel != null ? nivel : catalogo.mision;
+            this.nivel = nivel;
             var lanzador = catalogo.Lanzador(config.LanzadorId);
             creditosSobrantes = System.Math.Max(0, nivel.presupuestoCr - evaluacion.Calculo.CostoCr);
             // La masa del cálculo ya incluye el satélite (versión 6); aquí se descuenta aparte (MasaLibreKg),
@@ -69,7 +71,19 @@ namespace SpaceMission
         {
             var h = catalogo.Herramienta(id);
             return h != null && !Lleva(id) && EspaciosLibres > 0
-                   && h.costoCr <= CreditosDisponibles && h.masaKg <= MasaLibreKg;
+                   && h.costoCr <= CreditosDisponibles && h.masaKg <= MasaLibreKg && AlcanzaCon(h.masaKg);
+        }
+
+        /// <summary>
+        /// ¿La nave sigue llegando a su órbita con «extraKg» más? La masa seca es la de la Configuración (base,
+        /// satélite actual e instrumentos) más las herramientas: cada herramienta resta frenado (versión 6).
+        /// </summary>
+        public bool AlcanzaCon(int extraKg = 0)
+        {
+            var orbita = string.IsNullOrEmpty(config.OrbitaId) ? null : catalogo.Orbita(config.OrbitaId);
+            var lanzador = string.IsNullOrEmpty(config.LanzadorId) ? null : catalogo.Lanzador(config.LanzadorId);
+            int masaSeca = Calculador.MasaSecaKg(config, catalogo, nivel) + Herramientas.Sum(h => catalogo.Herramienta(h).masaKg) + extraKg;
+            return Alcance.Evaluar(lanzador, orbita, masaSeca, reglas).Alcanza;
         }
 
         public bool Cargar(string id)
