@@ -70,6 +70,27 @@ public static class DatosNasa
             "Como MAVEN: 150 × 6,200 km, 75°, 4.5 horas. Baja a la alta atmósfera en cada vuelta: por eso necesita el sensor atmosférico.",
             "NASA/LASP (MAVEN)");
 
+        // Versión 7: dos órbitas nuevas (paquete de diseño del 15 de noviembre, valores aprobados por Diego).
+        OrbitaNueva("ecuatorial", "Low equatorial",
+            "Circles Mars near the equator at low altitude and passes over the anomaly region again and again.",
+            100, 300, 300,
+            "Repeated low passes over the anomaly (Gale crater, about 5° S)",
+            "Never sees the poles",
+            new[] { "termica", "radar" }, new[] { "alta_res" }, new string[0], "",
+            "No Mars orbiter has flown a low equatorial orbit yet. An equatorial orbit only covers low latitudes; Gale crater, where Curiosity landed, is at about 5° S.",
+            "Ningún orbitador de Marte ha volado todavía una órbita ecuatorial baja. Una órbita ecuatorial solo cubre latitudes bajas; el cráter Gale, donde aterrizó Curiosity, está a unos 5° S.",
+            "NASA/JPL");
+        OrbitaNueva("areoestacionaria", "Areostationary",
+            "Stays fixed over one point of the equator, about 17,000 km up, watching the same hemisphere all the time.",
+            160, 17031, 17031,
+            "Continuous watch of the storm over the region",
+            "Too far for the subsurface radar and the high-resolution camera: at most a partial result",
+            new[] { "termica", "radar" }, new[] { "atmosferico" }, new[] { "radar", "alta_res" },
+            "From 17,000 km the subsurface radar and the high-resolution camera cannot work: this orbit gives at most a partial result.",
+            "Areostationary orbit: about 17,032 km above the equator (20,428 km from the center), one turn every 24 h 37 min, the same as Mars' rotation. Proposed for weather monitoring and relay; no spacecraft uses it yet.",
+            "Órbita areoestacionaria: unos 17,032 km sobre el ecuador (20,428 km desde el centro), una vuelta cada 24 h 37 min, igual que la rotación de Marte. Propuesta para vigilar el clima y como repetidor; todavía no la usa ninguna nave.",
+            "NASA NTRS (Montabone et al., 2020)");
+
         Satelite("mro",
             "Reference spacecraft: 1,031 kg dry, about 1,000 W at Mars, 160 Gb of storage, up to 6 Mbps to Earth.",
             "Nave de referencia: 1,031 kg en seco, unos 1,000 W en Marte, 160 Gb de memoria, hasta 6 Mbps hacia la Tierra.",
@@ -101,7 +122,7 @@ public static class DatosNasa
             "NASA NSSDC");
 
         AssetDatabase.SaveAssets();
-        Debug.Log("[DatosNasa] Datos de la versión 6 escritos.");
+        Debug.Log("[DatosNasa] Datos de la versión 7 escritos.");
     }
 
     static T Cargar<T>(string nombre) where T : Object
@@ -139,6 +160,31 @@ public static class DatosNasa
         o.apoapsisKm = apoapsis;
         o.datoNasa = en; o.datoNasaEs = es; o.fuenteNasa = fuente;
         EditorUtility.SetDirty(o);
+    }
+
+    /// <summary>Crea (o actualiza) una órbita que no estaba en el plan original y la añade al catálogo.</summary>
+    static void OrbitaNueva(string id, string nombre, string descripcion, int costo, int periapsis, int apoapsis,
+        string ventaja, string limitacion, string[] requisito, string[] revelaciones, string[] sinAlcance, string motivoSinAlcance,
+        string en, string es, string fuente)
+    {
+        var ruta = Carpeta + "Orbita_" + id + ".asset";
+        var o = AssetDatabase.LoadAssetAtPath<OrbitaDatos>(ruta);
+        if (o == null)
+        {
+            o = ScriptableObject.CreateInstance<OrbitaDatos>();
+            AssetDatabase.CreateAsset(o, ruta);
+        }
+        o.id = id; o.nombre = nombre; o.descripcionBreve = descripcion; o.costoCr = costo;
+        o.periapsisKm = periapsis; o.apoapsisKm = apoapsis;
+        o.ventaja = ventaja; o.limitacion = limitacion;
+        o.requisitoDeVictoria = new System.Collections.Generic.List<string>(requisito);
+        o.revelacionesDesbloqueadas = new System.Collections.Generic.List<string>(revelaciones);
+        o.instrumentosSinAlcance = new System.Collections.Generic.List<string>(sinAlcance);
+        o.motivoSinAlcance = motivoSinAlcance;
+        o.datoNasa = en; o.datoNasaEs = es; o.fuenteNasa = fuente;
+        EditorUtility.SetDirty(o);
+        var catalogo = Cargar<CatalogoDatos>("Catalogo");
+        if (!catalogo.orbitas.Contains(o)) { catalogo.orbitas.Add(o); EditorUtility.SetDirty(catalogo); }
     }
 
     static void Reglas(float velocidadLlegada, int isp, string en, string es, string fuente)

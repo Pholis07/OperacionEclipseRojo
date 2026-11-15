@@ -90,14 +90,16 @@ namespace SpaceMission.Tests
         [Test]
         public void ElSatelitePesaYDecideLaOrbita()
         {
-            // Térmica + radar (430 kg) llega a las órbitas bajas con cualquier satélite (Chandra: 470 de 480 kg).
+            // Térmica + radar (430 kg) llega a todas las órbitas con cualquier satélite (Chandra: 470 kg; la más
+            // exigente, la ecuatorial baja, admite 478).
             foreach (var s in catalogo.satelites)
-                Assert.AreEqual(3, Alcance.Alcanzables(Config("explorador", null, "termica+radar", s.id), catalogo).Count, s.id);
+                Assert.AreEqual(5, Alcance.Alcanzables(Config("explorador", null, "termica+radar", s.id), catalogo).Count, s.id);
 
-            // Radar + espectrómetro (495 kg) ya no: con el Explorador solo queda la elíptica; con el Titán, todas.
-            CollectionAssert.AreEqual(new[] { "eliptica" },
+            // Radar + espectrómetro (495 kg) ya no llega a las bajas: con el Explorador quedan la elíptica y la
+            // areoestacionaria (piden menos frenado); con el Titán, todas.
+            CollectionAssert.AreEqual(new[] { "eliptica", "areoestacionaria" },
                 Alcance.Alcanzables(Config("explorador", null, "radar+espectrometro"), catalogo).Select(o => o.id).ToArray());
-            Assert.AreEqual(3, Alcance.Alcanzables(Config("titan", null, "radar+espectrometro", "chandra"), catalogo).Count);
+            Assert.AreEqual(5, Alcance.Alcanzables(Config("titan", null, "radar+espectrometro", "chandra"), catalogo).Count);
         }
 
         [Test]

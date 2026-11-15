@@ -29,3 +29,5 @@ MonoBehaviour:
   revelacionesDesbloqueadas:
   - alta_res
   - espectrometro
+  instrumentosSinAlcance: []
+  motivoSinAlcance: 

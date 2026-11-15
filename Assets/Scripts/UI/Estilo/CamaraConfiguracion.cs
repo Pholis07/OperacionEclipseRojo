@@ -84,7 +84,7 @@ namespace SpaceMission
             DetectarInstalacion(config, enConfiguracion && pestana == ConfiguracionUI.Pestana.Instrumentos);
 
             Encuadre objetivo = nave;
-            if (pestana == ConfiguracionUI.Pestana.Orbita) objetivo = planeta;
+            if (pestana == ConfiguracionUI.Pestana.Orbita) objetivo = EncajarOrbita(planeta, config.OrbitaId);
             else if (pestana == ConfiguracionUI.Pestana.Lanzador)
                 objetivo = string.IsNullOrEmpty(config.LanzadorId) || plataformaExplorador.campo <= 1f ? plataforma
                          : PlataformaCohetes.EsTitan(config.LanzadorId) ? plataformaTitan : plataformaExplorador;
@@ -94,6 +94,12 @@ namespace SpaceMission
 
             bool enBriefing = vistaBriefing != null && vistaBriefing.activeInHierarchy && briefing.campo > 1f;
             if (enBriefing) objetivo = briefing;
+
+            // Al alejarse para encajar una órbita grande, la plataforma del cohete entraría en cuadro: se oculta.
+            if (plataformaCohetes == null) plataformaCohetes = FindFirstObjectByType<PlataformaCohetes>(FindObjectsInactive.Include);
+            bool verPlataforma = !(enConfiguracion && pestana == ConfiguracionUI.Pestana.Orbita) && !enBriefing;
+            if (plataformaCohetes != null && plataformaCohetes.gameObject.activeSelf != verPlataforma)
+                plataformaCohetes.gameObject.SetActive(verPlataforma);
 
             // La nave no se ve mientras se mira el planeta (estaría delante, flotando sin sentido).
             MostrarNave(pestana != ConfiguracionUI.Pestana.Orbita && !enBriefing);
@@ -111,6 +117,47 @@ namespace SpaceMission
             transform.rotation = Quaternion.LookRotation(mirar - posicion, Vector3.up);
             camara.fieldOfView = campo;
             ColocarEtiqueta();
+        }
+
+        // Versión 7: hueco central de la pantalla, entre el panel izquierdo (hasta 0.36) y el derecho (desde 0.655),
+        // y entre el rótulo de abajo y la cabecera de arriba. Marte y la órbita elegida deben caber ahí enteros.
+        const float AnchoCentral = 0.295f, AltoCentral = 0.66f, MargenEncaje = 1.12f;
+        AnilloOrbita anillo;
+        PlataformaCohetes plataformaCohetes;
+
+        /// <summary>
+        /// El encuadre del planeta, alejado o acercado lo justo para que el planeta y la órbita elegida se vean
+        /// completos en el hueco central (no cortados por los paneles). Sin órbita, solo el planeta.
+        /// </summary>
+        public Encuadre EncajarOrbita(Encuadre e, string orbitaId)
+        {
+            if (anillo == null) anillo = FindFirstObjectByType<AnilloOrbita>();
+            if (anillo == null) return e;
+            var centro = anillo.Centro;
+            var hacia = (e.posicion - e.mirarA).normalized;          // del planeta a la cámara
+            var rotacion = Quaternion.LookRotation(-hacia, Vector3.up);
+            Vector3 derecha = rotacion * Vector3.right, arriba = rotacion * Vector3.up;
+
+            // Caja que contiene al planeta y a la órbita, vista desde la cámara. Se encuadra el centro de la caja
+            // (no el del planeta): una órbita excéntrica queda a un lado y así Marte se ve más grande.
+            float r = anillo.RadioPlaneta;
+            float minX = -r, maxX = r, minY = -r, maxY = r;
+            if (!string.IsNullOrEmpty(orbitaId))
+                foreach (var p in anillo.PuntosMundo(orbitaId))
+                {
+                    float x = Vector3.Dot(p - centro, derecha), y = Vector3.Dot(p - centro, arriba);
+                    minX = Mathf.Min(minX, x); maxX = Mathf.Max(maxX, x);
+                    minY = Mathf.Min(minY, y); maxY = Mathf.Max(maxY, y);
+                }
+            float mitadX = (maxX - minX) * 0.5f, mitadY = (maxY - minY) * 0.5f;
+            centro += derecha * ((minX + maxX) * 0.5f) + arriba * ((minY + maxY) * 0.5f);
+
+            float campoE = e.campo > 1f ? e.campo : 60f;
+            float tanV = Mathf.Tan(campoE * 0.5f * Mathf.Deg2Rad);
+            float aspecto = camara != null && camara.aspect > 0.1f ? camara.aspect : 16f / 9f;
+            // A la distancia d, el hueco central mide d·tanV·aspecto·AnchoCentral de medio ancho y d·tanV·AltoCentral de medio alto.
+            float distancia = Mathf.Max(mitadX / (tanV * aspecto * AnchoCentral), mitadY / (tanV * AltoCentral)) * MargenEncaje;
+            return new Encuadre { posicion = centro + hacia * distancia, mirarA = centro, campo = campoE };
         }
 
         /// <summary>

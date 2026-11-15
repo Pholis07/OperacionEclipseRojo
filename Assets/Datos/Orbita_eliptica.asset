@@ -29,3 +29,5 @@ MonoBehaviour:
   - atmosferico
   revelacionesDesbloqueadas:
   - atmosferico
+  instrumentosSinAlcance: []
+  motivoSinAlcance: 

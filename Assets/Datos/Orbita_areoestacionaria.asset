@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d129c78de4a3bb170b7fc2913d464c90, type: 3}
+  m_Name: Orbita_areoestacionaria
+  m_EditorClassIdentifier: SpaceMission::SpaceMission.OrbitaDatos
+  id: areoestacionaria
+  nombre: Areostationary
+  descripcionBreve: Stays fixed over one point of the equator, about 17,000 km up, watching the same hemisphere all the time.
+  costoCr: 160
+  periapsisKm: 17031
+  apoapsisKm: 17031
+  ventaja: Continuous watch of the storm over the region
+  limitacion: 'Too far for the subsurface radar and the high-resolution camera: at most a partial result'
+  datoNasa: 'Areostationary orbit: about 17,032 km above the equator (20,428 km from the center), one turn every 24 h 37 min, the same as Mars'' rotation. Proposed for weather monitoring and relay; no spacecraft uses it yet.'
+  datoNasaEs: "\xD3rbita areoestacionaria: unos 17,032 km sobre el ecuador (20,428 km desde el centro), una vuelta cada 24 h 37 min, igual que la rotaci\xF3n de Marte. Propuesta para vigilar el clima y como repetidor; todav\xEDa no la usa ninguna nave."
+  fuenteNasa: NASA NTRS (Montabone et al., 2020)
+  requisitoDeVictoria:
+  - termica
+  - radar
+  revelacionesDesbloqueadas:
+  - atmosferico
+  instrumentosSinAlcance:
+  - radar
+  - alta_res
+  motivoSinAlcance: 'From 17,000 km the subsurface radar and the high-resolution camera cannot work: this orbit gives at most a partial result.'

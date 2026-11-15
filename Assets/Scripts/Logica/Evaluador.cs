@@ -38,7 +38,9 @@ namespace SpaceMission
         static void EvaluarValida(Evaluacion e, Configuracion config, CatalogoDatos catalogo)
         {
             var orbita = catalogo.Orbita(config.OrbitaId);
-            var elegidos = config.InstrumentoIds;
+            // Versión 7: desde algunas órbitas hay instrumentos que no pueden trabajar (OrbitaDatos.instrumentosSinAlcance).
+            // Siguen a bordo (pesan y cuestan), pero no dan evidencia.
+            var elegidos = config.InstrumentoIds.Where(id => !orbita.instrumentosSinAlcance.Contains(id)).ToList();
 
             e.SePuedeLanzar = true;
             e.PistasPrincipales.AddRange(elegidos.Where(id => EsPrincipal(id, catalogo)));
@@ -53,8 +55,10 @@ namespace SpaceMission
             e.Mensaje = e.Estado == EstadoSemaforo.Verde
                 ? Idioma.T("Setup ready: it covers all the evidence the orbit requires.")
                 : MensajeAmarillo(e, catalogo);
+            if (orbita.instrumentosSinAlcance.Count > 0 && !string.IsNullOrEmpty(orbita.motivoSinAlcance))
+                e.Mensaje += " " + orbita.MotivoSinAlcance;
 
-            ElegirTransmisiones(e, config, orbita, catalogo);
+            ElegirTransmisiones(e, elegidos, orbita, catalogo);
         }
 
         /// <summary>
@@ -65,7 +69,7 @@ namespace SpaceMission
         /// para la victoria (TX-A4 y TX-A5 en polar baja). Por eso el sensor atmosférico que falta en media
         /// inclinada no se anuncia, como pide Transmisiones.md.
         /// </summary>
-        static void ElegirTransmisiones(Evaluacion e, Configuracion config, OrbitaDatos orbita, CatalogoDatos catalogo)
+        static void ElegirTransmisiones(Evaluacion e, List<string> elegidos, OrbitaDatos orbita, CatalogoDatos catalogo)
         {
             var presentes = new List<TransmisionDatos>();
             var ausentes = new List<TransmisionDatos>();
@@ -80,7 +84,7 @@ namespace SpaceMission
                     continue;
                 }
 
-                bool elegido = config.InstrumentoIds.Contains(t.instrumentoId);
+                bool elegido = elegidos.Contains(t.instrumentoId);
                 bool principal = t.tipo == TipoTransmision.Principal;
                 bool desbloqueado = orbita.revelacionesDesbloqueadas.Contains(t.instrumentoId);
 

@@ -30,6 +30,7 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Button[] botonesNivel;   // 0, 1 y 2
         [SerializeField] UnityEngine.UI.Button botonTutorial;    // versión 5: Misión 0
         [SerializeField] TutorialUI tutorial;
+        [SerializeField] UnityEngine.UI.Button botonMenu;        // versión 7: volver al menú desde el Briefing
 
         public CatalogoDatos Catalogo => catalogo;
         public OperacionUI Operacion => operacion;
@@ -38,6 +39,7 @@ namespace SpaceMission
         {
             botonContinuar.onClick.AddListener(MostrarConfiguracion);
             if (botonTutorial != null) botonTutorial.onClick.AddListener(IniciarTutorial);
+            if (botonMenu != null) botonMenu.onClick.AddListener(VolverAlMenu);
             for (int i = 0; i < botonesNivel.Length; i++)
             {
                 int nivel = i;
@@ -45,6 +47,13 @@ namespace SpaceMission
             }
             LlenarBriefing();
             AbrirVistaInicial();
+        }
+
+        /// <summary>Vuelve al menú principal (la pantalla de título no se repite).</summary>
+        public void VolverAlMenu()
+        {
+            ReproductorUI.Callar();
+            if (Application.isPlaying) UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
         }
 
         /// <summary>Briefing al empezar; Configuración si se viene de «Modificar mi misión».</summary>

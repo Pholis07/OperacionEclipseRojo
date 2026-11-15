@@ -109,7 +109,7 @@ namespace SpaceMission
         {
             switch (p)
             {
-                case PantallaMision.Briefing: Anclar(raiz, 0.05f, 0.03f, 0.42f, 0.13f); Anclar(rectAyuda, 0.957f, 0.925f, 0.985f, 0.975f); break;
+                case PantallaMision.Briefing: Anclar(raiz, 0.175f, 0.03f, 0.42f, 0.13f); Anclar(rectAyuda, 0.957f, 0.925f, 0.985f, 0.975f); break;
                 case PantallaMision.Configuracion: Anclar(raiz, 0.37f, 0.8f, 0.63f, 0.875f); Anclar(rectAyuda, 0.362f, 0.928f, 0.39f, 0.975f); break;
                 case PantallaMision.Revision: Anclar(raiz, 0.765f, 0.42f, 0.985f, 0.62f); Anclar(rectAyuda, 0.957f, 0.925f, 0.985f, 0.975f); break;
                 case PantallaMision.Carga: Anclar(raiz, 0.79f, 0.42f, 0.99f, 0.62f); Anclar(rectAyuda, 0.957f, 0.925f, 0.985f, 0.975f); break;

@@ -712,7 +712,7 @@ namespace SpaceMission
             { "<color=#5EC8E5><b>3D MODELS</b></color>", "<color=#5EC8E5><b>MODELOS 3D</b></color>" },
             { "<color=#5EC8E5><b>AUDIO</b></color>", "<color=#5EC8E5><b>AUDIO</b></color>" },
             { "<color=#5EC8E5><b>FONTS AND ICONS</b></color>", "<color=#5EC8E5><b>FUENTES E ICONOS</b></color>" },
-            { "Adrian Robles · Diego Esparza · Sofía Esparza — NASA Space Apps Challenge 2026", "Adrian Robles · Diego Esparza · Sofía Esparza — NASA Space Apps Challenge 2026" },
+            { "Adrian Robles · Diego Esparza — NASA Space Apps Challenge 2026", "Adrian Robles · Diego Esparza — NASA Space Apps Challenge 2026" },
             { "NASA/JPL-Caltech, MSSS, University of Arizona (HiRISE), Arizona State University (THEMIS), ASI (SHARAD) and JHUAPL (CRISM). Mars and Earth textures: Solar System Scope (CC BY 4.0).", "NASA/JPL-Caltech, MSSS, Universidad de Arizona (HiRISE), Universidad Estatal de Arizona (THEMIS), ASI (SHARAD) y JHUAPL (CRISM). Texturas de Marte y la Tierra: Solar System Scope (CC BY 4.0)." },
             { "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD and Space Launch System. Instruments: the team's own kit.", "NASA 3D Resources: Mars Reconnaissance Orbiter, Magellan, Chandra, Aquarius, LLCD y Space Launch System. Instrumentos: kit propio del equipo." },
             { "<color=#94A3B8>NASA does not sponsor or endorse this game. Mass, power and cost values are fictional. Full details in CREDITOS.md.</color>", "<color=#94A3B8>La NASA no patrocina ni respalda este juego. Los valores de masa, potencia y costo son ficticios. Detalles completos en CREDITOS.md.</color>" },
@@ -722,7 +722,6 @@ namespace SpaceMission
             { " · CHOOSE THE ORBIT", " · ELIGE LA ÓRBITA" },
             { " · CHOOSE THE ROCKET", " · ELIGE EL COHETE" },
             { " · CHOOSE THE SATELLITE", " · ELIGE EL SATÉLITE" },
-            { "MARS\n<size=24><color=#94A3B8>Each color is an orbit. Low orbits need more braking: the ones your spacecraft cannot reach are locked.</color></size>", "MARTE\n<size=24><color=#94A3B8>Cada color es una órbita. Las bajas piden más frenado: las que tu nave no alcanza aparecen bloqueadas.</color></size>" },
             { "LAUNCH PAD\n<size=24><color=#94A3B8>The rocket decides how much mass you can carry and how far it can take it.</color></size>", "PLATAFORMA DE LANZAMIENTO\n<size=24><color=#94A3B8>El cohete decide cuánta masa puedes llevar y hasta dónde la lleva.</color></size>" },
             { "TITAN\n<size=24><color=#94A3B8>Look inspired by NASA’s SLS. ", "TITÁN\n<size=24><color=#94A3B8>Aspecto inspirado en el SLS de la NASA. " },
             { "EXPLORER\n<size=24><color=#94A3B8>Like the Soyuz-Fregat. ", "EXPLORADOR\n<size=24><color=#94A3B8>Como el Soyuz-Fregat. " },
@@ -797,6 +796,21 @@ namespace SpaceMission
             { "– NASA data", "– Dato NASA" },
             { "Your braking: ", "Tu frenado: " },
             { "How is it calculated?", "¿Cómo se calcula?" },
+            // Versión 7.
+            { "  Menu", "  Menú" },
+            { "SELECT AN ORBIT", "SELECCIONA UNA ÓRBITA" },
+            { "Mars is shown without trajectories until you choose one.", "Marte se ve sin trayectorias hasta que elijas una." },
+            { "Schematic, not to scale", "Esquema no a escala" },
+            // Versión 7: órbitas nuevas.
+            { "Low equatorial", "Ecuatorial baja" },
+            { "Circles Mars near the equator at low altitude and passes over the anomaly region again and again.", "Rodea Marte cerca del ecuador a baja altitud y pasa una y otra vez sobre la región de la anomalía." },
+            { "Repeated low passes over the anomaly (Gale crater, about 5° S)", "Pasadas bajas repetidas sobre la anomalía (cráter Gale, unos 5° S)" },
+            { "Never sees the poles", "Nunca ve los polos" },
+            { "Areostationary", "Areoestacionaria" },
+            { "Stays fixed over one point of the equator, about 17,000 km up, watching the same hemisphere all the time.", "Se queda fija sobre un punto del ecuador, a unos 17,000 km, mirando siempre el mismo hemisferio." },
+            { "Continuous watch of the storm over the region", "Vigilancia continua de la tormenta sobre la región" },
+            { "Too far for the subsurface radar and the high-resolution camera: at most a partial result", "Demasiado lejos para el radar de subsuelo y la cámara de alta resolución: como mucho, resultado parcial" },
+            { "From 17,000 km the subsurface radar and the high-resolution camera cannot work: this orbit gives at most a partial result.", "Desde 17,000 km el radar de subsuelo y la cámara de alta resolución no pueden trabajar: esta órbita da como mucho un resultado parcial." },
         };
     }
 }

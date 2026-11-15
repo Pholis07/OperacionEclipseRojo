@@ -88,7 +88,7 @@ namespace SpaceMission
             {
                 case ConfiguracionUI.Pestana.Orbita:
                     textoInstruccion.text = n + Idioma.T(" · CHOOSE THE ORBIT");
-                    textoLeyenda.text = Idioma.T("MARS\n<size=24><color=#94A3B8>Each color is an orbit. Low orbits need more braking: the ones your spacecraft cannot reach are locked.</color></size>");
+                    textoLeyenda.text = RotuloOrbita(c.OrbitaId);
                     break;
                 case ConfiguracionUI.Pestana.Lanzador:
                     textoInstruccion.text = n + Idioma.T(" · CHOOSE THE ROCKET");
@@ -108,6 +108,23 @@ namespace SpaceMission
                     textoLeyenda.text = Idioma.T("SPACECRAFT VIEW\n<size=24><color=#94A3B8>When you choose an instrument you will see where it is installed.</color></size>");
                     break;
             }
+        }
+
+        /// <summary>
+        /// Versión 7: rótulo fijo bajo el planeta (antes era una etiqueta flotante que se cortaba con los paneles).
+        /// Sin elección: «Selecciona una órbita». Con elección: su nombre en su color y su altitud real; si se dibuja
+        /// más cerca de lo real (areoestacionaria), «Esquema no a escala».
+        /// </summary>
+        public string RotuloOrbita(string orbitaId)
+        {
+            var o = string.IsNullOrEmpty(orbitaId) ? null : configuracion.Catalogo.Orbita(orbitaId);
+            if (o == null)
+                return Idioma.T("SELECT AN ORBIT") + "\n<size=24><color=#94A3B8>" + Idioma.T("Mars is shown without trajectories until you choose one.") + "</color></size>";
+            string altitud = o.periapsisKm <= 0 ? ""
+                : o.periapsisKm == o.apoapsisKm ? TextosBriefing.Numero(o.periapsisKm) + " km"
+                : TextosBriefing.Numero(o.periapsisKm) + " × " + TextosBriefing.Numero(o.apoapsisKm) + " km";
+            if (Trayectoria.NoAEscala(orbitaId)) altitud += (altitud == "" ? "" : "  ·  ") + Idioma.T("Schematic, not to scale");
+            return "<color=" + Trayectoria.ColorHex(orbitaId) + ">" + o.Nombre.ToUpperInvariant() + "</color>\n<size=24><color=#94A3B8>" + altitud + "</color></size>";
         }
 
         static string NombrePestana(ConfiguracionUI.Pestana p) =>

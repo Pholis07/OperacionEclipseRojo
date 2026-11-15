@@ -127,7 +127,7 @@ namespace SpaceMission
             (l.masaInyectadaKg > 0 ? Dato(Iconos.Lanzador, Idioma.T("Sends toward Mars"), TextosBriefing.Numero(l.masaInyectadaKg) + Idioma.T(" kg (spacecraft + fuel)")) : "");
 
         // Versión 6: el dato real de la NASA no va en la ayuda; se abre con el botón «+ Dato NASA» (ConfiguracionUI).
-        public static string DatoNasa(OrbitaDatos o) => Nasa(o.DatoNasa, o.fuenteNasa);
+        public static string DatoNasa(OrbitaDatos o) => "\n" + o.DescripcionBreve + Nasa(o.DatoNasa, o.fuenteNasa);
         public static string DatoNasa(LanzadorDatos l) => Nasa(l.DatoNasa, l.fuenteNasa);
         public static string DatoNasa(InstrumentoDatos i) => Nasa(i.DatoNasa, i.fuenteNasa);
         public static string DatoNasa(SateliteDatos s) => Nasa(s.DatoNasa, s.fuenteNasa);
@@ -141,9 +141,10 @@ namespace SpaceMission
                 ? Idioma.T("Within reach: needs ") + TextosBriefing.Numero(a.NecesarioMs) + Idioma.T(" m/s of braking, you have ") + TextosBriefing.Numero(a.DisponibleMs) + " m/s"
                 : Idioma.T("Out of reach: needs ") + TextosBriefing.Numero(a.NecesarioMs) + Idioma.T(" m/s of braking, you have ") + TextosBriefing.Numero(a.DisponibleMs) +
                   Idioma.T(" m/s. Remove mass (satellite or instruments) or use a bigger launcher.");
-            int corte = texto.IndexOf('\n');
-            // Va justo después del nombre, antes de la descripción: es lo primero que hay que saber.
-            return texto.Substring(0, corte) + Modificador(new SpaceMission.Modificador(a.Alcanza, linea)) + texto.Substring(corte);
+            // Versión 7: solo lo esencial para que se lea (nombre, alcance, ventaja y límite). La descripción va con
+            // el dato de la NASA en el botón «+ Dato NASA»; el costo ya está en la tarjeta.
+            return "<b>" + o.Nombre + "</b>" + Modificador(new SpaceMission.Modificador(a.Alcanza, linea)) +
+                   Modificador(new SpaceMission.Modificador(true, o.Ventaja)) + Modificador(new SpaceMission.Modificador(false, o.Limitacion));
         }
 
         /// <summary>

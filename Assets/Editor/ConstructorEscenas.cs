@@ -359,7 +359,7 @@ public static partial class ConstructorEscenas
         string Seccion(string titulo, string texto) =>
             "<color=#" + ColorUtility.ToHtmlStringRGB(Cian) + "><b>" + titulo + "</b></color>\n" + texto;
         var lista = Texto(tarjeta, "Lista",
-            Seccion("TEAM", "Adrian Robles · Diego Esparza · Sofía Esparza — NASA Space Apps Challenge 2026") + "\n\n" +
+            Seccion("TEAM", "Adrian Robles · Diego Esparza — NASA Space Apps Challenge 2026") + "\n\n" +
             Seccion("MARS IMAGERY", "NASA/JPL-Caltech, MSSS, University of Arizona (HiRISE), Arizona State University (THEMIS), " +
                 "ASI (SHARAD) and JHUAPL (CRISM). Mars and Earth textures: Solar System Scope (CC BY 4.0).") + "\n\n" +
             Seccion("STARS", "Deep Star Maps 2020: NASA/Goddard Space Flight Center Scientific Visualization Studio. Gaia DR2: ESA/Gaia/DPAC.") + "\n\n" +
@@ -685,6 +685,10 @@ public static partial class ConstructorEscenas
 
         var continuar = Boton(briefing, "BotonContinuar", "Continue  " + SpaceMission.Iconos.Siguiente, true);
         Fijar(continuar.GetComponent<RectTransform>(), new Vector2(0.95f, 0.05f), new Vector2(1, 0), new Vector2(520, 88));
+        // Versión 7: volver al menú, abajo a la izquierda (la tarjeta de consejos va a su derecha).
+        var botonMenu = Boton(briefing, "BotonMenu", SpaceMission.Iconos.Atras + "  Menu", false);
+        Fijar(botonMenu.GetComponent<RectTransform>(), new Vector2(0.05f, 0.05f), new Vector2(0, 0), new Vector2(220, 88));
+        AjustarTexto(botonMenu);
         // Versión 5, bloque 4: la Misión 0 (tutorial), a la izquierda de «Continue». MisionUI pone el texto.
         var botonTutorial = Boton(briefing, "BotonTutorial", "Mission 0: tutorial", false);
         Fijar(botonTutorial.GetComponent<RectTransform>(), new Vector2(0.667f, 0.05f), new Vector2(1, 0), new Vector2(460, 88));
@@ -694,6 +698,7 @@ public static partial class ConstructorEscenas
 
         var controlador = new GameObject("MisionUI").AddComponent<MisionUI>();
         AsignarLista(controlador, "botonesNivel", botonesNivel);
+        Asignar(controlador, "botonMenu", botonMenu);
 
         // Escena 3D de Configuración: estrellas, Marte abajo con la órbita elegida y la nave en el centro.
         PrepararCamara();
@@ -1681,16 +1686,45 @@ public static partial class ConstructorEscenas
     {
         var ui = vista.gameObject.AddComponent<RevisionUI>();
         var tarjeta = Columna(vista, "Tarjeta", 22, TextAnchor.UpperLeft, Tarjeta, 48);
-        Anclar(tarjeta, new Vector2(0.25f, 0.08f), new Vector2(0.75f, 0.92f));
+        Anclar(tarjeta, new Vector2(0.25f, 0.045f), new Vector2(0.75f, 0.955f));
         tarjeta.gameObject.AddComponent<CanvasGroup>();
         MarcoHud(tarjeta);
         var paso = Texto(tarjeta, "Paso", Paso(3), 24, TextoSecundario, FontStyles.Normal, TextAlignmentOptions.Left);
         paso.font = ConstructorEstilo.Mono;
-        Texto(tarjeta, "Titulo", "Mission review", 56, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
+        Texto(tarjeta, "Titulo", "Mission review", 52, TextoClaro, FontStyles.Bold, TextAlignmentOptions.Left);
         Linea(tarjeta);
-        var resumen = Texto(tarjeta, "TextoResumen", "", 30, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
-        resumen.lineSpacing = 6;
-        resumen.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        // Versión 7: el resumen va en una zona con scroll (rueda del ratón o arrastre) y su barra a la derecha;
+        // con el satélite y el frenado ya no cabía y se cortaba detrás de los botones.
+        var zona = Vacio(tarjeta, "ZonaResumen");
+        zona.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
+        var fondoZona = zona.gameObject.AddComponent<UnityEngine.UI.Image>();
+        fondoZona.color = new Color(0, 0, 0, 0);   // transparente, pero recibe la rueda y el arrastre
+        zona.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
+        var resumen = Texto(zona, "TextoResumen", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
+        resumen.lineSpacing = 4;
+        var rtResumen = resumen.rectTransform;
+        rtResumen.anchorMin = new Vector2(0, 1); rtResumen.anchorMax = new Vector2(1, 1); rtResumen.pivot = new Vector2(0, 1);
+        rtResumen.offsetMin = new Vector2(0, 0); rtResumen.offsetMax = new Vector2(-22, 0);
+        var ajusteResumen = resumen.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>();
+        ajusteResumen.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
+        var barra = Panel(zona, "BarraScroll", FondoBarra);
+        barra.anchorMin = new Vector2(1, 0); barra.anchorMax = new Vector2(1, 1); barra.pivot = new Vector2(1, 0.5f);
+        barra.offsetMin = new Vector2(-10, 0); barra.offsetMax = new Vector2(0, 0);
+        var asa = Panel(barra, "Asa", Cian);
+        asa.offsetMin = asa.offsetMax = Vector2.zero;
+        var scrollbar = barra.gameObject.AddComponent<UnityEngine.UI.Scrollbar>();
+        scrollbar.handleRect = asa;
+        scrollbar.targetGraphic = asa.GetComponent<UnityEngine.UI.Image>();
+        scrollbar.direction = UnityEngine.UI.Scrollbar.Direction.BottomToTop;
+        var scroll = zona.gameObject.AddComponent<UnityEngine.UI.ScrollRect>();
+        scroll.content = rtResumen;
+        scroll.viewport = zona;
+        scroll.horizontal = false;
+        scroll.vertical = true;
+        scroll.movementType = UnityEngine.UI.ScrollRect.MovementType.Clamped;
+        scroll.scrollSensitivity = 40f;
+        scroll.verticalScrollbar = scrollbar;
+        scroll.verticalScrollbarVisibility = UnityEngine.UI.ScrollRect.ScrollbarVisibility.AutoHide;
         var botones = Fila(tarjeta, "Botones", 24);
         Alto(botones, 88);
         var corregir = Boton(botones, "BotonCorregir", SpaceMission.Iconos.Atras + "  Fix", false);
@@ -1702,6 +1736,7 @@ public static partial class ConstructorEscenas
         Asignar(ui, "catalogo", catalogo);
         Asignar(ui, "mision", mision);
         Asignar(ui, "textoResumen", resumen);
+        Asignar(ui, "scroll", scroll);
         Asignar(ui, "botonCorregir", corregir);
         Asignar(ui, "botonLanzar", lanzar);
         return ui;
@@ -2043,8 +2078,8 @@ public static partial class ConstructorEscenas
     }
 
     /// <summary>
-    /// Órbitas de Configuración: la elegida (línea del propio objeto, con halo, estela y marcador) y las tres
-    /// para comparar en la pestaña Órbita, cada una con su color (Trayectoria.Color) y su nombre.
+    /// Órbita de Configuración: solo la elegida (línea del propio objeto, con halo, estela y marcador), con su
+    /// color (Trayectoria.Color). Versión 7: una sola trayectoria visible.
     /// </summary>
     static AnilloOrbita ConstruirAnilloOrbita(Transform marte, CatalogoDatos catalogo)
     {
@@ -2078,23 +2113,8 @@ public static partial class ConstructorEscenas
         Asignar(anillo, "brillo", brillo);
         Asignar(anillo, "estela", estela);
 
-        // Las tres órbitas para comparar (solo en la pestaña Órbita).
-        var ids = new[] { "polar", "media", "eliptica" };
-        var lineas = new Object[ids.Length];
-        var etiquetas = new Object[ids.Length];
-        for (int i = 0; i < ids.Length; i++)
-        {
-            var l = LineaHija(go.transform, "Orbita_" + ids[i], mat, 0.05f, Color.clear, Color.clear);
-            l.loop = true;
-            l.enabled = false;
-            lineas[i] = l;
-            var datos = catalogo.orbitas.Find(o => o.id == ids[i]);
-            var et = TextoMundo(go.transform, "Etiqueta_" + ids[i], datos != null ? datos.nombre : ids[i], 1.1f / escala, Trayectoria.Color(ids[i]));
-            et.gameObject.SetActive(false);
-            etiquetas[i] = et.transform;
-        }
-        AsignarLista(anillo, "lineas", lineas);
-        AsignarLista(anillo, "etiquetas", etiquetas);
+        // Versión 7: solo se dibuja la órbita elegida (la línea del propio objeto); ya no hay líneas ni etiquetas
+        // de las otras. Quedan los dos rótulos de los extremos, para la órbita excéntrica.
         var cerca = TextoMundo(go.transform, "Periapsis", "· closest ·", 0.8f / escala, Trayectoria.Color("eliptica"));
         var lejos = TextoMundo(go.transform, "Apoapsis", "· farthest ·", 0.8f / escala, Trayectoria.Color("eliptica"));
         cerca.gameObject.SetActive(false);
