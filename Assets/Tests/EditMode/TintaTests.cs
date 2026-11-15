@@ -39,9 +39,18 @@ namespace SpaceMission.Tests
         [TestCase("CubeSat_")]
         [TestCase("Instrumento_")]
         [TestCase("Nave_Pla")]
+        // Entrega 2: cohetes, estructuras, árboles y suelo del complejo de lanzamiento.
+        [TestCase("Cohete_")]
+        [TestCase("NASA_Cohete_SLS_")]
+        [TestCase("Nave_Oscuro")]
+        [TestCase("Torre_")]
+        [TestCase("Arbol_")]
+        [TestCase("Lanzamiento_Pasto")]
+        [TestCase("Lanzamiento_Edificio")]
+        [TestCase("Plataforma.mat")]
         public void ElSateliteYLosInstrumentosLlevanTinta(string prefijo)
         {
-            var mats = Todos().Where(m => m.name.StartsWith(prefijo)).ToList();
+            var mats = Todos().Where(m => prefijo.EndsWith(".mat") ? m.name + ".mat" == prefijo : m.name.StartsWith(prefijo)).ToList();
             Assert.IsNotEmpty(mats, prefijo);
             foreach (var m in mats) Assert.AreEqual(Tinta, m.shader.name, m.name);
         }
@@ -58,6 +67,11 @@ namespace SpaceMission.Tests
         [TestCase("Particula_Nube")]
         [TestCase("Llama_Motor")]
         [TestCase("Bloque_Memoria")]
+        [TestCase("Lanzamiento_Foco")]
+        [TestCase("Nave_Tobera")]
+        [TestCase("Plataforma_Resalte")]
+        [TestCase("Cielo_Lanzamiento")]
+        [TestCase("Patrocinio_Fence")]
         [TestCase("Estrellas")]
         public void LosPlanetasLasOrbitasYLasParticulasNoLlevanTinta(string nombre)
         {
@@ -72,7 +86,8 @@ namespace SpaceMission.Tests
             foreach (var m in Todos().Where(x => x.shader.name == Tinta))
             {
                 bool emite = m.GetColor("_EmissionColor").maxColorComponent > 0.01f;
-                if (m.name.Contains("Vidrio") || emite) Assert.AreEqual(0f, m.GetFloat("_Contorno"), m.name);
+                bool suelo = m.name.StartsWith("Lanzamiento_") && !new[] { "Lanzamiento_Mastil", "Lanzamiento_Edificio", "Lanzamiento_Franja" }.Contains(m.name);
+                if (m.name.Contains("Vidrio") || emite || suelo) Assert.AreEqual(0f, m.GetFloat("_Contorno"), m.name);
                 else Assert.That(m.GetFloat("_Contorno"), Is.InRange(0.5f, 2f), m.name + ": de 1 a 2 px a 1080p");
             }
         }

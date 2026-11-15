@@ -105,7 +105,7 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0.55
-    - _NivelMedio: 0.58
+    - _NivelMedio: 0.62200004
     - _NivelSombra: 0.3
     - _OcclusionStrength: 1
     - _Parallax: 0.005

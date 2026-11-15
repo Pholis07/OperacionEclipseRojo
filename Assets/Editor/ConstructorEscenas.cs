@@ -2490,6 +2490,7 @@ public static partial class ConstructorEscenas
             mat = new Material(original);
             AssetDatabase.CreateAsset(mat, ruta);
         }
+        if (mat.shader != original.shader) mat.shader = original.shader;   // Eclipse Ink: la copia sigue el estilo del original
         mat.CopyPropertiesFromMaterial(original);
         mat.SetFloat("_Cull", 0f);
         mat.doubleSidedGI = true;
@@ -2532,9 +2533,9 @@ public static partial class ConstructorEscenas
     }
 
     /// <summary>Guarda la malla en Assets/Arte/Mallas conservando el GUID si ya existía (las escenas la siguen encontrando).</summary>
-    static Mesh GuardarMalla(Mesh nueva, string nombre, bool contorno = false)
+    static Mesh GuardarMalla(Mesh nueva, string nombre, bool contorno = true)
     {
-        // Eclipse Ink: normal suavizada para el contorno de tinta (canal UV 3), solo en las mallas que lo llevan.
+        // Eclipse Ink: normal suavizada para el contorno de tinta (canal UV 3). Solo la lee el shader Tinta.
         if (contorno) NormalesContorno.Preparar(nueva);
         if (!AssetDatabase.IsValidFolder("Assets/Arte/Mallas")) AssetDatabase.CreateFolder("Assets/Arte", "Mallas");
         var ruta = "Assets/Arte/Mallas/" + nombre + ".asset";

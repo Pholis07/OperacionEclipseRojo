@@ -66,7 +66,7 @@ namespace SpaceMission
         [SerializeField] ParticleSystem pirotecnia;             // destello de los pernos al soltar la cofia
         [SerializeField] ParticleSystem gasFrio;                // pulsos de los propulsores de control (sin sonido)
         [SerializeField] CanvasGroup destello;                  // destello blanco al encender
-        [SerializeField] Color colorNiebla = new Color(0.72f, 0.79f, 0.86f);
+        [SerializeField] Color colorNiebla = new Color(0.9f, 0.74f, 0.58f);   // versión 8: bruma dorada
 
         [Header("Transferencia")]
         [SerializeField] GameObject mapaTransferencia;
@@ -83,7 +83,12 @@ namespace SpaceMission
         [SerializeField] SpriteRenderer pulsoZona;
         [SerializeField] UnityEngine.UI.RawImage mapaOperacion;
 
-        static readonly Color CieloDia = new Color(0.36f, 0.56f, 0.82f);
+        static readonly Color CieloDia = new Color(0.45f, 0.52f, 0.66f);
+        /// <summary>Versión 8 (Eclipse Ink): luz cálida de hora dorada en el complejo de lanzamiento.</summary>
+        static readonly Color SolDorado = new Color(1f, 0.8f, 0.58f);
+        Light sol;
+        Color colorSol;
+        bool solGuardado;
         static readonly Color Negro = new Color(0.01f, 0.012f, 0.02f);
         const int Tomas = 10;
 
@@ -264,8 +269,9 @@ namespace SpaceMission
                     if (aves != null) aves.Play();
                 }
                 potencia = encendido ? Mathf.MoveTowards(potencia, 1f, Time.deltaTime * 1.6f) : 0f;
-                var cam = basePos + new Vector3(-alto * 0.62f, alto * 0.09f, -alto * 0.95f) + Vector3.forward * t * 0.08f * alto;
-                Mirar(cam, basePos + Vector3.up * alto * 0.16f, 42f);
+                // Versión 8: más cerca de las toberas y el carenado (antes a 0.95 de la altura del cohete).
+                var cam = basePos + new Vector3(-alto * 0.42f, alto * 0.07f, -alto * 0.6f) + Vector3.forward * t * 0.05f * alto;
+                Mirar(cam, basePos + Vector3.up * alto * 0.17f, 44f);
                 yield return null;
             }
             textoCuenta.text = "";
@@ -375,7 +381,8 @@ namespace SpaceMission
                     p.rotation = Quaternion.AngleAxis((titan ? 18f : 55f) * sp, Vector3.Cross(adelante, radial)) * giros[i];
                 }
                 var centro = avance + adelante * alto * 0.5f;
-                Mirar(centro + Vector3.up * alto * 0.35f + Vector3.back * alto * 1.5f, centro + Vector3.down * alto * 0.1f, 46f);
+                // Versión 8: plano más cercano, para que se lea el punto de separación (antes a 1.5 alturas).
+                Mirar(centro + Vector3.up * alto * 0.28f + Vector3.back * alto * 1.08f, centro + Vector3.down * alto * 0.08f, 46f);
                 yield return null;
             }
 
@@ -606,6 +613,7 @@ namespace SpaceMission
             if (soloEnTierra != null) foreach (var go in soloEnTierra) if (go != null) go.SetActive(tierraFirme);
             // Bruma lejana solo en el complejo de lanzamiento (colinas y mar); en el espacio no hay niebla.
             RenderSettings.fog = tierraFirme;
+            LuzDorada(tierraFirme);
             // Sombras del cohete solo sobre la plataforma: en órbita serían manchas enormes sobre la Tierra.
             foreach (var c in new[] { coheteExplorador, coheteTitan })
                 if (c != null)
@@ -801,8 +809,18 @@ namespace SpaceMission
         }
 
         /// <summary>El mismo final al terminar o al omitir: satélite en su órbita, audio y vista de la Operación.</summary>
+        /// <summary>El Sol se tiñe de dorado en tierra y vuelve a su color en el espacio y al terminar.</summary>
+        void LuzDorada(bool dorada)
+        {
+            if (sol == null) sol = RenderSettings.sun;
+            if (sol == null) return;
+            if (!solGuardado) { colorSol = sol.color; solGuardado = true; }
+            sol.color = dorada ? SolDorado : colorSol;
+        }
+
         void Final()
         {
+            LuzDorada(false);
             if (rutina != null) { StopCoroutine(rutina); rutina = null; }
             if (fuente != null) fuente.Stop();
             CallarVoz();

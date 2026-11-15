@@ -26,15 +26,53 @@ public static partial class ConstructorEscenas
         public float maximo;         // tope del contorno en unidades del mundo
         public float borde;          // fuerza de la luz de borde
         public float brillo;         // fuerza del brillo técnico
+        public float sombra;         // nivel de la banda de sombra (0 = negra, 1 = igual que la luz)
+        public string colorBorde;    // luz de borde: cian en el espacio, cálida en tierra
     }
 
+    static readonly HashSet<string> EstructurasTinta = new HashSet<string>
+    {
+        "Plataforma", "Torre_Servicio", "Torre_Acento", "Lanzamiento_Mastil", "Lanzamiento_Edificio", "Lanzamiento_Franja",
+    };
+
+    static readonly HashSet<string> SueloTinta = new HashSet<string>
+    {
+        "Lanzamiento_Pasto", "Lanzamiento_Arena", "Lanzamiento_Mar", "Lanzamiento_Camino", "Lanzamiento_Colina",
+        "Lanzamiento_Losa", "Lanzamiento_Foso",
+    };
+
     /// <summary>
-    /// Piloto (entrega 1): el satélite y los instrumentos. Devuelve false para todo lo demás.
-    /// Los vidrios y las piezas que emiten luz llevan bandas pero no contorno.
+    /// Qué materiales llevan el estilo y con qué ajustes; devuelve false para todo lo demás.
+    /// - Entrega 1 (piloto): el satélite y los instrumentos.
+    /// - Entrega 2: los dos cohetes, la plataforma, la torre y los edificios (con contorno); los árboles (contorno
+    ///   fino) y el suelo (bandas, sin contorno).
+    /// Los vidrios y las piezas que emiten luz llevan bandas pero no contorno. Los focos, las toberas encendidas,
+    /// los logos, los planetas, las órbitas y las partículas quedan fuera.
     /// </summary>
     static bool AjusteDe(string nombre, bool emite, out AjusteTinta ajuste)
     {
-        ajuste = new AjusteTinta { contorno = 1.5f, maximo = 0.02f, borde = 0.22f, brillo = 0.6f };
+        ajuste = new AjusteTinta { contorno = 1.5f, maximo = 0.02f, borde = 0.22f, brillo = 0.6f, sombra = 0.3f, colorBorde = "#60D7E4" };
+        // Cohetes (también las copias de dos caras de las cofias) y su faldón oscuro.
+        if (nombre.StartsWith("Cohete_") || nombre.StartsWith("NASA_Cohete_") || nombre == "Nave_Oscuro")
+        {
+            ajuste.contorno = 1.6f; ajuste.maximo = 0.35f; ajuste.borde = 0.1f; ajuste.sombra = 0.4f; ajuste.colorBorde = "#F2C9A0";
+            return true;
+        }
+        if (EstructurasTinta.Contains(nombre))
+        {
+            ajuste.contorno = 1.3f; ajuste.maximo = 0.3f; ajuste.borde = 0.06f; ajuste.brillo = 0.3f; ajuste.sombra = 0.42f; ajuste.colorBorde = "#F2C9A0";
+            return true;
+        }
+        if (nombre.StartsWith("Arbol_"))
+        {
+            ajuste.contorno = 1f; ajuste.maximo = 0.12f; ajuste.borde = 0f; ajuste.brillo = 0f; ajuste.sombra = 0.48f;
+            return true;
+        }
+        if (SueloTinta.Contains(nombre))
+        {
+            ajuste.contorno = 0f; ajuste.borde = 0f; ajuste.brillo = nombre == "Lanzamiento_Mar" ? 0.5f : 0f; ajuste.sombra = 0.55f;
+            return true;
+        }
         if (nombre.StartsWith("NASA_Sat_") || nombre.StartsWith("CubeSat_"))
         {
             // Láminas y paneles finos: un contorno más delgado para que no se empasten.
@@ -69,7 +107,9 @@ public static partial class ConstructorEscenas
             mat.SetFloat("_FuerzaBorde", ajuste.borde);
             mat.SetFloat("_FuerzaBrillo", ajuste.brillo);
             mat.SetColor("_ColorSombra", Hex("#324A57"));
-            mat.SetColor("_ColorBorde", Hex("#60D7E4"));
+            mat.SetColor("_ColorBorde", Hex(ajuste.colorBorde));
+            mat.SetFloat("_NivelSombra", ajuste.sombra);
+            mat.SetFloat("_NivelMedio", Mathf.Lerp(ajuste.sombra, 1f, 0.46f));
             // Las piezas casi negras (paneles, mantas térmicas) llevan la línea en azul pizarra: la tinta
             // profunda no se vería sobre ellas ni contra el espacio.
             var c = mat.GetColor("_BaseColor");

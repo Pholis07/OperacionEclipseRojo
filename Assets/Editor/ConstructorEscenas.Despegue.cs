@@ -43,6 +43,11 @@ public static partial class ConstructorEscenas
         var sol = GameObject.Find("Sol");
         var haciaSol = sol != null ? -sol.transform.forward : new Vector3(-0.5f, 0.4f, -0.7f).normalized;
         matCielo.SetVector("_DireccionSol", haciaSol);
+        // Versión 8 (Eclipse Ink): hora dorada. Horizonte cálido y cenit azul desaturado, para unir la paleta de la
+        // Tierra con la de Marte.
+        matCielo.SetColor("_ColorHorizonte", new Color(0.97f, 0.74f, 0.5f));
+        matCielo.SetColor("_ColorCenit", new Color(0.17f, 0.42f, 0.74f));
+        matCielo.SetColor("_ColorSol", new Color(5f, 3.3f, 1.9f));
         EditorUtility.SetDirty(matCielo);
         var cielo = Malla(EsferaUV(), "Cielo", t, Vector3.zero, Vector3.zero, Vector3.one * 980f, matCielo);
         cielo.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
@@ -62,7 +67,7 @@ public static partial class ConstructorEscenas
         Pieza(PrimitiveType.Quad, "Camino", t, new Vector3(0, 0.01f, -120f), new Vector3(90, 0, 0), new Vector3(7, 200, 1), matCamino);
 
         // ----- Colinas lejanas (la bruma las funde con el cielo) -----
-        var matColina = CrearMaterial("Lanzamiento_Colina", Hex("#56704E"), 0f, 0.1f);
+        var matColina = CrearMaterial("Lanzamiento_Colina", Hex("#5F7B55"), 0f, 0.1f);
         var semilla = new System.Random(5);
         for (int i = 0; i < 16; i++)
         {
@@ -85,7 +90,7 @@ public static partial class ConstructorEscenas
 
         // ----- Torre de servicio: celosía con brazos que se retiran -----
         var matTorre = CrearMaterial("Torre_Servicio", Hex("#5B6470"), 0.6f, 0.4f);
-        var matTorreAcento = CrearMaterial("Torre_Acento", Hex("#B9472A"), 0.3f, 0.45f);
+        var matTorreAcento = CrearMaterial("Torre_Acento", Hex("#C86645"), 0.3f, 0.45f);
         var torre = new GameObject("TorreServicio").transform;
         torre.SetParent(t, false);
         torre.localPosition = new Vector3(0f, 0f, 3.4f);
@@ -183,12 +188,12 @@ public static partial class ConstructorEscenas
                 m.startSpeed = new ParticleSystem.MinMaxCurve(8f, 17f);
                 m.startSize = new ParticleSystem.MinMaxCurve(4f, 8f);
                 m.startRotation = new ParticleSystem.MinMaxCurve(0f, 6.28f);
-                m.startColor = new Color(0.9f, 0.88f, 0.85f, 0.75f);
+                m.startColor = new Color(0.96f, 0.9f, 0.82f, 0.8f);
                 var e = p.emission; e.rateOverTime = 50f;
                 var f = p.shape; f.shapeType = ParticleSystemShapeType.Cone; f.angle = 25f; f.radius = 1.5f;
                 var limite = p.limitVelocityOverLifetime; limite.enabled = true; limite.limit = 3f; limite.dampen = 0.08f;
                 var tam = p.sizeOverLifetime; tam.enabled = true; tam.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, 0.7f, 1f, 2.6f));
-                var col = p.colorOverLifetime; col.enabled = true; col.color = Degradado(new Color(1f, 0.8f, 0.6f), new Color(0.92f, 0.92f, 0.92f), 0.7f);
+                var col = p.colorOverLifetime; col.enabled = true; col.color = Degradado(new Color(1f, 0.66f, 0.36f), new Color(0.97f, 0.88f, 0.78f), 0.75f);   // humo teñido por el fuego y la luz dorada
                 var vel = p.velocityOverLifetime; vel.enabled = true; vel.space = ParticleSystemSimulationSpace.World;
                 vel.x = new ParticleSystem.MinMaxCurve(0f, 0f); vel.y = new ParticleSystem.MinMaxCurve(0.6f, 2.2f); vel.z = new ParticleSystem.MinMaxCurve(0f, 0f);   // las tres en el mismo modo
             }));
@@ -334,8 +339,8 @@ public static partial class ConstructorEscenas
                 copa.Bola(p + Vector3.up * 2.6f * e, 1.7f * e, giro);
         }
         var matTronco = CrearMaterial("Arbol_Tronco", Hex("#5A4232"), 0f, 0.15f);
-        var matOscura = CrearMaterial("Arbol_CopaOscura", Hex("#2F5A33"), 0f, 0.12f);
-        var matClara = CrearMaterial("Arbol_CopaClara", Hex("#4E7A3A"), 0f, 0.12f);
+        var matOscura = CrearMaterial("Arbol_CopaOscura", Hex("#2C5B45"), 0f, 0.12f);
+        var matClara = CrearMaterial("Arbol_CopaClara", Hex("#6C9A4C"), 0f, 0.12f);
         foreach (var (malla, nombre, mat) in new[] { (troncos, "Arboles_Troncos", matTronco), (oscuras, "Arboles_CopasOscuras", matOscura), (claras, "Arboles_CopasClaras", matClara) })
         {
             var m = GuardarMalla(malla.Crear(), nombre);
