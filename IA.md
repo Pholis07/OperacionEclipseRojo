@@ -511,3 +511,20 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
 - No se gastaron créditos de ElevenLabs.
 - Lo que no se pudo comprobar: los FPS con tarjeta gráfica real.
 - Fase 2 (mismo día): Diego vio el piloto, notó que la animación casi no cambiaba y pidió extender el estilo. La IA lo llevó a los cohetes, la torre, los edificios, los árboles y el suelo, puso luz de hora dorada y acercó dos planos. Pruebas: 349 EditMode y 24 PlayMode. Detalle en `Docs/Claude/REPORTE_FASE_2.md`.
+
+## Explorador con el modelo Ares 1 (B) de NASA (2026-11-15)
+
+- Hecho en la rama local `feat/ares1b`, sobre la rama del PR #1 (`feat/eclipse-ink`), porque ese PR cambia el constructor, la cinemática y el estilo de los cohetes.
+- `ConstructorEscenas.Ares.cs`, nuevo: instancia `ares1b.fbx`. Unity ya lo importa de pie, sin girarlo. Lo escala a 7.5 de alto y lo parte por altura (fracciones medidas en el modelo):
+  - primera etapa con interestadio: el cohete;
+  - `EtapaSuperior`;
+  - el Orion y la torre de escape en dos mitades con bisagra (`CofiaFrente` y `CofiaDetras`).
+
+  El FBX trae casi todo el cohete en una sola malla, así que hubo que cortarla.
+- El Ares no tiene propulsores laterales: en la separación cae la primera etapa entera (`propulsoresExplorador` queda vacío). El Ares no lleva cofia, así que el satélite sale al abrirse la nariz. Esa es la adaptación.
+- Alto 7.5 en vez de 6.1, porque el Ares es muy delgado. El Ares real medía casi lo mismo que el SLS, pero se dejó más bajo que el Titán (11) para que se lea cuál es el pequeño. Se ajustó en `DirectorCinematica` y en el encuadre de la pestaña Lanzador.
+- Colores planos del modelo (materiales `NASA_Cohete_Ares_*`) con el estilo de tinta de los cohetes. No se añadieron texturas. El logo «Fence» del patrocinador pasó de la cofia del Soyuz a la etapa superior.
+- Las mallas del Soyuz que quedaron sin uso se movieron a `archivo/soyuz-explorador/`.
+- Pruebas: 4 nuevas en `AresTests.cs`. Pasan las 353 EditMode y las 24 PlayMode. Build WebGL de 57 MB.
+- Comprobado en el navegador a 1366x768: la pestaña Lanzador y la cinemática completa con el Explorador (despegue, separación, apertura de la nariz y satélite liberado) hasta la Operación, sin errores en la consola.
+- Pendiente: la leyenda del Explorador dice «Like the Soyuz-Fregat». Se refiere a la capacidad, que sigue siendo cierta, pero el aspecto ya es del Ares.
