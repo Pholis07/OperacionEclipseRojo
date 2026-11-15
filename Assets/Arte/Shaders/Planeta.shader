@@ -2,6 +2,8 @@
 // WebGL) y aquí se elige la mitad según la longitud. Añade relieve (mapa de normales), una textura de detalle
 // que solo se nota de cerca, un terminador suave (la noche no corta en seco) y un borde de polvo anaranjado
 // en el lado iluminado. Luz principal + luces adicionales (la de contorno) + ambiente. URP, sin sombras.
+// Versión 6: capa de nubes de hielo de agua que se mueve (textura propia), escarcha con brillo en los casquetes
+// polares (realza el hielo que ya trae el mapa) y crepúsculo azulado en el terminador, como los atardeceres de Marte.
 Shader "OperacionEclipseRojo/Planeta"
 {
     Properties
@@ -24,6 +26,14 @@ Shader "OperacionEclipseRojo/Planeta"
         [Normal] _ParcheNormal ("Relieve de la región (Gale)", 2D) = "bump" {}
         _RectParche ("Región en el mapa (x, y, ancho, alto)", Vector) = (0.8728, 0.452, 0.0205, 0.041)
         _FuerzaParche ("Fuerza del relieve de la región", Range(0, 3)) = 1.5
+        _Nubes ("Nubes (alfa, equirectangular)", 2D) = "black" {}
+        _FuerzaNubes ("Fuerza de las nubes", Range(0, 1)) = 0
+        _VelocidadNubes ("Velocidad de las nubes (vueltas por segundo)", Float) = 0.002
+        _ColorNubes ("Color de las nubes", Color) = (0.93, 0.95, 1.0, 1)
+        _Escarcha ("Escarcha de los casquetes", Range(0, 1)) = 0
+        _BrilloHielo ("Brillo del hielo", Range(0, 2)) = 0
+        [HDR] _ColorCrepusculo ("Crepúsculo (terminador)", Color) = (0.25, 0.45, 0.9, 1)
+        _FuerzaCrepusculo ("Fuerza del crepúsculo", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -46,6 +56,7 @@ Shader "OperacionEclipseRojo/Planeta"
             TEXTURE2D(_Normales); SAMPLER(sampler_Normales);
             TEXTURE2D(_Detalle); SAMPLER(sampler_Detalle);
             TEXTURE2D(_ParcheNormal); SAMPLER(sampler_ParcheNormal);
+            TEXTURE2D(_Nubes); SAMPLER(sampler_Nubes);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _MapaOeste_ST;
@@ -66,6 +77,14 @@ Shader "OperacionEclipseRojo/Planeta"
                 float4 _ParcheNormal_ST;
                 float4 _RectParche;
                 half _FuerzaParche;
+                float4 _Nubes_ST;
+                half _FuerzaNubes;
+                float _VelocidadNubes;
+                half4 _ColorNubes;
+                half _Escarcha;
+                half _BrilloHielo;
+                half4 _ColorCrepusculo;
+                half _FuerzaCrepusculo;
             CBUFFER_END
 
             struct Entrada
@@ -119,6 +138,13 @@ Shader "OperacionEclipseRojo/Planeta"
                 albedo = pow(albedo, _Gamma);
                 albedo = saturate((albedo - 0.18h) * _Contraste + 0.18h);
 
+                // Escarcha: en latitudes altas, lo que ya es claro en el mapa (el hielo de los casquetes) se vuelve
+                // blanco azulado. No inventa casquetes: solo realza los que trae la textura.
+                half latitud = abs(s.uv.y - 0.5h) * 2.0h;
+                half luma = dot(albedo, half3(0.299h, 0.587h, 0.114h));
+                half hielo = smoothstep(0.78h, 0.9h, latitud) * smoothstep(0.32h, 0.6h, luma) * _Escarcha;
+                albedo = lerp(albedo, half3(0.92h, 0.95h, 1.0h), hielo);
+
                 half3 nt = UnpackNormalScale(SAMPLE_TEXTURE2D(_Normales, sampler_Normales, s.uv), _FuerzaNormales);
                 // Relieve del cráter Gale (modelo de NASA) en su sitio, con el borde fundido.
                 float2 uvParche = (s.uv - _RectParche.xy) / _RectParche.zw;
@@ -147,10 +173,24 @@ Shader "OperacionEclipseRojo/Planeta"
 
                 color += albedo * _Ambiente.rgb;   // ambiente fijo: igual en el editor, en batch y en el navegador
 
-                // Borde de polvo del lado iluminado (la atmósfera fina dispersa la luz en el contorno).
                 half3 vista = normalize(GetWorldSpaceViewDir(s.mundo));
+                // Brillo del hielo: reflejo especular suave solo en la escarcha y del lado del Sol.
+                half3 medio = normalize(principal.direction + vista);
+                color += principal.color * pow(saturate(dot(n, medio)), 48.0h) * hielo * _BrilloHielo * smoothstep(0.0h, 0.3h, luzGeo);
+
+                // Nubes de hielo de agua: finas, iluminadas por el Sol, se mueven despacio de oeste a este.
+                float2 uvNubes = float2(s.uv.x + _Time.y * _VelocidadNubes, s.uv.y);
+                half nube = SAMPLE_TEXTURE2D(_Nubes, sampler_Nubes, uvNubes).a * _FuerzaNubes;
+                half3 colorNube = _ColorNubes.rgb * (principal.color * luzGeo + _Ambiente.rgb);
+                // Solo del lado iluminado: en la sombra se veían como vetas grises.
+                color = lerp(color, colorNube, nube * smoothstep(0.1h, 0.5h, luzGeo));
+
+                // Borde de polvo del lado iluminado (la atmósfera fina dispersa la luz en el contorno).
                 half borde = pow(1.0h - saturate(dot(nGeo, vista)), _PotenciaBorde);
                 color += _ColorBorde.rgb * borde * saturate(luzGeo * 1.4h) * 0.35h;
+                // Crepúsculo azulado: en Marte el polvo dispersa el azul hacia delante, cerca del terminador.
+                half terminador = smoothstep(0.02h, 0.2h, luzGeo) * (1.0h - smoothstep(0.2h, 0.55h, luzGeo));
+                color += _ColorCrepusculo.rgb * terminador * (0.35h + borde) * _FuerzaCrepusculo;
 
                 return half4(color * _Brillo, 1.0h);
             }

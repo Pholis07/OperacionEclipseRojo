@@ -3,11 +3,11 @@ using UnityEngine;
 namespace SpaceMission
 {
     /// <summary>
-    /// Órbitas alrededor del Marte de Configuración. Cada una tiene su forma (Trayectoria) y su color:
-    /// - En la pestaña Órbita se ven las tres para compararlas: la elegida gruesa, brillante y con un halo; las
-    ///   otras finas y tenues. Sin ninguna elegida, las tres a media intensidad. Cada una lleva su nombre al lado
-    ///   y la elíptica marca su punto más cercano y el más lejano.
-    /// - En las demás pestañas solo queda la elegida (de fondo), sin etiquetas.
+    /// La órbita elegida alrededor del Marte de Configuración, con su forma (Trayectoria) y su color.
+    /// Versión 7 (requisito del paquete de diseño): en el visor se ve UNA sola trayectoria, la elegida, con su halo,
+    /// su marcador y su estela; las demás no se dibujan. Sin elección, Marte queda sin trayectorias. La lista de
+    /// opciones (ConfiguracionUI) sí muestra todas. En la pestaña Órbita, una órbita excéntrica marca además su
+    /// punto más cercano y el más lejano. El nombre va en el rótulo fijo del visor (GuiaConfiguracion).
     /// El marcador recorre la elegida (más rápido cerca del planeta) con una estela que se desvanece detrás.
     /// Solo presentación: lee EstadoJuego.Configuracion.OrbitaId y la pestaña de ConfiguracionUI.
     /// </summary>
@@ -17,15 +17,14 @@ namespace SpaceMission
         [SerializeField] float radio = 1.35f; // en radios del planeta (escala local de la esfera = 1)
         [SerializeField] Transform marcador;
         [SerializeField] float vueltaSegundos = 9f;
-        [SerializeField] string[] idsOrbitas = { "polar", "media", "eliptica" };
-        [SerializeField] LineRenderer[] lineas;        // una por órbita, en el orden de idsOrbitas
+        [SerializeField] LineRenderer[] lineas;        // (escenas anteriores) líneas de las otras órbitas: siempre apagadas
         [SerializeField] LineRenderer brillo;          // halo ancho de la elegida
         [SerializeField] LineRenderer estela;          // detrás del marcador
-        [SerializeField] Transform[] etiquetas;        // nombre de cada órbita (TextMeshPro 3D)
-        [SerializeField] Transform[] extremos;         // «más cerca» y «más lejos» de la elíptica
+        [SerializeField] Transform[] etiquetas;        // (escenas anteriores) etiquetas flotantes: siempre apagadas
+        [SerializeField] Transform[] extremos;         // «más cerca» y «más lejos» de la órbita excéntrica elegida
         [SerializeField] SpriteRenderer haloMarcador;
         [SerializeField] ConfiguracionUI configuracion;
-        [SerializeField] float anchoElegida = 0.16f, anchoOtra = 0.085f;
+        [SerializeField] float anchoElegida = 0.16f;
         const int Puntos = 128, PuntosEstela = 40;
         const float LargoEstela = 1.5f;
 
@@ -42,17 +41,18 @@ namespace SpaceMission
             linea.useWorldSpace = false;
             linea.loop = true;
             linea.positionCount = Puntos;
-            if (lineas != null)
-                for (int i = 0; i < lineas.Length && i < idsOrbitas.Length; i++)
-                    DibujarEn(lineas[i], idsOrbitas[i], true);
+            if (lineas != null) foreach (var l in lineas) if (l != null) l.enabled = false;
             ColocarEtiquetas();
         }
 
         void Update()
         {
-            var id = EstadoJuego.Configuracion.OrbitaId;
-            bool todas = configuracion == null || !configuracion.gameObject.activeInHierarchy ||
-                         configuracion.PestanaActual == ConfiguracionUI.Pestana.Orbita;
+            // Versión 7: en el visor se ve SOLO la órbita elegida (una línea, un marcador). Sin elección, ninguna.
+            // Fuera de la Configuración (Briefing, Operación) tampoco se dibuja nada.
+            bool fuera = configuracion != null && !configuracion.gameObject.activeInHierarchy;
+            var id = fuera ? null : EstadoJuego.Configuracion.OrbitaId;
+            // «todas» ya solo significa «estoy en la pestaña Órbita»: allí se ven además los extremos de la elíptica.
+            bool todas = !fuera && (configuracion == null || configuracion.PestanaActual == ConfiguracionUI.Pestana.Orbita);
             if (id != dibujada || todas != todasVisibles)
             {
                 if (id != dibujada) aparicion = 0f;
@@ -141,68 +141,63 @@ namespace SpaceMission
                     }
                 }
             }
-            if (lineas != null)
-                for (int i = 0; i < lineas.Length && i < idsOrbitas.Length; i++)
-                {
-                    var l = lineas[i];
-                    if (l == null) continue;
-                    // La elegida ya la dibuja la línea principal; las demás solo se ven en la pestaña Órbita.
-                    l.enabled = todasVisibles && idsOrbitas[i] != dibujada;
-                    var c = Trayectoria.Color(idsOrbitas[i]);
-                    float alfa = hayElegida ? 0.42f : 0.7f;
-                    l.widthMultiplier = hayElegida ? anchoOtra : anchoOtra * 1.4f;
-                    l.startColor = l.endColor = new Color(c.r, c.g, c.b, alfa);
-                }
-            if (etiquetas != null)
-                for (int i = 0; i < etiquetas.Length && i < idsOrbitas.Length; i++)
-                {
-                    if (etiquetas[i] == null) continue;
-                    etiquetas[i].gameObject.SetActive(todasVisibles);
-                    var texto = etiquetas[i].GetComponent<TMPro.TMP_Text>();
-                    if (texto != null)
-                    {
-                        bool esta = idsOrbitas[i] == dibujada;
-                        var c = Trayectoria.Color(idsOrbitas[i]);
-                        texto.color = new Color(c.r, c.g, c.b, !hayElegida ? 0.9f : esta ? 1f : 0.45f);
-                        texto.fontStyle = esta ? TMPro.FontStyles.Bold | TMPro.FontStyles.UpperCase : TMPro.FontStyles.UpperCase;
-                    }
-                }
+            // Las líneas y etiquetas de «las otras» órbitas ya no se muestran nunca (escenas viejas las traen).
+            if (lineas != null) foreach (var l in lineas) if (l != null) l.enabled = false;
+            if (etiquetas != null) foreach (var e in etiquetas) if (e != null) e.gameObject.SetActive(false);
+            // Extremos (más cerca / más lejos): solo de la órbita elegida, si es excéntrica, y en su pestaña.
+            bool conExtremos = todasVisibles && hayElegida && Trayectoria.Excentricidad(dibujada) > 0f;
             if (extremos != null)
                 foreach (var e in extremos)
-                    if (e != null) e.gameObject.SetActive(todasVisibles && (dibujada == "eliptica" || !hayElegida));
-        }
-
-        /// <summary>Etiquetas en el punto más alto de cada órbita, un poco hacia fuera; extremos de la elíptica.</summary>
-        void ColocarEtiquetas()
-        {
-            if (etiquetas != null)
-                for (int i = 0; i < etiquetas.Length && i < idsOrbitas.Length; i++)
-                {
-                    if (etiquetas[i] == null) continue;
-                    float mejor = 0f, alto = float.MinValue;
-                    for (int k = 0; k < 64; k++)
-                    {
-                        float a = k * Mathf.PI * 2f / 64f;
-                        var p = Trayectoria.Punto(idsOrbitas[i], a, radio);
-                        // Lejos del disco del planeta visto de frente (XY) y hacia la cámara (−Z): así la etiqueta no
-                        // queda encima ni detrás de Marte. Cada órbita prefiere un lado para que no se encimen.
-                        var lado = i == 0 ? new Vector2(-0.3f, 1f) : i == 1 ? new Vector2(1f, 0.6f) : new Vector2(-1f, -0.4f);
-                        float puntaje = new Vector2(p.x, p.y).magnitude - p.z * 0.4f + Vector2.Dot(new Vector2(p.x, p.y).normalized, lado.normalized) * 0.25f;
-                        if (puntaje > alto) { alto = puntaje; mejor = a; }
-                    }
-                    var punto = Trayectoria.Punto(idsOrbitas[i], mejor, radio);
-                    var fuera = new Vector3(punto.x, punto.y, 0f).normalized;
-                    etiquetas[i].localPosition = punto + fuera * 0.07f;
-                }
-            if (extremos != null && extremos.Length >= 2)
+                    if (e != null) e.gameObject.SetActive(conExtremos);
+            if (conExtremos && extremos != null && extremos.Length >= 2)
             {
-                // En la elíptica el punto más cercano está en el ángulo 0 y el más lejano en π (Trayectoria.Radio).
-                var cerca = Trayectoria.Punto("eliptica", 0f, radio);
-                var lejos = Trayectoria.Punto("eliptica", Mathf.PI, radio);
-                if (extremos[0] != null) extremos[0].localPosition = cerca;
-                if (extremos[1] != null) extremos[1].localPosition = lejos;
+                if (extremos[0] != null) extremos[0].localPosition = Trayectoria.Punto(dibujada, 0f, radio);
+                if (extremos[1] != null) extremos[1].localPosition = Trayectoria.Punto(dibujada, Mathf.PI, radio);
             }
         }
+
+        // ---------- Para la cámara y las pruebas ----------
+
+        /// <summary>Trayectorias que se ven ahora mismo: 0 (sin elección) o 1 (la elegida). Nunca más.</summary>
+        public int TrayectoriasVisibles
+        {
+            get
+            {
+                int n = linea != null && linea.enabled ? 1 : 0;
+                if (lineas != null) foreach (var l in lineas) if (l != null && l.enabled) n++;
+                return n;
+            }
+        }
+
+        /// <summary>Marcadores de la nave visibles: 0 o 1.</summary>
+        public int MarcadoresVisibles => marcador != null && marcador.gameObject.activeSelf ? 1 : 0;
+
+        /// <summary>La órbita que se está dibujando (null si ninguna).</summary>
+        public string Dibujada => string.IsNullOrEmpty(dibujada) || dibujada == "-" ? null : dibujada;
+
+        public Vector3 Centro => transform.position;
+
+        /// <summary>Radio del planeta en el mundo (la superficie está a 0.5 en unidades locales).</summary>
+        public float RadioPlaneta => transform.lossyScale.x * 0.5f;
+
+        /// <summary>Puntos de una órbita en el mundo (para que la cámara la encuadre entera).</summary>
+        public Vector3[] PuntosMundo(string id, int cuantos = 48)
+        {
+            var puntos = new Vector3[cuantos];
+            for (int i = 0; i < cuantos; i++)
+                puntos[i] = transform.TransformPoint(Trayectoria.Punto(id, i * Mathf.PI * 2f / cuantos, radio));
+            return puntos;
+        }
+
+        /// <summary>Recalcula ya lo que se ve (las pruebas en modo edición no tienen Update).</summary>
+        public void Actualizar()
+        {
+            if (linea == null) Awake();
+            Update();
+        }
+
+        /// <summary>(Versión 7) Ya no hay etiquetas flotantes por órbita: el nombre va en el rótulo fijo del visor.</summary>
+        void ColocarEtiquetas() { }
 
         /// <summary>Las etiquetas miran siempre a la cámara.</summary>
         void Orientar()

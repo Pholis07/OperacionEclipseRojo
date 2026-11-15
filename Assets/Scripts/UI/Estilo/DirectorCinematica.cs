@@ -6,11 +6,14 @@ using UnityEngine.InputSystem;
 namespace SpaceMission
 {
     /// <summary>
-    /// Cinemática Tierra → Marte (~36 s, 10 tomas con cortes) al pulsar «Lanzar» con la misión válida:
+    /// Cinemática Tierra → Marte (unos 45 s, 10 tomas con cortes) al pulsar «Lanzar» con la misión válida.
+    /// Versión 8: vuelven los tiempos originales de las 10 fases (la versión 7 las había acelerado hasta 29.7 s y
+    /// dos fases duraban 1.6 s). Se conserva lo demás de la versión 7: las frases de control empiezan con su toma
+    /// y nunca suenan dos a la vez.
     /// complejo de lanzamiento con árboles, mar y torre; encendido con chispas, una llama por motor, luz, humo,
     /// vapor y aves; despegue con sacudida; ascenso entre nubes hasta el negro del espacio; separación propia de
-    /// cada cohete (Titán: propulsores laterales y después la etapa central; Explorador: los cuatro propulsores se
-    /// abren en cruz) y las tomas de transferencia, inserción y órbita. Se ve encima de todo; la Operación ya está activa debajo desde el mismo cuadro (las pruebas y la
+    /// cada cohete (Titán: propulsores laterales y después la etapa central; Explorador, el Ares 1 B: cae la
+    /// primera etapa entera) y las tomas de transferencia, inserción y órbita. Se ve encima de todo; la Operación ya está activa debajo desde el mismo cuadro (las pruebas y la
     /// lógica no esperan a la cinemática). Usa el lanzador, el satélite, los instrumentos y la órbita elegidos.
     /// «Omitir» (o Escape) lleva exactamente al mismo final: satélite en el ancla de su órbita, audio de la
     /// investigación y la vista de la Operación. El final se avisa una sola vez (AlTerminar).
@@ -63,7 +66,7 @@ namespace SpaceMission
         [SerializeField] ParticleSystem pirotecnia;             // destello de los pernos al soltar la cofia
         [SerializeField] ParticleSystem gasFrio;                // pulsos de los propulsores de control (sin sonido)
         [SerializeField] CanvasGroup destello;                  // destello blanco al encender
-        [SerializeField] Color colorNiebla = new Color(0.72f, 0.79f, 0.86f);
+        [SerializeField] Color colorNiebla = new Color(0.9f, 0.74f, 0.58f);   // versión 8: bruma dorada
 
         [Header("Transferencia")]
         [SerializeField] GameObject mapaTransferencia;
@@ -80,7 +83,12 @@ namespace SpaceMission
         [SerializeField] SpriteRenderer pulsoZona;
         [SerializeField] UnityEngine.UI.RawImage mapaOperacion;
 
-        static readonly Color CieloDia = new Color(0.36f, 0.56f, 0.82f);
+        static readonly Color CieloDia = new Color(0.45f, 0.52f, 0.66f);
+        /// <summary>Versión 8 (Eclipse Ink): luz cálida de hora dorada en el complejo de lanzamiento.</summary>
+        static readonly Color SolDorado = new Color(1f, 0.8f, 0.58f);
+        Light sol;
+        Color colorSol;
+        bool solGuardado;
         static readonly Color Negro = new Color(0.01f, 0.012f, 0.02f);
         const int Tomas = 10;
 
@@ -122,7 +130,23 @@ namespace SpaceMission
                 fuenteVoz.volume = Preferencias.VolumenVoz;
                 fuenteVoz.Play();
             }
+            // El motor baja mientras habla control de misión (Atenuacion).
+            atenuacion = Atenuacion.Seguir(atenuacion);
+            if (fuenteBucle != null && fuenteBucle.isPlaying)
+                fuenteBucle.volume = volumenBucle * atenuacion * Preferencias.VolumenEfectos;
         }
+
+        float atenuacion = 1f;
+        float volumenBucle = 1f;
+
+        /// <summary>
+        /// Control de misión está hablando o tiene una frase en fila. Las tomas con voz duran lo que dure su frase
+        /// (en inglés o en español) hasta un tope, para que la voz no siga sonando en la toma siguiente.
+        /// </summary>
+        public bool Hablando => fuenteVoz != null && (fuenteVoz.isPlaying || colaVoz.Count > 0);
+
+        /// <summary>La toma sigue mientras no llegue a su duración, o mientras hable la voz (hasta el tope).</summary>
+        bool Sigue(float t, float duracion, float tope) => !omitir && (t < duracion || (Hablando && t < tope));
 
         static readonly ArteDatos.Efecto[] Voces =
             { ArteDatos.Efecto.VozEncendido, ArteDatos.Efecto.VozDespegue, ArteDatos.Efecto.VozSeparacion, ArteDatos.Efecto.VozOrbita };
@@ -190,7 +214,7 @@ namespace SpaceMission
             // El elegido, en el centro de la plataforma (bajo los brazos de la torre).
             cohete.localPosition = new Vector3(0f, cohete.localPosition.y, 0f);
             posCohete = cohete.position; rotCohete = cohete.rotation; posSuperior = superior.localPosition;
-            float alto = titan ? 11f : 6.1f;
+            float alto = titan ? 11f : 7.5f;   // Explorador = Ares 1 B (ConstructorEscenas.AltoExplorador)
             escenario.Preparar(config);
             escenario.MostrarOrbita(false);
             PrepararComplejo(alto);
@@ -223,7 +247,7 @@ namespace SpaceMission
             Toma(2, Idioma.T("IGNITION SEQUENCE"));
             Sonar(ArteDatos.Efecto.VozEncendido);
             bool chispazo = false, encendido = false;
-            for (float t = 0f; t < 3.6f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 3.6f, 6f); t += Time.deltaTime)
             {
                 textoCuenta.text = t < 1.2f ? Idioma.T("T-02") : t < 2.4f ? Idioma.T("T-01") : "";
                 if (!chispazo && t > 0.5f)
@@ -245,8 +269,9 @@ namespace SpaceMission
                     if (aves != null) aves.Play();
                 }
                 potencia = encendido ? Mathf.MoveTowards(potencia, 1f, Time.deltaTime * 1.6f) : 0f;
-                var cam = basePos + new Vector3(-alto * 0.62f, alto * 0.09f, -alto * 0.95f) + Vector3.forward * t * 0.08f * alto;
-                Mirar(cam, basePos + Vector3.up * alto * 0.16f, 42f);
+                // Versión 8: más cerca de las toberas y el carenado (antes a 0.95 de la altura del cohete).
+                var cam = basePos + new Vector3(-alto * 0.42f, alto * 0.07f, -alto * 0.6f) + Vector3.forward * t * 0.05f * alto;
+                Mirar(cam, basePos + Vector3.up * alto * 0.17f, 44f);
                 yield return null;
             }
             textoCuenta.text = "";
@@ -255,10 +280,11 @@ namespace SpaceMission
             yield return Cortar(false);
             Toma(3, Idioma.T("LIFTOFF!"));
             Sonar(ArteDatos.Efecto.BrazosTorre);
+            Sonar(ArteDatos.Efecto.VozDespegue);   // versión 7: la frase empieza con la toma y cabe en ella
             bool voz = false;
             float subida = 0f;
             var camSuelo = basePos + new Vector3(alto * 0.75f, 0.5f, -alto * 1.45f);
-            for (float t = 0f; t < 4f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 4f, 6f); t += Time.deltaTime)
             {
                 float giro = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 1.1f));
                 for (int i = 0; i < brazos.Length; i++) if (brazos[i] != null) brazos[i].localRotation = Quaternion.Euler(0f, -75f * giro, 0f);
@@ -266,7 +292,7 @@ namespace SpaceMission
                 {
                     float u = t - 1.1f;
                     subida = 0.5f * 0.55f * alto * u * u;
-                    if (!voz) { voz = true; Sonar(ArteDatos.Efecto.VozDespegue); sacudida = Mathf.Max(sacudida, 0.4f); }
+                    if (!voz) { voz = true; sacudida = Mathf.Max(sacudida, 0.4f); }
                 }
                 cohete.position = basePos + Vector3.up * subida;
                 Mirar(camSuelo, cohete.position + Vector3.up * alto * 0.55f, 52f);
@@ -322,21 +348,21 @@ namespace SpaceMission
                 giros[i] = propulsores[i].rotation;
             }
             bool fuera = false, separado = false;
-            for (float t = 0f; t < 3.8f && !omitir; t += Time.deltaTime)
+            Sonar(ArteDatos.Efecto.VozSeparacion);   // versión 7: la frase empieza con la toma
+            for (float t = 0f; Sigue(t, 3.8f, 7f); t += Time.deltaTime)
             {
                 var avance = puntoEspacio.position + adelante * (t * alto * 0.22f);
                 // Primero se sueltan los propulsores laterales y se alejan girando.
                 if (!fuera && t > 0.5f) { fuera = true; Sonar(ArteDatos.Efecto.SeparacionPropulsores); }
-                float sp = fuera ? t - 0.5f : 0f;
+                float sp = fuera ? Mathf.Min(t, 3.8f) - 0.5f : 0f;   // si la toma se alarga por la voz, las piezas no siguen alejándose
                 // Después la etapa central se queda atrás y la superior sigue con su motor (sin sonido).
                 if (!separado && t > 1.9f)
                 {
                     separado = true;
                     Sonar(ArteDatos.Efecto.Separacion);
-                    Sonar(ArteDatos.Efecto.VozSeparacion);
                     EncenderSuperior(true);
                 }
-                float s2 = separado ? t - 1.9f : 0f;
+                float s2 = separado ? Mathf.Min(t, 3.8f) - 1.9f : 0f;
                 cohete.position = avance - adelante * s2 * s2 * alto * 0.35f;
                 cohete.rotation = puntoEspacio.rotation * Quaternion.Euler(s2 * 9f, 0f, s2 * 6f);
                 superior.position = avance + desfaseSuperior + adelante * s2 * alto * 0.14f;
@@ -355,7 +381,8 @@ namespace SpaceMission
                     p.rotation = Quaternion.AngleAxis((titan ? 18f : 55f) * sp, Vector3.Cross(adelante, radial)) * giros[i];
                 }
                 var centro = avance + adelante * alto * 0.5f;
-                Mirar(centro + Vector3.up * alto * 0.35f + Vector3.back * alto * 1.5f, centro + Vector3.down * alto * 0.1f, 46f);
+                // Versión 8: plano más cercano, para que se lea el punto de separación (antes a 1.5 alturas).
+                Mirar(centro + Vector3.up * alto * 0.28f + Vector3.back * alto * 1.08f, centro + Vector3.down * alto * 0.08f, 46f);
                 yield return null;
             }
 
@@ -368,7 +395,7 @@ namespace SpaceMission
             var escalaSat = sat.localScale;
             var nariz = Vector3.zero;
             foreach (var c in cofia) nariz += CentroVisual(c) / cofia.Length;
-            var radioNariz = alto * (titan ? 0.028f : 0.04f);
+            var radioNariz = alto * 0.028f;   // nariz del SLS y del Ares: misma proporción
             // El satélite viaja dentro de la cofia, a una escala que cabe en ella.
             sat.localScale = escalaSat;
             float tamano = Mathf.Max(0.01f, TamanoVisual(sat));
@@ -484,10 +511,10 @@ namespace SpaceMission
             var inicioCam = camara.transform.position;
             var inicioRot = camara.transform.rotation;
             float inicioFov = camara.fieldOfView;
-            for (float t = 0f; t < 3f && !omitir; t += Time.deltaTime)
+            for (float t = 0f; Sigue(t, 3f, 6f); t += Time.deltaTime)
             {
-                float k = Mathf.SmoothStep(0f, 1f, t / 3f);
-                escenario.ColocarSatelite(Mathf.Lerp(fEntrada, fFinal, Animar.SalidaCubica(t / 3f)), null);
+                float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 3f));
+                escenario.ColocarSatelite(Mathf.Lerp(fEntrada, fFinal, Animar.SalidaCubica(Mathf.Clamp01(t / 3f))), null);
                 camara.transform.SetPositionAndRotation(Vector3.Lerp(inicioCam, pa, k), Quaternion.Slerp(inicioRot, ra, k));
                 camara.fieldOfView = Mathf.Lerp(inicioFov, escenario.CampoAncla, k);
                 yield return null;
@@ -586,6 +613,7 @@ namespace SpaceMission
             if (soloEnTierra != null) foreach (var go in soloEnTierra) if (go != null) go.SetActive(tierraFirme);
             // Bruma lejana solo en el complejo de lanzamiento (colinas y mar); en el espacio no hay niebla.
             RenderSettings.fog = tierraFirme;
+            LuzDorada(tierraFirme);
             // Sombras del cohete solo sobre la plataforma: en órbita serían manchas enormes sobre la Tierra.
             foreach (var c in new[] { coheteExplorador, coheteTitan })
                 if (c != null)
@@ -719,7 +747,8 @@ namespace SpaceMission
             if (clip == null) return;
             fuenteBucle.clip = clip;
             fuenteBucle.loop = true;
-            fuenteBucle.volume = volumen * Preferencias.VolumenEfectos;
+            volumenBucle = volumen;
+            fuenteBucle.volume = volumen * atenuacion * Preferencias.VolumenEfectos;
             fuenteBucle.Play();
         }
 
@@ -771,6 +800,7 @@ namespace SpaceMission
                     fuenteVoz.playOnAwake = false;
                     fuenteVoz.spatialBlend = 0f;
                     fuenteVoz.outputAudioMixerGroup = fuente.outputAudioMixerGroup;
+                    Atenuacion.Registrar(fuenteVoz);
                 }
                 colaVoz.Enqueue(clip);
                 return;
@@ -779,8 +809,18 @@ namespace SpaceMission
         }
 
         /// <summary>El mismo final al terminar o al omitir: satélite en su órbita, audio y vista de la Operación.</summary>
+        /// <summary>El Sol se tiñe de dorado en tierra y vuelve a su color en el espacio y al terminar.</summary>
+        void LuzDorada(bool dorada)
+        {
+            if (sol == null) sol = RenderSettings.sun;
+            if (sol == null) return;
+            if (!solGuardado) { colorSol = sol.color; solGuardado = true; }
+            sol.color = dorada ? SolDorado : colorSol;
+        }
+
         void Final()
         {
+            LuzDorada(false);
             if (rutina != null) { StopCoroutine(rutina); rutina = null; }
             if (fuente != null) fuente.Stop();
             CallarVoz();

@@ -140,6 +140,11 @@ namespace SpaceMission.PlayTests
             var titulo = GameObject.Find("Titulo").GetComponent<TMP_Text>().text;
             Assert.AreEqual(TextosResultado.Titulo(EstadoJuego.CategoriaFinal.Value), titulo, "título del informe del caso " + caso);
 
+            // El informe va en dos pantallas: el veredicto primero y «Modificar mi misión» en el detalle.
+            Assert.IsNull(GameObject.Find("BotonModificar"), "el veredicto no muestra todavía el detalle");
+            Pulsar("BotonDetalle");
+            yield return null;
+            Assert.IsTrue(Object.FindFirstObjectByType<ResultadoUI>().DetalleVisible, "«Ver detalles» abre el detalle");
             Pulsar("BotonModificar");
             yield return EsperarEscena("Mision");
             yield return null;
@@ -160,8 +165,11 @@ namespace SpaceMission.PlayTests
 
         static IEnumerator EsperarEscena(string nombre)
         {
+            // Por tiempo real además de por cuadros: el menú hace un fundido de 0.35 s antes de cargar la misión, y en
+            // modo batch 600 cuadros pueden pasar en menos tiempo que eso.
             int cuadros = 0;
-            while (SceneManager.GetActiveScene().name != nombre && cuadros++ < MaxCuadros) yield return null;
+            float limite = Time.realtimeSinceStartup + 10f;
+            while (SceneManager.GetActiveScene().name != nombre && (cuadros++ < MaxCuadros || Time.realtimeSinceStartup < limite)) yield return null;
             Assert.AreEqual(nombre, SceneManager.GetActiveScene().name, "No se cargó la escena " + nombre);
             yield return null; // deja correr Awake y Start
         }
@@ -178,6 +186,47 @@ namespace SpaceMission.PlayTests
             var boton = Boton(nombre);
             Assert.IsTrue(boton.interactable, nombre + " no está habilitado");
             boton.onClick.Invoke();
+        }
+
+        /// <summary>
+        /// Versión 6: el orden nuevo (Lanzador, Satélite, Instrumentos, Órbita) con los botones reales. Con 495 kg el
+        /// Explorador no llega a la órbita media: su tarjeta sale bloqueada, pulsarla no la elige y la elíptica sí.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator ElOrdenNuevoBloqueaLasOrbitasFueraDeAlcance()
+        {
+            SceneManager.LoadScene("Menu");
+            yield return EsperarEscena("Menu");
+            Pulsar("BotonIniciar");
+            yield return EsperarEscena("Mision");
+            Pulsar("BotonContinuar");
+            yield return null;
+
+            var configuracion = Object.FindFirstObjectByType<ConfiguracionUI>();
+            Assert.AreEqual(ConfiguracionUI.Pestana.Lanzador, configuracion.PestanaActual, "se empieza por el lanzador");
+            var catalogo = Object.FindFirstObjectByType<MisionUI>().Catalogo;
+            PulsarOpcion(catalogo.Lanzador("explorador").nombre);
+            Pulsar("BotonSiguiente");   // al satélite
+            yield return null;
+            Assert.AreEqual(ConfiguracionUI.Pestana.Satelite, configuracion.PestanaActual);
+            Pulsar("BotonSiguiente");   // a los instrumentos
+            yield return null;
+            PulsarOpcion(catalogo.Instrumento("radar").nombre);
+            PulsarOpcion(catalogo.Instrumento("espectrometro").nombre);
+            Pulsar("BotonSiguiente");   // a la órbita
+            yield return null;
+            Assert.AreEqual(ConfiguracionUI.Pestana.Orbita, configuracion.PestanaActual);
+            Assert.IsFalse(GameObject.Find("BotonSiguiente") != null && GameObject.Find("BotonSiguiente").activeInHierarchy,
+                "la órbita es el último paso");
+            Assert.IsNotNull(GameObject.Find("NotaAlcance"), "la pestaña de órbitas explica cómo se calcula el alcance");
+
+            PulsarOpcion(catalogo.Orbita("media").nombre);
+            yield return null;
+            Assert.IsNull(EstadoJuego.Configuracion.OrbitaId, "fuera de alcance: no se elige");
+            PulsarOpcion(catalogo.Orbita("eliptica").nombre);
+            yield return null;
+            Assert.AreEqual("eliptica", EstadoJuego.Configuracion.OrbitaId);
+            Assert.AreNotEqual(EstadoSemaforo.Rojo, configuracion.Ultima.Estado);
         }
 
         static void PulsarOpcion(string texto)

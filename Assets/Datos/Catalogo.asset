@@ -17,6 +17,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3b908aa35dbfed93e8b84fecb407e5d5, type: 2}
   - {fileID: 11400000, guid: 748efd333f7162bda8765650fcd52aba, type: 2}
   - {fileID: 11400000, guid: 294b37e40c74e02279525c5ee08038db, type: 2}
+  - {fileID: 11400000, guid: 0db4019b13a9b1819895c5a61d076e8c, type: 2}
+  - {fileID: 11400000, guid: 6aa21cf7b0bf8901798e34ee61f31c6b, type: 2}
   lanzadores:
   - {fileID: 11400000, guid: 7044842f80d7cc1f5b31307183399ca9, type: 2}
   - {fileID: 11400000, guid: cfd1e8889d0ff06e7b7b1d43024bccb4, type: 2}

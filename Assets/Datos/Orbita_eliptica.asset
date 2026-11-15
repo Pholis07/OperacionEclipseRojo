@@ -16,6 +16,8 @@ MonoBehaviour:
   nombre: Elliptical
   descripcionBreve: Elongated orbit that gives a panoramic view and measures environmental conditions.
   costoCr: 140
+  periapsisKm: 150
+  apoapsisKm: 6200
   ventaja: Panoramic context and environmental conditions
   limitacion: Full victory also requires the atmospheric sensor
   datoNasa: "Like MAVEN: 150 \xD7 6,200 km, 75\xB0, 4.5 hours. It dips into the upper atmosphere on every pass, which is why it needs the atmospheric sensor."
@@ -27,3 +29,5 @@ MonoBehaviour:
   - atmosferico
   revelacionesDesbloqueadas:
   - atmosferico
+  instrumentosSinAlcance: []
+  motivoSinAlcance: 

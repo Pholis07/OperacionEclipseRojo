@@ -41,5 +41,10 @@ MonoBehaviour:
   factorAltitudBaja: 1.5
   combustiblePorOrbitaBaja: 1
   puntosPorCombustible: 10
+  velocidadLlegadaKmS: 2.7
+  impulsoEspecificoS: 230
+  datoNasaAlcance: "Mars: GM 42,828 km\xB3/s\xB2, radius 3,389.5 km. Hydrazine engines like MRO's (Isp about 230 s), arriving at 2.7 km/s. Engines only: the real MRO braked about 1 km/s into a 400 \xD7 35,000 km orbit and then needed six months of aerobraking to reach 255 \xD7 320 km."
+  datoNasaAlcanceEs: "Marte: GM 42,828 km\xB3/s\xB2, radio 3,389.5 km. Motores de hidracina como los del MRO (Isp de unos 230 s), llegando a 2.7 km/s. Solo con motores: el MRO real fren\xF3 unos 1 km/s hasta una \xF3rbita de 400 \xD7 35,000 km y despu\xE9s necesit\xF3 seis meses de aerofrenado para llegar a 255 \xD7 320 km."
+  fuenteNasaAlcance: NASA NSSDC
   cicloContacto: 2
   vatiosTransmisor: 150

@@ -428,3 +428,103 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - La primera lámina parecía empedrado y luego purpurina: se quitaron los contornos oscuros, se agrandaron las facetas y se bajó el brillo.
 - 12 pruebas nuevas en `TexturasTests.cs`. Pasan las 257 pruebas EditMode y las 19 PlayMode.
 - Riesgo: la textura de 8192 necesita una GPU que la acepte. Los equipos de escritorio sí; un móvil viejo podría mostrar el cielo negro.
+
+## Versión 6 (Diego, 2026-11-15)
+
+- Diego probó la versión 5 y pidió cinco cambios. La IA exploró el código con tres agentes y diseñó la mecánica del alcance con un cuarto. Le preguntó a Diego:
+  - el modelo de alcance: delta-v real sin aerofrenado;
+  - si Adrian estaba de acuerdo con cambiar su lógica: sí;
+  - qué ayuda quería: guía por pantalla, «?» y «Cómo jugar»;
+  - qué hacer con el mapa de Marte.
+- La IA verificó en fuentes los datos que el juego rotula como «NASA data»: GM y radio de Marte (NSSDC), 1,223 kg de Mars Express (ESA), inserción del MRO de ~1 km/s más aerofrenado (NSSDC) e Isp de la familia MR-107 (222 a 236 s).
+- Lo hizo en bloques, con un commit por bloque y todas las pruebas en verde en cada uno: informe en dos pantallas, voces, alcance, ayuda y Marte.
+- Pruebas: la línea base de main tenía 1 fallo de 257, solo en un equipo con configuración regional en español («×1,5»). Se corrigió usando formato invariante.
+  - Pruebas nuevas: `AlcanceTests`, `VocesTests`, `GuiaPantallasTests` y un recorrido PlayMode con el orden nuevo.
+  - Al final pasan las 282 EditMode y las 20 PlayMode.
+- La IA revisó cada pantalla con capturas en batch, en español y en inglés. De ahí salieron varios arreglos:
+  - la tarjeta de órbita bloqueada partía «kg» en tres líneas;
+  - la guía tapaba el título del paso;
+  - el «?» de la Operación se encimaba con un panel;
+  - el planeta del Briefing quedaba detrás de los cuadros.
+- Sin numpy en el equipo, las texturas nuevas (nubes de Marte y degradado del Briefing) se generan con un script de editor propio (`GeneradorCapasMarte`).
+
+### Versión 6, segunda vuelta (Diego, 2026-11-15)
+
+- Diego jugó la versión 6 y pidió tres cosas:
+  - un Briefing que se lea: eligió «solo lo esencial»;
+  - los datos de la NASA detrás de un botón;
+  - buscar errores de animación, voces y mecánicas.
+- Errores encontrados al revisar el código, que se arreglaron:
+  - la transmisión inicial se narraba encima de la cinemática del lanzamiento: era la voz que se encimaba con control de misión;
+  - las órbitas y sus etiquetas se dibujaban detrás del Briefing;
+  - el «?» tapaba texto.
+- Revisión independiente con un agente que no conocía esas conclusiones: confirmó lo anterior y encontró siete fallos menores, todos arreglados:
+  - «Usar el MRO» no rehacía la evaluación;
+  - la guía ignoraba el rojo por alcance en dos pestañas;
+  - el «?» flotaba sobre los paneles de la Operación;
+  - la transmisión seguía sonando al saltar la Misión 0;
+  - la reserva de idioma de las voces usaba `??` con objetos de Unity;
+  - la fórmula mostraba 9.81 sin dar exactamente el número mostrado;
+  - dos pruebas cubrían un caso que el juego ya no permite.
+- Pruebas nuevas (`CinematicaTests`, PlayMode):
+  - cinemática entera en español y en inglés: nunca suenan dos voces a la vez, la transmisión solo empieza al terminar y en el idioma del juego;
+  - saltar la cinemática corta a control de misión.
+- Partida real en el navegador: el Chromium de Playwright, controlado por CDP desde Node, sin instalar nada.
+  - Recorrido: título, menú, Briefing, configuración en el orden nuevo, Revisión, Carga, cinemática, Operación (encender, marcar, resolver un mes, resumen) e informe en dos pantallas hasta «Modificar mi misión».
+  - En español a 1920×1080 y en inglés a 1366×768. La consola del navegador quedó sin errores.
+  - Lo que salió de esa partida y se arregló:
+    - las nubes de Marte se veían como vetas grises en la sombra (no se notaba en las capturas del editor);
+    - el botón de la Misión 0 partía el «0» a otra línea;
+    - el cuadro de recursos del detalle se estiraba vacío.
+- Pasan las 283 pruebas EditMode y las 23 PlayMode.
+- Lo que no se pudo comprobar: la mezcla de audio a oído (volúmenes, si la voz se entiende sobre el motor).
+
+## Versión 7 (Diego, 2026-11-15)
+
+- Diego reportó tres cosas al jugar (falta un botón para regresar en el Briefing, Marte cortado por los paneles en la pestaña Órbita, la Revisión sin scroll), pidió quitar a Sofía de los créditos y entregó un paquete de diseño para incorporarlo.
+- La IA comparó el paquete con el juego con un agente de solo lectura. Resultado: casi todo ya existía; faltaban la regla de «una sola órbita visible», dos órbitas, los modos del espectrómetro y la cámara, tres audios, pantalla completa y los tiempos de los storyboards.
+- Preguntó a Diego qué entraba (todo), cómo manejar las dos órbitas (jugables con los valores propuestos por la IA) y cómo mostrar Marte (encajado en el centro).
+- Decisiones de la IA que conviene revisar:
+  - Las dos órbitas nuevas y sus valores. El paquete los daba por «pendientes del equipo».
+  - Desde la areoestacionaria el radar y la cámara de alta resolución no dan evidencia.
+  - La cinemática quedó en 29.7 s y no en los 24 s del storyboard, para no encimar voces.
+- ElevenLabs: la IA preparó los seis nodos, pidió el estimado (518 créditos), esperó el visto bueno de Diego y generó (253 créditos reales).
+- Pruebas: 298 EditMode y 23 PlayMode. Nuevas: `OrbitasTests` (una sola trayectoria en las 20 transiciones, reglas de las dos órbitas) y `ModoEscaneoTests`.
+- Un fallo que salió y se corrigió: con el fundido nuevo del menú, la prueba del recorrido esperaba la escena por cuadros y en batch se quedaba corta.
+
+## Versión 8 (Diego, 2026-11-15)
+
+- Diego pidió mejorar las pantallas finales y rediseñar los modelos 3D con el paquete «Fable 5.2» (estilo Eclipse Ink).
+- La IA auditó el proyecto con tres agentes de solo lectura antes de cambiar nada (`Docs/Claude/AUDITORIA_INICIAL.md`) y preguntó a Diego el alcance: solo estilo de tinta sobre los modelos actuales; cinemática a criterio de la IA con las 10 fases; informe con Marte y la nave protagonistas, tablero y botón al menú.
+- Lo que hizo la IA:
+  - Shader `Tinta` (cel shading de 3 bandas y contorno por malla invertida) como piloto en el satélite y los instrumentos.
+  - Informe final rediseñado: veredicto tipo póster y detalles como tablero.
+  - Cinemática de vuelta a sus tiempos originales (44 s medidos).
+- Decisiones de la IA que conviene revisar:
+  - El contorno es de malla invertida porque el WebGL no tiene textura de profundidad.
+  - Tono de la sombra, grosor de la línea (1.2 a 1.5 px a 1080p) y línea azul pizarra en las piezas negras.
+  - En el fracaso la tormenta de Marte se queda al 50 % en vez del 95 %.
+  - La duración de la cinemática: se deshizo el recorte de la versión 7.
+- El paquete pide no activar las dos órbitas nuevas sin acuerdo del equipo. Siguen jugables por la decisión de Diego en la versión 7; falta que Adrian las revise.
+- Un fallo anterior que apareció al probar: las marcas de las casillas de Opciones no se veían nunca.
+- Pruebas: 336 EditMode y 24 PlayMode. Nuevas: `TintaTests`, `ResultadoTests` y `OpcionesTests`.
+- No se gastaron créditos de ElevenLabs.
+- Lo que no se pudo comprobar: los FPS con tarjeta gráfica real.
+- Fase 2 (mismo día): Diego vio el piloto, notó que la animación casi no cambiaba y pidió extender el estilo. La IA lo llevó a los cohetes, la torre, los edificios, los árboles y el suelo, puso luz de hora dorada y acercó dos planos. Pruebas: 349 EditMode y 24 PlayMode. Detalle en `Docs/Claude/REPORTE_FASE_2.md`.
+
+## Explorador con el modelo Ares 1 (B) de NASA (2026-11-15)
+
+- Hecho en la rama local `feat/ares1b`, sobre la rama del PR #1 (`feat/eclipse-ink`), porque ese PR cambia el constructor, la cinemática y el estilo de los cohetes.
+- `ConstructorEscenas.Ares.cs`, nuevo: instancia `ares1b.fbx`. Unity ya lo importa de pie, sin girarlo. Lo escala a 7.5 de alto y lo parte por altura (fracciones medidas en el modelo):
+  - primera etapa con interestadio: el cohete;
+  - `EtapaSuperior`;
+  - el Orion y la torre de escape en dos mitades con bisagra (`CofiaFrente` y `CofiaDetras`).
+
+  El FBX trae casi todo el cohete en una sola malla, así que hubo que cortarla.
+- El Ares no tiene propulsores laterales: en la separación cae la primera etapa entera (`propulsoresExplorador` queda vacío). El Ares no lleva cofia, así que el satélite sale al abrirse la nariz. Esa es la adaptación.
+- Alto 7.5 en vez de 6.1, porque el Ares es muy delgado. El Ares real medía casi lo mismo que el SLS, pero se dejó más bajo que el Titán (11) para que se lea cuál es el pequeño. Se ajustó en `DirectorCinematica` y en el encuadre de la pestaña Lanzador.
+- Colores planos del modelo (materiales `NASA_Cohete_Ares_*`) con el estilo de tinta de los cohetes. No se añadieron texturas. El logo «Fence» del patrocinador pasó de la cofia del Soyuz a la etapa superior.
+- Las mallas del Soyuz que quedaron sin uso se movieron a `archivo/soyuz-explorador/`.
+- Pruebas: 4 nuevas en `AresTests.cs`. Pasan las 353 EditMode y las 24 PlayMode. Build WebGL de 57 MB.
+- Comprobado en el navegador a 1366x768: la pestaña Lanzador y la cinemática completa con el Explorador (despegue, separación, apertura de la nariz y satélite liberado) hasta la Operación, sin errores en la consola.
+- Pendiente: la leyenda del Explorador dice «Like the Soyuz-Fregat». Se refiere a la capacidad, que sigue siendo cierta, pero el aspecto ya es del Ares.

@@ -173,7 +173,7 @@ public class ImportadorArte : AssetPostprocessor
                 ti.compressionQuality = 70;
             }
             if (nombre.StartsWith("Gale_")) ti.maxTextureSize = 1024;
-            if (nombre == "Marte_Polvo" || nombre == "Nubes") ti.alphaIsTransparency = true;
+            if (nombre == "Marte_Polvo" || nombre == "Nubes" || nombre == "Marte_Nubes") ti.alphaIsTransparency = true;
         }
     }
 }

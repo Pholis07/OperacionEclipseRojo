@@ -151,9 +151,21 @@ Todo está en `Assets/Editor/ConstructorEscenas.cs`. Busca el nombre entre comil
 
 **Resultado** (método `ConstruirResultado`)
 
-- Fondo con Marte durante la tormenta.
-- Columna izquierda: título de 80 pt en mayúsculas, conclusión de 32 pt, recursos y «Modificar mi misión» (ese texto exacto lo comprueban las pruebas).
-- Tarjeta derecha: evidencias, lo que faltó, los puntos y una miniatura de Marte.
+Escena 3D detrás: Marte, la nave elegida en primer plano (con el estilo Eclipse Ink) y la Tierra a lo lejos. Dos vistas (versión 8):
+
+- **Veredicto (`VistaVeredicto`)**, tipo póster. Un degradado oscurece solo la izquierda.
+  - Columna izquierda: título en mayúsculas, barra del color del resultado, conclusión, las evidencias de un vistazo (✓ o aviso por instrumento), los puntos con el nivel y «Ver detalles».
+  - Sello del resultado junto al encabezado.
+- **Detalle (`VistaDetalle`)**, tablero.
+  - Izquierda: barras de créditos, masa, potencia y espacios; cuatro fichas (meses, combustible, registros sin enviar, apagones); objetivos extra; «Modificar mi misión» (ese texto exacto lo comprueban las pruebas), «← Menú» y «Volver al veredicto».
+  - Derecha: una fila por evidencia (llegó o faltó, y por qué) y la tabla de puntos.
+- Los datos salen de `InformeMision` (`Barras`, `Filas`, `Fichas`, `ObjetivosExtra`).
+
+**Eclipse Ink** (versión 8)
+
+- Shader `Tinta` (3 bandas y contorno) en el satélite y los instrumentos. La lista de materiales está en `ConstructorEscenas.Tinta.cs`.
+- Para quitarlo: «Herramientas → Eclipse Ink → Quitar». El jugador puede apagar los contornos en Opciones.
+- Detalles y capturas: `Docs/Claude/REPORTE_FASE_1.md`.
 
 **Escena 3D**
 
@@ -165,7 +177,8 @@ Todo está en `Assets/Editor/ConstructorEscenas.cs`. Busca el nombre entre comil
 - **Marte** (método `ConstruirMarte`): esfera de alta resolución (`Esfera_Planeta`), textura de Solar System Scope a 4096 px con relieve (`Marte_Normal`), capa de polvo de la tormenta de 2018 (`Marte_Polvo`, shader `CapaPolvo`) y borde de atmósfera. En Configuración está en 0, -17.5, 16, con diámetro 26 y el anillo cian de la órbita elegida (`AnilloOrbita`: polar, media inclinada o elíptica, con un marcador que la recorre).
 - **Cohetes** (método `ConstruirCohetes`, en la plataforma `Plataforma` = 70, 0, 0): Explorador inspirado en el Soyuz y Titán inspirado en el SLS de Artemis II, a escala aproximada entre ellos, hechos con mallas de revolución (`Torno`). El anillo de acento bajo cada uno se enciende y el cohete gira cuando está elegido.
 - **Cámara de Configuración** (`CamaraConfiguracion`, en la cámara principal): pestaña Órbita, el planeta; pestaña Lanzador, la plataforma; pestaña Instrumentos, la nave. Al instalar un instrumento, la cámara se acerca a su módulo y una etiqueta «INSTALADO AQUÍ» lo señala. Los encuadres se asignan en `ConstruirMision` (`AsignarEncuadre`).
-- **Navegación de Configuración** (`GuiaConfiguracion`): ✓ en cada pestaña ya completada, instrucción «1 · ELIGE LA ÓRBITA» y similares, botón «Siguiente», leyenda según la pestaña y teclas 1, 2 y 3.
+- **Navegación de Configuración** (`GuiaConfiguracion`): ✓ en cada pestaña ya completada, instrucción con el número de paso (versión 6: «1 · ELIGE EL COHETE», después satélite, instrumentos y órbita), botón «Siguiente», leyenda según la pestaña y teclas 1 a 4.
+- **Órbita única (versión 7)** (`AnilloOrbita`, `Trayectoria`): en el visor solo se dibuja la órbita elegida; sin elección, ninguna. El nombre y la altitud van en el rótulo fijo bajo el planeta (`GuiaConfiguracion.RotuloOrbita`), y `CamaraConfiguracion.EncajarOrbita` aleja o acerca la cámara para que planeta y órbita quepan entre los paneles. Para añadir una órbita: su asset, una fila en la tabla de `Trayectoria` y su par en `Traducciones`.
 - **Luz y posprocesado:** `ConstruirIluminacion` (Sol en 24, 38, 0) y `PerfilPostProceso` (Bloom con umbral 1.15 e intensidad 0.55: solo brilla lo encendido). Los valores del perfil se aplican cada vez que se construye.
 - **Semáforo:** el halo de la luz es suave a propósito (alfa 0.22, apenas sobresale de la luz).
 

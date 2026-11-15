@@ -118,6 +118,7 @@ namespace SpaceMission
             operacion.TerminarForzado = null;
             Actual = Paso.Inactivo;
             panel.SetActive(false);
+            ReproductorUI.Callar();   // la transmisión del tutorial no sigue hablando en el Briefing
             EstadoJuego.Reiniciar();
             mision.MostrarBriefing();
         }

@@ -23,7 +23,7 @@ namespace SpaceMission.Tests
         public void ElCatalogoTieneLosElementosEsperados()
         {
             Assert.IsNotNull(catalogo.mision);
-            Assert.AreEqual(3, catalogo.orbitas.Count);
+            Assert.AreEqual(5, catalogo.orbitas.Count, "versión 7: las tres originales, ecuatorial baja y areoestacionaria");
             Assert.AreEqual(2, catalogo.lanzadores.Count);
             Assert.AreEqual(5, catalogo.instrumentos.Count);
         }
@@ -31,7 +31,7 @@ namespace SpaceMission.Tests
         [Test]
         public void LosIdsSonUnicosYSonLosEsperados()
         {
-            CollectionAssert.AreEquivalent(new[] { "polar", "media", "eliptica" }, catalogo.orbitas.Select(o => o.id).ToArray());
+            CollectionAssert.AreEquivalent(new[] { "polar", "media", "eliptica", "ecuatorial", "areoestacionaria" }, catalogo.orbitas.Select(o => o.id).ToArray());
             CollectionAssert.AreEquivalent(new[] { "explorador", "titan" }, catalogo.lanzadores.Select(l => l.id).ToArray());
             CollectionAssert.AreEquivalent(
                 new[] { "termica", "radar", "alta_res", "atmosferico", "espectrometro" },
@@ -87,7 +87,9 @@ namespace SpaceMission.Tests
             var i = catalogo.Instrumento(id);
             var ayuda = PresentacionMision.Ayuda(i);
             StringAssert.Contains("Power:</b> " + i.ConsumoTotalW + " W", ayuda);
-            StringAssert.Contains("NASA data:", ayuda);
+            // Versión 6: el dato real ya no va en la ayuda; se abre con «+ Dato NASA».
+            StringAssert.DoesNotContain("NASA data:", ayuda);
+            StringAssert.Contains("NASA data:", PresentacionMision.DatoNasa(i));
             Assert.IsNotEmpty(i.datoNasaEs, "Falta el dato NASA en español de " + id);
             Assert.IsNotEmpty(i.fuenteNasa, "Falta la fuente de " + id);
             Assert.IsNotEmpty(i.pistaAsociada, "Falta la evidencia que aporta " + id);

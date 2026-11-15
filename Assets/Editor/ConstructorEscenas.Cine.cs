@@ -55,13 +55,11 @@ public static partial class ConstructorEscenas
         var complejo = ConstruirComplejo(EscenarioLanzamiento);
 
         // Una llama por motor, hija de la pieza que la lleva (los propulsores se van con su fuego).
-        var soyuz = cohetes.explorador.transform;
-        var toberasSoyuz = new List<(Transform, Vector3, float, float)>();
-        for (int i = 0; i < 4; i++) toberasSoyuz.Add((soyuz.Find("Bloque" + i), Vector3.zero, 0.12f, 4.2f));
-        toberasSoyuz.Add((soyuz, new Vector3(0f, 0.13f, 0f), 0.13f, 4.6f));
-        var llamasExplorador = ConstruirLlamas(toberasSoyuz);
-        var superiorSoyuz = soyuz.Find("EtapaSuperior");
-        var llamaSupExplorador = ConstruirLlamas(new[] { (superiorSoyuz, new Vector3(0f, 3.45f, 0f), 0.14f, 1.8f) });
+        // Explorador (Ares): la tobera de la primera etapa al pie y el motor de la etapa superior en el corte.
+        var explorador = cohetes.explorador.transform;
+        var llamasExplorador = ConstruirLlamas(new[] { (explorador, new Vector3(0f, 0.05f, 0f), 0.2f, 5f) });
+        var superiorExplorador = explorador.Find("EtapaSuperior");
+        var llamaSupExplorador = ConstruirLlamas(new[] { (superiorExplorador, new Vector3(0f, CorteEtapaAres * AltoExplorador, 0f), 0.15f, 1.8f) });
 
         var titan = cohetes.titan.transform;
         var inferiorTitan = titan.Find("SLS_NASA/EtapaInferior");
@@ -257,11 +255,11 @@ public static partial class ConstructorEscenas
         AsignarLista(director, "llamasTitan", llamasTitan.ToArray());
         AsignarLista(director, "llamaSuperiorExplorador", llamaSupExplorador.ToArray());
         AsignarLista(director, "llamaSuperiorTitan", llamaSupTitan.ToArray());
-        AsignarLista(director, "propulsoresExplorador", new Object[] { soyuz.Find("Bloque0"), soyuz.Find("Bloque1"), soyuz.Find("Bloque2"), soyuz.Find("Bloque3") });
+        AsignarLista(director, "propulsoresExplorador", new Object[0]);   // el Ares no tiene propulsores laterales
         AsignarLista(director, "propulsoresTitan", new Object[] { izqTitan, derTitan });
         Asignar(director, "fuenteBucle", fuenteBucle);
         Asignar(director, "destello", grupoDestello);
-        AsignarLista(director, "cofiaExplorador", new Object[] { soyuz.Find("EtapaSuperior/CofiaFrente"), soyuz.Find("EtapaSuperior/CofiaDetras") });
+        AsignarLista(director, "cofiaExplorador", new Object[] { explorador.Find("EtapaSuperior/CofiaFrente"), explorador.Find("EtapaSuperior/CofiaDetras") });
         AsignarLista(director, "cofiaTitan", new Object[] { superiorTitan.Find("NarizIzq"), superiorTitan.Find("NarizDer") });
         var matChispaCine = MaterialAditivo("Particula_Chispa", ConstructorEstilo.Sprite("Chispa").texture, Color.white);
         var matGas = MaterialParticulas("Particula_Nube", ConstructorEstilo.Sprite("Nube").texture, false);

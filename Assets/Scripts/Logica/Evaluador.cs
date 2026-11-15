@@ -38,7 +38,9 @@ namespace SpaceMission
         static void EvaluarValida(Evaluacion e, Configuracion config, CatalogoDatos catalogo)
         {
             var orbita = catalogo.Orbita(config.OrbitaId);
-            var elegidos = config.InstrumentoIds;
+            // Versión 7: desde algunas órbitas hay instrumentos que no pueden trabajar (OrbitaDatos.instrumentosSinAlcance).
+            // Siguen a bordo (pesan y cuestan), pero no dan evidencia.
+            var elegidos = config.InstrumentoIds.Where(id => !orbita.instrumentosSinAlcance.Contains(id)).ToList();
 
             e.SePuedeLanzar = true;
             e.PistasPrincipales.AddRange(elegidos.Where(id => EsPrincipal(id, catalogo)));
@@ -53,8 +55,12 @@ namespace SpaceMission
             e.Mensaje = e.Estado == EstadoSemaforo.Verde
                 ? Idioma.T("Setup ready: it covers all the evidence the orbit requires.")
                 : MensajeAmarillo(e, catalogo);
+            // A bordo pero sin alcance: el motivo se explica en el mensaje (y no se anuncian como ausentes).
+            var sinAlcanceABordo = config.InstrumentoIds.Where(orbita.instrumentosSinAlcance.Contains).ToList();
+            if (sinAlcanceABordo.Count > 0 && !string.IsNullOrEmpty(orbita.motivoSinAlcance))
+                e.Mensaje += " " + orbita.MotivoSinAlcance;
 
-            ElegirTransmisiones(e, config, orbita, catalogo);
+            ElegirTransmisiones(e, elegidos, orbita, catalogo, sinAlcanceABordo);
         }
 
         /// <summary>
@@ -65,7 +71,8 @@ namespace SpaceMission
         /// para la victoria (TX-A4 y TX-A5 en polar baja). Por eso el sensor atmosférico que falta en media
         /// inclinada no se anuncia, como pide Transmisiones.md.
         /// </summary>
-        static void ElegirTransmisiones(Evaluacion e, Configuracion config, OrbitaDatos orbita, CatalogoDatos catalogo)
+        static void ElegirTransmisiones(Evaluacion e, List<string> elegidos, OrbitaDatos orbita, CatalogoDatos catalogo,
+            List<string> sinAlcanceABordo)
         {
             var presentes = new List<TransmisionDatos>();
             var ausentes = new List<TransmisionDatos>();
@@ -80,14 +87,14 @@ namespace SpaceMission
                     continue;
                 }
 
-                bool elegido = config.InstrumentoIds.Contains(t.instrumentoId);
+                bool elegido = elegidos.Contains(t.instrumentoId);
                 bool principal = t.tipo == TipoTransmision.Principal;
                 bool desbloqueado = orbita.revelacionesDesbloqueadas.Contains(t.instrumentoId);
 
                 if (!esAusente && elegido && (principal || desbloqueado))
                     presentes.Add(t);
 
-                if (esAusente && !elegido)
+                if (esAusente && !elegido && !sinAlcanceABordo.Contains(t.instrumentoId))
                 {
                     bool exigido = orbita.requisitoDeVictoria.Contains(t.instrumentoId);
                     bool revelacionPerdida = desbloqueado && !exigidosEnAlgunaOrbita.Contains(t.instrumentoId);
@@ -127,7 +134,19 @@ namespace SpaceMission
                 partes.Add(Idioma.T("the budget (") + r.CostoCr + Idioma.T(" of ") + mision.presupuestoCr + Idioma.T(" credits)"));
             if (r.LimitesSuperados.Contains(Limite.Espacios))
                 partes.Add(Idioma.T("the slots (") + r.EspaciosUsados + Idioma.T(" of ") + lanzador.espacios + ")");
-            return Idioma.T("Cannot launch: ") + Unir(partes) + (partes.Count > 1 ? Idioma.T(" exceed the limit.") : Idioma.T(" exceeds the limit."));
+            var mensaje = partes.Count == 0 ? Idioma.T("Cannot launch.")
+                : Idioma.T("Cannot launch: ") + Unir(partes) + (partes.Count > 1 ? Idioma.T(" exceed the limit.") : Idioma.T(" exceeds the limit."));
+            if (r.LimitesSuperados.Contains(Limite.Alcance))
+            {
+                // Versión 6: no es «superar un límite» sino que falta frenado. Se dice cuánto y a qué órbitas sí llega.
+                mensaje += Idioma.T(" Not enough braking for this orbit: it needs ") + TextosBriefing.Numero(r.DeltaVNecesarioMs) +
+                           Idioma.T(" m/s and the spacecraft has ") + TextosBriefing.Numero(r.DeltaVDisponibleMs) + " m/s.";
+                var alcanzables = Alcance.Alcanzables(config, catalogo, mision);
+                mensaje += alcanzables.Count > 0
+                    ? Idioma.T(" Within reach: ") + Unir(alcanzables.Select(o => o.Nombre).ToList()) + "."
+                    : Idioma.T(" No orbit is within reach: remove mass or use a bigger launcher.");
+            }
+            return mensaje;
         }
 
         static string MensajeAmarillo(Evaluacion e, CatalogoDatos catalogo)

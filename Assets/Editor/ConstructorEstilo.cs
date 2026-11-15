@@ -172,6 +172,18 @@ public static class ConstructorEstilo
         arte.vozDespegue = Audio("Voces/Control/VOZ_Despegue_en");
         arte.vozSeparacion = Audio("Voces/Control/VOZ_Separacion_en");
         arte.vozOrbita = Audio("Voces/Control/VOZ_Orbita_en");
+        // Las mismas frases en español: el juego elige según el idioma (ArteDatos.SegunIdioma).
+        arte.vozEncendidoEs = Audio("Voces/Control/VOZ_Encendido");
+        arte.vozDespegueEs = Audio("Voces/Control/VOZ_Despegue");
+        arte.vozSeparacionEs = Audio("Voces/Control/VOZ_Separacion");
+        arte.vozOrbitaEs = Audio("Voces/Control/VOZ_Orbita");
+        // Versión 7: los audios que faltaban del paquete de diseño.
+        arte.ambienteConfiguracion = Audio("Efectos/AMB_Configuracion_Sistemas");
+        arte.transicion = Audio("Efectos/SFX_UI_Transition");
+        arte.orbitaElegir = Audio("Efectos/SFX_Orbit_Select");
+        arte.orbitaConfirmar = Audio("Efectos/SFX_Orbit_Confirm");
+        arte.conmutacionEspectral = Audio("Efectos/SFX_Spectral_Switch");
+        arte.revelacion = Audio("Musica/MUS_Revelacion_Breve");
         arte.pasoMes = Audio("Efectos/SFX_Month_Pass");
         arte.sello = Audio("Efectos/SFX_Stamp");
         arte.remateVictoria = Audio("Efectos/SFX_Outcome_Victory");
@@ -179,19 +191,21 @@ public static class ConstructorEstilo
         arte.remateFracaso = Audio("Efectos/SFX_Outcome_Failure");
         arte.senalPerdida = Audio("Efectos/SFX_Signal_Lost");
         arte.conteoPuntos = Audio("Efectos/SFX_Score_Tick");
+        // Voces de las transmisiones en los dos idiomas: voz_TX-00_en (inglés) y voz_TX-00 (español).
         arte.voces = new List<ArteDatos.Voz>();
         foreach (var guid in AssetDatabase.FindAssets("t:AudioClip", new[] { "Assets/Arte/Audio/Voces" }))
         {
             var ruta = AssetDatabase.GUIDToAssetPath(guid);
-            // Solo las voces en inglés (voz_TX-00_en…); las de español se quedan en el proyecto sin usarse.
             var nombre = Path.GetFileNameWithoutExtension(ruta);
-            if (!nombre.StartsWith("voz_") || !nombre.EndsWith("_en")) continue;
-            arte.voces.Add(new ArteDatos.Voz
-            {
-                transmisionId = nombre.Replace("voz_", "").Replace("_en", ""),
-                clip = AssetDatabase.LoadAssetAtPath<AudioClip>(ruta)
-            });
+            if (!nombre.StartsWith("voz_")) continue;
+            bool ingles = nombre.EndsWith("_en");
+            var id = nombre.Substring(4, nombre.Length - 4 - (ingles ? 3 : 0));
+            var voz = arte.voces.Find(v => v.transmisionId == id);
+            if (voz == null) arte.voces.Add(voz = new ArteDatos.Voz { transmisionId = id });
+            var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(ruta);
+            if (ingles) voz.clip = clip; else voz.clipEs = clip;
         }
+        arte.voces.Sort((a, b) => string.CompareOrdinal(a.transmisionId, b.transmisionId));
 
         EditorUtility.SetDirty(arte);
         AssetDatabase.SaveAssets();

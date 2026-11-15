@@ -23,18 +23,29 @@ namespace SpaceMission
         public class Voz
         {
             public string transmisionId;
-            public AudioClip clip;
+            public AudioClip clip;     // inglés
+            public AudioClip clipEs;   // español
+
+            /// <summary>La grabación en el idioma del juego (si falta, la otra).</summary>
+            public AudioClip EnIdioma => SegunIdioma(clip, clipEs);
         }
 
-        public enum Sonido { Hover, Click, Elegir, Quitar, Pestana, Error, LuzVerde, LuzRoja, Lanzamiento, Senal }
+        /// <summary>De dos grabaciones de la misma frase, la del idioma del juego (si falta, la otra).</summary>
+        /// <summary>(Con el «==» de Unity: un campo sin asignar en el editor no es null para «??».)</summary>
+        public static AudioClip SegunIdioma(AudioClip en, AudioClip es) =>
+            Idioma.Espanol ? (es != null ? es : en) : (en != null ? en : es);
+
+        // Versión 7: Transicion, OrbitaElegir y OrbitaConfirmar van al final (los valores se guardan en las escenas).
+        public enum Sonido { Hover, Click, Elegir, Quitar, Pestana, Error, LuzVerde, LuzRoja, Lanzamiento, Senal, Transicion, OrbitaElegir, OrbitaConfirmar }
 
         // Lanzamiento va al final: el valor se guarda en las escenas y no debe cambiar el de los demás.
         public enum Musica { Ninguna, Menu, Configuracion, Investigacion, Victoria, Parcial, Fracaso, Lanzamiento }
 
         /// <summary>Capa de ambiente bajo la música.</summary>
-        public enum Ambiente { Tormenta, Control, Orbital }
+        public enum Ambiente { Tormenta, Control, Orbital, Configuracion }
 
         public AudioClip Clip(Ambiente a) =>
+            a == Ambiente.Configuracion && ambienteConfiguracion != null ? ambienteConfiguracion :
             a == Ambiente.Control && ambienteControl != null ? ambienteControl :
             a == Ambiente.Orbital && ambienteOrbital != null ? ambienteOrbital : ambienteTormenta;
 
@@ -46,7 +57,9 @@ namespace SpaceMission
             // Pulido de presentación (van al final: los valores anteriores no cambian).
             Chispas, Ignicion, MotorCercano, BrazosTorre, SeparacionPropulsores, AmbienteCosta,
             VozEncendido, VozDespegue, VozSeparacion, VozOrbita,
-            PasoMes, Sello, RemateVictoria, RemateParcial, RemateFracaso, SenalPerdida, ConteoPuntos
+            PasoMes, Sello, RemateVictoria, RemateParcial, RemateFracaso, SenalPerdida, ConteoPuntos,
+            // Versión 7 (paquete de diseño): conmutación de bandas del espectrómetro y revelación breve de un hallazgo.
+            ConmutacionEspectral, Revelacion
         }
 
         [Header("Imágenes")]
@@ -92,6 +105,13 @@ namespace SpaceMission
         public AudioClip escaneoEspectrometro;
         public AudioClip ambienteOrbital;
         public AudioClip ambienteControl;
+        [Header("Versión 7")]
+        public AudioClip ambienteConfiguracion;
+        public AudioClip transicion;
+        public AudioClip orbitaElegir;
+        public AudioClip orbitaConfirmar;
+        public AudioClip conmutacionEspectral;
+        public AudioClip revelacion;
 
         [Header("Pulido: título, despegue, meses y final")]
         public AudioClip sonidoTitulo;
@@ -105,6 +125,10 @@ namespace SpaceMission
         public AudioClip vozDespegue;
         public AudioClip vozSeparacion;
         public AudioClip vozOrbita;
+        public AudioClip vozEncendidoEs;
+        public AudioClip vozDespegueEs;
+        public AudioClip vozSeparacionEs;
+        public AudioClip vozOrbitaEs;
         public AudioClip pasoMes;
         public AudioClip sello;
         public AudioClip remateVictoria;
@@ -118,7 +142,7 @@ namespace SpaceMission
 
         public Evidencia DeInstrumento(string id) => evidencias.Find(e => e.instrumentoId == id);
 
-        public AudioClip VozDe(string transmisionId) => voces.Find(v => v.transmisionId == transmisionId)?.clip;
+        public AudioClip VozDe(string transmisionId) => voces.Find(v => v.transmisionId == transmisionId)?.EnIdioma;
 
         public AudioClip Clip(Sonido s)
         {
@@ -133,6 +157,9 @@ namespace SpaceMission
                 case Sonido.LuzVerde: return luzVerde;
                 case Sonido.LuzRoja: return luzRoja;
                 case Sonido.Lanzamiento: return lanzamiento;
+                case Sonido.Transicion: return transicion;
+                case Sonido.OrbitaElegir: return orbitaElegir != null ? orbitaElegir : elegir;
+                case Sonido.OrbitaConfirmar: return orbitaConfirmar != null ? orbitaConfirmar : luzVerde;
                 default: return senal;
             }
         }
@@ -160,10 +187,10 @@ namespace SpaceMission
                 case Efecto.BrazosTorre: return brazosTorre;
                 case Efecto.SeparacionPropulsores: return separacionPropulsores != null ? separacionPropulsores : separacion;
                 case Efecto.AmbienteCosta: return ambienteCosta;
-                case Efecto.VozEncendido: return vozEncendido;
-                case Efecto.VozDespegue: return vozDespegue;
-                case Efecto.VozSeparacion: return vozSeparacion;
-                case Efecto.VozOrbita: return vozOrbita;
+                case Efecto.VozEncendido: return SegunIdioma(vozEncendido, vozEncendidoEs);
+                case Efecto.VozDespegue: return SegunIdioma(vozDespegue, vozDespegueEs);
+                case Efecto.VozSeparacion: return SegunIdioma(vozSeparacion, vozSeparacionEs);
+                case Efecto.VozOrbita: return SegunIdioma(vozOrbita, vozOrbitaEs);
                 case Efecto.PasoMes: return pasoMes;
                 case Efecto.Sello: return sello;
                 case Efecto.RemateVictoria: return remateVictoria;
@@ -171,6 +198,8 @@ namespace SpaceMission
                 case Efecto.RemateFracaso: return remateFracaso;
                 case Efecto.SenalPerdida: return senalPerdida;
                 case Efecto.ConteoPuntos: return conteoPuntos;
+                case Efecto.ConmutacionEspectral: return conmutacionEspectral;
+                case Efecto.Revelacion: return revelacion;
                 default: return senal;
             }
         }

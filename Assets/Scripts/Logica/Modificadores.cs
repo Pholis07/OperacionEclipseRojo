@@ -63,7 +63,7 @@ namespace SpaceMission
 
             if (op.Altitud == Altitud.Baja)
             {
-                l.Add(new Modificador(true, Idioma.T("Low orbit: readings reach ×") + r.factorAltitudBaja.ToString("0.#") + Idioma.T(" farther, quality ×") + r.factorCalidadBaja.ToString("0.#")));
+                l.Add(new Modificador(true, Idioma.T("Low orbit: readings reach ×") + r.factorAltitudBaja.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + Idioma.T(" farther, quality ×") + r.factorCalidadBaja.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)));
                 l.Add(new Modificador(false, Idioma.T("Low orbit drag: ") + Signo(-r.combustiblePorOrbitaBaja) + Idioma.T(" fuel a month")));
             }
             foreach (var e in op.Eventos.Where(e => !e.Resuelto))
@@ -76,7 +76,7 @@ namespace SpaceMission
             foreach (var b in op.Bloqueados)
                 l.Add(new Modificador(false, catalogo.Instrumento(b.Key).Nombre + Idioma.T(" locked (") + Meses(b.Value) + ")"));
             if (op.SinLecturaProxima) l.Add(new Modificador(false, Idioma.T("Next month gives no readings (orientation)")));
-            if (op.CalidadReducidaProxima) l.Add(new Modificador(false, Idioma.T("Next month's quality ×") + r.factorCalidadTormenta.ToString("0.#") + Idioma.T(" (storm)")));
+            if (op.CalidadReducidaProxima) l.Add(new Modificador(false, Idioma.T("Next month's quality ×") + r.factorCalidadTormenta.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + Idioma.T(" (storm)")));
             if (op.DiasPerdidosProximos > 0) l.Add(new Modificador(false, Idioma.T("Next month loses ") + op.DiasPerdidosProximos + Idioma.T(" days")));
             if (op.EnvioBloqueado) l.Add(new Modificador(false, Idioma.T("Dust blocks the laser this month")));
             foreach (var h in catalogo.herramientas.Where(h => op.Carga != null && op.Carga.Lleva(h.id) && !op.HerramientasUsadas.Contains(h.id)))

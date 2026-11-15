@@ -63,6 +63,12 @@ MonoBehaviour:
   escaneoEspectrometro: {fileID: 8300000, guid: be21cc957de77b4a2b7c4f6de6d33c97, type: 3}
   ambienteOrbital: {fileID: 8300000, guid: b7760bd62e165fac995f34fc11925ea7, type: 3}
   ambienteControl: {fileID: 8300000, guid: 98210849a8b8b15fd834025291b4ed67, type: 3}
+  ambienteConfiguracion: {fileID: 8300000, guid: 504801716de9f6493b94c405e714a622, type: 3}
+  transicion: {fileID: 8300000, guid: 3cf5194f84192a6898d3719817757c28, type: 3}
+  orbitaElegir: {fileID: 8300000, guid: 0517064e727b08e7aa8f528406062808, type: 3}
+  orbitaConfirmar: {fileID: 8300000, guid: a99d9c1bb5878b95e83ab8b60be7a9b1, type: 3}
+  conmutacionEspectral: {fileID: 8300000, guid: 1db6f876881ddcc139e9e4b7af07c58e, type: 3}
+  revelacion: {fileID: 8300000, guid: daf66dcfea98c6e6f9e03ae5566a766e, type: 3}
   sonidoTitulo: {fileID: 8300000, guid: 987d098043f44c4e291dbcaff266a4ef, type: 3}
   chispas: {fileID: 8300000, guid: 9e7fa23ad8e147b8a944476a12ba61f9, type: 3}
   ignicion: {fileID: 8300000, guid: 4d8d3cf752cad4a46a69f536ba205c83, type: 3}
@@ -74,6 +80,10 @@ MonoBehaviour:
   vozDespegue: {fileID: 8300000, guid: 6e087fff29ed75544ba5021729ead8e1, type: 3}
   vozSeparacion: {fileID: 8300000, guid: 75e83053a615723749e755143ec053b1, type: 3}
   vozOrbita: {fileID: 8300000, guid: 1acc09c062b8b3a9bb9b98f7dd8ac7fb, type: 3}
+  vozEncendidoEs: {fileID: 8300000, guid: 2abc820a2a9debc8d860f327d2258b04, type: 3}
+  vozDespegueEs: {fileID: 8300000, guid: 685621c49b47f17d989f3b1688fa9cf7, type: 3}
+  vozSeparacionEs: {fileID: 8300000, guid: 7e64c7d27948743e58f4f8c8cade8f93, type: 3}
+  vozOrbitaEs: {fileID: 8300000, guid: 344fb26adea522cda8027a659c93c04d, type: 3}
   pasoMes: {fileID: 8300000, guid: 592977b60096cd04591ac84468549ee6, type: 3}
   sello: {fileID: 8300000, guid: 065d7c96e81543e4dabfcc979c56baf5, type: 3}
   remateVictoria: {fileID: 8300000, guid: bc5bf1906670ec09c85e1bd43a6ef2c5, type: 3}
@@ -84,13 +94,19 @@ MonoBehaviour:
   voces:
   - transmisionId: TX-00
     clip: {fileID: 8300000, guid: 4e84d6232c3e88b79b595c196f1c4222, type: 3}
+    clipEs: {fileID: 8300000, guid: 5882c1b16f52dd13b8589d4deaaceea2, type: 3}
   - transmisionId: TX-01
     clip: {fileID: 8300000, guid: e37865a754decf64eb4dd2bfc11920ff, type: 3}
+    clipEs: {fileID: 8300000, guid: 6779c40dc1ae6680683cb801340cc6c4, type: 3}
   - transmisionId: TX-02
     clip: {fileID: 8300000, guid: 5b693a13103c490998f7b8505148aeee, type: 3}
+    clipEs: {fileID: 8300000, guid: f991f28fc8a3627cd9049f98977edb3a, type: 3}
   - transmisionId: TX-03
     clip: {fileID: 8300000, guid: 341b1d3c3feeb65f0a2b04ba1f140311, type: 3}
+    clipEs: {fileID: 8300000, guid: 071fed32ddd5ad5d3901666998bacaad, type: 3}
   - transmisionId: TX-04
     clip: {fileID: 8300000, guid: d31b52f5c50d395fcb9a8eb59b45448c, type: 3}
+    clipEs: {fileID: 8300000, guid: dd49d2e00741e19088b7e5fa94d71101, type: 3}
   - transmisionId: TX-05
     clip: {fileID: 8300000, guid: 5d8ba9abaee80e1d3aa795fcdae12552, type: 3}
+    clipEs: {fileID: 8300000, guid: ae888f2715facbb85950067d541d00c4, type: 3}

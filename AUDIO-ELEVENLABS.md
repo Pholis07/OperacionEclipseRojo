@@ -51,7 +51,7 @@ Una por transmisión, con el texto exacto de `Assets/Datos/Transmision_<id>.asse
 - Ids: `TX-00`, `TX-01`, `TX-02`, `TX-03`, `TX-04`, `TX-05`, `TX-A1`, `TX-A2`, `TX-A3`, `TX-A4` y `TX-A5`.
 - Voz: control de misión, español latino neutro, tono sereno y claro, ritmo pausado.
 - Efecto de radio dentro del archivo: filtro de paso de banda y una estática ligera.
-- Los subtítulos siempre se ven: la transmisión escrita es la fuente y la voz es un extra.
+- La transmisión escrita siempre se ve: es la fuente y la voz es un extra. (Los subtítulos de la cinemática se quitaron en `254a405`.)
 
 ## Segunda tanda: cinemática y escaneo orbital (2026-11-14)
 
@@ -126,3 +126,34 @@ El juego pasó a inglés. Se generaron las 6 transmisiones y las 4 frases de con
 - **`Assets/Scripts/UI/Estilo/Preferencias.cs`:** volúmenes de música, ambiente, efectos y voz, «Silenciar todo» (AudioListener) y «Reducir movimiento». Se cambian en Menú > Opciones.
 - **`DirectorCinematica.cs` y `SecuenciaEscaneo.cs`:** cada uno tiene su propio AudioSource para sus efectos, así que «Omitir» o salir de la escena los corta sin dejar sonidos sueltos. No usan AudioMixer: el proyecto ya tenía volúmenes por categoría en Preferencias, y crear un mixer desde código no es posible con la API pública.
 - En WebGL el navegador no deja sonar nada hasta el primer clic o tecla. La pantalla de título («Pulsa cualquier tecla») resuelve eso.
+
+## Versión 6: voces por idioma (2026-11-15)
+
+- `ArteDatos` guarda las dos grabaciones de cada voz y suena la del idioma del juego (`SegunIdioma`).
+  - Control de misión: `VOZ_*_en` y `VOZ_*`.
+  - Transmisiones: `voz_TX-0*_en` y `voz_TX-0*`.
+- Se comparó el texto de las 6 transmisiones en español con el que hoy sale en pantalla: coinciden. No se generó audio nuevo ni se gastaron créditos.
+- Duraciones en español: Encendido 3.9 s (más larga que su toma de 3.6 s), Despegue 2.2 s, Separación 4.1 s y Órbita 3.6 s.
+- Cambios contra el encimado:
+  - En la cinemática, cada toma con voz espera a que termine su frase (con tope).
+  - Las transmisiones van en fila: no se cortan y se oyen todas.
+  - La música, el ambiente y el motor bajan al 35 % mientras habla una voz (`Atenuacion`).
+
+## Versión 7: los audios que faltaban del paquete de diseño (2026-11-15)
+
+Seis audios, una toma de cada uno, en el mismo flow: **253 créditos** (el estimado era 518). Diego aprobó el gasto antes de generar.
+
+| Archivo | Dónde suena | Duración | Créditos |
+|---|---|---|---|
+| `Musica/MUS_Revelacion_Breve` | Al llegar la evidencia de un instrumento | 12 s | 180 |
+| `Efectos/AMB_Configuracion_Sistemas` | Ambiente del Briefing y la Configuración (bucle) | 18 s | 60 |
+| `Efectos/SFX_UI_Transition` | Al cambiar de pantalla y al salir del menú | 1.1 s | 4 |
+| `Efectos/SFX_Orbit_Select` | Al elegir una órbita | 0.9 s | 3 |
+| `Efectos/SFX_Orbit_Confirm` | Al abrir la Revisión con la misión lista | 1.2 s | 4 |
+| `Efectos/SFX_Spectral_Switch` | Cada cambio de capa del espectrómetro | 0.6 s | 2 |
+
+- Los tres primeros usan los prompts del CSV del paquete; los de órbita y espectro son prompts propios, descriptivos y sin referencias a obras existentes.
+- Nivelados con ffmpeg solo con ganancia y limitador, a la altura de sus equivalentes (el ambiente a −24 dB de media, como `AMB_Menu_Control`).
+- `ui_hover` ya existía sin usarse: ahora suena, muy bajo, al pasar el cursor por un botón.
+- **No se escucharon a oído.** Conviene oírlos en el juego antes de entregar.
+- De los 29 audios del paquete, 26 ya tenían equivalente con otro nombre; con estos tres quedan cubiertos los 29.

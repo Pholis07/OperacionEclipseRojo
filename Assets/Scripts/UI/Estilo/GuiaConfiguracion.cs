@@ -9,7 +9,8 @@ namespace SpaceMission
     /// - Pestañas numeradas con ✓ cuando esa parte ya está elegida.
     /// - Botón «Siguiente» que pasa a la pestaña siguiente (en la última se oculta: allí se revisa la misión).
     /// - Una instrucción corta según la pestaña y la leyenda de lo que se ve en 3D.
-    /// - Teclas 1 a 4 para cambiar de pestaña (orden en pantalla: Órbita, Lanzador, Satélite, Instrumentos).
+    /// - Teclas 1 a 4 para cambiar de pestaña. Orden de la versión 6: Lanzador, Satélite, Instrumentos y Órbita
+    ///   (primero se arma la nave; su masa y el lanzador deciden a qué órbitas llega).
     /// </summary>
     public class GuiaConfiguracion : MonoBehaviour
     {
@@ -33,19 +34,27 @@ namespace SpaceMission
         }
 
         /// <summary>Orden de las pestañas en pantalla.</summary>
-        static readonly ConfiguracionUI.Pestana[] Orden =
+        public static readonly ConfiguracionUI.Pestana[] Orden =
         {
-            ConfiguracionUI.Pestana.Orbita, ConfiguracionUI.Pestana.Lanzador,
-            ConfiguracionUI.Pestana.Satelite, ConfiguracionUI.Pestana.Instrumentos
+            ConfiguracionUI.Pestana.Lanzador, ConfiguracionUI.Pestana.Satelite,
+            ConfiguracionUI.Pestana.Instrumentos, ConfiguracionUI.Pestana.Orbita
         };
 
         bool ConSatelite => textoPestanaSatelite != null;
 
+        /// <summary>Pestañas que se ven, en orden (sin la de satélite si la escena no la tiene).</summary>
+        System.Collections.Generic.List<ConfiguracionUI.Pestana> Visibles =>
+            new System.Collections.Generic.List<ConfiguracionUI.Pestana>(
+                System.Linq.Enumerable.Where(Orden, p => p != ConfiguracionUI.Pestana.Satelite || ConSatelite));
+
+        /// <summary>Número del paso en pantalla (1, 2, 3…).</summary>
+        int Paso(ConfiguracionUI.Pestana p) => Visibles.IndexOf(p) + 1;
+
         ConfiguracionUI.Pestana? Despues(ConfiguracionUI.Pestana p)
         {
-            int i = System.Array.IndexOf(Orden, p) + 1;
-            if (i < Orden.Length && Orden[i] == ConfiguracionUI.Pestana.Satelite && !ConSatelite) i++;
-            return i < Orden.Length ? Orden[i] : (ConfiguracionUI.Pestana?)null;
+            var v = Visibles;
+            int i = v.IndexOf(p) + 1;
+            return i < v.Count ? v[i] : (ConfiguracionUI.Pestana?)null;
         }
 
         public void Siguiente()
@@ -73,24 +82,25 @@ namespace SpaceMission
             botonSiguiente.gameObject.SetActive(despues != null);
             if (despues != null)
                 botonSiguiente.GetComponentInChildren<TMP_Text>().text = NombrePestana(despues.Value) + "  " + Iconos.Siguiente;
-            int n = ConSatelite ? 4 : 3;
+            int n = Paso(pestana);
 
             switch (pestana)
             {
                 case ConfiguracionUI.Pestana.Orbita:
-                    textoInstruccion.text = Idioma.T("1 · CHOOSE THE ORBIT");
-                    textoLeyenda.text = Idioma.T("MARS\n<size=24><color=#94A3B8>Each color is an orbit: the chosen one glows and your spacecraft travels along it.</color></size>");
+                    textoInstruccion.text = n + Idioma.T(" · CHOOSE THE ORBIT");
+                    textoLeyenda.text = RotuloOrbita(c.OrbitaId);
                     break;
                 case ConfiguracionUI.Pestana.Lanzador:
-                    textoInstruccion.text = Idioma.T("2 · CHOOSE THE ROCKET");
-                    textoLeyenda.text = string.IsNullOrEmpty(c.LanzadorId)
-                        ? Idioma.T("LAUNCH PAD\n<size=24><color=#94A3B8>Explorer: look inspired by the Soyuz · Titan: look inspired by the SLS. Fictional capabilities.</color></size>")
-                        : PlataformaCohetes.EsTitan(c.LanzadorId)
-                            ? Idioma.T("TITAN\n<size=24><color=#94A3B8>Look inspired by NASA’s SLS. Fictional capabilities.</color></size>")
-                            : Idioma.T("EXPLORER\n<size=24><color=#94A3B8>Look inspired by the Soyuz. Fictional capabilities.</color></size>");
+                    textoInstruccion.text = n + Idioma.T(" · CHOOSE THE ROCKET");
+                    var lanzador = string.IsNullOrEmpty(c.LanzadorId) ? null : configuracion.Catalogo.Lanzador(c.LanzadorId);
+                    textoLeyenda.text = lanzador == null
+                        ? Idioma.T("LAUNCH PAD\n<size=24><color=#94A3B8>The rocket decides how much mass you can carry and how far it can take it.</color></size>")
+                        : (PlataformaCohetes.EsTitan(c.LanzadorId) ? Idioma.T("TITAN\n<size=24><color=#94A3B8>Look inspired by NASA’s SLS. ")
+                                                                   : Idioma.T("EXPLORER\n<size=24><color=#94A3B8>Like the Soyuz-Fregat. "))
+                          + Idioma.T("Sends ") + TextosBriefing.Numero(lanzador.masaInyectadaKg) + Idioma.T(" kg toward Mars.</color></size>");
                     break;
                 case ConfiguracionUI.Pestana.Satelite:
-                    textoInstruccion.text = Idioma.T("3 · CHOOSE THE SATELLITE");
+                    textoInstruccion.text = n + Idioma.T(" · CHOOSE THE SATELLITE");
                     textoLeyenda.text = Idioma.T("YOUR SATELLITE\n<size=24><color=#94A3B8>Inspired by real NASA data. Green arrows help, red arrows cost: see the list on the left.</color></size>");
                     break;
                 default:
@@ -98,6 +108,23 @@ namespace SpaceMission
                     textoLeyenda.text = Idioma.T("SPACECRAFT VIEW\n<size=24><color=#94A3B8>When you choose an instrument you will see where it is installed.</color></size>");
                     break;
             }
+        }
+
+        /// <summary>
+        /// Versión 7: rótulo fijo bajo el planeta (antes era una etiqueta flotante que se cortaba con los paneles).
+        /// Sin elección: «Selecciona una órbita». Con elección: su nombre en su color y su altitud real; si se dibuja
+        /// más cerca de lo real (areoestacionaria), «Esquema no a escala».
+        /// </summary>
+        public string RotuloOrbita(string orbitaId)
+        {
+            var o = string.IsNullOrEmpty(orbitaId) ? null : configuracion.Catalogo.Orbita(orbitaId);
+            if (o == null)
+                return Idioma.T("SELECT AN ORBIT") + "\n<size=24><color=#94A3B8>" + Idioma.T("Mars is shown without trajectories until you choose one.") + "</color></size>";
+            string altitud = o.periapsisKm <= 0 ? ""
+                : o.periapsisKm == o.apoapsisKm ? TextosBriefing.Numero(o.periapsisKm) + " km"
+                : TextosBriefing.Numero(o.periapsisKm) + " × " + TextosBriefing.Numero(o.apoapsisKm) + " km";
+            if (Trayectoria.NoAEscala(orbitaId)) altitud += (altitud == "" ? "" : "  ·  ") + Idioma.T("Schematic, not to scale");
+            return "<color=" + Trayectoria.ColorHex(orbitaId) + ">" + o.Nombre.ToUpperInvariant() + "</color>\n<size=24><color=#94A3B8>" + altitud + "</color></size>";
         }
 
         static string NombrePestana(ConfiguracionUI.Pestana p) =>
@@ -111,12 +138,12 @@ namespace SpaceMission
         {
             var k = Keyboard.current;
             if (k == null) return;
-            if (k.digit1Key.wasPressedThisFrame || k.numpad1Key.wasPressedThisFrame) configuracion.MostrarPestana(ConfiguracionUI.Pestana.Orbita);
-            else if (k.digit2Key.wasPressedThisFrame || k.numpad2Key.wasPressedThisFrame) configuracion.MostrarPestana(ConfiguracionUI.Pestana.Lanzador);
-            else if (k.digit3Key.wasPressedThisFrame || k.numpad3Key.wasPressedThisFrame)
-                configuracion.MostrarPestana(ConSatelite ? ConfiguracionUI.Pestana.Satelite : ConfiguracionUI.Pestana.Instrumentos);
-            else if (ConSatelite && (k.digit4Key.wasPressedThisFrame || k.numpad4Key.wasPressedThisFrame))
-                configuracion.MostrarPestana(ConfiguracionUI.Pestana.Instrumentos);
+            var v = Visibles;
+            int tecla = k.digit1Key.wasPressedThisFrame || k.numpad1Key.wasPressedThisFrame ? 0
+                : k.digit2Key.wasPressedThisFrame || k.numpad2Key.wasPressedThisFrame ? 1
+                : k.digit3Key.wasPressedThisFrame || k.numpad3Key.wasPressedThisFrame ? 2
+                : k.digit4Key.wasPressedThisFrame || k.numpad4Key.wasPressedThisFrame ? 3 : -1;
+            if (tecla >= 0 && tecla < v.Count) configuracion.MostrarPestana(v[tecla]);
         }
     }
 }

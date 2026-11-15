@@ -42,12 +42,69 @@ namespace SpaceMission
                 silencio.onValueChanged.AddListener(v => Preferencias.Silencio = v);
             }
 
+            CrearPantallaCompleta();
+            CrearContornos();
+            foreach (var casilla in panel.GetComponentsInChildren<UnityEngine.UI.Toggle>(true)) ArreglarMarca(casilla);
             botonAbrir.onClick.AddListener(() => Mostrar(true));
             botonCerrar.onClick.AddListener(() => Mostrar(false));
         }
 
+        UnityEngine.UI.Toggle pantallaCompleta;
+
+        /// <summary>
+        /// Versión 7: interruptor «Pantalla completa». La escena Menu se edita a mano, así que se crea aquí copiando
+        /// la casilla de «Reducir movimiento» y poniéndola justo debajo.
+        /// </summary>
+        void CrearPantallaCompleta()
+        {
+            if (reducirMovimiento == null || pantallaCompleta != null) return;
+            pantallaCompleta = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
+            pantallaCompleta.name = "PantallaCompleta";
+            pantallaCompleta.transform.SetSiblingIndex(reducirMovimiento.transform.GetSiblingIndex() + 1);
+            pantallaCompleta.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
+            var etiqueta = pantallaCompleta.GetComponentInChildren<TMPro.TMP_Text>();
+            if (etiqueta != null) etiqueta.text = "Full screen";   // TraductorEscena lo pasa al español
+            pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);
+            pantallaCompleta.onValueChanged.AddListener(v => Screen.fullScreen = v);
+        }
+
+        /// <summary>
+        /// Versión 8: la marca de las casillas tenía tamaño negativo (anclada a un punto con −12 de tamaño) y no se
+        /// veía nunca, estuviera marcada o no. Se estira dentro de su caja con un margen.
+        /// </summary>
+        static void ArreglarMarca(UnityEngine.UI.Toggle casilla)
+        {
+            if (casilla == null || casilla.graphic == null) return;
+            var marca = casilla.graphic.rectTransform;
+            marca.anchorMin = Vector2.zero;
+            marca.anchorMax = Vector2.one;
+            marca.offsetMin = new Vector2(7f, 7f);
+            marca.offsetMax = new Vector2(-7f, -7f);
+        }
+
+        UnityEngine.UI.Toggle contornos;
+
+        /// <summary>
+        /// Versión 8 (Eclipse Ink): interruptor «Contornos de tinta». Apagado es el modo ligero (sin la pasada de
+        /// contorno). Se crea por código, como «Pantalla completa», porque la escena Menu se edita a mano.
+        /// </summary>
+        void CrearContornos()
+        {
+            if (reducirMovimiento == null || contornos != null) return;
+            var despuesDe = pantallaCompleta != null ? pantallaCompleta : reducirMovimiento;
+            contornos = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
+            contornos.name = "ContornosTinta";
+            contornos.transform.SetSiblingIndex(despuesDe.transform.GetSiblingIndex() + 1);
+            contornos.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
+            var etiqueta = contornos.GetComponentInChildren<TMPro.TMP_Text>();
+            if (etiqueta != null) etiqueta.text = "Ink outlines";   // TraductorEscena lo pasa al español
+            contornos.SetIsOnWithoutNotify(Preferencias.ContornosTinta);
+            contornos.onValueChanged.AddListener(v => Preferencias.ContornosTinta = v);
+        }
+
         void Mostrar(bool visible)
         {
+            if (visible && pantallaCompleta != null) pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);   // pudo cambiar con Esc o F11
             panel.SetActive(visible);
             var foco = visible ? (GameObject)musica.gameObject : botonAbrir.gameObject;
             if (UnityEngine.EventSystems.EventSystem.current != null)

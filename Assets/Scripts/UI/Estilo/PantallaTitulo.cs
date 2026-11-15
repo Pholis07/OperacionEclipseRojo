@@ -101,11 +101,19 @@ namespace SpaceMission
             while (Time.unscaledTime < fin) yield return null;
         }
 
-        /// <summary>El clic cae sobre el selector de idioma: elige el idioma y el título sigue abierto.</summary>
+        /// <summary>
+        /// El clic o el toque caen sobre el selector de idioma: elige el idioma y el título sigue abierto.
+        /// Mira el ratón y la pantalla táctil (antes solo el ratón: en un móvil, tocar el selector cerraba el título).
+        /// </summary>
         bool SobreSelector()
         {
-            if (selectorIdioma == null || Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame) return false;
-            return RectTransformUtility.RectangleContainsScreenPoint(selectorIdioma, Mouse.current.position.ReadValue(), null);
+            if (selectorIdioma == null) return false;
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame &&
+                RectTransformUtility.RectangleContainsScreenPoint(selectorIdioma, Mouse.current.position.ReadValue(), null))
+                return true;
+            var toque = Touchscreen.current?.primaryTouch;
+            return toque != null && toque.press.wasPressedThisFrame &&
+                   RectTransformUtility.RectangleContainsScreenPoint(selectorIdioma, toque.position.ReadValue(), null);
         }
 
         static bool AlgoPulsado()

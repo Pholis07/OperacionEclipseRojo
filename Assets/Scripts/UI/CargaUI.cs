@@ -59,6 +59,12 @@ namespace SpaceMission
         public void UsarMro()
         {
             Carga.UsarMro();
+            // Versión 6: el satélite cuenta en la masa. La evaluación guardada se rehace con el MRO para que el
+            // informe y las barras (al volver a la Configuración) digan la masa real.
+            var nivel = catalogo.Nivel(EstadoJuego.NivelIndice);
+            EstadoJuego.Resultado = Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo, nivel);
+            var configuracion = FindFirstObjectByType<ConfiguracionUI>(FindObjectsInactive.Include);
+            if (configuracion != null) configuracion.Recalcular();
             Refrescar();
         }
 
@@ -99,7 +105,8 @@ namespace SpaceMission
                 boton.interactable = aBordo || Carga.PuedeCargar(h.id);
                 boton.GetComponent<UnityEngine.UI.Image>().color = aBordo ? ColorABordo : ColorNormal;
                 boton.GetComponentInChildren<TMP_Text>().text =
-                    (aBordo ? Idioma.T("ON BOARD  ·  ") : "") + "<b>" + h.Nombre + "</b>  ·  " + h.costoCr + " cr  ·  " + h.masaKg + " kg\n" +
+                    (aBordo ? Idioma.T("ON BOARD  ·  ") : "") + "<b>" + h.Nombre + "</b>  ·  " + h.costoCr + " cr  ·  " + h.masaKg + " kg" +
+                    (!aBordo && !Carga.AlcanzaCon(h.masaKg) ? "  ·  <color=#EF4444>" + Idioma.T("too heavy to reach the orbit") + "</color>" : "") + "\n" +
                     "<size=80%>" + h.Descripcion + "</size>";
                 boton.onClick.AddListener(() => Alternar(h.id));
                 filas.Add(boton.gameObject);

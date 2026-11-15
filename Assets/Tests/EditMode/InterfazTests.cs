@@ -61,7 +61,11 @@ namespace SpaceMission.Tests
             ui.LlenarBriefing();
             var textos = Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             Assert.IsTrue(textos.Any(t => t.text == catalogo.mision.objetivo), "El objetivo no aparece en el Briefing");
-            Assert.IsTrue(textos.Any(t => t.text.Contains("Titan 750 kg")), "Los límites no aparecen en el Briefing");
+            // Versión 6: el Briefing solo lleva una línea del nivel; los límites completos están en su «?».
+            Assert.IsTrue(textos.Any(t => t.text.StartsWith("1,250 credits")), "Falta el resumen del nivel");
+            Assert.IsFalse(textos.Any(t => t.text.Contains("Titan 750 kg")), "Los límites ya no ocupan el Briefing");
+            StringAssert.Contains("Titan 750 kg", GuiaPantallas.AyudaCompleta(PantallaMision.Briefing, catalogo, catalogo.mision));
+            StringAssert.Contains("Yellow", GuiaPantallas.AyudaCompleta(PantallaMision.Briefing, catalogo, catalogo.mision));
         }
 
         [TestCase("Assets/Escenas/Menu.unity")]

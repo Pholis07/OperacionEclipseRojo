@@ -56,7 +56,7 @@ Descargados de [science.nasa.gov/3d-resources](https://science.nasa.gov/3d-resou
 | `Sat_LLCD.*` | Lunar Laser Communications Demonstration (LLCD) | Satélite «Relé láser LLCD» |
 | `Cohete_SLS_Inferior.*`, `Cohete_SLS_Superior.*` | Space Launch System (SLS), modelo para impresión 3D, pintado por zonas | Lanzador Titán (plataforma y cinemática) |
 | `Terreno_Gusev.*` | Mars – Spirit Landing Site (cráter Gusev), modelo para impresión 3D | Importado, **sin usar todavía** |
-| `ares1b.fbx` | **NASA 3D Resources, «Ares 1 (B)»** (https://github.com/nasa/NASA-3D-Resources/tree/master/3D%20Models/Ares%201%20(B)), consultado el 2026-11-15 | Importado, **sin usar todavía** (candidato para el cohete Explorador) |
+| `ares1b.fbx` | **NASA 3D Resources, «Ares 1 (B)»** (https://github.com/nasa/NASA-3D-Resources/tree/master/3D%20Models/Ares%201%20(B)), consultado el 2026-11-15 | **Aspecto del cohete Explorador**: pestaña Lanzador y cinemática del despegue. `ConstructorEscenas.Ares.cs` lo parte por altura en primera etapa, etapa superior y la nariz (Orion y torre de escape) en dos mitades que se abren para liberar el satélite; alto 7.5 en la escena |
 
 Sobre `ares1b.fbx`: NASA publica estos modelos libres y sin copyright, sin una licencia formal (ver las [pautas de uso de NASA](https://www.nasa.gov/nasa-brand-center/images-and-media)). El original es un `.glb` con compresión Draco y sin texturas (solo colores planos); se revisó por dentro y desde seis ángulos y no trae logo de NASA ni banderas. Se convirtió a `.fbx` con Blender: se enderezó (alto 9.66 unidades, base en 0, centrado) y se quitaron cuatro conos duplicados que quedaban sueltos a 9.4 unidades del cuerpo. El resto de la forma y los colores no cambió.
 
@@ -104,12 +104,14 @@ Descargadas del repositorio de Google Fonts (github.com/google/fonts).
 Hechos para este juego, sin licencias de terceros:
 - **Generados por `Herramientas/arte.py`:** la lámina dorada y las celdas solares de la nave, y los sprites de interfaz (`Interfaz/*`: chaflanes, círculo, halo, segmentos y barrido).
 - **Generado por `Herramientas/favicon.py`:** el icono de la pestaña del navegador (`Assets/WebGLTemplates/PantallaCompleta/TemplateData/favicon.png`), Marte con la sombra de un eclipse. Se genera con `python3 -I Herramientas/favicon.py <ruta de salida>`.
-- **Generados por código en el constructor:** el cohete Explorador (inspirado en el Soyuz), la plataforma y la torre, la llama y el humo del despegue, el mapa de la transferencia, el shader de atmósfera y las mallas de `Assets/Arte/Mallas`.
+- **Generados por código en el constructor:** la plataforma y la torre, la llama y el humo del despegue, el mapa de la transferencia, el shader de atmósfera y las mallas de `Assets/Arte/Mallas`.
 - **Marte en alta resolución (`Herramientas/marte_hd.py`):** las dos mitades de 4096×4096 del mapa de 8K de Solar System Scope (CC BY 4.0, ya acreditado arriba), el relieve a 4096 calculado del brillo y la textura de detalle (ruido propio).
 - **Generados por `Herramientas/texturas_naves.py` (versión 5, bloque 6):** la lámina dorada arrugada de los instrumentos (`Lamina_Arrugada` y su mapa de normales), la espuma naranja del tanque del SLS (`Espuma_Naranja` y normales) y el metal cepillado del Explorador, del AztechSat-1 y de los instrumentos (`Metal_Cepillado`). Las celdas solares (`Celdas_Solares`, de `arte.py`) ahora se usan en el AztechSat-1 y en los paneles de los instrumentos.
 - **Generados por scripts propios en `Herramientas/`:** las nubes, el pasto, la losa de la plataforma, las bocanadas de humo, las aves y las chispas de la cinemática (`despegue_texturas.py`); la viñeta, el resplandor, el aro de los zócalos y el degradado de la interfaz (`composiciones.py`).
 - **Generados por código en `ConstructorEscenas.Despegue.cs`:** el complejo de lanzamiento (torre de celosía, brazos, pararrayos, torre de agua, edificios, árboles, colinas, mar), las llamas de cada motor y las partículas. Shaders propios `Planeta`, `Cielo`, `Llama` y `Aditivo` en `Assets/Arte/Shaders`.
 - **Generado por código en `ConstructorEscenas.Nasa.cs` (`CuerpoCubeSat`):** el satélite Nanosatélite AztechSat-1, un CubeSat 1U con piezas simples. Está inspirado en la misión AztechSat-1 de la UPAEP (Puebla), pero no es un modelo oficial.
+- **Audios de la versión 7 (ElevenLabs, generados para este juego):** `MUS_Revelacion_Breve`, `AMB_Configuracion_Sistemas`, `SFX_UI_Transition`, `SFX_Orbit_Select`, `SFX_Orbit_Confirm` y `SFX_Spectral_Switch`. Detalle en `AUDIO-ELEVENLABS.md`.
+- **Generados por `Assets/Editor/GeneradorCapasMarte.cs` (versión 6):** las nubes de hielo de agua de Marte (`Marte_Nubes`, ruido propio con la capucha polar y las nubes de Tharsis) y el degradado del Briefing (`Interfaz/Degradado_Izquierda`). La escarcha de los casquetes y el crepúsculo azulado los calcula el shader `Planeta`.
 
 ## Audio
 

@@ -11,6 +11,9 @@ namespace SpaceMission
         public int costoCr;
         public int capacidadKg;
         public int espacios;
+
+        [Tooltip("Masa total (nave + combustible) que el lanzador manda hacia Marte. Con ella se calcula el frenado disponible (Alcance).")]
+        public int masaInyectadaKg;
         [TextArea] public string descripcion;
 
         [Header("Dato real de la NASA en que se basa (versión 5)")]

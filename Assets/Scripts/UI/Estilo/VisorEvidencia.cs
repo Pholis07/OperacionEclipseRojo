@@ -22,19 +22,32 @@ namespace SpaceMission
 
         string mostrada;
         int recibidas = -1;
+        DirectorCinematica cinematica;
 
         void OnEnable()
         {
             mostrada = null;
             recibidas = -1;
+            cinematica = FindFirstObjectByType<DirectorCinematica>(FindObjectsInactive.Include);
         }
+
+        /// <summary>
+        /// La Operación empieza en el mismo clic que la cinemática del lanzamiento. Mientras dura, la transmisión
+        /// inicial espera: si no, su voz sonaba encima de las frases de control de misión.
+        /// </summary>
+        public bool EnEspera => cinematica != null && cinematica.Reproduciendo;
 
         void Update()
         {
+            if (EnEspera) return;
             var op = operacion != null ? operacion.Op : null;
             if (op == null || op.Recibidas.Count == 0) return;
             if (op.Recibidas.Count == recibidas) return;
+            // Si llegan varias en el mismo mes, se oyen todas en fila (ReproductorUI.Hablar no corta la anterior);
+            // la imagen muestra la última. Al abrir la vista, solo suena la última (como antes: TX-00 al empezar).
+            int desde = recibidas < 0 ? op.Recibidas.Count - 1 : recibidas;
             recibidas = op.Recibidas.Count;
+            for (int i = desde; i < op.Recibidas.Count; i++) ReproductorUI.Hablar(arte.VozDe(op.Recibidas[i]));
             var id = op.Recibidas.Last();
             if (id == mostrada) return;
             mostrada = id;
@@ -52,7 +65,8 @@ namespace SpaceMission
                 : Iconos.Senal + Idioma.T("  MISSION CONTROL");
 
             ReproductorUI.Sonar(ArteDatos.Sonido.Senal, 0.7f);
-            ReproductorUI.Hablar(arte.VozDe(t.id));
+            // Versión 7: revelación breve cuando llega la evidencia de un instrumento (no con la transmisión inicial).
+            if (instrumento != null) ReproductorUI.SonarEfecto(ArteDatos.Efecto.Revelacion, 0.55f);
             StopAllCoroutines();
             StartCoroutine(Entrada());
         }

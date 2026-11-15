@@ -5,8 +5,10 @@ using UnityEngine;
 namespace SpaceMission
 {
     /// <summary>
-    /// Vista Configuración: pestañas Órbita, Lanzador, Satélite e Instrumentos, ayuda, barras, semáforo y nave.
-    /// La pestaña Satélite no cuenta en las reglas ni en el semáforo: el satélite se paga en la Carga y actúa en la Operación.
+    /// Vista Configuración, en el orden de la versión 6: Lanzador, Satélite, Instrumentos y Órbita; ayuda, barras,
+    /// semáforo y nave. El satélite se paga en la Carga, pero su masa cuenta desde aquí (versión 6).
+    /// Las órbitas a las que no llega la nave (Alcance) se ven bloqueadas y no se pueden elegir; una ya elegida que
+    /// deja de alcanzarse se conserva y pone el semáforo en rojo (como los instrumentos al cambiar de lanzador).
     /// La selección vive en EstadoJuego.Configuracion; cambiar de pestaña o de lanzador no borra nada.
     /// </summary>
     public class ConfiguracionUI : MonoBehaviour
@@ -26,8 +28,10 @@ namespace SpaceMission
         [SerializeField] Transform listaOpciones;
         [SerializeField] UnityEngine.UI.Button plantillaOpcion;
         [SerializeField] TMP_Text textoAyuda;
+        [Tooltip("Versión 6: «+ Dato NASA». El dato real de la opción solo se ve si se pulsa.")]
+        [SerializeField] UnityEngine.UI.Button botonNasa;
 
-        [Header("Barras: masa, potencia, costo, espacios")]
+        [Header("Barras: masa, potencia, costo, espacios y frenado")]
         [SerializeField] RectTransform[] rellenosBarra;
         [SerializeField] TMP_Text[] textosBarra;
 
@@ -40,6 +44,8 @@ namespace SpaceMission
 
         static readonly Color ColorElegida = new Color32(0x5A, 0x26, 0x14, 0xFF);
         static readonly Color ColorNormal = new Color32(0x2A, 0x2A, 0x31, 0xFF);
+        static readonly Color ColorBloqueada = new Color32(0x1C, 0x1C, 0x22, 0xFF);       // órbita fuera de alcance
+        static readonly Color ColorElegidaBloqueada = new Color32(0x4A, 0x16, 0x16, 0xFF); // elegida y ya no se alcanza
         static readonly Color ColorPestanaActiva = new Color32(0xE2, 0x64, 0x3A, 0xFF);
         static readonly Color ColorExcedida = new Color32(0xEF, 0x44, 0x44, 0xFF);
         static readonly Color ColorBarra = new Color32(0x5E, 0xC8, 0xE5, 0xFF); // cian: los datos van en cian
@@ -50,6 +56,7 @@ namespace SpaceMission
         public Pestana PestanaActual { get; private set; }
         public Evaluacion Ultima { get; private set; }
         public UnityEngine.UI.Button BotonRevisar => botonRevisar;
+        public CatalogoDatos Catalogo => catalogo;
         public IReadOnlyList<TMP_Text> TextosBarra => textosBarra;
         public UnityEngine.UI.Image LuzEstado => luzEstado;
 
@@ -69,7 +76,8 @@ namespace SpaceMission
             if (pestanaSatelite != null) pestanaSatelite.onClick.AddListener(() => MostrarPestana(Pestana.Satelite));
             botonRevisar.onClick.AddListener(() => mision.MostrarRevision(Ultima));
             botonBriefing.onClick.AddListener(() => mision.MostrarBriefing());
-            MostrarPestana(Pestana.Orbita);
+            if (botonNasa != null) botonNasa.onClick.AddListener(AlternarNasa);
+            MostrarPestana(Pestana.Lanzador);   // versión 6: primero el lanzador; la órbita, al final
         }
 
         void OnEnable()
@@ -84,34 +92,48 @@ namespace SpaceMission
             PintarPestana(pestanaLanzador, pestana == Pestana.Lanzador);
             PintarPestana(pestanaInstrumentos, pestana == Pestana.Instrumentos);
             if (pestanaSatelite != null) PintarPestana(pestanaSatelite, pestana == Pestana.Satelite);
-            textoAyuda.text = Idioma.T("Choose an option to see its description.");
+            MostrarAyuda(Idioma.T("Choose an option to see its description."), null);
             DibujarOpciones(); // cambiar de pestaña no cambia la configuración: no hace falta recalcular
         }
 
         // ---------- Selección ----------
 
-        public void ElegirOrbita(string id)
+        /// <summary>
+        /// Elige la órbita si la nave llega a ella. Si no llega, no la elige: explica cuánto frenado falta y qué quitar.
+        /// </summary>
+        public bool ElegirOrbita(string id)
         {
+            var orbita = catalogo.Orbita(id);
+            var alcance = Alcance.Evaluar(Config, orbita, catalogo, Nivel);
+            MostrarAyuda(PresentacionMision.Ayuda(orbita, alcance), PresentacionMision.DatoNasa(orbita));
+            if (!alcance.Alcanza && Config.OrbitaId != id)
+            {
+                ReproductorUI.Sonar(ArteDatos.Sonido.Error);
+                return false;
+            }
+            if (Config.OrbitaId != id) ReproductorUI.Sonar(ArteDatos.Sonido.OrbitaElegir, 0.8f);
             Config.OrbitaId = id;
-            textoAyuda.text = PresentacionMision.Ayuda(catalogo.Orbita(id));
             Cambio();
+            return true;
         }
+
+        MisionDatos Nivel => catalogo.Nivel(EstadoJuego.NivelIndice);
 
         public void ElegirLanzador(string id)
         {
             Config.LanzadorId = id; // no borra instrumentos (diseño)
-            textoAyuda.text = PresentacionMision.Ayuda(catalogo.Lanzador(id));
+            MostrarAyuda(PresentacionMision.Ayuda(catalogo.Lanzador(id)), PresentacionMision.DatoNasa(catalogo.Lanzador(id)));
             Cambio();
         }
 
-        /// <summary>Solo el aspecto de la nave: no recalcula recursos ni semáforo.</summary>
+        /// <summary>Elige el satélite. Versión 6: su masa cuenta para la masa y el alcance, así que recalcula.</summary>
         public void ElegirSatelite(string id)
         {
             PresentacionMision.catalogoActual = catalogo;
             Config.SateliteId = id;
             var s = catalogo.Satelite(id);
-            if (s != null) textoAyuda.text = PresentacionMision.Ayuda(s);
-            DibujarOpciones();
+            if (s != null) MostrarAyuda(PresentacionMision.Ayuda(s), PresentacionMision.DatoNasa(s));
+            Cambio();
         }
 
         public void AlternarInstrumento(string id)
@@ -122,9 +144,51 @@ namespace SpaceMission
                 Config.AgregarInstrumento(id);
                 ReproductorUI.Sonar(ArteDatos.Sonido.Elegir, 0.8f);   // un solo sonido de montaje: tapa al clic
             }
-            textoAyuda.text = PresentacionMision.Ayuda(catalogo.Instrumento(id));
+            MostrarAyuda(PresentacionMision.Ayuda(catalogo.Instrumento(id)), PresentacionMision.DatoNasa(catalogo.Instrumento(id)));
             Cambio();
         }
+
+        // ---------- Ayuda y dato de la NASA ----------
+
+        string ayudaActual, nasaActual;
+        bool nasaAbierto;
+
+        /// <summary>El dato de la NASA de la opción que se ve en la ayuda está abierto (para las pruebas).</summary>
+        public bool NasaAbierto => nasaAbierto;
+        public string TextoAyuda => textoAyuda.text;
+
+        /// <summary>Pone la ayuda de una opción. El dato de la NASA empieza cerrado; el botón solo se ve si hay dato.</summary>
+        void MostrarAyuda(string ayuda, string nasa)
+        {
+            ayudaActual = ayuda;
+            nasaActual = nasa;
+            nasaAbierto = false;
+            DibujarAyuda();
+        }
+
+        /// <summary>Abre o cierra el dato de la NASA de la opción actual («+ Dato NASA» / «– Dato NASA»).</summary>
+        public void AlternarNasa()
+        {
+            if (string.IsNullOrEmpty(nasaActual)) return;
+            nasaAbierto = !nasaAbierto;
+            DibujarAyuda();
+        }
+
+        void DibujarAyuda()
+        {
+            // Abierto, la caja muestra el nombre de la opción y solo el dato real (no cabe todo junto y se achicaba).
+            int finTitulo = ayudaActual != null ? ayudaActual.IndexOf('\n') : -1;
+            textoAyuda.text = !nasaAbierto ? ayudaActual
+                : (finTitulo > 0 ? ayudaActual.Substring(0, finTitulo) : "") + nasaActual;
+            if (botonNasa == null) return;
+            bool hay = !string.IsNullOrEmpty(nasaActual);
+            botonNasa.gameObject.SetActive(hay);
+            if (hay) botonNasa.GetComponentInChildren<TMP_Text>().text = nasaAbierto ? Idioma.T("– NASA data") : Idioma.T("+ NASA data");
+        }
+
+        /// <summary>La nota del alcance se pulsa para ver cómo se calcula, en la caja de ayuda.</summary>
+        public void ExplicarAlcance() =>
+            MostrarAyuda(PresentacionMision.ExplicacionAlcance(Config, catalogo, Nivel), PresentacionMision.DatoNasaAlcance(catalogo));
 
         void Cambio()
         {
@@ -142,8 +206,14 @@ namespace SpaceMission
             switch (PestanaActual)
             {
                 case Pestana.Orbita:
+                    var lanzadorElegido = string.IsNullOrEmpty(Config.LanzadorId) ? null : catalogo.Lanzador(Config.LanzadorId);
+                    int capacidad = lanzadorElegido != null ? lanzadorElegido.capacidadKg : int.MaxValue;
                     foreach (var o in catalogo.orbitas)
-                        CrearOpcion(PresentacionMision.TextoOpcion(o), Config.OrbitaId == o.id, () => ElegirOrbita(o.id));
+                    {
+                        var alcance = Alcance.Evaluar(Config, o, catalogo, Nivel);
+                        CrearOpcion(PresentacionMision.TextoOpcion(o, alcance, capacidad), Config.OrbitaId == o.id, () => ElegirOrbita(o.id), !alcance.Alcanza);
+                    }
+                    CrearNota(PresentacionMision.NotaAlcance(Config, catalogo, Nivel), ExplicarAlcance);
                     break;
                 case Pestana.Lanzador:
                     foreach (var l in catalogo.lanzadores)
@@ -164,16 +234,35 @@ namespace SpaceMission
         public string SateliteVisible =>
             !string.IsNullOrEmpty(Config.SateliteId) ? Config.SateliteId : catalogo.satelites.Count > 0 ? catalogo.satelites[0].id : null;
 
-        void CrearOpcion(string texto, bool elegida, UnityEngine.Events.UnityAction alPulsar)
+        /// <param name="bloqueada">Órbita fuera de alcance: se ve apagada y con candado; al pulsarla se explica por qué.</param>
+        void CrearOpcion(string texto, bool elegida, UnityEngine.Events.UnityAction alPulsar, bool bloqueada = false)
         {
             var boton = Instantiate(plantillaOpcion, listaOpciones);
             boton.gameObject.SetActive(true);
-            boton.GetComponent<UnityEngine.UI.Image>().color = elegida ? ColorElegida : ColorNormal;
-            // Casilla de la tarjeta: marcada y en color de acento si está elegida.
-            boton.GetComponentInChildren<TMP_Text>().text =
-                (elegida ? "<color=#E2643A>" + Iconos.Elegido : "<color=#64748B>" + Iconos.SinElegir) + "</color>" + texto;
+            boton.GetComponent<UnityEngine.UI.Image>().color =
+                bloqueada ? (elegida ? ColorElegidaBloqueada : ColorBloqueada) : elegida ? ColorElegida : ColorNormal;
+            // Casilla de la tarjeta: marcada y en color de acento si está elegida; aviso rojo si está fuera de alcance.
+            var casilla = bloqueada ? "<color=#EF4444>" + Iconos.Rojo
+                : elegida ? "<color=#E2643A>" + Iconos.Elegido : "<color=#64748B>" + Iconos.SinElegir;
+            boton.GetComponentInChildren<TMP_Text>().text = casilla + "</color>" + texto;
             boton.onClick.AddListener(alPulsar);
             opciones.Add(boton.gameObject);
+        }
+
+        /// <summary>Texto que no se elige (la explicación del alcance), con la misma plantilla y más alto.</summary>
+        /// <summary>
+        /// Nota corta al final de la lista (el frenado de la nave), con la misma plantilla. Al pulsarla se explica en
+        /// la caja de ayuda cómo se calcula.
+        /// </summary>
+        void CrearNota(string texto, UnityEngine.Events.UnityAction alPulsar)
+        {
+            var nota = Instantiate(plantillaOpcion, listaOpciones);
+            nota.gameObject.name = "NotaAlcance";
+            nota.gameObject.SetActive(true);
+            nota.GetComponent<UnityEngine.UI.Image>().color = new Color32(0x16, 0x1B, 0x26, 0xFF);
+            nota.GetComponentInChildren<TMP_Text>().text = texto;
+            nota.onClick.AddListener(alPulsar);
+            opciones.Add(nota.gameObject);
         }
 
         static void PintarPestana(UnityEngine.UI.Button boton, bool activa)
@@ -189,7 +278,7 @@ namespace SpaceMission
             Ultima = Evaluador.Evaluar(Config, catalogo, nivel);
 
             var barras = PresentacionMision.Barras(Ultima, Config, catalogo, nivel);
-            for (int i = 0; i < barras.Length; i++)
+            for (int i = 0; i < barras.Length && i < textosBarra.Length; i++)
             {
                 textosBarra[i].text = barras[i].Nombre + ": " + barras[i].Texto;
                 rellenosBarra[i].anchorMax = new Vector2(barras[i].Fraccion, 1f);

@@ -149,6 +149,8 @@ namespace SpaceMission
             Combustible = carga != null ? carga.Combustible : 0;
             this.evaluacion = evaluacion;
             enLaNave = new HashSet<string>(config.InstrumentoIds);
+            var orbita = string.IsNullOrEmpty(config.OrbitaId) ? null : catalogo.Orbita(config.OrbitaId);
+            sinAlcance = new HashSet<string>(orbita != null ? orbita.instrumentosSinAlcance : new List<string>());
             this.catalogo = catalogo;
             this.nivel = nivel != null ? nivel : catalogo.mision;
             reglas = catalogo.reglas;
@@ -196,10 +198,15 @@ namespace SpaceMission
         public IEnumerable<string> Instrumentos => catalogo.instrumentos.Select(i => i.id).Where(EnLaNave);
         public bool EnLaNave(string id) => enLaNave.Contains(id);
 
-        /// <summary>Enciende un instrumento. No se puede si está bloqueado, no va en la nave o no cabe en el límite de potencia.</summary>
+        /// <summary>Va a bordo pero no puede trabajar desde esta órbita (OrbitaDatos.instrumentosSinAlcance).</summary>
+        public bool SinAlcance(string id) => sinAlcance.Contains(id);
+        readonly HashSet<string> sinAlcance;
+
+        /// <summary>Enciende un instrumento. No se puede si está bloqueado, no va en la nave, no trabaja desde esta órbita
+        /// o no cabe en el límite de potencia.</summary>
         public bool Encender(string id)
         {
-            if (Terminada || !EnLaNave(id) || Bloqueados.ContainsKey(id) || Encendidos.Contains(id)) return false;
+            if (Terminada || !EnLaNave(id) || SinAlcance(id) || Bloqueados.ContainsKey(id) || Encendidos.Contains(id)) return false;
             if (ConsumoW + catalogo.Instrumento(id).ConsumoTotalW > LimiteW) return false;
             Encendidos.Add(id);
             return true;

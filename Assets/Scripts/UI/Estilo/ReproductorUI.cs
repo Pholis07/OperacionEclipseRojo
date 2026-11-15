@@ -32,6 +32,7 @@ namespace SpaceMission
 
         void OnDisable()
         {
+            colaVoz.Clear();
             if (Actual == this) Actual = null;
         }
 
@@ -44,8 +45,9 @@ namespace SpaceMission
 
         /// <summary>Navegar (0) &lt; montar o quitar (1) &lt; avisos y semáforo (2) &lt; lanzamiento y señal (3).</summary>
         static int Prioridad(ArteDatos.Sonido s) =>
-            s == ArteDatos.Sonido.Hover || s == ArteDatos.Sonido.Click || s == ArteDatos.Sonido.Pestana ? 0
-            : s == ArteDatos.Sonido.Elegir || s == ArteDatos.Sonido.Quitar ? 1
+            s == ArteDatos.Sonido.Hover ? -1
+            : s == ArteDatos.Sonido.Click || s == ArteDatos.Sonido.Pestana || s == ArteDatos.Sonido.Transicion ? 0
+            : s == ArteDatos.Sonido.Elegir || s == ArteDatos.Sonido.Quitar || s == ArteDatos.Sonido.OrbitaElegir ? 1
             : s == ArteDatos.Sonido.Lanzamiento || s == ArteDatos.Sonido.Senal ? 3 : 2;
 
         public static void Sonar(ArteDatos.Sonido sonido, float volumen = 1f)
@@ -64,19 +66,56 @@ namespace SpaceMission
             Actual.fuente.PlayOneShot(clip, volumen * Preferencias.VolumenEfectos);
         }
 
-        /// <summary>Reproduce una voz (transmisiones) cortando la anterior.</summary>
-        public static void Hablar(AudioClip clip)
+        /// <summary>Un efecto largo sobre la música (la revelación de un hallazgo), al volumen de la música.</summary>
+        public static void SonarEfecto(ArteDatos.Efecto efecto, float volumen = 1f)
         {
-            if (Actual == null) return;
-            var voz = Actual.VozFuente();
-            voz.Stop();
-            if (clip == null) return;
-            voz.clip = clip;
-            voz.volume = Preferencias.VolumenVoz;
-            voz.Play();
+            if (Actual == null || Actual.arte == null) return;
+            var clip = Actual.arte.Clip(efecto);
+            if (clip != null) Actual.fuente.PlayOneShot(clip, volumen * Preferencias.VolumenMusica);
         }
 
+        /// <summary>
+        /// Pone una voz (transmisiones) en fila: no corta la que está sonando, empieza cuando termina.
+        /// Así, si llegan varias transmisiones juntas, se oyen todas y sin encimarse.
+        /// </summary>
+        public static void Hablar(AudioClip clip) => Actual?.Encolar(clip);
+
+        /// <summary>Corta la voz que suena y las que esperan (al salir de la Operación o al saltar).</summary>
+        public static void Callar() => Actual?.CallarVoces();
+
+        /// <summary>La voz que está sonando, o null.</summary>
+        public static AudioClip VozSonando =>
+            Actual != null && Actual.vozFuente != null && Actual.vozFuente.isPlaying ? Actual.vozFuente.clip : null;
+
+        /// <summary>Voces de esta escena que esperan turno (sin contar la que suena).</summary>
+        public int VocesEnFila => colaVoz.Count;
+
+        public void Encolar(AudioClip clip)
+        {
+            if (clip == null) return;
+            VozFuente();
+            colaVoz.Enqueue(clip);
+        }
+
+        public void CallarVoces()
+        {
+            colaVoz.Clear();
+            if (vozFuente != null) vozFuente.Stop();
+        }
+
+        readonly System.Collections.Generic.Queue<AudioClip> colaVoz = new System.Collections.Generic.Queue<AudioClip>();
         AudioSource vozFuente;
+
+        void Update() => SiguienteVoz();
+
+        /// <summary>Si no suena ninguna voz, empieza la siguiente de la fila.</summary>
+        public void SiguienteVoz()
+        {
+            if (colaVoz.Count == 0 || vozFuente == null || vozFuente.isPlaying) return;
+            vozFuente.clip = colaVoz.Dequeue();
+            vozFuente.volume = Preferencias.VolumenVoz;
+            vozFuente.Play();
+        }
 
         AudioSource VozFuente()
         {
@@ -85,6 +124,7 @@ namespace SpaceMission
                 vozFuente = gameObject.AddComponent<AudioSource>();
                 vozFuente.playOnAwake = false;
                 vozFuente.spatialBlend = 0f;
+                Atenuacion.Registrar(vozFuente);
             }
             return vozFuente;
         }

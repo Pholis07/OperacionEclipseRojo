@@ -9,6 +9,7 @@ namespace SpaceMission
         [SerializeField] CatalogoDatos catalogo;
         [SerializeField] MisionUI mision;
         [SerializeField] TMP_Text textoResumen;
+        [SerializeField] UnityEngine.UI.ScrollRect scroll;   // versión 7: el resumen se desplaza si no cabe
         [SerializeField] UnityEngine.UI.Button botonCorregir;
         [SerializeField] UnityEngine.UI.Button botonLanzar;
 
@@ -32,6 +33,7 @@ namespace SpaceMission
             evaluacion = e;
             textoResumen.text = PresentacionMision.Resumen(e, EstadoJuego.Configuracion, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice));
             botonLanzar.interactable = e.SePuedeLanzar;
+            if (scroll != null) scroll.verticalNormalizedPosition = 1f;   // siempre empieza arriba
         }
 
         void Lanzar()

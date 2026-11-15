@@ -33,10 +33,10 @@ Material:
     - _Noche: 0
     - _VelocidadNubes: 0.004
     m_Colors:
-    - _ColorCenit: {r: 0.21999997, g: 0.45, b: 0.8, a: 1}
+    - _ColorCenit: {r: 0.17, g: 0.42, b: 0.74, a: 1}
     - _ColorEspacio: {r: 0.01, g: 0.012, b: 0.03, a: 1}
-    - _ColorHorizonte: {r: 0.78, g: 0.8399999, b: 0.9, a: 1}
-    - _ColorSol: {r: 4, g: 3.4, b: 2.6, a: 1}
+    - _ColorHorizonte: {r: 0.97, g: 0.74, b: 0.5, a: 1}
+    - _ColorSol: {r: 5, g: 3.3, b: 1.9, a: 1}
     - _DireccionSol: {r: -0.7969046, g: 0.34202018, b: -0.4979612, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

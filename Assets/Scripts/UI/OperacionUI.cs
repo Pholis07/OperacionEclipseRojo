@@ -102,6 +102,10 @@ namespace SpaceMission
         public string UltimoMensaje => textoLectura.text;
         public bool ResumenVisible => resumenPendiente;
 
+        /// <summary>Hay algo a pantalla completa (resumen, decisión, transición de mes o vista del escaneo).</summary>
+        public bool Ocupada => Op != null && (resumenPendiente || Op.EsperandoDecision ||
+            (secuenciaEscaneo != null && secuenciaEscaneo.Activa) || (transicionMes != null && transicionMes.Activa));
+
         ReglasOperacionDatos Reglas => catalogo.reglas;
 
         void Update() => ActualizarPaneles();
@@ -174,7 +178,9 @@ namespace SpaceMission
             Escaner = id;
             if (Op.Encendidos.Contains(id)) Op.Apagar(id);
             else if (!Op.Encender(id))
-                aviso = Op.Bloqueados.ContainsKey(id)
+                aviso = Op.SinAlcance(id)
+                    ? Nombre(id) + Idioma.T(" cannot work from this orbit: it gives no evidence here.")
+                    : Op.Bloqueados.ContainsKey(id)
                     ? Nombre(id) + Idioma.T(" is locked out by overheating.")
                     : Idioma.T("Not enough power to turn on ") + Nombre(id) + Idioma.T(": turn off another instrument.");
             else if (!Op.Regiones.ContainsKey(id))
@@ -342,9 +348,9 @@ namespace SpaceMission
             if (r.DiasUtiles < Reglas.diasPorMes)
                 t += " <color=" + PresentacionMision.ColorDebuff + ">" + Iconos.Baja + " × " + r.DiasUtiles + "/" + Reglas.diasPorMes + Idioma.T(" days</color>");
             if (r.FactorTormenta != 1f)
-                t += " <color=" + PresentacionMision.ColorDebuff + ">" + Iconos.Baja + " × " + r.FactorTormenta.ToString("0.#") + Idioma.T(" storm</color>");
+                t += " <color=" + PresentacionMision.ColorDebuff + ">" + Iconos.Baja + " × " + r.FactorTormenta.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + Idioma.T(" storm</color>");
             if (r.FactorAltitud != 1f)
-                t += " <color=" + PresentacionMision.ColorBuff + ">" + Iconos.Sube + " × " + r.FactorAltitud.ToString("0.#") + Idioma.T(" low orbit</color>");
+                t += " <color=" + PresentacionMision.ColorBuff + ">" + Iconos.Sube + " × " + r.FactorAltitud.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + Idioma.T(" low orbit</color>");
             float q = Mathf.Clamp(r.CalidadBase * r.DiasUtiles / Reglas.diasPorMes * r.FactorTormenta * r.FactorAltitud, 0f, 100f);
             return t + " = <b>" + Mathf.RoundToInt(q) + Idioma.T("</b> (valid evidence needs ") + Mathf.RoundToInt(Reglas.calidadMinima) + ")";
         }
@@ -427,7 +433,8 @@ namespace SpaceMission
                 var i = catalogo.Instrumento(id);
                 bool encendido = Op.Encendidos.Contains(id);
                 bool bloqueado = Op.Bloqueados.TryGetValue(id, out int resta);
-                string estado = bloqueado ? Idioma.T("LOCKED (") + Meses(resta) + ")"
+                string estado = Op.SinAlcance(id) ? Idioma.T("OUT OF RANGE")
+                    : bloqueado ? Idioma.T("LOCKED (") + Meses(resta) + ")"
                     : !encendido ? Idioma.T("OFF")
                     : Op.Regiones.ContainsKey(id) ? Idioma.T("OBSERVING") : Idioma.T("ON, NO REGION");
                 var fila = Instantiate(plantillaInstrumento, listaInstrumentos);
