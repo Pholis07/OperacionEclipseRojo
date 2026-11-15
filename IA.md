@@ -447,3 +447,34 @@ Antes de la construcción, la IA ayudó con los documentos de diseño (plan, dec
   - el «?» de la Operación se encimaba con un panel;
   - el planeta del Briefing quedaba detrás de los cuadros.
 - Sin numpy en el equipo, las texturas nuevas (nubes de Marte y degradado del Briefing) se generan con un script de editor propio (`GeneradorCapasMarte`).
+
+### Versión 6, segunda vuelta (Diego, 2026-11-15)
+
+- Diego jugó la versión 6 y pidió tres cosas:
+  - un Briefing que se lea: eligió «solo lo esencial»;
+  - los datos de la NASA detrás de un botón;
+  - buscar errores de animación, voces y mecánicas.
+- Errores encontrados al revisar el código, que se arreglaron:
+  - la transmisión inicial se narraba encima de la cinemática del lanzamiento: era la voz que se encimaba con control de misión;
+  - las órbitas y sus etiquetas se dibujaban detrás del Briefing;
+  - el «?» tapaba texto.
+- Revisión independiente con un agente que no conocía esas conclusiones: confirmó lo anterior y encontró siete fallos menores, todos arreglados:
+  - «Usar el MRO» no rehacía la evaluación;
+  - la guía ignoraba el rojo por alcance en dos pestañas;
+  - el «?» flotaba sobre los paneles de la Operación;
+  - la transmisión seguía sonando al saltar la Misión 0;
+  - la reserva de idioma de las voces usaba `??` con objetos de Unity;
+  - la fórmula mostraba 9.81 sin dar exactamente el número mostrado;
+  - dos pruebas cubrían un caso que el juego ya no permite.
+- Pruebas nuevas (`CinematicaTests`, PlayMode):
+  - cinemática entera en español y en inglés: nunca suenan dos voces a la vez, la transmisión solo empieza al terminar y en el idioma del juego;
+  - saltar la cinemática corta a control de misión.
+- Partida real en el navegador: el Chromium de Playwright, controlado por CDP desde Node, sin instalar nada.
+  - Recorrido: título, menú, Briefing, configuración en el orden nuevo, Revisión, Carga, cinemática, Operación (encender, marcar, resolver un mes, resumen) e informe en dos pantallas hasta «Modificar mi misión».
+  - En español a 1920×1080 y en inglés a 1366×768. La consola del navegador quedó sin errores.
+  - Lo que salió de esa partida y se arregló:
+    - las nubes de Marte se veían como vetas grises en la sombra (no se notaba en las capturas del editor);
+    - el botón de la Misión 0 partía el «0» a otra línea;
+    - el cuadro de recursos del detalle se estiraba vacío.
+- Pasan las 283 pruebas EditMode y las 23 PlayMode.
+- Lo que no se pudo comprobar: la mezcla de audio a oído (volúmenes, si la voz se entiende sobre el motor).
