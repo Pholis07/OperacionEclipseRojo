@@ -32,6 +32,8 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Button botonMenu;
         [SerializeField] GameObject vistaVeredicto;
         [SerializeField] GameObject vistaDetalle;
+        [SerializeField] UnityEngine.UI.Button botonDesglose;   // abre o cierra el desglose (recursos, fichas, objetivos, puntos)
+        [SerializeField] GameObject desglose;
 
         public const string ColorBien = "#22C55E";
         public const string ColorMal = "#EF4444";
@@ -48,6 +50,7 @@ namespace SpaceMission
         {
             botonModificar.onClick.AddListener(ModificarMision);
             if (botonDetalle != null) botonDetalle.onClick.AddListener(VerDetalle);
+            if (botonDesglose != null) botonDesglose.onClick.AddListener(AlternarDesglose);
             if (botonVeredicto != null) botonVeredicto.onClick.AddListener(VerVeredicto);
             if (botonMenu != null) botonMenu.onClick.AddListener(VolverAlMenu);
             Mostrar(EstadoJuego.Resultado, EstadoJuego.Configuracion);
@@ -84,7 +87,33 @@ namespace SpaceMission
                 ? string.Join("\n", informe.ObjetivosExtra.Select(o => Marca(o.Cumplido) + "<indent=7%>" + o.Texto + "</indent>"))
                 : "");
             if (textoObjetivos != null) textoObjetivos.transform.parent.gameObject.SetActive(informe.ObjetivosExtra.Count > 0);
-            textoPuntos.text = op != null ? TextoPuntos(e, op, nivel) : "";
+            evaluacion = e;
+            lineaMejor = null;
+            PonerDesglose(false);
+        }
+
+        Evaluacion evaluacion;
+        string lineaMejor;
+
+        /// <summary>¿Se ve el desglose? Cerrado, el detalle muestra solo lo esencial: evidencias y total de puntos.</summary>
+        public bool DesgloseAbierto { get; private set; }
+
+        /// <summary>Abre o cierra el desglose: recursos, fichas, objetivos extra y cada línea de los puntos.</summary>
+        public void AlternarDesglose()
+        {
+            PonerDesglose(!DesgloseAbierto);
+            ReproductorUI.Sonar(ArteDatos.Sonido.Click);
+        }
+
+        void PonerDesglose(bool abierto)
+        {
+            DesgloseAbierto = abierto;
+            if (desglose != null) desglose.SetActive(abierto);
+            if (botonDesglose != null)
+                botonDesglose.GetComponentInChildren<TMP_Text>().text =
+                    (abierto ? Idioma.T("Hide breakdown") : Idioma.T("Show breakdown")) + "  " + (abierto ? Iconos.Sube : Iconos.Baja);
+            var op = EstadoJuego.Operacion;
+            textoPuntos.text = op != null && evaluacion != null ? TextoPuntos(evaluacion, op, catalogo.Nivel(EstadoJuego.NivelIndice), abierto) : "";
         }
 
         static void Poner(TMP_Text t, string texto) { if (t != null) t.text = texto; }
@@ -121,16 +150,16 @@ namespace SpaceMission
         }
 
         /// <summary>Tabla de puntos: los puntos a la izquierda y el concepto al lado, y el total al final.</summary>
-        string TextoPuntos(Evaluacion e, Operacion op, MisionDatos nivel)
+        string TextoPuntos(Evaluacion e, Operacion op, MisionDatos nivel, bool completo)
         {
             var lineas = Puntuacion.Desglose(e, op, catalogo, nivel);
             int total = Puntuacion.Total(lineas);
             var texto = "";
-            foreach (var l in lineas)
+            if (completo) foreach (var l in lineas)
                 texto += "<b>" + (l.Puntos >= 0 ? "+" : "") + TextosBriefing.Numero(l.Puntos) + "</b><indent=17%>" + l.Concepto + "</indent>\n";
             texto += "<size=120%><b>" + TextosBriefing.Numero(total) + "</b><indent=17%><b>" + Idioma.T("Total") + "</b>  <size=70%><color=" + ColorTenue + ">" +
                      nivel.NombreNivel + "</color></size></indent></size>\n";
-            texto += MejorPuntaje(total);
+            texto += lineaMejor ??= MejorPuntaje(total);   // una vez por informe: guarda el récord
             return texto;
         }
 

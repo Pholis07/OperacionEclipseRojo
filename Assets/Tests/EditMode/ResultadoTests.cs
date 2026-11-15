@@ -130,9 +130,29 @@ namespace SpaceMission.Tests
         {
             var ui = Abrir("explorador", "media", "termica+radar", true);
             var lineas = Puntuacion.Desglose(EstadoJuego.Resultado, EstadoJuego.Operacion, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice));
+            ui.AlternarDesglose();
             foreach (var l in lineas) StringAssert.Contains(l.Concepto, ui.TextoPuntosActual);
             StringAssert.Contains("<b>" + TextosBriefing.Numero(Puntuacion.Total(lineas)) + "</b>", ui.TextoPuntosActual);
             StringAssert.Contains("Total", ui.TextoPuntosActual);
+        }
+
+        [Test]
+        public void ElDesgloseEmpiezaPlegadoYSeAbreConSuBoton()
+        {
+            var ui = Abrir("explorador", "media", "termica+radar", true);
+            var lineas = Puntuacion.Desglose(EstadoJuego.Resultado, EstadoJuego.Operacion, catalogo, catalogo.Nivel(EstadoJuego.NivelIndice));
+            var desglose = (GameObject)new SerializedObject(ui).FindProperty("desglose").objectReferenceValue;
+            Assert.IsFalse(ui.DesgloseAbierto);
+            Assert.IsFalse(desglose.activeSelf, "recursos, fichas y objetivos plegados");
+            StringAssert.Contains("Total", ui.TextoPuntosActual, "el total siempre se ve");
+            StringAssert.DoesNotContain(lineas[0].Concepto, ui.TextoPuntosActual, "las líneas, solo al abrir");
+            var mejor = ui.TextoPuntosActual.Substring(ui.TextoPuntosActual.LastIndexOf('\n') + 1);
+            ui.AlternarDesglose();
+            Assert.IsTrue(desglose.activeSelf);
+            StringAssert.Contains(lineas[0].Concepto, ui.TextoPuntosActual);
+            StringAssert.EndsWith(mejor, ui.TextoPuntosActual, "el récord no cambia al abrir el desglose");
+            ui.AlternarDesglose();
+            Assert.IsFalse(desglose.activeSelf);
         }
 
         [Test]

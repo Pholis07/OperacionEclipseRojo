@@ -540,7 +540,12 @@ namespace SpaceMission
             }
             if (resumenPendiente) { destino = null; texto = Idioma.T("Read the month summary and press \u00abContinue\u00bb."); }
             PasoActual = paso;
-            textoGuia.text = "<color=" + (paso.Aviso ? "#F4C46A" : "#75D6DF") + ">" + Iconos.Pista + "  " + texto + "</color>";
+            // Consejos apagados (Opciones o «Ocultar consejos»): sin el paso a paso ni el resaltado. Los avisos
+            // (algo no tiene sentido o hay que enviar) se siguen leyendo; la Misión 0 siempre guía.
+            bool consejos = Preferencias.GuiaActiva || EstadoJuego.Tutorial || GuiaForzada != null;
+            if (!consejos) destino = null;
+            textoGuia.text = !consejos && !paso.Aviso ? ""
+                : "<color=" + (paso.Aviso ? "#F4C46A" : "#75D6DF") + ">" + Iconos.Pista + "  " + texto + "</color>";
             ResaltarGuia.Mover(ref resaltado, destino);
         }
 

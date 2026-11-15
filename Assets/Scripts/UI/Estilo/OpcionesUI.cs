@@ -44,6 +44,7 @@ namespace SpaceMission
 
             CrearPantallaCompleta();
             CrearContornos();
+            CrearConsejos();
             foreach (var casilla in panel.GetComponentsInChildren<UnityEngine.UI.Toggle>(true)) ArreglarMarca(casilla);
             botonAbrir.onClick.AddListener(() => Mostrar(true));
             botonCerrar.onClick.AddListener(() => Mostrar(false));
@@ -102,8 +103,29 @@ namespace SpaceMission
             contornos.onValueChanged.AddListener(v => Preferencias.ContornosTinta = v);
         }
 
+        UnityEngine.UI.Toggle consejos;
+
+        /// <summary>
+        /// Interruptor «Show tips»: los consejos de cada pantalla, la guía paso a paso de la Operación y el resaltado.
+        /// Apagados, el juego no guía a quien no quiere; el botón «?» y la Misión 0 siguen disponibles.
+        /// </summary>
+        void CrearConsejos()
+        {
+            if (reducirMovimiento == null || consejos != null) return;
+            var despuesDe = contornos != null ? contornos : reducirMovimiento;
+            consejos = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
+            consejos.name = "Consejos";
+            consejos.transform.SetSiblingIndex(despuesDe.transform.GetSiblingIndex() + 1);
+            consejos.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
+            var etiqueta = consejos.GetComponentInChildren<TMPro.TMP_Text>();
+            if (etiqueta != null) etiqueta.text = "Show tips";   // TraductorEscena lo pasa al español
+            consejos.SetIsOnWithoutNotify(Preferencias.GuiaActiva);
+            consejos.onValueChanged.AddListener(v => Preferencias.GuiaActiva = v);
+        }
+
         void Mostrar(bool visible)
         {
+            if (visible && consejos != null) consejos.SetIsOnWithoutNotify(Preferencias.GuiaActiva);   // pudo cambiar en el juego
             if (visible && pantallaCompleta != null) pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);   // pudo cambiar con Esc o F11
             panel.SetActive(visible);
             var foco = visible ? (GameObject)musica.gameObject : botonAbrir.gameObject;

@@ -13,11 +13,18 @@ namespace SpaceMission.Tests
 
         CatalogoDatos catalogo;
 
+        bool consejosAntes;
+
         [SetUp]
         public void Preparar()
         {
             catalogo = AssetDatabase.LoadAssetAtPath<CatalogoDatos>("Assets/Datos/Catalogo.asset");
+            consejosAntes = Preferencias.GuiaActiva;
+            Preferencias.GuiaActiva = true;
         }
+
+        [TearDown]
+        public void Restaurar() => Preferencias.GuiaActiva = consejosAntes;
 
         Operacion Caso2()
         {
@@ -161,6 +168,26 @@ namespace SpaceMission.Tests
             var resaltado = Object.FindObjectsByType<ResaltarGuia>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             Assert.AreEqual(1, resaltado.Length);
             Assert.AreEqual("BotonResolver", resaltado[0].name);
+        }
+
+        [Test]
+        public void ConLosConsejosApagadosNoGuiaNiResalta()
+        {
+            Preferencias.GuiaActiva = false;
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Escenas/Mision.unity");
+            EstadoJuego.Reiniciar();
+            EstadoJuego.Configuracion = new Configuracion("media", "explorador", new[] { "termica", "radar" });
+            var e = Evaluador.Evaluar(EstadoJuego.Configuracion, catalogo);
+            var ui = Object.FindFirstObjectByType<OperacionUI>(FindObjectsInactive.Include);
+            ui.Comenzar(e, new Carga(e, EstadoJuego.Configuracion, catalogo), 7);
+            var guia = (TMPro.TMP_Text)new SerializedObject(ui).FindProperty("textoGuia").objectReferenceValue;
+            Assert.AreEqual("", guia.text, "sin paso a paso");
+            Assert.AreEqual(0, Object.FindObjectsByType<ResaltarGuia>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length, "sin resaltado");
+            // Encenderlos de nuevo vuelve a guiar.
+            Preferencias.GuiaActiva = true;
+            ui.AlternarInstrumento("termica");
+            Assert.IsNotEmpty(guia.text);
+            Assert.AreEqual(1, Object.FindObjectsByType<ResaltarGuia>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length);
         }
     }
 }

@@ -845,6 +845,8 @@ namespace SpaceMission
             { " cannot work from this orbit: it gives no evidence here.", " no puede trabajar desde esta órbita: aquí no da evidencia." },
             { "Choose a launcher to see your braking.", "Elige un lanzador para ver tu frenado." },
             { "too heavy to reach the orbit", "demasiado pesada para llegar a la órbita" },
+            { "Show breakdown", "Ver desglose" },
+            { "Hide breakdown", "Ocultar desglose" },
         };
     }
 }

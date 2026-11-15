@@ -1392,8 +1392,14 @@ public static partial class ConstructorEscenas
         Anclar(izqDetalle, new Vector2(0.05f, 0.06f), new Vector2(0.48f, 0.94f));
         Encabezado(izqDetalle, "EtiquetaDetalle", SpaceMission.Iconos.Informe + "  MISSION DETAILS");
 
+        // Lo esencial (evidencias y total) se ve a la derecha; recursos, fichas y objetivos extra van en un desglose
+        // plegado que el jugador abre si quiere (menos saturado; ResultadoUI.AlternarDesglose).
+        var botonDesglose = Boton(izqDetalle, "BotonDesglose", "Show breakdown", false);
+        AjustarTexto(botonDesglose);
+        var desglose = Columna(izqDetalle, "Desglose", 16, TextAnchor.UpperLeft);
+
         // Recursos: una barra por recurso, con su cifra.
-        var cajaRecursos = Columna(izqDetalle, "Recursos", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 22);
+        var cajaRecursos = Columna(desglose, "Recursos", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 22);
         Bordes(cajaRecursos, LineaHud);
         Subtitulo(cajaRecursos, "TituloRecursos", "Resources used");
         var textosBarra = new Object[4];
@@ -1415,7 +1421,7 @@ public static partial class ConstructorEscenas
         }
 
         // Fichas de la operación: meses, combustible, memoria sin enviar y apagones.
-        var filaFichas = Fila(izqDetalle, "Fichas", 12);
+        var filaFichas = Fila(desglose, "Fichas", 12);
         Alto(filaFichas, 104);
         var fichas = new Object[4];
         for (int i = 0; i < 4; i++)
@@ -1431,7 +1437,7 @@ public static partial class ConstructorEscenas
         }
 
         // Objetivos extra (la caja se esconde si la misión no tenía).
-        var cajaObjetivos = Columna(izqDetalle, "ObjetivosExtra", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 22);
+        var cajaObjetivos = Columna(desglose, "ObjetivosExtra", 6, TextAnchor.UpperLeft, TarjetaTranslucida, 22);
         Bordes(cajaObjetivos, LineaHud);
         Subtitulo(cajaObjetivos, "TituloObjetivos", "Bonus objectives");
         var objetivos = Texto(cajaObjetivos, "TextoObjetivos", "", 24, TextoClaro, FontStyles.Normal, TextAlignmentOptions.TopLeft);
@@ -1540,6 +1546,9 @@ public static partial class ConstructorEscenas
         Asignar(ui, "botonMenu", menu);
         Asignar(ui, "vistaVeredicto", vistaVeredicto.gameObject);
         Asignar(ui, "vistaDetalle", vistaDetalle.gameObject);
+        Asignar(ui, "botonDesglose", botonDesglose);
+        Asignar(ui, "desglose", desglose.gameObject);
+        desglose.gameObject.SetActive(false);
         vistaDetalle.gameObject.SetActive(false);
 
         EditorSceneManager.SaveScene(escena, "Assets/Escenas/Resultado.unity");

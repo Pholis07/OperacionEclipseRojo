@@ -211,9 +211,11 @@ namespace SpaceMission.Tests
             Assert.IsTrue(ui.DetalleVisible);
             Assert.IsFalse(veredicto.activeSelf);
             var detalle = Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None).Select(t => t.text).ToList();
-            Assert.IsTrue(detalle.Any(t => t.Contains("Resources used")));
+            Assert.IsFalse(detalle.Any(t => t.Contains("Resources used")), "los recursos van en el desglose plegado");
             Assert.IsTrue(detalle.Any(t => t.Contains("Evidence obtained")));
             Assert.IsTrue(detalle.Contains("Modify my mission"));
+            ui.AlternarDesglose();
+            Assert.IsTrue(Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None).Any(t => t.text.Contains("Resources used")));
 
             ui.VerVeredicto();
             Assert.IsFalse(ui.DetalleVisible);
