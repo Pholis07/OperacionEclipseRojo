@@ -197,9 +197,21 @@ Solo `OperacionUI.cs`: el evento `AlResolverMes(ResultadoMes)` (se lanza al fina
 | Mapa de la investigación | El cráter Gale (relieve «Curiosity Landing Site» de NASA 3D Resources convertido en imagen), con retícula, rótulos, escala, polvo que se mueve y marcas redondas. `MapaMarteUI.RectGlobo` dice dónde está en el planeta: la vista 3D del escaneo y la llegada apuntan a Gale | `Herramientas/gale.py`, `MapaMarteUI.cs`, `CapasMapa()`, `SecuenciaEscaneo`, `DirectorCinematica` |
 | Separación de la carga | Toma 7 nueva (5.4 s): la cofia (Explorador) o la nariz del SLS (Titán) se parte en dos mitades que se abren sobre su bisagra y se alejan girando; el satélite, que viajaba dentro, sale empujado por resortes; la etapa se aparta con pulsos de gas frío; «PAYLOAD RELEASED» | `DirectorCinematica.cs`, `Torno` con rango de ángulo, `DividirNarizSls`, `DobleCara` |
 | Inglés | Todo el juego: constructores, scripts, datos (48 assets y `TraduccionIngles.cs`), página de carga, nombre del producto («Operation Red Eclipse») y pruebas | Ver los informes de traducción en esta sección |
-| Voces y subtítulos | 10 voces nuevas en inglés (1,531 créditos). Subtítulos English / Español / Off en Opciones, franja abajo encima de todo | `Subtitulos.cs`, `BarraSubtitulos.cs`, `Preferencias.Subtitulos`, `OpcionesUI` |
+| Voces | 10 voces nuevas en inglés (1,531 créditos). Los subtítulos se probaron y se quitaron (a Diego no le gustaron) | `ConstructorEstilo.cs` |
 | Textos encimados | Ayuda de Configuración que se salía, botones con etiquetas largas, textos de Operación, Carga y decisiones que se achican en vez de pisarse, nombre del instrumento y «Click to skip» separados | `ConstructorEscenas.cs` (`Encoger`, `AjustarTexto`) |
 
 Cambios en código de Adrian (revisar): textos de `OperacionUI`, `Evaluador`, `Operacion`, `Puntuacion`, `Objetivos`, los datos y unas 30 comprobaciones de las pruebas que buscaban frases en español; `MapaMarteUI` gana la imagen de la región y `RectGlobo`. La lógica no cambia.
 
 Comprobado: EditMode 212/212 y PlayMode 19/19; capturas en batch de todas las pantallas en inglés y fotogramas de la toma 7 con Explorador y con Titán (cofia abriéndose, satélite saliendo). Falta escuchar las voces en inglés y probar la build en un navegador real.
+
+**Segunda vuelta (tras probar la build):**
+- Marte más realista en Menú y Configuración:
+  - tonos óxido en vez de naranja (saturación 0.78, gamma 1.22, contraste 1.35);
+  - relieve más fuerte (1.8);
+  - capa de polvo casi transparente (0.07) y halo de atmósfera fino (1.016);
+  - Sol más de lado (Euler 20, 58, 0), así que se ve el terminador.
+- Menú: lente de 32° con la cámara más atrás. Con 60°, Marte se veía ovalado por la perspectiva.
+- Voces de la cinemática en fila (ya no se enciman «ignition» y «liftoff»).
+- Saltar la cinemática va directo al final y apaga todo el audio. Antes, la rutina recorría en un cuadro las tomas que faltaban y disparaba sus sonidos a la vez.
+- Se quitaron los subtítulos.
+- EditMode 212/212, PlayMode 19/19.

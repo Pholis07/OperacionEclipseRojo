@@ -52,7 +52,7 @@ namespace SpaceMission
                 : Iconos.Senal + "  MISSION CONTROL";
 
             ReproductorUI.Sonar(ArteDatos.Sonido.Senal, 0.7f);
-            ReproductorUI.Hablar(arte.VozDe(t.id), t.id);
+            ReproductorUI.Hablar(arte.VozDe(t.id));
             StopAllCoroutines();
             StartCoroutine(Entrada());
         }

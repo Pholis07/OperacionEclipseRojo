@@ -152,6 +152,10 @@ public static partial class ConstructorEscenas
         // recorriéndola y el pulso de la región de la anomalía.
         PrepararCamara();
         Camera.main.backgroundColor = Hex("#080D17");
+        // Lente más cerrada y cámara más atrás (mismo encuadre): con 60° y Marte cerca y a un lado, la perspectiva
+        // lo estiraba y se veía ovalado.
+        Camera.main.fieldOfView = 32f;
+        Camera.main.transform.position = new Vector3(0, 0.2f, -26.2f);
         ConstruirEstrellas();
         var centroMarte = new Vector3(6.6f, 0.1f, 9f);
         var marte = ConstruirMarte(centroMarte, 13.5f);
@@ -426,21 +430,6 @@ public static partial class ConstructorEscenas
         var voz = Deslizador(tarjeta, "Voz", SpaceMission.Iconos.Senal + "  Transmission voice");
         var silencio = Casilla(tarjeta, "Silencio", "Mute all sound");
         var movimiento = Casilla(tarjeta, "ReducirMovimiento", "Reduce motion (no shaking or cinematics)");
-        // Subtítulos de las voces: English, Español u Off (lo único que existe en dos idiomas).
-        Texto(tarjeta, "EtiquetaSubtitulos", SpaceMission.Iconos.Senal + "  Subtitles", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Left);
-        var filaSubtitulos = Fila(tarjeta, "Subtitulos", 10);
-        Alto(filaSubtitulos, 56);
-        var botonesSubtitulos = new Object[3];
-        string[] idiomas = { "English", "Español", "Off" };
-        for (int i = 0; i < 3; i++)
-        {
-            var b = Boton(filaSubtitulos, "BotonSubtitulos" + i, idiomas[i], false);
-            var le = b.GetComponent<UnityEngine.UI.LayoutElement>();
-            le.preferredWidth = -1; le.flexibleWidth = 1; le.minHeight = 56; le.preferredHeight = 56;
-            var t = b.GetComponentInChildren<TextMeshProUGUI>();
-            t.fontSize = 24; t.enableAutoSizing = true; t.fontSizeMin = 18; t.fontSizeMax = 24;
-            botonesSubtitulos[i] = b;
-        }
         Alto(Vacio(tarjeta, "Espacio"), 8).GetComponent<UnityEngine.UI.LayoutElement>().flexibleHeight = 1;
         var cerrar = Boton(tarjeta, "BotonCerrarOpciones", "Done", true);
         panel.gameObject.SetActive(false);
@@ -458,7 +447,6 @@ public static partial class ConstructorEscenas
         Asignar(ui, "reducirMovimiento", movimiento);
         Asignar(ui, "ambiente", ambiente);
         Asignar(ui, "silencio", silencio);
-        AsignarLista(ui, "botonesSubtitulos", botonesSubtitulos);
         return ui;
     }
 
@@ -722,7 +710,6 @@ public static partial class ConstructorEscenas
         // Cinemática Tierra → Marte al lanzar y vista orbital en cada escaneo (ConstructorEscenas.Cine.cs).
         // Con la Carga (gameplay v3) la cinemática empieza en su «Lanzar», no en el de la Revisión.
         ConstruirCinematica(canvas, cargaUI.BotonLanzar, musica, operacionUI, catalogo);
-        ConstruirSubtitulos(canvas);   // encima de todo, también de la cinemática
 
         // Navegación de Configuración y cámara que se acerca a lo que se está eligiendo.
         Asignar(configuracion.GetComponent<GuiaConfiguracion>(), "vistaRevision", revision.gameObject);
@@ -1789,18 +1776,18 @@ public static partial class ConstructorEscenas
         mat.SetTexture("_MapaOeste", ConstructorEstilo.Imagen("Texturas/Marte_Superficie_Oeste"));
         mat.SetTexture("_MapaEste", ConstructorEstilo.Imagen("Texturas/Marte_Superficie_Este"));
         mat.SetTexture("_Normales", ConstructorEstilo.Imagen("Texturas/Marte_Normal"));
-        mat.SetFloat("_FuerzaNormales", 1.1f);
+        mat.SetFloat("_FuerzaNormales", 1.8f);   // relieve marcado: cráteres, volcanes y cañones
         mat.SetTexture("_Detalle", ConstructorEstilo.Imagen("Texturas/Marte_Detalle"));
         mat.SetFloat("_RepeticionDetalle", 48f);
-        mat.SetFloat("_FuerzaDetalle", 0.32f);
-        mat.SetFloat("_Suavidad", 0.15f);
-        mat.SetColor("_ColorBorde", new Color(1f, 0.5f, 0.25f) * 1.2f);
-        mat.SetFloat("_PotenciaBorde", 3.5f);
-        mat.SetFloat("_Brillo", 0.9f);
+        mat.SetFloat("_FuerzaDetalle", 0.45f);
+        mat.SetFloat("_Suavidad", 0.08f);
+        mat.SetColor("_ColorBorde", new Color(1f, 0.45f, 0.22f) * 0.6f);
+        mat.SetFloat("_PotenciaBorde", 5f);
+        mat.SetFloat("_Brillo", 1.05f);
         mat.SetColor("_Ambiente", new Color(0.05f, 0.055f, 0.075f));
-        mat.SetFloat("_Saturacion", 1.12f);
-        mat.SetFloat("_Contraste", 1.18f);
-        mat.SetFloat("_Gamma", 1.15f);
+        mat.SetFloat("_Saturacion", 0.78f);   // óxido y caramelo, no naranja chillón
+        mat.SetFloat("_Contraste", 1.35f);
+        mat.SetFloat("_Gamma", 1.22f);
         // Relieve del cráter Gale (NASA 3D Resources, Curiosity Landing Site) en su sitio del planeta.
         mat.SetTexture("_ParcheNormal", ConstructorEstilo.Imagen("Texturas/Gale_Normal"));
         mat.SetVector("_RectParche", new Vector4(0.8728f, 0.452f, 0.0205f, 0.041f));
@@ -1823,7 +1810,7 @@ public static partial class ConstructorEscenas
             AssetDatabase.CreateAsset(matPolvo, "Assets/Materiales/Marte_Polvo.mat");
         }
         matPolvo.SetTexture("_BaseMap", ConstructorEstilo.Imagen("Texturas/Marte_Polvo"));
-        matPolvo.SetFloat("_Opacidad", 0.22f);   // se ve el relieve bajo la tormenta
+        matPolvo.SetFloat("_Opacidad", 0.07f);   // apenas un velo: el relieve se ve limpio
         EditorUtility.SetDirty(matPolvo);
         var polvo = Malla(EsferaUV(), "TormentaPolvo", null, posicion, new Vector3(0, 40, -12), Vector3.one * diametro * 1.008f, matPolvo);
         polvo.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
@@ -1834,11 +1821,12 @@ public static partial class ConstructorEscenas
             matAtmosfera = new Material(Shader.Find("OperacionEclipseRojo/Atmosfera"));
             AssetDatabase.CreateAsset(matAtmosfera, "Assets/Materiales/Atmosfera.mat");
         }
-        matAtmosfera.SetColor("_Color", new Color(1f, 0.55f, 0.35f) * 1.4f);
-        matAtmosfera.SetFloat("_Potencia", 3.5f);
+        matAtmosfera.SetColor("_Color", new Color(1f, 0.48f, 0.26f) * 0.9f);
+        matAtmosfera.SetFloat("_Potencia", 4.5f);
+        matAtmosfera.SetFloat("_Intensidad", 1f);
         EditorUtility.SetDirty(matAtmosfera);
         // Misma esfera fina que el planeta: con la primitiva de Unity el borde se ve facetado de cerca.
-        var atmosfera = Malla(EsferaUV(), "Atmosfera", null, posicion, Vector3.zero, Vector3.one * diametro * 1.035f, matAtmosfera);
+        var atmosfera = Malla(EsferaUV(), "Atmosfera", null, posicion, Vector3.zero, Vector3.one * diametro * 1.016f, matAtmosfera);   // halo fino, no una banda pálida
         atmosfera.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
         marte.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
         return marte;
@@ -1970,7 +1958,7 @@ public static partial class ConstructorEscenas
         sol.color = new Color(1f, 0.93f, 0.84f);
         sol.intensity = 2.1f;
         sol.shadows = LightShadows.Soft;
-        sol.transform.rotation = Quaternion.Euler(24, 38, 0); // de frente y algo de lado: el planeta se ve casi todo iluminado
+        sol.transform.rotation = Quaternion.Euler(20, 58, 0); // más de lado: el terminador da volumen y se ve el relieve
         RenderSettings.sun = sol;
 
         var contra = new GameObject("LuzContorno").AddComponent<Light>();
@@ -2106,26 +2094,6 @@ public static partial class ConstructorEscenas
         }
         EditorUtility.SetDirty(mat);
         return mat;
-    }
-
-    /// <summary>Franja de subtítulos de las voces (BarraSubtitulos), abajo y encima de todo. No bloquea clics.</summary>
-    static void ConstruirSubtitulos(RectTransform canvas)
-    {
-        var barra = Panel(canvas, "Subtitulos", new Color(0f, 0f, 0f, 0.72f));
-        Anclar(barra, new Vector2(0.18f, 0.095f), new Vector2(0.82f, 0.19f));
-        barra.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
-        barra.SetAsLastSibling();
-        var grupo = barra.gameObject.AddComponent<CanvasGroup>();
-        grupo.alpha = 0f;
-        grupo.blocksRaycasts = false;
-        grupo.interactable = false;
-        var texto = Texto(barra, "Texto", "", 28, TextoClaro, FontStyles.Normal, TextAlignmentOptions.Center);
-        Estirar(texto.rectTransform);
-        texto.margin = new Vector4(24, 8, 24, 8);
-        texto.enableAutoSizing = true; texto.fontSizeMin = 18; texto.fontSizeMax = 28;
-        var ui = barra.gameObject.AddComponent<BarraSubtitulos>();
-        Asignar(ui, "grupo", grupo);
-        Asignar(ui, "texto", texto);
     }
 
     /// <summary>

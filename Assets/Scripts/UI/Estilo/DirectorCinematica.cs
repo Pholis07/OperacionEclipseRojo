@@ -115,6 +115,24 @@ namespace SpaceMission
         void Update()
         {
             if (Reproduciendo && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) Omitir();
+            // Voces de control de misión en fila: una no empieza hasta que termina la anterior (no se enciman).
+            if (fuenteVoz != null && colaVoz.Count > 0 && !fuenteVoz.isPlaying)
+            {
+                fuenteVoz.clip = colaVoz.Dequeue();
+                fuenteVoz.volume = Preferencias.VolumenVoz;
+                fuenteVoz.Play();
+            }
+        }
+
+        static readonly ArteDatos.Efecto[] Voces =
+            { ArteDatos.Efecto.VozEncendido, ArteDatos.Efecto.VozDespegue, ArteDatos.Efecto.VozSeparacion, ArteDatos.Efecto.VozOrbita };
+        readonly System.Collections.Generic.Queue<AudioClip> colaVoz = new System.Collections.Generic.Queue<AudioClip>();
+        AudioSource fuenteVoz;
+
+        void CallarVoz()
+        {
+            colaVoz.Clear();
+            if (fuenteVoz != null) fuenteVoz.Stop();
         }
 
         void OnDisable()
@@ -127,7 +145,15 @@ namespace SpaceMission
             if (textura != null) { textura.Release(); Destroy(textura); }
         }
 
-        public void Omitir() => omitir = true;
+        /// <summary>
+        /// Saltar: va directo al final (que apaga sonidos, motor y voces). Antes la rutina recorría en un cuadro las
+        /// tomas que faltaban y disparaba todos sus sonidos a la vez, que seguían oyéndose en la Operación.
+        /// </summary>
+        public void Omitir()
+        {
+            omitir = true;
+            if (Reproduciendo) Final();
+        }
 
         public void Reproducir()
         {
@@ -656,7 +682,7 @@ namespace SpaceMission
                 brazos[i].localPosition = new Vector3(p.x, alto * (0.3f + 0.22f * i), p.z);
                 brazos[i].localRotation = Quaternion.identity;
             }
-            foreach (var ps in new[] { chispas, vapor, estela, aves })
+            foreach (var ps in new[] { chispas, vapor, estela, aves, pirotecnia, gasFrio })
                 if (ps != null) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
@@ -733,12 +759,23 @@ namespace SpaceMission
 
         void Sonar(ArteDatos.Efecto efecto, float volumen = 1f)
         {
+            if (omitir) return;
             if (fuente == null || ReproductorUI.Actual == null || ReproductorUI.Actual.Arte == null) return;
             var clip = ReproductorUI.Actual.Arte.Clip(efecto);
             if (clip == null) return;
-            bool esVoz = Subtitulos.Existe(efecto.ToString());
-            fuente.PlayOneShot(clip, volumen * (esVoz ? Preferencias.VolumenVoz : Preferencias.VolumenEfectos));
-            if (esVoz) Subtitulos.Mostrar(efecto.ToString(), clip.length);   // frases de control de misión
+            if (System.Array.IndexOf(Voces, efecto) >= 0)
+            {
+                if (fuenteVoz == null)
+                {
+                    fuenteVoz = fuente.gameObject.AddComponent<AudioSource>();
+                    fuenteVoz.playOnAwake = false;
+                    fuenteVoz.spatialBlend = 0f;
+                    fuenteVoz.outputAudioMixerGroup = fuente.outputAudioMixerGroup;
+                }
+                colaVoz.Enqueue(clip);
+                return;
+            }
+            fuente.PlayOneShot(clip, volumen * Preferencias.VolumenEfectos);
         }
 
         /// <summary>El mismo final al terminar o al omitir: satélite en su órbita, audio y vista de la Operación.</summary>
@@ -746,12 +783,13 @@ namespace SpaceMission
         {
             if (rutina != null) { StopCoroutine(rutina); rutina = null; }
             if (fuente != null) fuente.Stop();
+            CallarVoz();
             DetenerBucle();
             if (llamas != null) Encender(false);
             EncenderSuperior(false);
             sacudida = 0f;
             if (destello != null) destello.alpha = 0f;
-            foreach (var ps in new[] { chispas, vapor, estela, aves })
+            foreach (var ps in new[] { chispas, vapor, estela, aves, pirotecnia, gasFrio })
                 if (ps != null) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             if (humoLados != null) foreach (var h in humoLados) if (h != null) h.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             RestaurarPoses();

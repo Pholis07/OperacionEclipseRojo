@@ -65,13 +65,6 @@ namespace SpaceMission
         }
 
         /// <summary>Reproduce una voz (transmisiones) cortando la anterior.</summary>
-        /// <summary>Habla y muestra su subtítulo (si el jugador los tiene encendidos).</summary>
-        public static void Hablar(AudioClip clip, string idSubtitulo)
-        {
-            Hablar(clip);
-            if (clip != null) Subtitulos.Mostrar(idSubtitulo, clip.length);
-        }
-
         public static void Hablar(AudioClip clip)
         {
             if (Actual == null) return;

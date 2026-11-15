@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SpaceMission
 {
-    /// <summary>Panel «Opciones» del Menú: volúmenes, «Silenciar todo», «Reducir movimiento» y el idioma de los subtítulos.</summary>
+    /// <summary>Panel «Opciones» del Menú: volumen de música, ambiente, efectos y voz, «Silenciar todo» y «Reducir movimiento».</summary>
     public class OpcionesUI : MonoBehaviour
     {
         [SerializeField] UnityEngine.UI.Button botonAbrir;
@@ -14,10 +14,6 @@ namespace SpaceMission
         [SerializeField] UnityEngine.UI.Toggle reducirMovimiento;
         [SerializeField] UnityEngine.UI.Slider ambiente;
         [SerializeField] UnityEngine.UI.Toggle silencio;
-        [Tooltip("Subtítulos: English, Español y Off, en ese orden.")]
-        [SerializeField] UnityEngine.UI.Button[] botonesSubtitulos;
-        [SerializeField] Color colorElegido = new Color(0.89f, 0.39f, 0.23f);
-        [SerializeField] Color colorNormal = new Color(0.118f, 0.118f, 0.137f);
 
         void Awake()
         {
@@ -46,33 +42,8 @@ namespace SpaceMission
                 silencio.onValueChanged.AddListener(v => Preferencias.Silencio = v);
             }
 
-            if (botonesSubtitulos != null)
-                for (int i = 0; i < botonesSubtitulos.Length; i++)
-                {
-                    var idioma = (IdiomaSubtitulos)i;
-                    if (botonesSubtitulos[i] == null) continue;
-                    botonesSubtitulos[i].onClick.AddListener(() => { Preferencias.Subtitulos = idioma; PintarSubtitulos(); });
-                }
-            PintarSubtitulos();
-
             botonAbrir.onClick.AddListener(() => Mostrar(true));
             botonCerrar.onClick.AddListener(() => Mostrar(false));
-        }
-
-        /// <summary>El idioma elegido se ve con el color de acento.</summary>
-        void PintarSubtitulos()
-        {
-            if (botonesSubtitulos == null) return;
-            for (int i = 0; i < botonesSubtitulos.Length; i++)
-            {
-                var b = botonesSubtitulos[i];
-                if (b == null) continue;
-                bool elegido = (int)Preferencias.Subtitulos == i;
-                var img = b.GetComponent<UnityEngine.UI.Image>();
-                if (img != null) img.color = elegido ? colorElegido : colorNormal;
-                var t = b.GetComponentInChildren<TMPro.TMP_Text>();
-                if (t != null) t.color = elegido ? new Color(0.043f, 0.043f, 0.063f) : new Color(0.97f, 0.98f, 0.99f);
-            }
         }
 
         void Mostrar(bool visible)
