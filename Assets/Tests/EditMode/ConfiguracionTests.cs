@@ -133,9 +133,16 @@ namespace SpaceMission.Tests
             int antes = ReproductorUI.Peticiones;
             ui.MostrarPestana(ConfiguracionUI.Pestana.Instrumentos);
             ui.MostrarPestana(ConfiguracionUI.Pestana.Orbita);
-            ui.ElegirOrbita("media");
             ui.Recalcular();
             Assert.AreEqual(antes, ReproductorUI.Peticiones, "navegar y redibujar no suena");
+
+            // Versión 7: elegir una órbita tiene su sonido propio, una vez; volver a pulsar la misma no repite.
+            ui.ElegirOrbita("media");
+            Assert.AreEqual(antes + 1, ReproductorUI.Peticiones, "elegir órbita: un sonido");
+            ui.ElegirOrbita("media");
+            ui.Recalcular();
+            Assert.AreEqual(antes + 1, ReproductorUI.Peticiones, "la misma órbita no vuelve a sonar");
+            antes = ReproductorUI.Peticiones;
 
             ui.AlternarInstrumento("termica");
             Assert.AreEqual(antes + 1, ReproductorUI.Peticiones, "instalar: un sonido");

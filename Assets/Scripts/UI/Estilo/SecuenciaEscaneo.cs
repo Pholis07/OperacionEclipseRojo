@@ -155,7 +155,12 @@ namespace SpaceMission
             for (float t = 0f; t < 1f && !saltando; t += Time.deltaTime / tEscaneo)
             {
                 AnimarHaz(instrumento, t, objetivo, color);
-                modo?.Animar(instrumento, t);
+                if (modo != null)
+                {
+                    int capaAntes = modo.CapaActiva;
+                    modo.Animar(instrumento, t);
+                    if (modo.CapaActiva != capaAntes && modo.CapaActiva >= 0) Sonar(ArteDatos.Efecto.ConmutacionEspectral, 0.7f);
+                }
                 Seguir(f1, objetivo, Mathf.Sin(t * Mathf.PI) * 0.12f);   // acercamiento sutil
                 Reticula(objetivo, true);
                 yield return null;

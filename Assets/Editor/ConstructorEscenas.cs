@@ -741,7 +741,8 @@ public static partial class ConstructorEscenas
         Asignar(controlador, "botonTutorial", botonTutorial);
         Asignar(controlador, "tutorial", tutorialUI);
 
-        var musica = CrearMusica(ArteDatos.Musica.Configuracion);
+        // Versión 7: ambiente de sistemas de la sala de control mientras se prepara la misión.
+        var musica = CrearMusica(ArteDatos.Musica.Configuracion, ArteDatos.Ambiente.Configuracion);
         // Cinemática Tierra → Marte al lanzar y vista orbital en cada escaneo (ConstructorEscenas.Cine.cs).
         // Con la Carga (gameplay v3) la cinemática empieza en su «Lanzar», no en el de la Revisión.
         ConstruirCinematica(canvas, cargaUI.BotonLanzar, musica, operacionUI, catalogo);

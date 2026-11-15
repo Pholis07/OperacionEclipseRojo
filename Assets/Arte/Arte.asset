@@ -63,6 +63,12 @@ MonoBehaviour:
   escaneoEspectrometro: {fileID: 8300000, guid: be21cc957de77b4a2b7c4f6de6d33c97, type: 3}
   ambienteOrbital: {fileID: 8300000, guid: b7760bd62e165fac995f34fc11925ea7, type: 3}
   ambienteControl: {fileID: 8300000, guid: 98210849a8b8b15fd834025291b4ed67, type: 3}
+  ambienteConfiguracion: {fileID: 8300000, guid: 504801716de9f6493b94c405e714a622, type: 3}
+  transicion: {fileID: 8300000, guid: 3cf5194f84192a6898d3719817757c28, type: 3}
+  orbitaElegir: {fileID: 8300000, guid: 0517064e727b08e7aa8f528406062808, type: 3}
+  orbitaConfirmar: {fileID: 8300000, guid: a99d9c1bb5878b95e83ab8b60be7a9b1, type: 3}
+  conmutacionEspectral: {fileID: 8300000, guid: 1db6f876881ddcc139e9e4b7af07c58e, type: 3}
+  revelacion: {fileID: 8300000, guid: daf66dcfea98c6e6f9e03ae5566a766e, type: 3}
   sonidoTitulo: {fileID: 8300000, guid: 987d098043f44c4e291dbcaff266a4ef, type: 3}
   chispas: {fileID: 8300000, guid: 9e7fa23ad8e147b8a944476a12ba61f9, type: 3}
   ignicion: {fileID: 8300000, guid: 4d8d3cf752cad4a46a69f536ba205c83, type: 3}

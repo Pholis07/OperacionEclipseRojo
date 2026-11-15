@@ -111,6 +111,7 @@ namespace SpaceMission
                 ReproductorUI.Sonar(ArteDatos.Sonido.Error);
                 return false;
             }
+            if (Config.OrbitaId != id) ReproductorUI.Sonar(ArteDatos.Sonido.OrbitaElegir, 0.8f);
             Config.OrbitaId = id;
             Cambio();
             return true;

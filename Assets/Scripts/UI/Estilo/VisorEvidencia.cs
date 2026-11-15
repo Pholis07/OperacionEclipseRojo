@@ -65,6 +65,8 @@ namespace SpaceMission
                 : Iconos.Senal + Idioma.T("  MISSION CONTROL");
 
             ReproductorUI.Sonar(ArteDatos.Sonido.Senal, 0.7f);
+            // Versión 7: revelación breve cuando llega la evidencia de un instrumento (no con la transmisión inicial).
+            if (instrumento != null) ReproductorUI.SonarEfecto(ArteDatos.Efecto.Revelacion, 0.55f);
             StopAllCoroutines();
             StartCoroutine(Entrada());
         }

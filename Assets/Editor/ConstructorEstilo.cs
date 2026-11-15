@@ -177,6 +177,13 @@ public static class ConstructorEstilo
         arte.vozDespegueEs = Audio("Voces/Control/VOZ_Despegue");
         arte.vozSeparacionEs = Audio("Voces/Control/VOZ_Separacion");
         arte.vozOrbitaEs = Audio("Voces/Control/VOZ_Orbita");
+        // Versión 7: los audios que faltaban del paquete de diseño.
+        arte.ambienteConfiguracion = Audio("Efectos/AMB_Configuracion_Sistemas");
+        arte.transicion = Audio("Efectos/SFX_UI_Transition");
+        arte.orbitaElegir = Audio("Efectos/SFX_Orbit_Select");
+        arte.orbitaConfirmar = Audio("Efectos/SFX_Orbit_Confirm");
+        arte.conmutacionEspectral = Audio("Efectos/SFX_Spectral_Switch");
+        arte.revelacion = Audio("Musica/MUS_Revelacion_Breve");
         arte.pasoMes = Audio("Efectos/SFX_Month_Pass");
         arte.sello = Audio("Efectos/SFX_Stamp");
         arte.remateVictoria = Audio("Efectos/SFX_Outcome_Victory");

@@ -27,6 +27,9 @@ namespace SpaceMission
         readonly float[] curva = new float[Bandas];
 
         public bool Visible => panel != null && panel.gameObject.activeSelf;
+
+        /// <summary>Capa multiespectral resaltada (−1 si todavía no hay). SecuenciaEscaneo suena la conmutación al cambiar.</summary>
+        public int CapaActiva { get; private set; } = -1;
         public string Titulo => titulo.text;
         public string Nota => nota.text;
 
@@ -69,6 +72,7 @@ namespace SpaceMission
         {
             if (!Tiene(instrumento)) { Ocultar(); return; }
             panel.gameObject.SetActive(true);
+            CapaActiva = -1;
             bool espectro = instrumento == "espectrometro";
             titulo.text = espectro ? Idioma.T("HYPERSPECTRAL · REFLECTANCE BY BAND") : Idioma.T("HIGH RESOLUTION · OPTICAL CAPTURE");
             nota.text = "";
@@ -105,6 +109,7 @@ namespace SpaceMission
                 bool multi = t >= 0.55f;
                 if (multi) titulo.text = Idioma.T("MULTISPECTRAL · LAYERS");
                 int activa = Mathf.Min(Capas.Length - 1, (int)((t - 0.55f) / 0.15f));
+                CapaActiva = multi ? activa : -1;
                 for (int i = 0; i < chips.Length; i++)
                 {
                     chips[i].gameObject.SetActive(multi);

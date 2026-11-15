@@ -62,9 +62,32 @@ namespace SpaceMission
             }
         }
 
+        bool saliendo;
+
         public void IniciarMision()
         {
             EstadoJuego.Reiniciar();
+            // Versión 7: fundido corto a negro antes del Briefing (sin él con «Reducir movimiento» o fuera de Play).
+            if (!Application.isPlaying || Preferencias.ReducirMovimiento) { SceneManager.LoadScene("Mision"); return; }
+            if (saliendo) return;
+            saliendo = true;
+            StartCoroutine(FundirYCargar());
+        }
+
+        System.Collections.IEnumerator FundirYCargar()
+        {
+            var canvas = botonIniciar.GetComponentInParent<Canvas>().rootCanvas;
+            var velo = new GameObject("FundidoSalida", typeof(RectTransform), typeof(UnityEngine.UI.Image)).GetComponent<UnityEngine.UI.Image>();
+            velo.transform.SetParent(canvas.transform, false);
+            velo.rectTransform.anchorMin = Vector2.zero; velo.rectTransform.anchorMax = Vector2.one;
+            velo.rectTransform.offsetMin = velo.rectTransform.offsetMax = Vector2.zero;
+            velo.color = new Color(0f, 0f, 0f, 0f);
+            ReproductorUI.Sonar(ArteDatos.Sonido.Transicion, 0.7f);
+            for (float t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.35f)
+            {
+                velo.color = new Color(0f, 0f, 0f, t);
+                yield return null;
+            }
             SceneManager.LoadScene("Mision");
         }
     }

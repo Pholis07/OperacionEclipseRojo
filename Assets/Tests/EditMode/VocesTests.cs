@@ -51,6 +51,22 @@ namespace SpaceMission.Tests
         }
 
         [Test]
+        public void LosAudiosDeLaVersion7EstanConectados()
+        {
+            // Los que faltaban del paquete de diseño: ambiente de la Configuración, transición, órbita, espectro y revelación.
+            Assert.AreEqual("AMB_Configuracion_Sistemas", arte.Clip(ArteDatos.Ambiente.Configuracion).name);
+            Assert.AreEqual("SFX_UI_Transition", arte.Clip(ArteDatos.Sonido.Transicion).name);
+            Assert.AreEqual("SFX_Orbit_Select", arte.Clip(ArteDatos.Sonido.OrbitaElegir).name);
+            Assert.AreEqual("SFX_Orbit_Confirm", arte.Clip(ArteDatos.Sonido.OrbitaConfirmar).name);
+            Assert.AreEqual("SFX_Spectral_Switch", arte.Clip(ArteDatos.Efecto.ConmutacionEspectral).name);
+            Assert.AreEqual("MUS_Revelacion_Breve", arte.Clip(ArteDatos.Efecto.Revelacion).name);
+            Assert.IsNotNull(arte.Clip(ArteDatos.Sonido.Hover), "el sonido de pasar el cursor existe y ya se usa (BotonVivo)");
+            // Los valores anteriores de los enumerados no cambian (se guardan en las escenas).
+            Assert.AreEqual(9, (int)ArteDatos.Sonido.Senal);
+            Assert.AreEqual(2, (int)ArteDatos.Ambiente.Orbital);
+        }
+
+        [Test]
         public void LasVocesSiguenAlIdiomaElegido()
         {
             Idioma.Espanol = false;

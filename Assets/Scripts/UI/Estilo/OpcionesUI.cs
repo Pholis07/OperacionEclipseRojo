@@ -42,12 +42,33 @@ namespace SpaceMission
                 silencio.onValueChanged.AddListener(v => Preferencias.Silencio = v);
             }
 
+            CrearPantallaCompleta();
             botonAbrir.onClick.AddListener(() => Mostrar(true));
             botonCerrar.onClick.AddListener(() => Mostrar(false));
         }
 
+        UnityEngine.UI.Toggle pantallaCompleta;
+
+        /// <summary>
+        /// Versión 7: interruptor «Pantalla completa». La escena Menu se edita a mano, así que se crea aquí copiando
+        /// la casilla de «Reducir movimiento» y poniéndola justo debajo.
+        /// </summary>
+        void CrearPantallaCompleta()
+        {
+            if (reducirMovimiento == null || pantallaCompleta != null) return;
+            pantallaCompleta = Instantiate(reducirMovimiento, reducirMovimiento.transform.parent);
+            pantallaCompleta.name = "PantallaCompleta";
+            pantallaCompleta.transform.SetSiblingIndex(reducirMovimiento.transform.GetSiblingIndex() + 1);
+            pantallaCompleta.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
+            var etiqueta = pantallaCompleta.GetComponentInChildren<TMPro.TMP_Text>();
+            if (etiqueta != null) etiqueta.text = "Full screen";   // TraductorEscena lo pasa al español
+            pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);
+            pantallaCompleta.onValueChanged.AddListener(v => Screen.fullScreen = v);
+        }
+
         void Mostrar(bool visible)
         {
+            if (visible && pantallaCompleta != null) pantallaCompleta.SetIsOnWithoutNotify(Screen.fullScreen);   // pudo cambiar con Esc o F11
             panel.SetActive(visible);
             var foco = visible ? (GameObject)musica.gameObject : botonAbrir.gameObject;
             if (UnityEngine.EventSystems.EventSystem.current != null)

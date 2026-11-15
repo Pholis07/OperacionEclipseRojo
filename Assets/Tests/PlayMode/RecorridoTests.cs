@@ -165,8 +165,11 @@ namespace SpaceMission.PlayTests
 
         static IEnumerator EsperarEscena(string nombre)
         {
+            // Por tiempo real además de por cuadros: el menú hace un fundido de 0.35 s antes de cargar la misión, y en
+            // modo batch 600 cuadros pueden pasar en menos tiempo que eso.
             int cuadros = 0;
-            while (SceneManager.GetActiveScene().name != nombre && cuadros++ < MaxCuadros) yield return null;
+            float limite = Time.realtimeSinceStartup + 10f;
+            while (SceneManager.GetActiveScene().name != nombre && (cuadros++ < MaxCuadros || Time.realtimeSinceStartup < limite)) yield return null;
             Assert.AreEqual(nombre, SceneManager.GetActiveScene().name, "No se cargó la escena " + nombre);
             yield return null; // deja correr Awake y Start
         }

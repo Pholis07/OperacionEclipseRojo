@@ -78,6 +78,8 @@ namespace SpaceMission
             else if (Encimado == gameObject) Avisar(null);
             if (encima == valor) return;
             encima = valor;
+            // Versión 7: sonido muy suave al pasar el cursor por un botón activo (ui_hover existía sin usarse).
+            if (valor && Activo && Application.isPlaying) ReproductorUI.Sonar(ArteDatos.Sonido.Hover, 0.35f);
             Escalar(valor && Activo ? escalaEncima : 1f, 0.12f);
         }
 

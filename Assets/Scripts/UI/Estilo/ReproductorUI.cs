@@ -45,8 +45,9 @@ namespace SpaceMission
 
         /// <summary>Navegar (0) &lt; montar o quitar (1) &lt; avisos y semáforo (2) &lt; lanzamiento y señal (3).</summary>
         static int Prioridad(ArteDatos.Sonido s) =>
-            s == ArteDatos.Sonido.Hover || s == ArteDatos.Sonido.Click || s == ArteDatos.Sonido.Pestana ? 0
-            : s == ArteDatos.Sonido.Elegir || s == ArteDatos.Sonido.Quitar ? 1
+            s == ArteDatos.Sonido.Hover ? -1
+            : s == ArteDatos.Sonido.Click || s == ArteDatos.Sonido.Pestana || s == ArteDatos.Sonido.Transicion ? 0
+            : s == ArteDatos.Sonido.Elegir || s == ArteDatos.Sonido.Quitar || s == ArteDatos.Sonido.OrbitaElegir ? 1
             : s == ArteDatos.Sonido.Lanzamiento || s == ArteDatos.Sonido.Senal ? 3 : 2;
 
         public static void Sonar(ArteDatos.Sonido sonido, float volumen = 1f)
@@ -63,6 +64,14 @@ namespace SpaceMission
             ultimoTiempo = Time.unscaledTime;
             ultimoSonido = sonido;
             Actual.fuente.PlayOneShot(clip, volumen * Preferencias.VolumenEfectos);
+        }
+
+        /// <summary>Un efecto largo sobre la música (la revelación de un hallazgo), al volumen de la música.</summary>
+        public static void SonarEfecto(ArteDatos.Efecto efecto, float volumen = 1f)
+        {
+            if (Actual == null || Actual.arte == null) return;
+            var clip = Actual.arte.Clip(efecto);
+            if (clip != null) Actual.fuente.PlayOneShot(clip, volumen * Preferencias.VolumenMusica);
         }
 
         /// <summary>

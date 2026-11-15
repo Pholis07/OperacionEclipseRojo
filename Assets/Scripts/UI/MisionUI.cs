@@ -131,6 +131,7 @@ namespace SpaceMission
         {
             Mostrar(vistaRevision);
             revision.Mostrar(e);
+            if (e != null && e.SePuedeLanzar) ReproductorUI.Sonar(ArteDatos.Sonido.OrbitaConfirmar, 0.7f);   // misión y órbita confirmadas
         }
 
         /// <summary>Carga de la nave (v3), entre Revisión y Lanzar. Sin la vista (escena vieja), lanza directo.</summary>
@@ -152,8 +153,13 @@ namespace SpaceMission
             operacion.Comenzar(EstadoJuego.Resultado, EstadoJuego.Carga);
         }
 
+        GameObject vistaAnterior;
+
         void Mostrar(GameObject vista)
         {
+            // Versión 7: transición suave al cambiar de pantalla (no al abrir la escena ni al repetir la misma).
+            if (Application.isPlaying && vistaAnterior != null && vistaAnterior != vista) ReproductorUI.Sonar(ArteDatos.Sonido.Transicion, 0.6f);
+            vistaAnterior = vista;
             vistaBriefing.SetActive(vista == vistaBriefing);
             // La configuración sigue visible debajo de la Revisión (la Revisión es una tarjeta encima).
             vistaConfiguracion.SetActive(vista == vistaConfiguracion || vista == vistaRevision || (vista != null && vista == vistaCarga));
