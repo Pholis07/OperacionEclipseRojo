@@ -26,6 +26,8 @@ namespace SpaceMission
         /// <summary>0 = plegado (integración y lanzamiento); 1 = desplegado (en órbita).</summary>
         public float Despliegue => despliegue;
         public int Piezas => piezas.Length;
+        /// <summary>Los pivotes de las piezas móviles (el constructor mide con ellos si chocan con la nave).</summary>
+        public System.Collections.Generic.IEnumerable<Transform> Pivotes => System.Linq.Enumerable.Select(piezas, p => p.pivote);
 
         public void Fijar(Pieza[] lista) { piezas = lista; Desplegar(0f); }
 

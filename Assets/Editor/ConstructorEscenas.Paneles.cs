@@ -34,7 +34,6 @@ public static partial class ConstructorEscenas
             var malla = mf.sharedMesh;
             if (malla == null) continue;
             var mats = mf.GetComponent<MeshRenderer>().sharedMaterials;
-            if (!mats.Any(EsMaterialDePanel)) continue;
             var vs = malla.vertices;
             var a = raiz.worldToLocalMatrix * mf.transform.localToWorldMatrix;
             var padre = new int[vs.Length];
@@ -77,14 +76,17 @@ public static partial class ConstructorEscenas
         var paneles = piezas.Where(p => p.areaPanel > p.area * 0.3f && p.area > 1e-6f).ToList();
         if (paneles.Count < 2) { Debug.Log("[Paneles] " + id + ": sin piezas de panel separables; queda rígido"); return 0; }
 
-        // Eje de las alas: en el que más se alejan del centro del cuerpo.
+        // Eje de las alas: el que mejor las reparte a un lado y otro del cuerpo (el lado con menos panel manda).
+        // Así un satélite con los dos paneles abajo (Aquarius) no toma «abajo» como eje: ahí estarían del mismo lado.
         var centro = raiz.InverseTransformPoint(Limites(cuerpo).center);
         float total = paneles.Sum(p => p.areaPanel);
         int eje = 0; float mejor = -1f;
         for (int e = 0; e < 3; e++)
         {
-            float disp = paneles.Sum(p => Mathf.Abs(p.caja.center[e] - centro[e]) * p.areaPanel);
-            if (disp > mejor) { mejor = disp; eje = e; }
+            float menos = paneles.Sum(p => Mathf.Max(0f, centro[e] - p.caja.center[e]) * p.areaPanel);
+            float mas = paneles.Sum(p => Mathf.Max(0f, p.caja.center[e] - centro[e]) * p.areaPanel);
+            float reparto = Mathf.Min(menos, mas);
+            if (reparto > mejor) { mejor = reparto; eje = e; }
         }
         float umbral = paneles.Max(p => Mathf.Abs(p.caja.center[eje] - centro[eje])) * 0.25f;
         var alas = new[] { -1, 1 }.Select(lado => paneles.Where(p => (p.caja.center[eje] - centro[eje]) * lado > umbral).ToList()).ToArray();
@@ -98,6 +100,23 @@ public static partial class ConstructorEscenas
         var moviles = new List<MecanismoInstrumento.Pieza>();
         var enAla = new Dictionary<(MeshFilter, int), int>();
         for (int k = 0; k < 2; k++) foreach (var p in alas[k]) enAla[(p.mf, p.pieza)] = k;
+        // Con cada ala se va también lo que queda dentro de su caja: el dorso del panel, el marco y los herrajes
+        // (en algunos modelos son otro material y otra pieza).
+        int arrastradas = 0;
+        for (int k = 0; k < 2; k++)
+        {
+            var cajaAla = alas[k][0].caja;
+            foreach (var p in alas[k]) cajaAla.Encapsulate(p.caja);
+            float margen = Mathf.Max(cajaAla.size.x, cajaAla.size.y, cajaAla.size.z) * 0.035f;
+            cajaAla.Expand(margen * 2f);
+            foreach (var p in piezas)
+            {
+                if (enAla.ContainsKey((p.mf, p.pieza))) continue;
+                if (!cajaAla.Contains(p.caja.min) || !cajaAla.Contains(p.caja.max)) continue;
+                enAla[(p.mf, p.pieza)] = k;
+                arrastradas++;
+            }
+        }
         var pivotes = new Transform[2];
         for (int k = 0; k < 2; k++)
         {
@@ -157,7 +176,7 @@ public static partial class ConstructorEscenas
         mecanismo.Fijar(previas.Concat(moviles).ToArray());
         mecanismo.Desplegar(1f);   // los montajes de los instrumentos se calculan con la nave desplegada
         EditorUtility.SetDirty(mecanismo);
-        Debug.Log("[Paneles] " + id + ": dos alas con bisagra (" + alas[0].Count + " y " + alas[1].Count + " piezas), eje " + "XYZ"[eje]);
+        Debug.Log("[Paneles] " + id + ": dos alas con bisagra (" + alas[0].Count + " y " + alas[1].Count + " piezas de panel, " + arrastradas + " de marco y dorso), eje " + "XYZ"[eje]);
         return 2;
     }
 

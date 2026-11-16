@@ -195,6 +195,9 @@ public static partial class ConstructorEscenas
             escalas.Add(Mathf.Clamp(minima * 0.9f / TamanoModulo, 0.5f, 1f));
         }
 
+        // Renovación visual: giro de cada módulo sobre su soporte para que su mecanismo no atraviese la nave.
+        var interferencias = OrientarMecanismos(cuerpos, modulos, posiciones, rotaciones, largos, escalas);
+
         var nave = raiz.AddComponent<NaveUI>();
         var so = new SerializedObject(nave);
         var pIds = so.FindProperty("idsInstrumento");
@@ -217,6 +220,7 @@ public static partial class ConstructorEscenas
         Lista(sa, "rotaciones", rotaciones.Count, (p, k) => p.quaternionValue = rotaciones[k]);
         Lista(sa, "largosSoporte", largos.Count, (p, k) => p.floatValue = largos[k]);
         Lista(sa, "escalas", escalas.Count, (p, k) => p.floatValue = escalas[k]);
+        Lista(sa, "interferencias", interferencias.Length, (p, k) => p.intValue = interferencias[k]);
         if (conZocalos)
         {
             Lista(sa, "zocalos", zocalos.Length, (p, k) => p.objectReferenceValue = zocalos[k]);

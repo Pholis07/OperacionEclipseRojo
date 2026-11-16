@@ -28,6 +28,8 @@ namespace SpaceMission
         [SerializeField] float[] largosSoporte;
         [Tooltip("Escala de los módulos en cada satélite (para que quepan sin encimarse).")]
         [SerializeField] float[] escalas;
+        [Tooltip("Por satélite y módulo: puntos del mecanismo que siguen tocando la nave con el mejor giro (0 = libre). Lo mide el constructor.")]
+        [SerializeField] int[] interferencias = new int[0];
         [SerializeField] SpriteRenderer[] zocalos;      // uno por módulo (opcional)
         [SerializeField] Transform[] fantasmas;         // uno por módulo (opcional)
         [SerializeField] Transform[] tapas;             // tapa ciega de cada soporte vacío (opcional)
@@ -41,6 +43,9 @@ namespace SpaceMission
         float[] destellos;
 
         public string Actual => aplicado;
+        /// <summary>Medida del constructor: por satélite y módulo, puntos del mecanismo que tocan la nave (0 = libre).</summary>
+        public int[] Interferencias => interferencias;
+        public string[] IdsSatelite => idsSatelite;
 
         /// <summary>¿Los mecanismos van desplegados cuando la nave está en reposo?</summary>
         public bool Desplegada => desplegada;
