@@ -584,3 +584,5 @@ Claude (Fable 5.2), a pedido de Diego. Detalle, pendientes y matriz en `Docs/Cla
 - Pruebas: 440 EditMode y 34 PlayMode. En navegador: del menú a la Operación en español, consola limpia.
 - No cambia reglas ni resultados. No se vio en navegador ningún escaneo ni el informe final.
 - Segunda ronda: «Tu nave» en la Operación, paneles con bisagra en cuatro satélites y antenas del CubeSat, franjas del Pionero, el instrumento acciona su mecanismo al escanear. Pruebas: 447 EditMode y 36 PlayMode. En navegador: recorrido completo en español a 1080p y en inglés a 720p con el Coloso.
+- Cierre: el Aquarius pliega sus paneles, el constructor elige el giro de cada instrumento para que su mecanismo no atraviese la nave (28 de 30 combinaciones libres) y «Tu nave» se aparta con el cursor sobre el mapa. Pruebas: 450 EditMode y 36 PlayMode. En navegador: los seis lanzadores, un escaneo con hallazgo y cuatro de las cinco lecturas.
+

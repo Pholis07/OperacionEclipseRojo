@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace SpaceMission
@@ -11,6 +12,8 @@ namespace SpaceMission
     /// cinemática y en los escaneos, con la carga elegida), sobre una esquina del mapa. Al encender o apagar un
     /// instrumento, la vista se acerca a ese instrumento unos segundos y lo nombra.
     /// - No tapa los clics del mapa (solo su cabecera es un botón, que la pliega).
+    /// - Se aparta sola: mientras el cursor está sobre el mapa, la vista se desvanece y deja ver esa esquina
+    ///   (el jugador va a elegir una región o a mirar una marca); al salir del mapa vuelve.
     /// - Se dibuja cuatro veces por segundo con una cámara propia, apagada el resto del tiempo (rendimiento).
     /// - Se oculta mientras la cinemática, un escaneo o el paso del mes usan la escena orbital.
     /// Solo presentación: lee la operación, no la cambia.
@@ -27,6 +30,9 @@ namespace SpaceMission
         [SerializeField] DirectorCinematica director;
         [SerializeField] SecuenciaEscaneo escaneo;
         [SerializeField] TransicionMes transicion;
+        [Tooltip("El mapa sobre el que está la vista: con el cursor dentro, la vista se desvanece.")]
+        [SerializeField] RectTransform zonaMapa;
+        [SerializeField] CanvasGroup grupoCuerpo;
         [SerializeField] float cadencia = 0.25f;
         [SerializeField] float segundosDeFoco = 3.5f;
 
@@ -41,6 +47,18 @@ namespace SpaceMission
         /// <summary>Instrumento que la vista está enfocando (null si muestra la nave entera).</summary>
         public string InstrumentoEnFoco => enFoco != null && Time.unscaledTime < finFoco ? enFoco : null;
         public bool Plegada => plegada;
+        /// <summary>¿Está apartada porque el cursor está sobre el mapa?</summary>
+        public bool Apartada { get; private set; }
+
+        /// <summary>Aparta o devuelve la vista según dónde esté el cursor (en pantalla). Público para las pruebas.</summary>
+        public void MirarCursor(Vector2? cursor)
+        {
+            Apartada = cursor.HasValue && zonaMapa != null && RectTransformUtility.RectangleContainsScreenPoint(zonaMapa, cursor.Value, null);
+            if (grupoCuerpo == null) return;
+            float destino = Apartada ? 0f : 1f;
+            grupoCuerpo.alpha = Preferencias.ReducirMovimiento || !Application.isPlaying
+                ? destino : Mathf.MoveTowards(grupoCuerpo.alpha, destino, Time.unscaledDeltaTime * 6f);
+        }
 
         void Awake()
         {
@@ -88,7 +106,8 @@ namespace SpaceMission
             if (camara == null || escenario == null || escenario.Satelite == null) return;
             LeerOperacion(EstadoJuego.Operacion);
             bool ocupada = (director != null && director.Reproduciendo) || (escaneo != null && escaneo.Activa) || (transicion != null && transicion.Activa);
-            bool visible = !plegada && !ocupada && EstadoJuego.Operacion != null;
+            MirarCursor(Mouse.current != null ? Mouse.current.position.ReadValue() : (Vector2?)null);
+            bool visible = !plegada && !ocupada && EstadoJuego.Operacion != null && (grupoCuerpo == null || grupoCuerpo.alpha > 0.01f);
             if (pantalla != null && pantalla.enabled != visible) pantalla.enabled = visible;
             camara.enabled = false;
             if (!visible) { colocada = false; return; }

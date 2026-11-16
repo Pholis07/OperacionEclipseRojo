@@ -342,6 +342,9 @@ public static partial class ConstructorEscenas
         var cuerpoNave = Panel(marcoNave, "Cuerpo", new Color(0.01f, 0.012f, 0.02f, 0.92f));
         Estirar(cuerpoNave);
         cuerpoNave.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        var grupoCuerpoNave = cuerpoNave.gameObject.AddComponent<CanvasGroup>();
+        grupoCuerpoNave.blocksRaycasts = false;
+        grupoCuerpoNave.interactable = false;
         var pantallaNave = new GameObject("Pantalla", typeof(RectTransform), typeof(UnityEngine.UI.RawImage)).GetComponent<UnityEngine.UI.RawImage>();
         pantallaNave.transform.SetParent(cuerpoNave, false);
         Estirar(pantallaNave.rectTransform);
@@ -406,6 +409,8 @@ public static partial class ConstructorEscenas
         Asignar(vistaNave, "escenario", escenario);
         Asignar(vistaNave, "pantalla", pantallaNave);
         Asignar(vistaNave, "cuerpo", cuerpoNave.gameObject);
+        Asignar(vistaNave, "zonaMapa", ultimoMapa.rectTransform);
+        Asignar(vistaNave, "grupoCuerpo", grupoCuerpoNave);
         Asignar(vistaNave, "rotulo", rotuloNave);
         Asignar(vistaNave, "cabecera", botonCabecera);
         Asignar(vistaNave, "catalogo", catalogo);
